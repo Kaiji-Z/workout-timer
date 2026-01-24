@@ -83,7 +83,7 @@ class TimerProvider extends ChangeNotifier {
   }
 
   Future<void> _saveSession() async {
-    await _repository.saveSession(_totalSets, _currentSessionRestTime * 1000);
+    // Skip database operations for demo - just reset counter
     _currentSessionRestTime = 0;
   }
 

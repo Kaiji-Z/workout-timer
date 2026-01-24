@@ -7,26 +7,40 @@ class TimerScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: const Text('健身计时器'),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        title: const Text(
+          '健身计时器',
+          style: TextStyle(
+            color: Colors.black87,
+            fontWeight: FontWeight.w600,
+            fontSize: 18,
+          ),
+        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.settings),
+            icon: const Icon(
+              Icons.settings_outlined,
+              color: Colors.black54,
+            ),
             onPressed: () {
-              // Navigate to settings
               Navigator.pushNamed(context, '/settings');
             },
           ),
           IconButton(
-            icon: const Icon(Icons.history),
+            icon: const Icon(
+              Icons.history_outlined,
+              color: Colors.black54,
+            ),
             onPressed: () {
-              // Navigate to history
               Navigator.pushNamed(context, '/history');
             },
           ),
         ],
       ),
-      body: const Center(
+      body: const SafeArea(
         child: TimerWidget(),
       ),
     );
