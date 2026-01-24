@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import '../models/workout_session.dart';
@@ -24,12 +25,21 @@ class DatabaseHelper {
   }
 
   Future<Database> _initDatabase() async {
-    String path = join(await getDatabasesPath(), _databaseName);
-    return await openDatabase(
-      path,
-      version: _databaseVersion,
-      onCreate: _onCreate,
-    );
+    if (kIsWeb) {
+      // For web, use in-memory database
+      return await openDatabase(
+        inMemoryDatabasePath,
+        version: _databaseVersion,
+        onCreate: _onCreate,
+      );
+    } else {
+      String path = join(await getDatabasesPath(), _databaseName);
+      return await openDatabase(
+        path,
+        version: _databaseVersion,
+        onCreate: _onCreate,
+      );
+    }
   }
 
   Future _onCreate(Database db, int version) async {

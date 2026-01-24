@@ -42,13 +42,13 @@ void main() {
     await tester.pumpAndSettle();
 
     // Tap start button
-    await tester.tap(find.text('开始'));
+    await tester.tap(find.text('开始休息'));
     await tester.pump();
 
     expect(timerProvider.isRunning, true);
 
     // Tap pause
-    await tester.tap(find.text('暂停'));
+    await tester.tap(find.text('暂停休息'));
     await tester.pump();
 
     expect(timerProvider.isRunning, false);

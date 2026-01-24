@@ -19,6 +19,9 @@ class NotificationService {
 
   Future<void> showNotification() async {
     try {
+      // Skip notifications on web platform
+      if (kIsWeb) return;
+
       final prefs = await SharedPreferences.getInstance();
       final soundEnabled = prefs.getBool('sound_enabled') ?? true;
       final vibrationEnabled = prefs.getBool('vibration_enabled') ?? true;
