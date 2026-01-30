@@ -38,8 +38,16 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: '健身计时器',
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: Color(0xFF00f0ff),
+            brightness: Brightness.dark,
+          ),
           useMaterial3: true,
+          scaffoldBackgroundColor: const Color(0xFF050508),
+          appBarTheme: const AppBarTheme(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+          ),
         ),
         home: const TimerScreen(),
         routes: {

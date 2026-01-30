@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Workout Timer - Cyberpunk Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #050508;
+            --bg-secondary: #0a0a12;
+            --bg-card: rgba(20, 20, 35, 0.6);
+            --cyan: #00f0ff;
+            --cyan-dim: #00a0aa;
+            --purple: #bf00ff;
+            --pink: #ff00aa;
+            --pink-dim: #aa0066;
+            --yellow: #ffdd00;
+            --green: #00ff88;
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --text-dim: rgba(255, 255, 255, 0.4);
+            --glass: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glow-cyan: 0 0 15px #00f0ff60, 0 0 30px #00f0ff30, 0 0 45px #00f0ff15;
+            --glow-pink: 0 0 15px #ff00aa60, 0 0 30px #ff00aa30;
+            --glow-purple: 0 0 15px #bf00ff60, 0 0 30px #bf00ff30;
+            --glow-green: 0 0 15px #00ff8860, 0 0 30px #00ff8830;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Rajdhani', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image:
+                radial-gradient(ellipse at 20% 20%, rgba(191, 0, 255, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(0, 240, 255, 0.06) 0%, transparent 50%);
+            background-size: 100% 100%, 100% 100%;
+        }
+
+        .app-container {
+            max-width: 430px;
+            margin: 0 auto;
+            min-height: 100vh;
+            position: relative;
+            padding-bottom: 90px;
+        }
+
+        .screen {
+            display: none;
+            padding: 16px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== TIMER SCREEN - Dynamic & Active ===== */
+        .timer-screen {
+            padding-top: 20px;
+        }
+
+        .timer-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .timer-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: 6px;
+            background: linear-gradient(135deg, var(--cyan) 0%, var(--purple) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .timer-display-wrapper {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            margin: 16px 0;
+        }
+
+        .timer-ring-container {
+            position: relative;
+            width: 260px;
+            height: 260px;
+        }
+
+        .progress-ring {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+
+        .progress-ring-bg {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.03);
+            stroke-width: 6;
+        }
+
+        .progress-ring-fill {
+            fill: none;
+            stroke: url(#timerGradient);
+            stroke-width: 6;
+            stroke-linecap: round;
+            stroke-dasharray: 754;
+            stroke-dashoffset: 0;
+            filter: drop-shadow(0 0 8px var(--cyan));
+            transition: stroke-dashoffset 0.3s ease;
+        }
+
+        .timer-inner-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0, 240, 255, 0.05) 0%, transparent 70%);
+            border: 1px solid rgba(0, 240, 255, 0.1);
+        }
+
+        .timer-info {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 2;
+        }
+
+        .timer-time {
+            font-family: 'Orbitron', monospace;
+            font-size: 56px;
+            font-weight: 900;
+            color: var(--text-primary);
+            text-shadow: var(--glow-cyan);
+            line-height: 1;
+            letter-spacing: 2px;
+        }
+
+        .timer-time.running {
+            animation: glowPulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes glowPulse {
+            0%, 100% { text-shadow: var(--glow-cyan); }
+            50% { text-shadow: 0 0 25px #00f0ff, 0 0 50px #00f0ff, 0 0 75px #00f0ff; }
+        }
+
+        .timer-status {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 4px 12px;
+            background: rgba(0, 240, 255, 0.1);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            border-radius: 20px;
+            font-size: 11px;
+            color: var(--cyan);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .timer-presets {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 24px 0;
+            flex-wrap: wrap;
+        }
+
+        .preset-chip {
+            padding: 10px 18px;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            color: var(--text-secondary);
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .preset-chip:hover {
+            background: rgba(0, 240, 255, 0.08);
+            border-color: rgba(0, 240, 255, 0.3);
+            color: var(--cyan);
+        }
+
+        .preset-chip.active {
+            background: rgba(0, 240, 255, 0.12);
+            border-color: var(--cyan);
+            color: var(--cyan);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.2), inset 0 0 20px rgba(0, 240, 255, 0.05);
+        }
+
+        /* Timer Stats - 1 card (completed sets only) */
+        .timer-stats {
+            display: flex;
+            justify-content: center;
+            margin: 16px 0 24px;
+        }
+
+        .stat-card-single {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 12px 24px;
+        }
+
+        .stat-card-single .stat-value {
+            font-family: 'Orbitron', monospace;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--cyan);
+            text-shadow: var(--glow-cyan);
+        }
+
+        .stat-card-single .stat-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 14px 10px;
+            text-align: center;
+        }
+
+        .stat-card .stat-value {
+            font-family: 'Orbitron', monospace;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .stat-card .stat-value.cyan { color: var(--cyan); text-shadow: var(--glow-cyan); }
+        .stat-card .stat-value.purple { color: var(--purple); text-shadow: var(--glow-purple); }
+        .stat-card .stat-value.green { color: var(--green); text-shadow: var(--glow-green); }
+
+        .stat-card .stat-label {
+            font-size: 10px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .timer-controls {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin: 28px 0 16px;
+        }
+
+        .control-btn {
+            padding: 12px 6px;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Orbitron', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .control-btn {
+            padding: 14px 8px;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Orbitron', monospace;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, var(--cyan), var(--cyan-dim));
+            color: var(--bg-primary);
+            box-shadow: 0 4px 25px rgba(0, 240, 255, 0.3);
+        }
+
+        .btn-start:hover {
+            box-shadow: 0 6px 35px rgba(0, 240, 255, 0.45);
+            transform: translateY(-2px);
+        }
+
+        .btn-pause {
+            background: rgba(255, 221, 0, 0.12);
+            border: 2px solid var(--yellow);
+            color: var(--yellow);
+        }
+
+        .btn-pause:hover {
+            background: rgba(255, 221, 0, 0.2);
+            box-shadow: 0 0 20px rgba(255, 221, 0, 0.3);
+        }
+
+        .btn-skip {
+            background: rgba(0, 255, 136, 0.1);
+            border: 2px solid var(--green);
+            color: var(--green);
+        }
+
+        .btn-skip:hover {
+            background: rgba(0, 255, 136, 0.2);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+        }
+
+        .btn-new {
+            background: rgba(0, 120, 255, 0.1);
+            border: 2px solid #0078ff;
+            color: #0078ff;
+        }
+
+        .btn-new:hover {
+            background: rgba(0, 120, 255, 0.2);
+            box-shadow: 0 0 20px rgba(0, 120, 255, 0.3);
+        }
+
+        .btn-reset {
+            background: rgba(255, 0, 170, 0.1);
+            border: 2px solid var(--pink);
+            color: var(--pink);
+        }
+
+        .btn-reset:hover {
+            background: rgba(255, 0, 170, 0.15);
+            box-shadow: 0 0 20px rgba(255, 0, 170, 0.25);
+        }
+
+        .control-btn {
+            padding: 14px 8px;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Orbitron', monospace;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, var(--cyan), var(--cyan-dim));
+            color: var(--bg-primary);
+            box-shadow: 0 4px 25px rgba(0, 240, 255, 0.3);
+        }
+
+        .btn-start:hover {
+            box-shadow: 0 6px 35px rgba(0, 240, 255, 0.45);
+            transform: translateY(-2px);
+        }
+
+        .btn-pause {
+            background: rgba(255, 221, 0, 0.12);
+            border: 2px solid var(--yellow);
+            color: var(--yellow);
+        }
+
+        .btn-pause:hover {
+            background: rgba(255, 221, 0, 0.2);
+            box-shadow: 0 0 20px rgba(255, 221, 0, 0.3);
+        }
+
+        .btn-skip {
+            background: rgba(0, 255, 136, 0.1);
+            border: 2px solid var(--green);
+            color: var(--green);
+        }
+
+        .btn-skip:hover {
+            background: rgba(0, 255, 136, 0.2);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+        }
+
+        .btn-reset {
+            background: rgba(255, 0, 170, 0.1);
+            border: 2px solid var(--pink);
+            color: var(--pink);
+        }
+
+        .btn-reset:hover {
+            background: rgba(255, 0, 170, 0.15);
+            box-shadow: 0 0 20px rgba(255, 0, 170, 0.25);
+        }
+
+        /* ===== HISTORY SCREEN - Data & Charts ===== */
+        .history-screen {
+            padding-top: 16px;
+        }
+
+        .history-header {
+            margin-bottom: 20px;
+        }
+
+        .history-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 4px;
+            color: var(--purple);
+            text-shadow: var(--glow-purple);
+            margin-bottom: 16px;
+        }
+
+        /* Chart-style summary */
+        .history-summary {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, rgba(191, 0, 255, 0.1) 0%, rgba(20, 20, 35, 0.6) 100%);
+            border: 1px solid rgba(191, 0, 255, 0.2);
+            border-radius: 14px;
+            padding: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .summary-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, var(--purple), var(--pink));
+        }
+
+        .summary-card.large {
+            grid-column: span 2;
+        }
+
+        .summary-card .stat-icon {
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+
+        .summary-value {
+            font-family: 'Orbitron', monospace;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .summary-card.large .summary-value {
+            font-size: 36px;
+            background: linear-gradient(135deg, var(--purple), var(--pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .summary-label {
+            font-size: 11px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 4px;
+        }
+
+        /* Session list - table style */
+        .history-section-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 14px;
+            color: var(--text-secondary);
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+            padding-left: 8px;
+            border-left: 3px solid var(--purple);
+        }
+
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .history-item {
+            background: rgba(20, 20, 35, 0.5);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            padding: 14px;
+            display: grid;
+            grid-template-columns: 1fr auto auto;
+            gap: 12px;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+
+        .history-item:hover {
+            border-color: rgba(191, 0, 255, 0.3);
+            background: rgba(191, 0, 255, 0.05);
+        }
+
+        .history-main {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .history-date {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .history-time {
+            font-size: 11px;
+            color: var(--text-dim);
+        }
+
+        .history-duration {
+            font-family: 'Orbitron', monospace;
+            font-size: 18px;
+            color: var(--cyan);
+            text-shadow: var(--glow-cyan);
+        }
+
+        .history-sets {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: rgba(191, 0, 255, 0.1);
+            border-radius: 20px;
+            font-size: 12px;
+            color: var(--purple);
+        }
+
+        .history-sets svg {
+            width: 14px;
+            height: 14px;
+            fill: var(--purple);
+        }
+
+        /* ===== SETTINGS SCREEN - Clean & Functional ===== */
+        .settings-screen {
+            padding-top: 16px;
+        }
+
+        .settings-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 4px;
+            color: var(--text-primary);
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .settings-section {
+            margin-bottom: 24px;
+        }
+
+        .settings-section-title {
+            font-size: 11px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+            padding-left: 10px;
+        }
+
+        .settings-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .settings-item {
+            background: rgba(20, 20, 35, 0.4);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 14px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+
+        .settings-item:hover {
+            border-color: rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .settings-label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .settings-icon {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            font-size: 16px;
+        }
+
+        .settings-text h4 {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+
+        .settings-text p {
+            font-size: 11px;
+            color: var(--text-dim);
+        }
+
+        /* Toggle switch */
+        .toggle-switch {
+            width: 48px;
+            height: 26px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 13px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .toggle-switch.active {
+            background: linear-gradient(135deg, var(--cyan), var(--purple));
+        }
+
+        .toggle-switch::before {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            top: 3px;
+            left: 3px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .toggle-switch.active::before {
+            left: 25px;
+        }
+
+        /* Preset selector for settings */
+        .preset-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .preset-btn {
+            padding: 12px 8px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Orbitron', monospace;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .preset-btn:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+            color: var(--text-primary);
+        }
+
+        .preset-btn.active {
+            background: rgba(0, 240, 255, 0.1);
+            border-color: var(--cyan);
+            color: var(--cyan);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.15);
+        }
+
+        /* ===== BOTTOM NAVIGATION ===== */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 430px;
+            background: rgba(8, 8, 12, 0.95);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid var(--glass-border);
+            padding: 10px 8px 24px;
+            display: flex;
+            justify-content: space-evenly;
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            cursor: pointer;
+            padding: 10px 8px;
+            border-radius: 12px;
+            transition: all 0.25s ease;
+            border: none;
+            background: none;
+            color: var(--text-dim);
+            width: 90px;
+            flex-shrink: 0;
+        }
+
+        .nav-item svg {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+            transition: all 0.25s ease;
+        }
+
+        .nav-item span {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+        }
+
+        .nav-item:hover {
+            color: var(--text-secondary);
+        }
+
+        .nav-item.active {
+            color: var(--cyan);
+            background: rgba(0, 240, 255, 0.1);
+        }
+
+        .nav-item.active svg {
+            filter: drop-shadow(0 0 8px var(--cyan));
+        }
+
+        /* ===== UTILITIES ===== */
+        .demo-badge {
+            position: fixed;
+            top: 12px;
+            right: 12px;
+            background: rgba(255, 221, 0, 0.15);
+            border: 1px solid var(--yellow);
+            color: var(--yellow);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            z-index: 1000;
+            font-weight: 600;
+        }
+
+        /* Status bar */
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            margin-bottom: 16px;
+        }
+
+        .status-time {
+            font-family: 'Orbitron', monospace;
+            font-size: 12px;
+            color: var(--cyan);
+        }
+
+        .status-icons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .status-icon {
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-dim);
+            font-size: 12px;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 3px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(191, 0, 255, 0.5);
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="demo-badge">UI Demo</div>
+
+        <!-- ===== TIMER SCREEN ===== -->
+        <div class="screen timer-screen active" id="timerScreen">
+            <div class="status-bar">
+                <span class="status-time" id="currentTime">12:30</span>
+                <div class="status-icons">
+                    <span class="status-icon">🔊</span>
+                    <span class="status-icon">📶</span>
+                </div>
+            </div>
+
+            <div class="timer-header">
+                <h1 class="timer-title">WORKOUT TIMER</h1>
+            </div>
+
+            <div class="timer-display-wrapper">
+                <div class="timer-ring-container">
+                    <svg class="progress-ring" viewBox="0 0 260 260">
+                        <defs>
+                            <linearGradient id="timerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#00f0ff"/>
+                                <stop offset="60%" style="stop-color:#bf00ff"/>
+                                <stop offset="100%" style="stop-color:#ff00aa"/>
+                            </linearGradient>
+                        </defs>
+                        <circle class="progress-ring-bg" cx="130" cy="130" r="120"/>
+                        <circle class="progress-ring-fill" cx="130" cy="130" r="120" id="progressRing"/>
+                    </svg>
+                    <div class="timer-inner-ring"></div>
+                    <div class="timer-info">
+                        <div class="timer-time" id="timerDisplay">01:00</div>
+                        <div class="timer-status" id="timerStatus">READY</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="timer-presets">
+                <button class="preset-chip" data-time="30">30s</button>
+                <button class="preset-chip active" data-time="60">60s</button>
+                <button class="preset-chip" data-time="90">90s</button>
+                <button class="preset-chip" data-time="120">2min</button>
+            </div>
+
+            <!-- Single Stats Card (Completed Sets) -->
+            <div class="timer-stats">
+                <div class="stat-card-single">
+                    <div class="stat-value" id="setsCompleted">0</div>
+                    <div class="stat-label">完成组数</div>
+                </div>
+            </div>
+
+            <div class="timer-controls">
+                <button class="control-btn btn-start" id="startBtn">START</button>
+                <button class="control-btn btn-pause" id="pauseBtn" style="display:none;">PAUSE</button>
+                <button class="control-btn btn-skip" id="skipBtn">SKIP</button>
+                <button class="control-btn btn-new" id="newBtn">NEW</button>
+                <button class="control-btn btn-reset" id="resetBtn">RESET</button>
+            </div>
+        </div>
+
+        <!-- ===== HISTORY SCREEN ===== -->
+        <div class="screen history-screen" id="historyScreen">
+            <div class="status-bar">
+                <span class="status-time">DATA</span>
+                <div class="status-icons">
+                    <span class="status-icon">📊</span>
+                </div>
+            </div>
+
+            <div class="history-header">
+                <h1 class="history-title">SESSION HISTORY</h1>
+            </div>
+
+            <!-- Chart-style summary cards -->
+            <div class="history-summary">
+                <div class="summary-card">
+                    <div class="stat-icon">📅</div>
+                    <div class="summary-value">24</div>
+                    <div class="summary-label">Total Sessions</div>
+                </div>
+                <div class="summary-card">
+                    <div class="stat-icon">⏱️</div>
+                    <div class="summary-value">3h 42m</div>
+                    <div class="summary-label">Total Time</div>
+                </div>
+                <div class="summary-card large">
+                    <div class="stat-icon">🎯</div>
+                    <div class="summary-value">287</div>
+                    <div class="summary-label">Total Sets Completed</div>
+                </div>
+            </div>
+
+            <div class="history-section-title">Recent Sessions</div>
+
+            <!-- Table-style session list -->
+            <div class="history-list">
+                <div class="history-item">
+                    <div class="history-main">
+                        <span class="history-date">Today</span>
+                        <span class="history-time">18:30 • Upper Body</span>
+                    </div>
+                    <div class="history-duration">45:00</div>
+                    <div class="history-sets">
+                        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                        12 sets
+                    </div>
+                </div>
+                <div class="history-item">
+                    <div class="history-main">
+                        <span class="history-date">Yesterday</span>
+                        <span class="history-time">07:15 • Cardio</span>
+                    </div>
+                    <div class="history-duration">52:30</div>
+                    <div class="history-sets">
+                        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                        15 sets
+                    </div>
+                </div>
+                <div class="history-item">
+                    <div class="history-main">
+                        <span class="history-date">Jan 27</span>
+                        <span class="history-time">19:00 • Lower Body</span>
+                    </div>
+                    <div class="history-duration">38:15</div>
+                    <div class="history-sets">
+                        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                        10 sets
+                    </div>
+                </div>
+                <div class="history-item">
+                    <div class="history-main">
+                        <span class="history-date">Jan 26</span>
+                        <span class="history-time">08:30 • Full Body</span>
+                    </div>
+                    <div class="history-duration">61:00</div>
+                    <div class="history-sets">
+                        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                        20 sets
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== SETTINGS SCREEN ===== -->
+        <div class="screen settings-screen" id="settingsScreen">
+            <div class="status-bar">
+                <span class="status-time">CONFIG</span>
+                <div class="status-icons">
+                    <span class="status-icon">⚙️</span>
+                </div>
+            </div>
+
+            <h1 class="settings-title">SETTINGS</h1>
+
+            <!-- Notifications Section -->
+            <div class="settings-section">
+                <div class="settings-section-title">Notifications</div>
+                <div class="settings-list">
+                    <div class="settings-item">
+                        <div class="settings-label">
+                            <div class="settings-icon">🔔</div>
+                            <div class="settings-text">
+                                <h4>Sound Alert</h4>
+                                <p>Play sound when timer ends</p>
+                            </div>
+                        </div>
+                        <div class="toggle-switch active" onclick="this.classList.toggle('active')"></div>
+                    </div>
+                    <div class="settings-item">
+                        <div class="settings-label">
+                            <div class="settings-icon">📳</div>
+                            <div class="settings-text">
+                                <h4>Vibration</h4>
+                                <p>Vibrate on timer completion</p>
+                            </div>
+                        </div>
+                        <div class="toggle-switch active" onclick="this.classList.toggle('active')"></div>
+                    </div>
+                    <div class="settings-item">
+                        <div class="settings-label">
+                            <div class="settings-icon">🖥️</div>
+                            <div class="settings-text">
+                                <h4>Screen Popup</h4>
+                                <p>Show fullscreen notification</p>
+                            </div>
+                        </div>
+                        <div class="toggle-switch" onclick="this.classList.toggle('active')"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timer Presets Section -->
+            <div class="settings-section">
+                <div class="settings-section-title">Default Timer Presets</div>
+                <div class="preset-grid">
+                    <button class="preset-btn">30s</button>
+                    <button class="preset-btn active">60s</button>
+                    <button class="preset-btn">90s</button>
+                    <button class="preset-btn">120s</button>
+                </div>
+            </div>
+
+            <!-- Display Section -->
+            <div class="settings-section">
+                <div class="settings-section-title">Display</div>
+                <div class="settings-list">
+                    <div class="settings-item">
+                        <div class="settings-label">
+                            <div class="settings-icon">🌙</div>
+                            <div class="settings-text">
+                                <h4>Dark Mode</h4>
+                                <p>Always use dark theme</p>
+                            </div>
+                        </div>
+                        <div class="toggle-switch active" onclick="this.classList.toggle('active')"></div>
+                    </div>
+                    <div class="settings-item">
+                        <div class="settings-label">
+                            <div class="settings-icon">🔄</div>
+                            <div class="settings-text">
+                                <h4>Auto-Next Set</h4>
+                                <p>Auto-start next rest period</p>
+                            </div>
+                        </div>
+                        <div class="toggle-switch" onclick="this.classList.toggle('active')"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== BOTTOM NAVIGATION ===== -->
+        <nav class="bottom-nav">
+            <button class="nav-item active" onclick="showScreen('timer')">
+                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/></svg>
+                <span>Timer</span>
+            </button>
+            <button class="nav-item" onclick="showScreen('history')">
+                <svg viewBox="0 0 24 24"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9z"/></svg>
+                <span>History</span>
+            </button>
+            <button class="nav-item" onclick="showScreen('settings')">
+                <svg viewBox="0 0 24 24"><path d="M12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6zM19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58z"/></svg>
+                <span>Settings</span>
+            </button>
+        </nav>
+    </div>
+
+    <script>
+        // Screen navigation
+        function showScreen(screen) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(screen + 'Screen').classList.add('active');
+            document.querySelector(`.nav-item[onclick="showScreen('${screen}')"]`).classList.add('active');
+        }
+
+        // Timer state
+        let timerInterval = null;
+        let timeLeft = 60;
+        let totalTime = 60;
+        let isRunning = false;
+        let setsCompleted = 0;
+
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function updateProgress() {
+            const circumference = 2 * Math.PI * 120;
+            const offset = circumference * (1 - timeLeft / totalTime);
+            document.getElementById('progressRing').style.strokeDashoffset = offset;
+        }
+
+        function startTimer() {
+            if (isRunning) return;
+            isRunning = true;
+            document.getElementById('startBtn').style.display = 'none';
+            document.getElementById('pauseBtn').style.display = 'block';
+            document.getElementById('timerDisplay').classList.add('running');
+            document.getElementById('timerStatus').textContent = 'ACTIVE';
+            document.getElementById('timerStatus').style.background = 'rgba(0, 255, 136, 0.15)';
+            document.getElementById('timerStatus').style.borderColor = 'rgba(0, 255, 136, 0.4)';
+            document.getElementById('timerStatus').style.color = '#00ff88';
+
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timerDisplay').textContent = formatTime(timeLeft);
+                updateProgress();
+
+                if (timeLeft <= 0) {
+                    completeSet();
+                }
+            }, 1000);
+        }
+
+        function completeSet() {
+            clearInterval(timerInterval);
+            setsCompleted++;
+            document.getElementById('setsCompleted').textContent = setsCompleted;
+
+            // Reset timer
+            timeLeft = totalTime;
+            document.getElementById('timerDisplay').textContent = formatTime(timeLeft);
+            updateProgress();
+
+            // Play completion effect (visual)
+            document.getElementById('timerStatus').textContent = 'COMPLETE!';
+            setTimeout(() => {
+                if (!isRunning) {
+                    document.getElementById('timerStatus').textContent = 'READY';
+                    document.getElementById('timerStatus').style.background = 'rgba(0, 240, 255, 0.1)';
+                    document.getElementById('timerStatus').style.borderColor = 'rgba(0, 240, 255, 0.3)';
+                    document.getElementById('timerStatus').style.color = 'var(--cyan)';
+                }
+            }, 1500);
+        }
+
+        function skipTimer() {
+            clearInterval(timerInterval);
+            completeSet();
+            if (isRunning) {
+                // Auto restart if was running
+                startTimer();
+            }
+        }
+
+        function pauseTimer() {
+            clearInterval(timerInterval);
+            isRunning = false;
+            document.getElementById('startBtn').style.display = 'block';
+            document.getElementById('pauseBtn').style.display = 'none';
+            document.getElementById('timerDisplay').classList.remove('running');
+            document.getElementById('timerStatus').textContent = 'PAUSED';
+            document.getElementById('timerStatus').style.background = 'rgba(255, 221, 0, 0.1)';
+            document.getElementById('timerStatus').style.borderColor = 'rgba(255, 221, 0, 0.3)';
+            document.getElementById('timerStatus').style.color = 'var(--yellow)';
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            isRunning = false;
+            timeLeft = totalTime;
+
+            document.getElementById('timerDisplay').textContent = formatTime(timeLeft);
+            updateProgress();
+
+            document.getElementById('startBtn').style.display = 'block';
+            document.getElementById('pauseBtn').style.display = 'none';
+            document.getElementById('timerDisplay').classList.remove('running');
+
+            document.getElementById('timerStatus').textContent = 'READY';
+            document.getElementById('timerStatus').style.background = 'rgba(0, 240, 255, 0.1)';
+            document.getElementById('timerStatus').style.borderColor = 'rgba(0, 240, 255, 0.3)';
+            document.getElementById('timerStatus').style.color = 'var(--cyan)';
+        }
+
+        function newTimer() {
+            clearInterval(timerInterval);
+            isRunning = false;
+            timeLeft = totalTime;
+            setsCompleted = 0;
+
+            document.getElementById('timerDisplay').textContent = formatTime(timeLeft);
+            document.getElementById('setsCompleted').textContent = '0';
+            updateProgress();
+
+            document.getElementById('startBtn').style.display = 'block';
+            document.getElementById('pauseBtn').style.display = 'none';
+            document.getElementById('timerDisplay').classList.remove('running');
+
+            document.getElementById('timerStatus').textContent = 'READY';
+            document.getElementById('timerStatus').style.background = 'rgba(0, 240, 255, 0.1)';
+            document.getElementById('timerStatus').style.borderColor = 'rgba(0, 240, 255, 0.3)';
+            document.getElementById('timerStatus').style.color = 'var(--cyan)';
+        }
+
+        // Preset selection
+        document.querySelectorAll('.preset-chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                if (isRunning) return;
+                document.querySelectorAll('.preset-chip').forEach(c => c.classList.remove('active'));
+                chip.classList.add('active');
+                totalTime = parseInt(chip.dataset.time);
+                timeLeft = totalTime;
+                document.getElementById('timerDisplay').textContent = formatTime(timeLeft);
+                updateProgress();
+            });
+        });
+
+        // Settings preset selection
+        document.querySelectorAll('.preset-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
+
+        // Control buttons
+        document.getElementById('startBtn').addEventListener('click', startTimer);
+        document.getElementById('pauseBtn').addEventListener('click', pauseTimer);
+        document.getElementById('skipBtn').addEventListener('click', skipTimer);
+        document.getElementById('newBtn').addEventListener('click', newTimer);
+        document.getElementById('resetBtn').addEventListener('click', resetTimer);
+
+        // Update current time
+        function updateCurrentTime() {
+            const now = new Date();
+            document.getElementById('currentTime').textContent = now.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+        }
+        updateCurrentTime();
+        setInterval(updateCurrentTime, 1000);
+
+        // Initialize
+        updateProgress();
+    </script>
+</body>
+</html>

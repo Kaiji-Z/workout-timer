@@ -8,46 +8,38 @@ class TimerProvider extends ChangeNotifier {
   final NotificationService _notificationService = NotificationService();
   final WorkoutRepository _repository = WorkoutRepository();
 
-  // Timer state
   Timer? _timer;
-  int _remainingSeconds = 60; // Default 1 min
+  int _remainingSeconds = 60;
   bool _isRunning = false;
   int _totalSets = 0;
   int _currentSessionRestTime = 0;
+  int _selectedPresetIndex = 1;
 
-  // Preset times in seconds
   final List<int> presetTimes = [30, 60, 90, 120];
 
   int get remainingSeconds => _remainingSeconds;
   bool get isRunning => _isRunning;
   int get totalSets => _totalSets;
   double get progress => _remainingSeconds / _initialSeconds;
-  int get _initialSeconds => presetTimes.contains(_remainingSeconds) ? _remainingSeconds : 60;
+  int get _initialSeconds => presetTimes[_selectedPresetIndex];
+  int get selectedPresetIndex => _selectedPresetIndex;
 
-  void selectPreset(int seconds) {
+  void selectPreset(int index) {
     if (_isRunning) return;
-    _remainingSeconds = seconds;
+    _selectedPresetIndex = index;
+    _remainingSeconds = presetTimes[index];
     notifyListeners();
   }
 
   void startTimer() {
-    if (_isRunning || _timer != null) return;
-
-    try {
-      _isRunning = true;
-      _timer = Timer.periodic(const Duration(seconds: 1), _tick);
-      notifyListeners();
-    } catch (e) {
-      debugPrint('Error starting timer: $e');
-      _isRunning = false;
-      _timer = null;
-      notifyListeners();
-    }
+    if (_isRunning) return;
+    _isRunning = true;
+    _timer = Timer.periodic(const Duration(seconds: 1), _tick);
+    notifyListeners();
   }
 
   void pauseTimer() {
     if (!_isRunning) return;
-
     _isRunning = false;
     _timer?.cancel();
     _timer = null;
@@ -60,8 +52,15 @@ class TimerProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void newTimer() {
+    pauseTimer();
+    _remainingSeconds = _initialSeconds;
+    _totalSets = 0;
+    notifyListeners();
+  }
+
   void _tick(Timer timer) {
-    if (!_isRunning) return; // Safety check
+    if (!_isRunning) return;
 
     if (_remainingSeconds > 0) {
       _remainingSeconds--;
@@ -75,20 +74,16 @@ class TimerProvider extends ChangeNotifier {
   void _onTimerEnd() {
     pauseTimer();
     _totalSets++;
-    _notificationService.showNotification().catchError((e) => debugPrint('Error showing notification: $e'));
-    _saveSession().catchError((e) => debugPrint('Error saving session: $e'));
-    // Reset for next set
+    if (!kIsWeb) {
+      _notificationService.showNotification().catchError((e) => debugPrint('Notification error: $e'));
+    }
     _remainingSeconds = _initialSeconds;
     notifyListeners();
   }
 
-  Future<void> _saveSession() async {
-    // Skip database operations for demo - just reset counter
-    _currentSessionRestTime = 0;
-  }
-
-  void skipToNextSet() {
+  void skipSet() {
     _onTimerEnd();
+    if (_isRunning) startTimer();
   }
 
   @override
