@@ -23,8 +23,6 @@ dependencies:
 
   permission_handler: ^11.3.0
 
-  vibration: ^1.8.4
-
   shared_preferences: ^2.2.2
 
   intl: ^0.19.0
