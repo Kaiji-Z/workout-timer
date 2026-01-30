@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:vibration/vibration.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class NotificationService {
@@ -13,21 +12,18 @@ class NotificationService {
       await _notifications.initialize(settings);
     } catch (e) {
       debugPrint('Failed to initialize notifications: $e');
-      rethrow; // This is critical for app startup
+      rethrow;
     }
   }
 
   Future<void> showNotification() async {
     try {
-      // Skip notifications on web platform
       if (kIsWeb) return;
 
       final prefs = await SharedPreferences.getInstance();
       final soundEnabled = prefs.getBool('sound_enabled') ?? true;
-      final vibrationEnabled = prefs.getBool('vibration_enabled') ?? true;
       final customMessage = prefs.getString('custom_message') ?? '准备开始下一组！';
 
-      // Sound notification
       final AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
         'timer_channel',
         'Timer Notifications',
@@ -43,22 +39,8 @@ class NotificationService {
         customMessage,
         details,
       );
-
-      // Vibration
-      if (vibrationEnabled) {
-        try {
-          final hasVibrator = await Vibration.hasVibrator() ?? false;
-          if (hasVibrator) {
-            await Vibration.vibrate(duration: 500);
-          }
-        } catch (e) {
-          debugPrint('Vibration failed: $e');
-          // Continue without vibration
-        }
-      }
     } catch (e) {
       debugPrint('Failed to show notification: $e');
-      // Silently fail - don't crash the app
     }
   }
 
@@ -68,7 +50,6 @@ class NotificationService {
           AndroidFlutterLocalNotificationsPlugin>()?.requestNotificationsPermission();
     } catch (e) {
       debugPrint('Failed to request notification permissions: $e');
-      // Continue - permissions might still work
     }
   }
 }
