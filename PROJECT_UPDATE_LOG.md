@@ -2,108 +2,107 @@
 
 **Last Updated**: 2026-01-31
 **Current Branch**: feature/digital-vitality-ui
-**Latest Commit**: 1d8fa8d
+**Latest Commit**: a1ffdc7
 
 ---
 
-## Version Summary (v0.4.0) - Notification Fix
+## Version Summary (v0.5.0) - Background Timer Fix
 
 ### What Was Done
 
-1. **Fixed Sound & Vibration Issues**
-   - **Root Cause**: No Android notification channel configured, vibration removed but not replaced
-   - **Solution**: Added `_createNotificationChannel()` with proper sound/vibration settings
-   - Added `vibrationPattern: Int64List.fromList([0, 500, 200, 500])` for native notification vibration
-   - Restored `vibrationEnabled` preference check from shared_preferences
+**Fixed: Background timer stops after ~10 seconds on some phones**
 
-2. **Tested on Device**
-   - Built and installed APK on Android (V2068A)
-   - Verified notifications work with sound and vibration
+**Root Cause**: Android background restrictions (省电策略) kill background processes
+- Xiaomi MIUI, Huawei, OPPO, Vivo have aggressive battery optimization
+- App gets killed when screen off or app in background
+
+**Solution**: Added Foreground Service
+- Timer runs as a foreground service with persistent notification
+- System won't kill foreground services as aggressively
+- Shows real-time countdown in notification
 
 ### Changes Summary
 
 | File | Change |
 |------|--------|
-| `lib/services/notification_service.dart` | Added notification channel + vibration pattern |
+| `android/app/src/main/AndroidManifest.xml` | Added FOREGROUND_SERVICE, BOOT_COMPLETED permissions |
+| `android/app/.../TimerService.kt` | Created foreground service with notification |
+| `android/app/.../MainActivity.kt` | Added MethodChannel to control service |
+| `lib/services/timer_service.dart` | Flutter-Kotlin bridge |
+| `lib/bloc/timer_provider.dart` | Start/stop service with timer |
 
 ---
 
 ## Previous Versions
 
+### v0.4.0 - Notification Fix
+**Commit**: 1d8fa8d
+
+**Changes**:
+- Added notification channel for sound/vibration
+- Fixed vibrationPattern for native notification vibration
+- Tested on device successfully
+
 ### v0.3.0 - Post-Dependency Cleanup
 **Commit**: 8d2c0ee
 
 **Changes**:
-- Removed `vibration` package due to compatibility issues
-- Added `android.enableSymlinks=true` to gradle.properties
-- Created `build.gradle.kts` for Android
-- Cleaned up notification service
+- Removed `vibration` package
+- Added `android.enableSymlinks=true`
+- Created `build.gradle.kts`
 
-### v0.2.0 - Cyberpunk UI Implementation
+### v0.2.0 - Cyberpunk UI
 **Commit**: e674919
 
 **Features**:
-- Complete cyberpunk UI with neon glow effects
+- Complete cyberpunk UI with neon glow
 - Custom circular progress ring
-- 4 control buttons: START/PAUSE, SKIP, NEW, RESET
-- Preset time selection (30s/60s/90s/120s)
+- 4 control buttons, preset selection
 - Orbitron and Rajdhani fonts
 
 ### v0.1.0 - Initial Setup
 **Commit**: c2c27e0
 
 **Features**:
-- Initial Flutter project structure
-- MVVM architecture with Provider
+- Initial project structure
+- MVVM architecture
 - Timer, history, settings screens
-- Notification service setup
 
 ---
 
-## Current Project Status (v0.4.0)
+## Current Status (v0.5.0)
 
 ### ✅ Working Features
 - [x] Timer countdown with circular progress
-- [x] Preset time selection (30s/60s/90s/120s)
-- [x] 4 control buttons:
-  - START/PAUSE - toggle timer
-  - SKIP - complete set + restart
-  - NEW - reset timer AND sets count
-  - RESET - reset timer only
+- [x] Preset selection (30s/60s/90s/120s)
+- [x] 4 control buttons
 - [x] Completed sets counter
-- [x] Neon glow UI effects
+- [x] Neon glow UI
 - [x] Dark theme
-- [x] Android notifications with sound
-- [x] Android notifications with vibration
+- [x] Notifications with sound/vibration
+- [x] Background timer (foreground service)
 - [x] Settings (sound/vibration toggles)
-- [x] Android APK builds successfully
-- [x] Web version runs
+- [x] Android APK builds
 
 ### ⏳ Pending Tasks
 - [ ] Database persistence (sqflite)
-- [ ] Settings persistence (shared_preferences integration)
 - [ ] History screen data integration
-- [ ] Fix IDE false-positive errors
+- [ ] Settings persistence
+- [ ] IDE LSP issues
 
 ---
 
 ## Build Commands
 
 ```bash
-# Run on Android device
+# Run on Android
 flutter run -d V2068A
 
 # Build debug APK
 flutter build apk --debug
 
-# Run on web
-flutter run -d chrome
-
-# Analyze
-flutter analyze
-
 #回滚到当前版本
-git reset --hard 1d8fa8d
+git reset --hard a1ffdc7
 ```
 
 ---
@@ -112,32 +111,13 @@ git reset --hard 1d8fa8d
 
 ```
 lib/
-├── main.dart                     # App entry point, dark theme
-├── screens/
-│   ├── timer_screen.dart         # Timer UI scaffold
-│   ├── history_screen.dart       # Session history
-│   └── settings_screen.dart      # User settings
-├── widgets/
-│   └── timer_widget.dart         # Cyberpunk timer UI
-├── bloc/
-│   └── timer_provider.dart       # Timer state management
-└── services/
-    └── notification_service.dart # Push notifications
+├── bloc/timer_provider.dart       # Timer logic + service control
+├── services/
+│   ├── notification_service.dart  # Push notifications
+│   └── timer_service.dart         # Foreground service bridge
+└── ...
+android/app/.../TimerService.kt    # Foreground service
 ```
-
----
-
-## Dependencies
-
-| Package | Status |
-|---------|--------|
-| flutter | ✅ |
-| provider | ✅ |
-| flutter_local_notifications | ✅ |
-| shared_preferences | ✅ |
-| google_fonts | ✅ |
-| intl | ✅ |
-| sqflite | ⚠️ Pending |
 
 ---
 
