@@ -254,9 +254,9 @@ class TimerWidget extends StatelessWidget {
           onPressed: timer.skipSet,
         ),
         _ControlButton(
-          label: 'NEW',
+          label: 'FINISH',
           color: const Color(0xFF0078ff),
-          onPressed: timer.newTimer,
+          onPressed: timer.finishWorkout,
         ),
         _ControlButton(
           label: 'RESET',
