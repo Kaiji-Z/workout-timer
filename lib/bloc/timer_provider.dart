@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../services/notification_service.dart';
+import '../services/timer_service.dart';
 import '../services/workout_repository.dart';
 
 class TimerProvider extends ChangeNotifier {
@@ -35,6 +36,11 @@ class TimerProvider extends ChangeNotifier {
     if (_isRunning) return;
     _isRunning = true;
     _timer = Timer.periodic(const Duration(seconds: 1), _tick);
+
+    if (!kIsWeb) {
+      TimerService.startService();
+      _updateServiceNotification();
+    }
     notifyListeners();
   }
 
@@ -43,6 +49,10 @@ class TimerProvider extends ChangeNotifier {
     _isRunning = false;
     _timer?.cancel();
     _timer = null;
+
+    if (!kIsWeb) {
+      TimerService.stopService();
+    }
     notifyListeners();
   }
 
@@ -65,9 +75,19 @@ class TimerProvider extends ChangeNotifier {
     if (_remainingSeconds > 0) {
       _remainingSeconds--;
       _currentSessionRestTime++;
+      _updateServiceNotification();
       notifyListeners();
     } else {
       _onTimerEnd();
+    }
+  }
+
+  void _updateServiceNotification() {
+    if (!kIsWeb) {
+      final minutes = (_remainingSeconds / 60).floor();
+      final seconds = _remainingSeconds % 60;
+      final timeStr = '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+      TimerService.updateNotification('剩余 $timeStr');
     }
   }
 
