@@ -69,6 +69,21 @@ class TimerProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void finishWorkout() async {
+    if (_totalSets > 0) {
+      try {
+        await _repository.saveSession(_totalSets, _currentSessionRestTime);
+      } catch (e) {
+        debugPrint('Error saving session: $e');
+      }
+    }
+    pauseTimer();
+    _remainingSeconds = _initialSeconds;
+    _totalSets = 0;
+    _currentSessionRestTime = 0;
+    notifyListeners();
+  }
+
   void _tick(Timer timer) {
     if (!_isRunning) return;
 
