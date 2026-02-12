@@ -2,7 +2,32 @@
 
 **Last Updated**: 2026-01-31
 **Current Branch**: feature/digital-vitality-ui
-**Latest Commit**: ed6d063
+**Latest Commit**: 42cb327
+**Latest Tag**: v0.7.0
+
+---
+
+## Version Summary (v0.7.0) - Cyberpunk Dumbbell Icon
+
+### What Was Done
+
+1. **New App Icon**
+   - Cyberpunk dumbbell design
+   - Neon cyan dumbbell on dark gradient background
+   - Rounded square with subtle border glow
+   - All Android densities (48x48 to 192x192)
+
+2. **Icon Generation Scripts**
+   - `scripts/generate_dumbbell_icons.py`
+   - `scripts/regenerate_icons.py`
+
+### Changes Summary
+
+| File | Change |
+|------|--------|
+| `android/app/src/main/res/mipmap-*/ic_launcher.png` | New dumbbell icons |
+| `scripts/generate_dumbbell_icons.py` | Dumbbell icon generator |
+| `VERSION_v0.7.0.md` | Version changelog |
 
 ---
 
@@ -65,20 +90,19 @@
 
 ---
 
-## Current Status (v0.6.0)
+## Current Status (v0.7.0)
 
 ### ✅ Working Features
 - [x] Timer countdown with circular progress
 - [x] Preset selection (30s/60s/90s/120s)
 - [x] 5 control buttons: START/PAUSE, SKIP, FINISH, RESET
-- [x] Completed sets counter
 - [x] FINISH saves workout to database
 - [x] History screen with cyberpunk theme
+- [x] **Cyberpunk dumbbell app icon**
 - [x] Neon glow UI effects
 - [x] Dark theme
 - [x] Notifications with sound/vibration
 - [x] Background timer (foreground service)
-- [x] Settings (sound/vibration toggles)
 - [x] Android APK builds
 
 ### ⏳ Pending Tasks
@@ -97,7 +121,7 @@ flutter run -d V2304A
 flutter build apk --debug
 
 #回滚到当前版本
-git reset --hard ed6d063
+git reset --hard v0.7.0
 ```
 
 ---
