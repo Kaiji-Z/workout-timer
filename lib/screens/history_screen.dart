@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import '../models/workout_session.dart';
 import '../services/workout_repository.dart';
+import '../theme/theme_provider.dart';
+import '../theme/app_theme.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -17,6 +20,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     try {
       return await _repository.getAllSessions();
     } catch (e) {
+      debugPrint('Error loading sessions: $e');
       return [];
     }
   }
@@ -25,7 +29,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
     try {
       await _repository.deleteSession(id);
       setState(() {});
-    } catch (e) {}
+    } catch (e) {
+      debugPrint('Error deleting session: $e');
+    }
   }
 
   String _formatDate(String isoString) {
@@ -35,10 +41,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.watch<ThemeProvider>().currentTheme;
+
     return Scaffold(
-      backgroundColor: const Color(0xFF0a0a12),
+      backgroundColor: theme.backgroundColor,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0a0a12),
+        backgroundColor: theme.backgroundColor,
         elevation: 0,
         title: Row(
           children: [
@@ -47,8 +55,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
               height: 20,
               margin: const EdgeInsets.only(right: 12),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF00f0ff), Color(0xFFbf00ff)],
+                gradient: LinearGradient(
+                  colors: theme.timerGradientColors,
                 ),
                 borderRadius: BorderRadius.circular(2),
               ),
@@ -60,7 +68,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
                 letterSpacing: 3,
-                color: Colors.white,
+                color: theme.textColor,
               ),
             ),
           ],
@@ -70,8 +78,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
         future: _loadSessions(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(color: Color(0xFF00f0ff)),
+            return Center(
+              child: CircularProgressIndicator(color: theme.primaryColor),
             );
           } else if (snapshot.hasError) {
             return Center(
@@ -79,7 +87,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 'LOAD FAILED',
                 style: TextStyle(
                   fontFamily: 'Rajdhani',
-                  color: Colors.red,
+                  color: theme.warningColor,
                   letterSpacing: 2,
                 ),
               ),
@@ -92,7 +100,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   Icon(
                     Icons.fitness_center,
                     size: 64,
-                    color: Colors.white.withOpacity(0.2),
+                    color: theme.secondaryTextColor.withOpacity(0.3),
                   ),
                   const SizedBox(height: 16),
                   Text(
@@ -100,7 +108,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     style: TextStyle(
                       fontFamily: 'Orbitron',
                       fontSize: 16,
-                      color: Colors.white.withOpacity(0.4),
+                      color: theme.secondaryTextColor.withOpacity(0.5),
                       letterSpacing: 3,
                     ),
                   ),
@@ -110,7 +118,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     style: TextStyle(
                       fontFamily: 'Rajdhani',
                       fontSize: 14,
-                      color: Colors.white.withOpacity(0.3),
+                      color: theme.secondaryTextColor.withOpacity(0.4),
                     ),
                   ),
                 ],
@@ -127,6 +135,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   session: session,
                   formatDate: _formatDate,
                   onDelete: () => _deleteSession(session.id),
+                  theme: theme,
                 );
               },
             );
@@ -141,11 +150,13 @@ class _SessionCard extends StatelessWidget {
   final WorkoutSession session;
   final String Function(String) formatDate;
   final VoidCallback onDelete;
+  final AppThemeData theme;
 
   const _SessionCard({
     required this.session,
     required this.formatDate,
     required this.onDelete,
+    required this.theme,
   });
 
   @override
@@ -156,8 +167,8 @@ class _SessionCard extends StatelessWidget {
       background: Container(
         margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Colors.transparent, Color(0xFFff0055)],
+          gradient: LinearGradient(
+            colors: [Colors.transparent, theme.warningColor],
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
           ),
@@ -165,7 +176,7 @@ class _SessionCard extends StatelessWidget {
         ),
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 20),
-        child: const Icon(Icons.delete, color: Colors.white),
+        child: Icon(Icons.delete, color: theme.textColor),
       ),
       onDismissed: (direction) => onDelete(),
       child: Container(
@@ -174,20 +185,20 @@ class _SessionCard extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              const Color(0xFF141423).withOpacity(0.8),
-              const Color(0xFF1a1a2e).withOpacity(0.9),
+              theme.surfaceColor.withOpacity(0.8),
+              theme.surfaceColor,
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           border: Border.all(
-            color: Colors.white.withOpacity(0.08),
+            color: theme.borderColor,
             width: 1,
           ),
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF00f0ff).withOpacity(0.05),
+              color: theme.primaryColor.withOpacity(0.05),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -199,19 +210,19 @@ class _SessionCard extends StatelessWidget {
               width: 48,
               height: 48,
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF00f0ff), Color(0xFF0078ff)],
+                gradient: LinearGradient(
+                  colors: [theme.primaryColor, theme.secondaryColor],
                 ),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Center(
                 child: Text(
                   '${session.totalSets}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: 'Orbitron',
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF0a0a12),
+                    color: theme.isDark ? theme.backgroundColor : Colors.white,
                   ),
                 ),
               ),
@@ -227,7 +238,7 @@ class _SessionCard extends StatelessWidget {
                       fontFamily: 'Rajdhani',
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: Colors.white.withOpacity(0.9),
+                      color: theme.textColor.withOpacity(0.9),
                       letterSpacing: 2,
                     ),
                   ),
@@ -237,7 +248,7 @@ class _SessionCard extends StatelessWidget {
                     style: TextStyle(
                       fontFamily: 'Rajdhani',
                       fontSize: 12,
-                      color: Colors.white.withOpacity(0.5),
+                      color: theme.secondaryTextColor,
                     ),
                   ),
                 ],
@@ -246,12 +257,12 @@ class _SessionCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.05),
+                color: theme.borderColor.withOpacity(0.3),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
                 Icons.chevron_right,
-                color: Colors.white.withOpacity(0.3),
+                color: theme.secondaryTextColor,
               ),
             ),
           ],

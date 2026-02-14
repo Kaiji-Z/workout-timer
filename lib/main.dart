@@ -4,11 +4,18 @@ import 'package:provider/provider.dart';
 import 'screens/timer_screen.dart';
 import 'screens/settings_screen.dart';
 import 'screens/history_screen.dart';
+import 'screens/stats_screen.dart';
 import 'bloc/timer_provider.dart';
+import 'bloc/training_provider.dart';
+import 'theme/theme_provider.dart';
 import 'services/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize theme provider
+  final themeProvider = ThemeProvider();
+  await themeProvider.initialize();
 
   // Skip notification initialization on web
   if (!kIsWeb) {
@@ -23,36 +30,34 @@ void main() async {
     }
   }
 
-  runApp(const MyApp());
+  runApp(MyApp(themeProvider: themeProvider));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final ThemeProvider themeProvider;
+  
+  const MyApp({super.key, required this.themeProvider});
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider.value(value: themeProvider),
         ChangeNotifierProvider(create: (_) => TimerProvider()),
+        ChangeNotifierProvider(create: (_) => TrainingProvider()),
       ],
-      child: MaterialApp(
-        title: '健身计时器',
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: Color(0xFF00f0ff),
-            brightness: Brightness.dark,
-          ),
-          useMaterial3: true,
-          scaffoldBackgroundColor: const Color(0xFF050508),
-          appBarTheme: const AppBarTheme(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-          ),
-        ),
-        home: const TimerScreen(),
-        routes: {
-          '/settings': (context) => const SettingsScreen(),
-          '/history': (context) => const HistoryScreen(),
+      child: Consumer<ThemeProvider>(
+        builder: (context, themeProvider, child) {
+          return MaterialApp(
+            title: '健身计时器',
+            theme: themeProvider.currentTheme.toThemeData(),
+            home: const TimerScreen(),
+            routes: {
+              '/settings': (context) => const SettingsScreen(),
+              '/history': (context) => const HistoryScreen(),
+              '/stats': (context) => const StatsScreen(),
+            },
+          );
         },
       ),
     );

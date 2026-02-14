@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import '../services/notification_service.dart';
 import '../services/timer_service.dart';
 import '../services/workout_repository.dart';
