@@ -1,13 +1,13 @@
 allprojects {
     repositories {
+        // 国内镜像优先
+        maven { url = uri("https://maven.aliyun.com/repository/google") }
+        maven { url = uri("https://maven.aliyun.com/repository/public") }
+        maven { url = uri("https://maven.aliyun.com/repository/gradle-plugin") }
+        // 腾讯云镜像（备用）
+        maven { url = uri("https://mirrors.tencent.com/nexus/repository/maven-public/") }
         google()
         mavenCentral()
-        // 国内镜像 - 阿里云maven仓库
-        maven { url = uri("https://maven.aliyun.com/repository/google") }
-        maven { url = uri("https://maven.aliyun.com/repository/jcenter") }
-        maven { url = uri("https://maven.aliyun.com/repository/public") }
-        // 腾讯云maven仓库（备用）
-        maven { url = uri("https://mirrors.tencent.com/nexus/repository/maven-public/") }
     }
 }
 

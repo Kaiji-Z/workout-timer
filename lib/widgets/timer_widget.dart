@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../bloc/timer_provider.dart';
+import '../theme/theme_provider.dart';
+import '../theme/app_theme.dart';
 
 class TimerWidget extends StatelessWidget {
   const TimerWidget({super.key});
@@ -13,16 +15,18 @@ class TimerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.watch<ThemeProvider>().currentTheme;
+
     return Consumer<TimerProvider>(
       builder: (context, timer, child) {
         return Container(
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                Color(0xFF050508),
-                Color(0xFF0a0a12),
+                theme.backgroundColor,
+                theme.surfaceColor,
               ],
             ),
           ),
@@ -32,25 +36,15 @@ class TimerWidget extends StatelessWidget {
               child: Column(
                 children: [
                   const SizedBox(height: 8),
-
-                  _buildHeader(),
-
+                  _buildHeader(theme),
                   const SizedBox(height: 16),
-
-                  _buildTimerDisplay(timer, context),
-
+                  _buildTimerDisplay(timer, context, theme),
                   const SizedBox(height: 16),
-
-                  _buildPresetChips(timer),
-
+                  _buildPresetChips(timer, theme),
                   const SizedBox(height: 12),
-
-                  _buildCompletedSets(timer),
-
+                  _buildCompletedSets(timer, theme),
                   const SizedBox(height: 24),
-
-                  _buildControlButtons(timer),
-
+                  _buildControlButtons(timer, theme),
                   const SizedBox(height: 24),
                 ],
               ),
@@ -61,7 +55,7 @@ class TimerWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(AppThemeData theme) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -73,11 +67,8 @@ class TimerWidget extends StatelessWidget {
             fontWeight: FontWeight.w700,
             letterSpacing: 4,
             foreground: Paint()
-              ..shader = const LinearGradient(
-                colors: [
-                  Color(0xFF00f0ff),
-                  Color(0xFFbf00ff),
-                ],
+              ..shader = LinearGradient(
+                colors: theme.timerGradientColors.take(2).toList(),
               ).createShader(const Rect.fromLTWH(0, 0, 200, 40)),
           ),
         ),
@@ -85,7 +76,7 @@ class TimerWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildTimerDisplay(TimerProvider timer, BuildContext context) {
+  Widget _buildTimerDisplay(TimerProvider timer, BuildContext context, AppThemeData theme) {
     return SizedBox(
       width: 240,
       height: 240,
@@ -99,6 +90,8 @@ class TimerWidget extends StatelessWidget {
               painter: _CircularProgressPainter(
                 progress: timer.progress,
                 isRunning: timer.isRunning,
+                gradientColors: theme.timerGradientColors,
+                backgroundColor: theme.borderColor,
               ),
             ),
           ),
@@ -111,17 +104,17 @@ class TimerWidget extends StatelessWidget {
                   fontFamily: 'Orbitron',
                   fontSize: 52,
                   fontWeight: FontWeight.w900,
-                  color: Colors.white,
+                  color: theme.textColor,
                   shadows: [
-                    const Shadow(
-                      color: Color(0xFF00f0ff),
+                    Shadow(
+                      color: theme.primaryColor,
                       blurRadius: 20,
                     ),
                   ],
                 ),
               ),
               const SizedBox(height: 8),
-              _buildStatusBadge(timer),
+              _buildStatusBadge(timer, theme),
             ],
           ),
         ],
@@ -129,21 +122,21 @@ class TimerWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildStatusBadge(TimerProvider timer) {
+  Widget _buildStatusBadge(TimerProvider timer, AppThemeData theme) {
     Color bgColor;
     Color borderColor;
     Color textColor;
     String text;
 
     if (timer.isRunning) {
-      bgColor = const Color(0x1500ff88);
-      borderColor = const Color(0x4000ff88);
-      textColor = const Color(0xFF00ff88);
+      bgColor = theme.successColor.withOpacity(0.08);
+      borderColor = theme.successColor.withOpacity(0.25);
+      textColor = theme.successColor;
       text = 'ACTIVE';
     } else {
-      bgColor = const Color(0x1000f0ff);
-      borderColor = const Color(0x3000f0ff);
-      textColor = const Color(0xFF00f0ff);
+      bgColor = theme.primaryColor.withOpacity(0.06);
+      borderColor = theme.primaryColor.withOpacity(0.19);
+      textColor = theme.primaryColor;
       text = 'READY';
     }
 
@@ -167,7 +160,7 @@ class TimerWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildPresetChips(TimerProvider timer) {
+  Widget _buildPresetChips(TimerProvider timer, AppThemeData theme) {
     final presets = [30, 60, 90, 120];
 
     return Row(
@@ -183,18 +176,19 @@ class TimerWidget extends StatelessWidget {
             seconds: seconds,
             isSelected: isSelected,
             onPressed: () => timer.selectPreset(index),
+            theme: theme,
           ),
         );
       }).toList(),
     );
   }
 
-  Widget _buildCompletedSets(TimerProvider timer) {
+  Widget _buildCompletedSets(TimerProvider timer, AppThemeData theme) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       decoration: BoxDecoration(
-        color: const Color(0x33141423),
-        border: Border.all(color: Colors.white10, width: 1),
+        color: theme.surfaceColor,
+        border: Border.all(color: theme.borderColor, width: 1),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
@@ -206,10 +200,10 @@ class TimerWidget extends StatelessWidget {
               fontFamily: 'Orbitron',
               fontSize: 28,
               fontWeight: FontWeight.w700,
-              color: const Color(0xFF00f0ff),
+              color: theme.primaryColor,
               shadows: [
-                const Shadow(
-                  color: Color(0xFF00f0ff),
+                Shadow(
+                  color: theme.primaryColor,
                   blurRadius: 15,
                 ),
               ],
@@ -222,7 +216,7 @@ class TimerWidget extends StatelessWidget {
               fontFamily: 'Rajdhani',
               fontSize: 14,
               fontWeight: FontWeight.w500,
-              color: Colors.white70,
+              color: theme.secondaryTextColor,
               letterSpacing: 1,
             ),
           ),
@@ -231,7 +225,7 @@ class TimerWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildControlButtons(TimerProvider timer) {
+  Widget _buildControlButtons(TimerProvider timer, AppThemeData theme) {
     return GridView.count(
       shrinkWrap: true,
       crossAxisCount: 4,
@@ -242,26 +236,32 @@ class TimerWidget extends StatelessWidget {
       children: [
         _ControlButton(
           label: timer.isRunning ? 'PAUSE' : 'START',
-          color: timer.isRunning ? const Color(0xFFffdd00) : const Color(0xFF00f0ff),
-          gradient: timer.isRunning ? null : const LinearGradient(
-            colors: [Color(0xFF00f0ff), Color(0xFF00a0aa)],
-          ),
+          color: timer.isRunning ? theme.warningColor : theme.primaryColor,
+          gradient: timer.isRunning
+              ? null
+              : LinearGradient(
+                  colors: [theme.primaryColor, theme.primaryColor.withOpacity(0.7)],
+                ),
           onPressed: timer.isRunning ? timer.pauseTimer : timer.startTimer,
+          theme: theme,
         ),
         _ControlButton(
           label: 'SKIP',
-          color: const Color(0xFF00ff88),
+          color: theme.successColor,
           onPressed: timer.skipSet,
+          theme: theme,
         ),
         _ControlButton(
           label: 'FINISH',
-          color: const Color(0xFF0078ff),
+          color: theme.secondaryColor,
           onPressed: timer.finishWorkout,
+          theme: theme,
         ),
         _ControlButton(
           label: 'RESET',
-          color: const Color(0xFFff00aa),
+          color: theme.accentColor,
           onPressed: timer.resetTimer,
+          theme: theme,
         ),
       ],
     );
@@ -271,8 +271,15 @@ class TimerWidget extends StatelessWidget {
 class _CircularProgressPainter extends CustomPainter {
   final double progress;
   final bool isRunning;
+  final List<Color> gradientColors;
+  final Color backgroundColor;
 
-  _CircularProgressPainter({required this.progress, required this.isRunning});
+  _CircularProgressPainter({
+    required this.progress,
+    required this.isRunning,
+    required this.gradientColors,
+    required this.backgroundColor,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -280,19 +287,19 @@ class _CircularProgressPainter extends CustomPainter {
     final radius = size.width / 2 - 10;
 
     final backgroundPaint = Paint()
-      ..color = const Color(0x0dffffff)
+      ..color = backgroundColor
       ..strokeWidth = 6
       ..style = PaintingStyle.stroke;
 
     canvas.drawCircle(center, radius, backgroundPaint);
 
-    final gradient = const LinearGradient(
-      colors: [Color(0xFF00f0ff), Color(0xFFbf00ff), Color(0xFFff00aa)],
-      stops: [0.0, 0.6, 1.0],
+    final gradient = LinearGradient(
+      colors: gradientColors,
+      stops: List.generate(gradientColors.length, (i) => i / (gradientColors.length - 1)),
     ).createShader(Rect.fromCircle(center: center, radius: radius));
 
     final progressPaint = Paint()
-      ..color = const Color(0xFF00f0ff)
+      ..color = gradientColors.first
       ..strokeWidth = 6
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round
@@ -310,18 +317,24 @@ class _CircularProgressPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+  bool shouldRepaint(covariant _CircularProgressPainter oldDelegate) {
+    return oldDelegate.progress != progress ||
+        oldDelegate.isRunning != isRunning ||
+        oldDelegate.gradientColors != gradientColors;
+  }
 }
 
 class _PresetChip extends StatelessWidget {
   final int seconds;
   final bool isSelected;
   final VoidCallback onPressed;
+  final AppThemeData theme;
 
   const _PresetChip({
     required this.seconds,
     required this.isSelected,
     required this.onPressed,
+    required this.theme,
   });
 
   @override
@@ -333,16 +346,16 @@ class _PresetChip extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0x1500f0ff) : Colors.transparent,
+          color: isSelected ? theme.primaryColor.withOpacity(0.08) : Colors.transparent,
           border: Border.all(
-            color: isSelected ? const Color(0xFF00f0ff) : const Color(0x14ffffff),
+            color: isSelected ? theme.primaryColor : theme.borderColor,
             width: 1,
           ),
           borderRadius: BorderRadius.circular(20),
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: const Color(0x2000f0ff),
+                    color: theme.primaryColor.withOpacity(0.12),
                     blurRadius: 10,
                     spreadRadius: 2,
                   ),
@@ -355,7 +368,7 @@ class _PresetChip extends StatelessWidget {
             fontFamily: 'Rajdhani',
             fontSize: 14,
             fontWeight: FontWeight.w500,
-            color: isSelected ? const Color(0xFF00f0ff) : Colors.white54,
+            color: isSelected ? theme.primaryColor : theme.secondaryTextColor,
           ),
         ),
       ),
@@ -368,12 +381,14 @@ class _ControlButton extends StatelessWidget {
   final Color color;
   final LinearGradient? gradient;
   final VoidCallback onPressed;
+  final AppThemeData theme;
 
   const _ControlButton({
     required this.label,
     required this.color,
     this.gradient,
     required this.onPressed,
+    required this.theme,
   });
 
   @override
@@ -393,9 +408,7 @@ class _ControlButton extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: gradient,
           borderRadius: BorderRadius.circular(10),
-          border: gradient != null
-              ? null
-              : Border.all(color: color.withOpacity(0.3), width: 1),
+          border: gradient != null ? null : Border.all(color: color.withOpacity(0.3), width: 1),
         ),
         child: Container(
           alignment: Alignment.center,
@@ -407,7 +420,7 @@ class _ControlButton extends StatelessWidget {
               fontSize: 10,
               fontWeight: FontWeight.w600,
               letterSpacing: 0.5,
-              color: gradient != null ? const Color(0xFF050508) : color,
+              color: gradient != null ? theme.backgroundColor : color,
             ),
             textAlign: TextAlign.center,
           ),
