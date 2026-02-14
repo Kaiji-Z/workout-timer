@@ -5,6 +5,8 @@ import '../theme/theme_provider.dart';
 import '../theme/app_theme.dart';
 import '../services/workout_repository.dart';
 import 'duration_picker.dart';
+import 'session_stopwatch_widget.dart';
+import 'rest_timer_widget.dart';
 
 class TrainingWidget extends StatelessWidget {
   const TrainingWidget({super.key});
@@ -74,79 +76,112 @@ class TrainingWidget extends StatelessWidget {
   }
 
   Widget _buildMainDisplay(TrainingProvider training, AppThemeData theme) {
-    String displayTime;
-    String label;
-    double progress;
-
-    if (training.isExercising || training.isExercisePaused) {
-      displayTime = _formatTime(training.exerciseTime);
-      label = '运动时长';
-      progress = 1.0;
-    } else if (training.isResting) {
-      displayTime = _formatTime(training.restRemaining);
-      label = '休息倒计时';
-      progress = training.restRemaining / training.restDuration;
-    } else if (training.isCompleted) {
-      displayTime = _formatTime(training.totalExerciseTime + training.totalRestTime);
-      label = '总用时';
-      progress = 1.0;
-    } else {
-      displayTime = _formatTime(training.restDuration);
-      label = '休息时长';
-      progress = 1.0;
+    // During rest: show both small stopwatch and large rest timer
+    if (training.isResting) {
+      return Column(
+        children: [
+          const SizedBox(height: 8),
+          SessionStopwatchWidget(
+            sessionDuration: training.sessionDuration,
+            theme: theme,
+            size: 80,
+          ),
+          const SizedBox(height: 16),
+          RestTimerWidget(
+            remainingSeconds: training.restRemaining,
+            totalSeconds: training.restDuration,
+            theme: theme,
+            size: 200,
+          ),
+        ],
+      );
     }
 
-    return SizedBox(
-      width: 240,
-      height: 240,
-      child: Stack(
-        alignment: Alignment.center,
+    // During exercise: show session stopwatch prominently with set info
+    if (training.isExercising || training.isExercisePaused) {
+      return Column(
         children: [
-          SizedBox(
-            width: 240,
-            height: 240,
-            child: CustomPaint(
-              painter: _CircularProgressPainter(
-                progress: progress,
-                gradientColors: training.isResting
-                    ? [theme.successColor, theme.successColor.withOpacity(0.5)]
-                    : theme.timerGradientColors,
-                backgroundColor: theme.borderColor,
+          const SizedBox(height: 24),
+          SessionStopwatchWidget(
+            sessionDuration: training.sessionDuration,
+            theme: theme,
+            size: 140,
+          ),
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+            decoration: BoxDecoration(
+              color: theme.primaryColor.withOpacity(0.1),
+              border: Border.all(color: theme.primaryColor.withOpacity(0.3)),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(
+              '第 ${training.currentSet} 组运动中',
+              style: TextStyle(
+                fontFamily: 'Rajdhani',
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: theme.primaryColor,
+                letterSpacing: 2,
               ),
             ),
           ),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                displayTime,
-                style: TextStyle(
-                  fontFamily: 'Orbitron',
-                  fontSize: 52,
-                  fontWeight: FontWeight.w900,
-                  color: theme.textColor,
-                  shadows: [
-                    Shadow(
-                      color: training.isResting ? theme.successColor : theme.primaryColor,
-                      blurRadius: 20,
-                    ),
-                  ],
+        ],
+      );
+    }
+
+    // Completed state: show large session stopwatch
+    if (training.isCompleted) {
+      return Column(
+        children: [
+          const SizedBox(height: 24),
+          SessionStopwatchWidget(
+            sessionDuration: training.sessionDuration,
+            theme: theme,
+            size: 160,
+          ),
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            decoration: BoxDecoration(
+              color: theme.successColor.withOpacity(0.1),
+              border: Border.all(color: theme.successColor.withOpacity(0.3)),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Column(
+              children: [
+                Text(
+                  '训练完成',
+                  style: TextStyle(
+                    fontFamily: 'Orbitron',
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: theme.successColor,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                label,
-                style: TextStyle(
-                  fontFamily: 'Rajdhani',
-                  fontSize: 12,
-                  color: theme.secondaryTextColor,
-                  letterSpacing: 2,
+                const SizedBox(height: 8),
+                Text(
+                  '完成 ${training.currentSet} 组',
+                  style: TextStyle(
+                    fontFamily: 'Rajdhani',
+                    fontSize: 14,
+                    color: theme.secondaryTextColor,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
-      ),
+      );
+    }
+
+    // Idle state: show rest duration setting preview
+    return RestTimerWidget(
+      remainingSeconds: training.restDuration,
+      totalSeconds: training.restDuration,
+      theme: theme,
+      size: 200,
+      label: '休息时长',
     );
   }
 
@@ -413,7 +448,7 @@ class TrainingWidget extends StatelessWidget {
     try {
       await repository.saveSession(
         data['totalSets'],
-        data['totalExerciseTimeMs'] + data['totalRestTimeMs'],
+        data['sessionDurationMs'],  // Use session duration
       );
 
       training.resetWorkout();
@@ -421,7 +456,7 @@ class TrainingWidget extends StatelessWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('训练已保存：完成${data['totalSets']}组'),
+            content: Text('训练已保存：完成${data['totalSets']}组，总时长 ${training.sessionDurationFormatted}'),
             backgroundColor: Colors.green,
           ),
         );
@@ -436,59 +471,6 @@ class TrainingWidget extends StatelessWidget {
         );
       }
     }
-  }
-}
-
-class _CircularProgressPainter extends CustomPainter {
-  final double progress;
-  final List<Color> gradientColors;
-  final Color backgroundColor;
-
-  _CircularProgressPainter({
-    required this.progress,
-    required this.gradientColors,
-    required this.backgroundColor,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
-    final radius = size.width / 2 - 10;
-
-    final backgroundPaint = Paint()
-      ..color = backgroundColor
-      ..strokeWidth = 6
-      ..style = PaintingStyle.stroke;
-
-    canvas.drawCircle(center, radius, backgroundPaint);
-
-    if (progress <= 0) return;
-
-    final gradient = LinearGradient(
-      colors: gradientColors,
-      stops: List.generate(gradientColors.length, (i) => i / (gradientColors.length - 1)),
-    ).createShader(Rect.fromCircle(center: center, radius: radius));
-
-    final progressPaint = Paint()
-      ..strokeWidth = 6
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round
-      ..shader = gradient
-      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8);
-
-    final sweepAngle = 2 * 3.14159 * progress;
-    canvas.drawArc(
-      Rect.fromCircle(center: center, radius: radius),
-      -1.5708,
-      sweepAngle,
-      false,
-      progressPaint,
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant _CircularProgressPainter oldDelegate) {
-    return oldDelegate.progress != progress || oldDelegate.gradientColors != gradientColors;
   }
 }
 
