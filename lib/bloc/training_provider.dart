@@ -28,7 +28,10 @@ class TrainingProvider extends ChangeNotifier {
 
   // 计时器
   Timer? _timer;
+  Timer? _sessionTimer;       // Session timer for UI updates
   Stopwatch? _stopwatch;
+  Stopwatch? _sessionStopwatch;  // Runs continuously from start to end
+  int _sessionDuration = 0;   // Total session duration in seconds
 
   // Getters
   TrainingState get state => _state;
@@ -45,6 +48,16 @@ class TrainingProvider extends ChangeNotifier {
   bool get isExercisePaused => _state == TrainingState.exercisePaused;
   bool get isResting => _state == TrainingState.resting;
   bool get isCompleted => _state == TrainingState.completed;
+  
+  /// 总时长（秒）
+  int get sessionDuration => _sessionDuration;
+  
+  /// 格式化的总时长 MM:SS
+  String get sessionDurationFormatted {
+    final minutes = _sessionDuration ~/ 60;
+    final seconds = _sessionDuration % 60;
+    return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+  }
 
   /// 状态显示文本
   String get statusText {
@@ -78,8 +91,14 @@ class TrainingProvider extends ChangeNotifier {
     _exerciseTime = 0;
     _totalExerciseTime = 0;
     _totalRestTime = 0;
+    _sessionDuration = 0;
     _isPaused = false;
 
+    // Start session stopwatch (runs continuously)
+    _sessionStopwatch = Stopwatch()..start();
+    _startSessionTimer();
+    
+    // Start exercise stopwatch
     _stopwatch = Stopwatch()..start();
     _startExerciseTimer();
 
@@ -98,6 +117,11 @@ class TrainingProvider extends ChangeNotifier {
     _state = TrainingState.exercising;
     _isPaused = false;
 
+    // Resume session stopwatch
+    _sessionStopwatch?.start();
+    _startSessionTimer();
+    
+    // Start new exercise stopwatch
     _stopwatch = Stopwatch()..start();
     _startExerciseTimer();
 
@@ -118,6 +142,7 @@ class TrainingProvider extends ChangeNotifier {
     _stopwatch?.stop();
     _timer?.cancel();
     _timer = null;
+    // Note: Session stopwatch continues running
 
     if (!kIsWeb) {
       TimerService.stopService();
@@ -134,6 +159,7 @@ class TrainingProvider extends ChangeNotifier {
     _isPaused = false;
     _stopwatch?.start();
     _startExerciseTimer();
+    // Note: Session stopwatch was never stopped
 
     if (!kIsWeb) {
       TimerService.startService();
@@ -155,6 +181,7 @@ class TrainingProvider extends ChangeNotifier {
     _stopwatch?.stop();
     _timer?.cancel();
     _timer = null;
+    // Note: Session stopwatch continues running
 
     _startRestTimer();
 
@@ -191,6 +218,11 @@ class TrainingProvider extends ChangeNotifier {
     _stopwatch = null;
     _timer?.cancel();
     _timer = null;
+    
+    // Stop session stopwatch
+    _sessionStopwatch?.stop();
+    _sessionTimer?.cancel();
+    _sessionTimer = null;
 
     _state = TrainingState.completed;
     _isPaused = false;
@@ -208,6 +240,11 @@ class TrainingProvider extends ChangeNotifier {
     _stopwatch = null;
     _timer?.cancel();
     _timer = null;
+    
+    _sessionStopwatch?.stop();
+    _sessionStopwatch = null;
+    _sessionTimer?.cancel();
+    _sessionTimer = null;
 
     _state = TrainingState.idle;
     _currentSet = 0;
@@ -215,6 +252,7 @@ class TrainingProvider extends ChangeNotifier {
     _restRemaining = 0;
     _totalExerciseTime = 0;
     _totalRestTime = 0;
+    _sessionDuration = 0;
     _isPaused = false;
 
     if (!kIsWeb) {
@@ -230,6 +268,7 @@ class TrainingProvider extends ChangeNotifier {
       'totalSets': _currentSet,
       'totalExerciseTimeMs': _totalExerciseTime * 1000,
       'totalRestTimeMs': _totalRestTime * 1000,
+      'sessionDurationMs': _sessionDuration * 1000,
     };
   }
 
@@ -245,6 +284,15 @@ class TrainingProvider extends ChangeNotifier {
     });
   }
 
+  void _startSessionTimer() {
+    _sessionTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_sessionStopwatch != null) {
+        _sessionDuration = _sessionStopwatch!.elapsed.inSeconds;
+        notifyListeners();
+      }
+    });
+  }
+
   void _startRestTimer() {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_restRemaining > 0) {
@@ -252,6 +300,9 @@ class TrainingProvider extends ChangeNotifier {
         _updateServiceNotification();
         notifyListeners();
       } else {
+        // Cancel timer FIRST to prevent infinite loop
+        _timer?.cancel();
+        _timer = null;
         // 休息结束，自动切换到下一组
         _totalRestTime += _restDuration;
         _transitionToNextSet();
@@ -264,6 +315,7 @@ class TrainingProvider extends ChangeNotifier {
     _state = TrainingState.exercising;
     _exerciseTime = 0;
     _isPaused = false;
+    // Note: Session stopwatch continues running
 
     _stopwatch = Stopwatch()..start();
     _startExerciseTimer();
@@ -281,14 +333,13 @@ class TrainingProvider extends ChangeNotifier {
   void _updateServiceNotification() {
     if (!kIsWeb) {
       String timeStr;
-      if (_state == TrainingState.exercising || _state == TrainingState.exercisePaused) {
-        final minutes = _exerciseTime ~/ 60;
-        final seconds = _exerciseTime % 60;
-        timeStr = '运动 ${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
-      } else {
+      if (_state == TrainingState.resting) {
         final minutes = _restRemaining ~/ 60;
         final seconds = _restRemaining % 60;
         timeStr = '休息 ${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+      } else {
+        // Show session duration during exercise
+        timeStr = '运动 $sessionDurationFormatted';
       }
       TimerService.updateNotification(timeStr);
     }
@@ -297,7 +348,9 @@ class TrainingProvider extends ChangeNotifier {
   @override
   void dispose() {
     _stopwatch?.stop();
+    _sessionStopwatch?.stop();
     _timer?.cancel();
+    _sessionTimer?.cancel();
     super.dispose();
   }
 }
