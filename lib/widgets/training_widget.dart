@@ -5,8 +5,8 @@ import '../theme/theme_provider.dart';
 import '../theme/app_theme.dart';
 import '../services/workout_repository.dart';
 import 'duration_picker.dart';
-import 'session_stopwatch_widget.dart';
-import 'rest_timer_widget.dart';
+import 'glass_widgets.dart';
+import 'animated_timer_widget.dart';
 
 class TrainingWidget extends StatelessWidget {
   const TrainingWidget({super.key});
@@ -28,23 +28,27 @@ class TrainingWidget extends StatelessWidget {
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [theme.backgroundColor, theme.surfaceColor],
+              colors: [
+                theme.backgroundColor,
+                theme.backgroundColor.withOpacity(0.95),
+                theme.surfaceColor,
+              ],
             ),
           ),
           child: SafeArea(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
                 children: [
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 16),
                   _buildHeader(theme),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 32),
                   _buildMainDisplay(training, theme),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 24),
                   _buildStatusBadge(training, theme),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 32),
                   _buildButtons(context, training, theme),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 32),
                 ],
               ),
             ),
@@ -55,20 +59,32 @@ class TrainingWidget extends StatelessWidget {
   }
 
   Widget _buildHeader(AppThemeData theme) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+    return Column(
       children: [
         Text(
-          'WORKOUT TIMER',
+          'WORKOUT',
           style: TextStyle(
-            fontFamily: 'Orbitron',
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
+            fontFamily: '.SF Pro Display',
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: theme.secondaryTextColor,
             letterSpacing: 4,
-            foreground: Paint()
-              ..shader = LinearGradient(
-                colors: theme.timerGradientColors.take(2).toList(),
-              ).createShader(const Rect.fromLTWH(0, 0, 200, 40)),
+          ),
+        ),
+        const SizedBox(height: 4),
+        ShaderMask(
+          shaderCallback: (bounds) => LinearGradient(
+            colors: theme.timerGradientColors,
+          ).createShader(bounds),
+          child: Text(
+            'TIMER',
+            style: TextStyle(
+              fontFamily: '.SF Pro Display',
+              fontSize: 32,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+              letterSpacing: 8,
+            ),
           ),
         ),
       ],
@@ -80,166 +96,175 @@ class TrainingWidget extends StatelessWidget {
     if (training.isResting) {
       return Column(
         children: [
-          const SizedBox(height: 8),
-          SessionStopwatchWidget(
-            sessionDuration: training.sessionDuration,
+          AnimatedStopwatchDisplay(
+            seconds: training.sessionDuration,
             theme: theme,
-            size: 80,
+            size: 90,
           ),
-          const SizedBox(height: 16),
-          RestTimerWidget(
-            remainingSeconds: training.restRemaining,
-            totalSeconds: training.restDuration,
+          const SizedBox(height: 24),
+          AnimatedTimerDisplay(
+            seconds: training.restRemaining,
+            label: '休息倒计时',
             theme: theme,
-            size: 200,
+            size: 220,
+            isCountdown: true,
+            progress: training.restDuration > 0 
+                ? training.restRemaining / training.restDuration 
+                : 0,
           ),
         ],
       );
     }
 
-    // During exercise: show session stopwatch prominently with set info
+    // During exercise
     if (training.isExercising || training.isExercisePaused) {
       return Column(
         children: [
-          const SizedBox(height: 24),
-          SessionStopwatchWidget(
-            sessionDuration: training.sessionDuration,
+          AnimatedTimerDisplay(
+            seconds: training.sessionDuration,
+            label: '运动中',
             theme: theme,
-            size: 140,
+            size: 260,
+            isCountdown: false,
           ),
-          const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-            decoration: BoxDecoration(
-              color: theme.primaryColor.withOpacity(0.1),
-              border: Border.all(color: theme.primaryColor.withOpacity(0.3)),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text(
-              '第 ${training.currentSet} 组运动中',
-              style: TextStyle(
-                fontFamily: 'Rajdhani',
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: theme.primaryColor,
-                letterSpacing: 2,
-              ),
-            ),
+          const SizedBox(height: 20),
+          GlassBadge(
+            text: '第 ${training.currentSet} 组',
+            color: theme.primaryColor,
+            icon: Icons.fitness_center,
           ),
         ],
       );
     }
 
-    // Completed state: show large session stopwatch
+    // Completed state
     if (training.isCompleted) {
       return Column(
         children: [
-          const SizedBox(height: 24),
-          SessionStopwatchWidget(
-            sessionDuration: training.sessionDuration,
-            theme: theme,
-            size: 160,
+          PulsingWidget(
+            child: LiquidGlassContainer(
+              borderRadius: 100,
+              blur: 25,
+              opacity: 0.15,
+              child: SizedBox(
+                width: 180,
+                height: 180,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.check_circle_outline,
+                      size: 48,
+                      color: theme.successColor,
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      _formatTime(training.sessionDuration),
+                      style: TextStyle(
+                        fontFamily: '.SF Pro Display',
+                        fontSize: 36,
+                        fontWeight: FontWeight.w300,
+                        color: theme.textColor,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '总时长',
+                      style: TextStyle(
+                        fontFamily: '.SF Pro Text',
+                        fontSize: 14,
+                        color: theme.secondaryTextColor,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
-          const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            decoration: BoxDecoration(
-              color: theme.successColor.withOpacity(0.1),
-              border: Border.all(color: theme.successColor.withOpacity(0.3)),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Column(
-              children: [
-                Text(
-                  '训练完成',
-                  style: TextStyle(
-                    fontFamily: 'Orbitron',
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: theme.successColor,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  '完成 ${training.currentSet} 组',
-                  style: TextStyle(
-                    fontFamily: 'Rajdhani',
-                    fontSize: 14,
-                    color: theme.secondaryTextColor,
-                  ),
-                ),
-              ],
-            ),
+          const SizedBox(height: 24),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              GlassBadge(
+                text: '${training.currentSet} 组',
+                color: theme.successColor,
+                icon: Icons.repeat,
+              ),
+              const SizedBox(width: 12),
+              GlassBadge(
+                text: _formatTime(training.totalExerciseTime),
+                color: theme.primaryColor,
+                icon: Icons.timer,
+              ),
+            ],
           ),
         ],
       );
     }
 
     // Idle state: show rest duration setting preview
-    return RestTimerWidget(
-      remainingSeconds: training.restDuration,
-      totalSeconds: training.restDuration,
-      theme: theme,
-      size: 200,
-      label: '休息时长',
+    return Column(
+      children: [
+        AnimatedTimerDisplay(
+          seconds: training.restDuration,
+          label: '休息时长',
+          theme: theme,
+          size: 220,
+          isCountdown: false,
+        ),
+        const SizedBox(height: 8),
+        Text(
+          '点击下方按钮设置休息时长',
+          style: TextStyle(
+            fontFamily: '.SF Pro Text',
+            fontSize: 14,
+            color: theme.secondaryTextColor,
+          ),
+        ),
+      ],
     );
   }
 
   Widget _buildStatusBadge(TrainingProvider training, AppThemeData theme) {
-    Color bgColor;
-    Color borderColor;
-    Color textColor;
+    Color color;
+    String text;
+    IconData icon;
 
     if (training.isExercising) {
-      bgColor = theme.primaryColor.withOpacity(0.08);
-      borderColor = theme.primaryColor.withOpacity(0.25);
-      textColor = theme.primaryColor;
+      color = theme.primaryColor;
+      text = training.statusText;
+      icon = Icons.directions_run;
     } else if (training.isResting) {
-      bgColor = theme.successColor.withOpacity(0.08);
-      borderColor = theme.successColor.withOpacity(0.25);
-      textColor = theme.successColor;
+      color = theme.successColor;
+      text = training.statusText;
+      icon = Icons.self_improvement;
     } else if (training.isCompleted) {
-      bgColor = theme.accentColor.withOpacity(0.08);
-      borderColor = theme.accentColor.withOpacity(0.25);
-      textColor = theme.accentColor;
+      color = theme.successColor;
+      text = '训练完成';
+      icon = Icons.emoji_events;
     } else if (training.isExercisePaused) {
-      bgColor = theme.warningColor.withOpacity(0.08);
-      borderColor = theme.warningColor.withOpacity(0.25);
-      textColor = theme.warningColor;
+      color = theme.warningColor;
+      text = training.statusText;
+      icon = Icons.pause_circle_outline;
     } else {
-      bgColor = theme.surfaceColor;
-      borderColor = theme.borderColor;
-      textColor = theme.secondaryTextColor;
+      color = theme.secondaryTextColor;
+      text = '准备开始';
+      icon = Icons.play_circle_outline;
     }
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      decoration: BoxDecoration(
-        color: bgColor,
-        border: Border.all(color: borderColor, width: 1),
-        borderRadius: BorderRadius.circular(24),
-      ),
-      child: Text(
-        training.statusText,
-        style: TextStyle(
-          fontFamily: 'Rajdhani',
-          fontSize: 13,
-          fontWeight: FontWeight.w600,
-          letterSpacing: 1,
-          color: textColor,
-        ),
-        textAlign: TextAlign.center,
-      ),
+    return GlassBadge(
+      text: text,
+      color: color,
+      icon: icon,
     );
   }
 
   Widget _buildButtons(BuildContext context, TrainingProvider training, AppThemeData theme) {
     if (training.isIdle) {
       return _buildIdleButtons(context, training, theme);
-    } else if (training.isExercising) {
+    } else if (training.isExercising || training.isExercisePaused) {
+      // 运动中和暂停状态使用相同的按钮布局
       return _buildExercisingButtons(training, theme);
-    } else if (training.isExercisePaused) {
-      return _buildPausedButtons(training, theme);
     } else if (training.isResting) {
       return _buildRestingButtons(training, theme);
     } else if (training.isCompleted) {
@@ -251,7 +276,7 @@ class TrainingWidget extends StatelessWidget {
   Widget _buildIdleButtons(BuildContext context, TrainingProvider training, AppThemeData theme) {
     return Column(
       children: [
-        // 休息时长设置
+        // Rest duration setting
         GestureDetector(
           onTap: () {
             DurationPicker.show(
@@ -262,83 +287,116 @@ class TrainingWidget extends StatelessWidget {
               },
             );
           },
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            decoration: BoxDecoration(
-              color: theme.surfaceColor,
-              border: Border.all(color: theme.borderColor),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.timer_outlined, color: theme.primaryColor, size: 20),
-                const SizedBox(width: 8),
-                Text(
-                  '休息时长: ${_formatTime(training.restDuration)}',
-                  style: TextStyle(
-                    fontFamily: 'Rajdhani',
-                    fontSize: 14,
-                    color: theme.textColor,
+          child: LiquidGlassContainer(
+            borderRadius: 16,
+            blur: 10,
+            opacity: 0.1,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.timer_outlined, color: theme.primaryColor, size: 24),
+                  const SizedBox(width: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '休息时长',
+                        style: TextStyle(
+                          fontFamily: '.SF Pro Text',
+                          fontSize: 12,
+                          color: theme.secondaryTextColor,
+                        ),
+                      ),
+                      Text(
+                        _formatTime(training.restDuration),
+                        style: TextStyle(
+                          fontFamily: '.SF Pro Display',
+                          fontSize: 20,
+                          fontWeight: FontWeight.w500,
+                          color: theme.textColor,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                const SizedBox(width: 4),
-                Icon(Icons.edit, color: theme.secondaryTextColor, size: 16),
-              ],
+                  const SizedBox(width: 8),
+                  Icon(Icons.chevron_right, color: theme.secondaryTextColor, size: 20),
+                ],
+              ),
             ),
           ),
         ),
-        const SizedBox(height: 16),
-        // 开始运动按钮
-        _PrimaryButton(
-          label: '开始运动',
-          icon: Icons.play_arrow_rounded,
-          color: theme.primaryColor,
-          gradient: LinearGradient(
-            colors: [theme.primaryColor, theme.primaryColor.withOpacity(0.7)],
+        const SizedBox(height: 24),
+        // Start button
+        SizedBox(
+          width: double.infinity,
+          child: GlassButton(
+            label: '开始运动',
+            icon: Icons.play_arrow_rounded,
+            color: theme.primaryColor,
+            height: 60,
+            onPressed: training.startExercise,
           ),
-          theme: theme,
-          onPressed: training.startExercise,
         ),
       ],
     );
   }
 
   Widget _buildExercisingButtons(TrainingProvider training, AppThemeData theme) {
+    // Check if exercise is paused
+    final isPaused = training.isExercisePaused;
+    
     return Column(
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Expanded(
-              child: _PrimaryButton(
-                label: '开始休息',
-                icon: Icons.pause_circle_outline,
-                color: theme.successColor,
-                theme: theme,
-                onPressed: training.startRest,
-              ),
+        // 暂停时只显示一个全宽继续按钮
+        if (isPaused) 
+          SizedBox(
+            width: double.infinity,
+            child: GlassButton(
+              label: '继续',
+              icon: Icons.play_arrow,
+              color: theme.primaryColor,
+              height: 56,
+              onPressed: training.resumeFromPause,
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _SecondaryButton(
-                label: '暂停',
-                icon: Icons.pause,
-                color: theme.warningColor,
-                theme: theme,
-                onPressed: training.pauseExercise,
+          )
+        else ...[
+          // 运动中显示两个按钮
+          Row(
+            children: [
+              Expanded(
+                child: GlassButton(
+                  label: '开始休息',
+                  icon: Icons.pause_circle_outline,
+                  color: theme.successColor,
+                  height: 56,
+                  onPressed: training.startRest,
+                ),
               ),
-            ),
-          ],
-        ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: GlassOutlineButton(
+                  label: '暂停',
+                  icon: Icons.pause,
+                  color: theme.warningColor,
+                  height: 56,
+                  onPressed: training.pauseExercise,
+                ),
+              ),
+            ],
+          ),
+        ],
         const SizedBox(height: 12),
-        _SecondaryButton(
-          label: '结束运动',
-          icon: Icons.stop,
-          color: theme.accentColor,
-          theme: theme,
-          onPressed: training.endWorkout,
-          isFullWidth: true,
+        SizedBox(
+          width: double.infinity,
+          child: GlassOutlineButton(
+            label: '结束运动',
+            icon: Icons.stop,
+            color: theme.accentColor,
+            height: 56,
+            onPressed: training.endWorkout,
+          ),
         ),
       ],
     );
@@ -348,53 +406,53 @@ class TrainingWidget extends StatelessWidget {
     return Column(
       children: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Expanded(
-              child: _PrimaryButton(
+              child: GlassButton(
                 label: '继续',
                 icon: Icons.play_arrow,
                 color: theme.primaryColor,
-                gradient: LinearGradient(
-                  colors: [theme.primaryColor, theme.primaryColor.withOpacity(0.7)],
-                ),
-                theme: theme,
+                height: 56,
                 onPressed: training.resumeFromPause,
               ),
             ),
             const SizedBox(width: 12),
             Expanded(
-              child: _PrimaryButton(
-                label: '开始休息',
-                icon: Icons.pause_circle_outline,
+              child: GlassButton(
+                label: '休息',
+                icon: Icons.self_improvement,
                 color: theme.successColor,
-                theme: theme,
+                height: 56,
                 onPressed: training.startRest,
               ),
             ),
           ],
         ),
         const SizedBox(height: 12),
-        _SecondaryButton(
-          label: '结束运动',
-          icon: Icons.stop,
-          color: theme.accentColor,
-          theme: theme,
-          onPressed: training.endWorkout,
-          isFullWidth: true,
+        SizedBox(
+          width: double.infinity,
+          child: GlassOutlineButton(
+            label: '结束运动',
+            icon: Icons.stop,
+            color: theme.accentColor,
+            height: 56,
+            onPressed: training.endWorkout,
+          ),
         ),
       ],
     );
   }
 
   Widget _buildRestingButtons(TrainingProvider training, AppThemeData theme) {
-    return _PrimaryButton(
-      label: '跳过休息',
-      icon: Icons.skip_next,
-      color: theme.successColor,
-      theme: theme,
-      onPressed: training.skipRest,
-      isFullWidth: true,
+    return SizedBox(
+      width: double.infinity,
+      child: GlassButton(
+        label: '跳过休息',
+        icon: Icons.skip_next,
+        color: theme.successColor,
+        height: 56,
+        onPressed: training.skipRest,
+      ),
     );
   }
 
@@ -402,40 +460,38 @@ class TrainingWidget extends StatelessWidget {
     return Column(
       children: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Expanded(
-              child: _PrimaryButton(
-                label: '保存',
+              child: GlassButton(
+                label: '保存记录',
                 icon: Icons.save,
                 color: theme.primaryColor,
-                gradient: LinearGradient(
-                  colors: [theme.primaryColor, theme.primaryColor.withOpacity(0.7)],
-                ),
-                theme: theme,
+                height: 56,
                 onPressed: () => _saveWorkout(context, training),
               ),
             ),
             const SizedBox(width: 12),
             Expanded(
-              child: _SecondaryButton(
+              child: GlassButton(
                 label: '继续运动',
-                icon: Icons.play_arrow,
+                icon: Icons.replay,
                 color: theme.successColor,
-                theme: theme,
+                height: 56,
                 onPressed: training.resumeExercise,
               ),
             ),
           ],
         ),
         const SizedBox(height: 12),
-        _SecondaryButton(
-          label: '放弃',
-          icon: Icons.delete_outline,
-          color: theme.warningColor,
-          theme: theme,
-          onPressed: training.resetWorkout,
-          isFullWidth: true,
+        SizedBox(
+          width: double.infinity,
+          child: GlassOutlineButton(
+            label: '放弃',
+            icon: Icons.delete_outline,
+            color: theme.warningColor,
+            height: 56,
+            onPressed: training.resetWorkout,
+          ),
         ),
       ],
     );
@@ -448,7 +504,7 @@ class TrainingWidget extends StatelessWidget {
     try {
       await repository.saveSession(
         data['totalSets'],
-        data['sessionDurationMs'],  // Use session duration
+        data['sessionDurationMs'],
       );
 
       training.resetWorkout();
@@ -471,122 +527,5 @@ class TrainingWidget extends StatelessWidget {
         );
       }
     }
-  }
-}
-
-class _PrimaryButton extends StatelessWidget {
-  final String label;
-  final IconData icon;
-  final Color color;
-  final LinearGradient? gradient;
-  final VoidCallback onPressed;
-  final AppThemeData theme;
-  final bool isFullWidth;
-
-  const _PrimaryButton({
-    required this.label,
-    required this.icon,
-    required this.color,
-    this.gradient,
-    required this.onPressed,
-    required this.theme,
-    this.isFullWidth = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ElevatedButton(
-      onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-        backgroundColor: gradient == null ? color : Colors.transparent,
-        shadowColor: Colors.transparent,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-      ).copyWith(
-        backgroundColor: WidgetStateProperty.resolveWith((states) {
-          if (gradient != null) return Colors.transparent;
-          return color;
-        }),
-      ),
-      child: Ink(
-        decoration: BoxDecoration(
-          gradient: gradient,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: isFullWidth ? MainAxisSize.max : MainAxisSize.min,
-            children: [
-              Icon(icon, color: gradient != null ? theme.backgroundColor : theme.textColor, size: 20),
-              const SizedBox(width: 8),
-              Text(
-                label,
-                style: TextStyle(
-                  fontFamily: 'Orbitron',
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 1,
-                  color: gradient != null ? theme.backgroundColor : theme.textColor,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _SecondaryButton extends StatelessWidget {
-  final String label;
-  final IconData icon;
-  final Color color;
-  final VoidCallback onPressed;
-  final AppThemeData theme;
-  final bool isFullWidth;
-
-  const _SecondaryButton({
-    required this.label,
-    required this.icon,
-    required this.color,
-    required this.onPressed,
-    required this.theme,
-    this.isFullWidth = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return OutlinedButton(
-      onPressed: onPressed,
-      style: OutlinedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-        side: BorderSide(color: color.withOpacity(0.5), width: 2),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: isFullWidth ? MainAxisSize.max : MainAxisSize.min,
-        children: [
-          Icon(icon, color: color, size: 20),
-          const SizedBox(width: 8),
-          Text(
-            label,
-            style: TextStyle(
-              fontFamily: 'Orbitron',
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 1,
-              color: color,
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }

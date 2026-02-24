@@ -1,10 +1,11 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import '../theme/theme_provider.dart';
 import '../theme/app_theme.dart';
 import 'package:provider/provider.dart';
 
-/// 时间选择器组件
+/// iOS 26 风格时间选择器
 /// 分钟滚轮：0-5 分钟
 /// 秒滚轮：00/10/20/30/40/50（每10秒一格）
 class DurationPicker extends StatefulWidget {
@@ -19,7 +20,7 @@ class DurationPicker extends StatefulWidget {
     this.title = '设置休息时长',
   });
 
-  /// 显示底部弹出的时间选择器
+  /// 显示底部弹出的时间选择器 - iOS 26 风格
   static Future<void> show(
     BuildContext context, {
     required int initialDurationSeconds,
@@ -29,6 +30,7 @@ class DurationPicker extends StatefulWidget {
     return showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
+      isScrollControlled: true,
       builder: (context) => DurationPicker(
         initialDurationSeconds: initialDurationSeconds,
         onDurationSelected: onDurationSelected,
@@ -95,109 +97,217 @@ class _DurationPickerState extends State<DurationPicker> {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().currentTheme;
+    final isDark = theme.isDark;
+    final screenHeight = MediaQuery.of(context).size.height;
 
     return Container(
-      height: 320,
+      height: screenHeight * 0.45,
       decoration: BoxDecoration(
-        color: theme.surfaceColor,
+        // iOS 26 风格：液态玻璃底部 sheet
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      child: Column(
-        children: [
-          // Header
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: ClipRRect(
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
+          child: Container(
             decoration: BoxDecoration(
-              border: Border(
-                bottom: BorderSide(color: theme.borderColor),
+              // 半透明材质
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.08)
+                  : Colors.white.withValues(alpha: 0.92),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+              // 边框
+              border: Border.all(
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.15)
+                    : Colors.white.withValues(alpha: 0.5),
+                width: 0.5,
               ),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            child: Column(
               children: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text(
-                    '取消',
-                    style: TextStyle(
-                      fontFamily: 'Rajdhani',
-                      fontSize: 16,
-                      color: theme.secondaryTextColor,
-                    ),
+                // 顶部拖动条 - iOS 26 风格
+                Container(
+                  margin: const EdgeInsets.only(top: 8),
+                  width: 36,
+                  height: 5,
+                  decoration: BoxDecoration(
+                    color: isDark
+                        ? Colors.white.withValues(alpha: 0.3)
+                        : Colors.black.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(2.5),
                   ),
                 ),
-                Text(
-                  widget.title,
-                  style: TextStyle(
-                    fontFamily: 'Orbitron',
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: theme.textColor,
+                // Header
+                _buildHeader(theme),
+                // Picker
+                Expanded(
+                  child: Row(
+                    children: [
+                      // Minutes picker
+                      Expanded(
+                        child: _buildWheel(
+                          controller: _minuteController,
+                          items: _minuteOptions,
+                          suffix: '分',
+                          theme: theme,
+                          onChanged: (index) {
+                            setState(() {
+                              _minutes = _minuteOptions[index];
+                            });
+                          },
+                        ),
+                      ),
+                      // Seconds picker
+                      Expanded(
+                        child: _buildWheel(
+                          controller: _secondController,
+                          items: _secondOptions,
+                          suffix: '秒',
+                          theme: theme,
+                          onChanged: (index) {
+                            setState(() {
+                              _seconds = _secondOptions[index];
+                            });
+                          },
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                TextButton(
-                  onPressed: _onConfirm,
-                  child: Text(
-                    '确定',
-                    style: TextStyle(
-                      fontFamily: 'Rajdhani',
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: theme.primaryColor,
-                    ),
-                  ),
-                ),
+                // Preview & Confirm Button
+                _buildBottomSection(theme),
+                SizedBox(height: MediaQuery.of(context).padding.bottom + 8),
               ],
             ),
           ),
-          // Picker
-          Expanded(
-            child: Row(
-              children: [
-                // Minutes picker
-                Expanded(
-                  child: _buildWheel(
-                    controller: _minuteController,
-                    items: _minuteOptions,
-                    suffix: '分',
-                    theme: theme,
-                    onChanged: (index) {
-                      setState(() {
-                        _minutes = _minuteOptions[index];
-                      });
-                    },
-                  ),
-                ),
-                // Seconds picker
-                Expanded(
-                  child: _buildWheel(
-                    controller: _secondController,
-                    items: _secondOptions,
-                    suffix: '秒',
-                    theme: theme,
-                    onChanged: (index) {
-                      setState(() {
-                        _seconds = _secondOptions[index];
-                      });
-                    },
-                  ),
-                ),
-              ],
-            ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader(AppThemeData theme) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            color: theme.borderColor.withValues(alpha: 0.5),
           ),
-          // Preview
-          Container(
-            padding: const EdgeInsets.all(16),
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          // 取消按钮 - iOS 26 风格
+          CupertinoButton(
+            padding: EdgeInsets.zero,
+            onPressed: () => Navigator.pop(context),
             child: Text(
-              '已选择: ${_formatDuration(_totalSeconds)}',
+              '取消',
               style: TextStyle(
-                fontFamily: 'Rajdhani',
-                fontSize: 14,
-                color: theme.secondaryTextColor,
+                fontFamily: '.SF Pro Text',
+                fontSize: 17,
+                fontWeight: FontWeight.w400,
+                color: theme.primaryColor,
+              ),
+            ),
+          ),
+          // 标题
+          Text(
+            widget.title,
+            style: TextStyle(
+              fontFamily: '.SF Pro Display',
+              fontSize: 17,
+              fontWeight: FontWeight.w600,
+              color: theme.textColor,
+            ),
+          ),
+          // 确定按钮 - iOS 26 风格
+          CupertinoButton(
+            padding: EdgeInsets.zero,
+            onPressed: _onConfirm,
+            child: Text(
+              '确定',
+              style: TextStyle(
+                fontFamily: '.SF Pro Text',
+                fontSize: 17,
+                fontWeight: FontWeight.w600,
+                color: theme.primaryColor,
               ),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildBottomSection(AppThemeData theme) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      child: Column(
+        children: [
+          // 预览
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: Text(
+              '已选择: ${_formatDuration(_totalSeconds)}',
+              style: TextStyle(
+                fontFamily: '.SF Pro Display',
+                fontSize: 15,
+                fontWeight: FontWeight.w500,
+                color: theme.secondaryTextColor,
+              ),
+            ),
+          ),
+          // 确认按钮 - iOS 26 风格胶囊按钮
+          _buildConfirmButton(theme),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildConfirmButton(AppThemeData theme) {
+    final isDark = theme.isDark;
+    
+    return GestureDetector(
+      onTap: _onConfirm,
+      child: Container(
+        width: double.infinity,
+        height: 50,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              theme.primaryColor.withValues(alpha: 0.95),
+              theme.primaryColor.withValues(alpha: 0.85),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(25),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.35),
+            width: 0.5,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: theme.primaryColor.withValues(alpha: 0.25),
+              blurRadius: 15,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Center(
+          child: Text(
+            '确认',
+            style: TextStyle(
+              fontFamily: '.SF Pro Text',
+              fontSize: 17,
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
+              letterSpacing: -0.4,
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -209,19 +319,24 @@ class _DurationPickerState extends State<DurationPicker> {
     required AppThemeData theme,
     required Function(int) onChanged,
   }) {
+    final isDark = theme.isDark;
+    
     return Stack(
       children: [
-        // Selection indicator
+        // Selection indicator - iOS 26 风格
         Center(
           child: Container(
-            height: 40,
-            margin: const EdgeInsets.symmetric(horizontal: 8),
+            height: 44,
+            margin: const EdgeInsets.symmetric(horizontal: 16),
             decoration: BoxDecoration(
-              color: theme.primaryColor.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(8),
+              // 液态玻璃选择器背景
+              color: isDark
+                  ? theme.primaryColor.withValues(alpha: 0.08)
+                  : theme.primaryColor.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: theme.primaryColor.withOpacity(0.3),
-                width: 1,
+                color: theme.primaryColor.withValues(alpha: 0.2),
+                width: 0.5,
               ),
             ),
           ),
@@ -229,7 +344,7 @@ class _DurationPickerState extends State<DurationPicker> {
         // Wheel
         CupertinoPicker(
           scrollController: controller,
-          itemExtent: 40,
+          itemExtent: 44,
           onSelectedItemChanged: onChanged,
           selectionOverlay: const CupertinoPickerDefaultSelectionOverlay(
             background: Colors.transparent,
@@ -239,8 +354,8 @@ class _DurationPickerState extends State<DurationPicker> {
               child: Text(
                 '$value$suffix',
                 style: TextStyle(
-                  fontFamily: 'Orbitron',
-                  fontSize: 20,
+                  fontFamily: '.SF Pro Display',
+                  fontSize: 22,
                   fontWeight: FontWeight.w500,
                   color: theme.textColor,
                 ),

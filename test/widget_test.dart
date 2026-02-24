@@ -24,11 +24,13 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    // Verify that the timer screen shows the header
-    expect(find.text('WORKOUT TIMER'), findsOneWidget);
+    // Verify that the timer screen shows the header (iOS 26 style: WORKOUT + TIMER)
+    expect(find.text('WORKOUT'), findsOneWidget);
+    expect(find.text('TIMER'), findsOneWidget);
     
-    // Verify the rest duration is displayed (default 60 seconds = 01:00)
-    expect(find.text('01:00'), findsOneWidget);
+    // Verify the rest duration is displayed (default 60 seconds)
+    // There are multiple "01:00" displays in iOS 26 design
+    expect(find.text('01:00'), findsWidgets);
     
     // Verify the start button exists
     expect(find.text('开始运动'), findsOneWidget);

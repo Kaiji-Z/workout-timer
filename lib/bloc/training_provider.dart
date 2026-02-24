@@ -142,7 +142,9 @@ class TrainingProvider extends ChangeNotifier {
     _stopwatch?.stop();
     _timer?.cancel();
     _timer = null;
-    // Note: Session stopwatch continues running
+    // 暂停session timer
+    _sessionTimer?.cancel();
+    _sessionTimer = null;
 
     if (!kIsWeb) {
       TimerService.stopService();
@@ -159,7 +161,8 @@ class TrainingProvider extends ChangeNotifier {
     _isPaused = false;
     _stopwatch?.start();
     _startExerciseTimer();
-    // Note: Session stopwatch was never stopped
+    // 重新启动session timer
+    _startSessionTimer();
 
     if (!kIsWeb) {
       TimerService.startService();
