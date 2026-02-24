@@ -351,8 +351,8 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
         _buildSectionHeader('训练趋势', theme),
         const SizedBox(height: 12),
         Container(
-          height: 200,
-          padding: const EdgeInsets.all(16),
+          height: 180, // 减小高度以避免溢出
+          padding: const EdgeInsets.all(12), // 减小内边距
           decoration: BoxDecoration(
             color: theme.surfaceColor,
             borderRadius: BorderRadius.circular(16),
@@ -389,7 +389,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: entries.map((entry) {
-        final height = maxSets > 0 ? (entry.value / maxSets) * 140 : 0.0;
+        final height = maxSets > 0 ? (entry.value / maxSets) * 100 : 0.0; // 减小高度
         return Column(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
@@ -403,8 +403,8 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
             ),
             const SizedBox(height: 4),
             Container(
-              width: 32,
-              height: height.clamp(4.0, 140.0),
+              width: 28, // 减小宽度
+              height: height.clamp(4.0, 100.0), // 减小最大高度
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.bottomCenter,
@@ -414,7 +414,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 4), // 减小间距
             Text(
               entry.key,
               style: TextStyle(

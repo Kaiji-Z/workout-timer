@@ -79,7 +79,7 @@ class TimerService : Service() {
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("健身计时器")
             .setContentText(content)
-            .setSmallIcon(android.R.drawable.ic_menu_recent_history)
+            .setSmallIcon(R.drawable.ic_launcher)
             .setOngoing(true)
             .setContentIntent(pendingIntent)
             .setPriority(NotificationCompat.PRIORITY_LOW)

@@ -11,41 +11,23 @@ class TimerScreen extends StatelessWidget {
     final theme = context.watch<ThemeProvider>().currentTheme;
 
     return Scaffold(
-      backgroundColor: theme.backgroundColor,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: Icon(
-              Icons.bar_chart_outlined,
-              color: theme.secondaryTextColor,
-            ),
-            onPressed: () {
-              Navigator.pushNamed(context, '/stats');
-            },
+      backgroundColor: Colors.transparent,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              theme.backgroundColor,
+              theme.backgroundColor.withValues(alpha: 0.95),
+              theme.surfaceColor,
+            ],
           ),
-          IconButton(
-            icon: Icon(
-              Icons.history_outlined,
-              color: theme.secondaryTextColor,
-            ),
-            onPressed: () {
-              Navigator.pushNamed(context, '/history');
-            },
-          ),
-          IconButton(
-            icon: Icon(
-              Icons.settings_outlined,
-              color: theme.secondaryTextColor,
-            ),
-            onPressed: () {
-              Navigator.pushNamed(context, '/settings');
-            },
-          ),
-        ],
+        ),
+        child: const SafeArea(
+          child: TrainingWidget(),
+        ),
       ),
-      body: const TrainingWidget(),
     );
   }
 }

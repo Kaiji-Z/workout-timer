@@ -1,0 +1,33 @@
+{
+  "version": "v0.8.0",
+  "release_date": "2026-02-14",
+  "commit": "8bb9665",
+  "branch": "feature/digital-vitality-ui",
+  "features": [
+    "Theme system with 3 presets",
+    "Interval training mode",
+    "Duration picker",
+    "Statistics page"
+  ],
+  "stats": {
+    "files_changed": 26,
+    "lines_added": 3302,
+    "lines_removed": 695,
+    "new_files": 15,
+    "modified_files": 11
+  },
+  "gradle": {
+    "agp": "8.6.0",
+    "kotlin": "2.1.0",
+    "gradle": "8.7"
+  },
+  "apk": {
+    "path": "build/app/outputs/flutter-apk/app-debug.apk",
+    "size_mb": 151
+  },
+  "tests": {
+    "flutter_analyze": "passed (0 errors, 36 info)",
+    "flutter_test": "passed (1/1)",
+    "flutter_build": "passed"
+  }
+}
