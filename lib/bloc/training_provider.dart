@@ -145,6 +145,8 @@ class TrainingProvider extends ChangeNotifier {
     // 暂停session timer
     _sessionTimer?.cancel();
     _sessionTimer = null;
+    // Fix: Also stop session stopwatch to prevent time accumulation during pause
+    _sessionStopwatch?.stop();
 
     if (!kIsWeb) {
       TimerService.stopService();
@@ -159,7 +161,9 @@ class TrainingProvider extends ChangeNotifier {
 
     _state = TrainingState.exercising;
     _isPaused = false;
-    _stopwatch?.start();
+    // Fix: Resume session stopwatch too, not just exercise stopwatch
+    _sessionStopwatch?.start();
+    _stopwatch = Stopwatch()..start();
     _startExerciseTimer();
     // 重新启动session timer
     _startSessionTimer();

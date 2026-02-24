@@ -1,6 +1,7 @@
 package com.example.workout_timer
 
 import android.content.Intent
+import android.os.Build
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
@@ -20,7 +21,11 @@ class MainActivity : FlutterActivity() {
                     val intent = Intent(this, TimerService::class.java).apply {
                         action = TimerService.ACTION_START
                     }
-                    startForegroundService(intent)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        startForegroundService(intent)
+                    } else {
+                        startService(intent)
+                    }
                     result.success(null)
                 }
                 "stopService" -> {

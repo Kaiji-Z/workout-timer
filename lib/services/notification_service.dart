@@ -49,10 +49,10 @@ class NotificationService {
         playSound: soundEnabled,
         enableVibration: vibrationEnabled,
         vibrationPattern: vibrationEnabled ? Int64List.fromList([0, 500, 200, 500]) : null,
-        // 小图标 - 状态栏使用（Android会自动处理为适当显示）
-        icon: '@mipmap/ic_launcher',
-        // 大图标 - 展开通知时显示彩色应用图标
-        largeIcon: const DrawableResourceAndroidBitmap('@mipmap/ic_launcher'),
+        // Fix: Use drawable icon (copied from mipmap)
+        // DrawableResourceAndroidBitmap requires drawable resources
+        icon: '@drawable/ic_launcher',
+        largeIcon: const DrawableResourceAndroidBitmap('@drawable/ic_launcher'),
       );
       final NotificationDetails details = NotificationDetails(android: androidDetails);
 
