@@ -1,0 +1,26 @@
+{
+  "version": "0.9.1",
+  "release_date": "2026-02-24",
+  "commit": "61fdf53",
+  "tag": "v0.9.1",
+  "branch": "feature/digital-vitality-ui",
+  "archive_file": "WorkoutTimer-v0.9.1.zip",
+  "changelog_file": "VERSION_v0.9.1.md",
+  "changes": {
+    "bug_fixes": [
+      "暂停/继续时间跳跃 - 修复健身计时器暂停后恢复时时间跳到实际经过值",
+      "通知图标统一 - 修复通知中心图标显示不一致"
+    ],
+    "platform_improvements": [
+      "Android前台服务 - 添加Android 8+前台服务兼容性"
+    ],
+    "assets": [
+      "跨平台图标 - 使用flutter_launcher_icons自动生成所有平台图标"
+    ]
+  },
+  "known_issues": [
+    "iOS通知未完整配置",
+    "Web无本地通知支持",
+    "Windows/Linux桌面端未测试"
+  ]
+}

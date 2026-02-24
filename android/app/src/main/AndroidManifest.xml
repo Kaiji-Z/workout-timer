@@ -6,7 +6,7 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
-        android:label="workout_timer"
+        android:label="撸铁计时器"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

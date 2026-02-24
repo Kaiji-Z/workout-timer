@@ -237,7 +237,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
     final bests = _getPersonalBests();
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 100), // 增加底部padding避免被导航栏遮挡
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
