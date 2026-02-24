@@ -50,7 +50,7 @@ class MyApp extends StatelessWidget {
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child) {
           return MaterialApp(
-            title: '健身计时器',
+            title: '撸铁计时器',
             theme: themeProvider.currentTheme.toThemeData(),
             home: const MainNavigation(),
             routes: {
