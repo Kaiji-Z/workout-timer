@@ -1,0 +1,30 @@
+flutter_launcher_icons:
+  # 源图标文件（使用最高密度的图标）
+  image_path: "assets/icon.png"
+
+  # Android 自适应图标配置
+  android: true
+  adaptive_icon_background: "#0a0a12"  # 黑色背景（Neon Tempus 主题）
+  adaptive_icon_foreground: "assets/icon.png"  # 前景透明图标
+
+  # iOS 配置
+  ios: true
+  remove_alpha_channel: true  # 移除 alpha 通道以减小体积
+
+  # Web 配置
+  web:
+    generate: true
+    image_path: "assets/icon.png"
+    background_color: "#0a0a12"
+    theme_color: "#00f0ff"  # 霓虹青色
+
+  # Windows 配置
+  windows:
+    generate: true
+    image_path: "assets/icon.png"
+    icon_size: 48  # Windows 推荐尺寸
+
+  # MacOS 配置
+  macos:
+    generate: true
+    image_path: "assets/icon.png"
