@@ -30,37 +30,24 @@ class TrainingWidget extends StatelessWidget {
 
     return Consumer<TrainingProvider>(
       builder: (context, training, child) {
-        return Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                theme.backgroundColor,
-                theme.backgroundColor.withOpacity(0.95),
-                theme.surfaceColor,
-              ],
-            ),
-          ),
-          child: SafeArea(
-            bottom: false, // 底部导航栏在外部
-            child: Column(
-              children: [
-                // 紧凑 Header
-                _buildCompactHeader(theme),
-                
-                // 主内容区域 - 计时器垂直居中
-                Expanded(
-                  child: _buildMainContent(training, theme),
-                ),
-                
-                // 底部固定区域：状态徽章 + 按钮区域
-                _buildBottomSection(context, training, theme),
-                
-                // 为底部导航栏留出空间
-                const SizedBox(height: 100),
-              ],
-            ),
+        return SafeArea(
+          bottom: false, // 底部导航栏在外部
+          child: Column(
+            children: [
+              // 紧凑 Header
+              _buildCompactHeader(theme),
+              
+              // 主内容区域 - 计时器垂直居中
+              Expanded(
+                child: _buildMainContent(training, theme),
+              ),
+              
+              // 底部固定区域：状态徽章 + 按钮区域
+              _buildBottomSection(context, training, theme),
+              
+              // 为底部导航栏留出空间
+              const SizedBox(height: 100),
+            ],
           ),
         );
       },
