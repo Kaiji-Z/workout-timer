@@ -284,41 +284,52 @@ class AnimatedStopwatchDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 简洁的半透明背景
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: theme.surfaceColor.withValues(alpha: 0.5),
-        border: Border.all(
-          color: theme.primaryColor.withValues(alpha: 0.2),
-          width: 1,
+    return ClipOval(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+        child: Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.white.withValues(alpha: 0.85),
+            border: Border.all(
+              color: theme.primaryColor.withValues(alpha: 0.25),
+              width: 1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.05),
+                blurRadius: 15,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              AnimatedNumber(
+                value: _formatTime(seconds),
+                style: TextStyle(
+                  fontFamily: '.SF Pro Display',
+                  fontSize: size * 0.22,
+                  fontWeight: FontWeight.w500,
+                  color: theme.textColor,
+                  letterSpacing: -1,
+                ),
+              ),
+              Text(
+                '总时长',
+                style: TextStyle(
+                  fontFamily: '.SF Pro Text',
+                  fontSize: size * 0.12,
+                  fontWeight: FontWeight.w400,
+                  color: theme.secondaryTextColor,
+                ),
+              ),
+            ],
+          ),
         ),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          AnimatedNumber(
-            value: _formatTime(seconds),
-            style: TextStyle(
-              fontFamily: '.SF Pro Display',
-              fontSize: size * 0.22,
-              fontWeight: FontWeight.w500,
-              color: theme.textColor,
-              letterSpacing: -1,
-            ),
-          ),
-          Text(
-            '总时长',
-            style: TextStyle(
-              fontFamily: '.SF Pro Text',
-              fontSize: size * 0.14,
-              fontWeight: FontWeight.w400,
-              color: theme.secondaryTextColor,
-            ),
-          ),
-        ],
       ),
     );
   }
