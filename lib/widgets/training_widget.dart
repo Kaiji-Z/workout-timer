@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../bloc/training_provider.dart';
@@ -143,42 +145,58 @@ class TrainingWidget extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        PulsingWidget(
-          child: LiquidGlassContainer(
-            borderRadius: 100,
-            blur: 25,
-            opacity: 0.15,
-            child: SizedBox(
-              width: 200,
-              height: 200,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.check_circle_outline,
-                    size: 56,
-                    color: theme.successColor,
+PulsingWidget(
+          child: ClipOval(
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+              child: Container(
+                width: 200,
+                height: 200,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withValues(alpha: 0.92),
+                  border: Border.all(
+                    color: theme.successColor.withValues(alpha: 0.3),
+                    width: 1,
                   ),
-                  const SizedBox(height: 12),
-                  Text(
-                    _formatTime(training.sessionDuration),
-                    style: TextStyle(
-                      fontFamily: '.SF Pro Display',
-                      fontSize: 44,
-                      fontWeight: FontWeight.w300,
-                      color: theme.textColor,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.06),
+                      blurRadius: 20,
+                      offset: const Offset(0, 8),
                     ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '总时长',
-                    style: TextStyle(
-                      fontFamily: '.SF Pro Text',
-                      fontSize: 14,
-                      color: theme.secondaryTextColor,
+                  ],
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.check_circle_outline,
+                      size: 48,
+                      color: theme.successColor,
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 12),
+                    Text(
+                      _formatTime(training.sessionDuration),
+                      style: TextStyle(
+                        fontFamily: '.SF Pro Display',
+                        fontSize: 40,
+                        fontWeight: FontWeight.w300,
+                        color: theme.textColor,
+                        letterSpacing: -2,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '总时长',
+                      style: TextStyle(
+                        fontFamily: '.SF Pro Text',
+                        fontSize: 14,
+                        color: theme.secondaryTextColor,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -205,7 +223,7 @@ class TrainingWidget extends StatelessWidget {
     );
   }
 
-  /// 底部区域：状态徽章 + 按钮区域
+  /// 底部区域：状态徽章 + 按钮区域卡片
   Widget _buildBottomSection(BuildContext context, TrainingProvider training, AppThemeData theme) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -213,11 +231,50 @@ class TrainingWidget extends StatelessWidget {
         children: [
           // 状态徽章
           _buildStatusBadge(training, theme),
-          const SizedBox(height: 20),
-          // 单行按钮区域
-          _buildSingleRowButtons(context, training, theme),
+          const SizedBox(height: 16),
+          // 按钮区域 - 毛玻璃卡片
+          _buildButtonAreaCard(context, training, theme),
           const SizedBox(height: 16),
         ],
+      ),
+    );
+  }
+
+  /// 按钮区域毛玻璃卡片
+  Widget _buildButtonAreaCard(BuildContext context, TrainingProvider training, AppThemeData theme) {
+    final buttons = _getButtonsForState(context, training, theme);
+    
+    if (buttons.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(16),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.88),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.5),
+              width: 1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.06),
+                blurRadius: 20,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: SingleRowButtonArea(
+            buttons: buttons,
+            height: 52,
+            gap: 10,
+          ),
+        ),
       ),
     );
   }
@@ -257,20 +314,7 @@ class TrainingWidget extends StatelessWidget {
     );
   }
 
-  /// 单行按钮区域 - 根据状态返回不同的按钮配置
-  Widget _buildSingleRowButtons(BuildContext context, TrainingProvider training, AppThemeData theme) {
-    final buttons = _getButtonsForState(context, training, theme);
-    
-    if (buttons.isEmpty) {
-      return const SizedBox.shrink();
-    }
-    
-    return SingleRowButtonArea(
-      buttons: buttons,
-      height: 56,
-      gap: 10,
-    );
-  }
+
 
   /// 根据状态获取按钮配置
   List<ButtonConfig> _getButtonsForState(BuildContext context, TrainingProvider training, AppThemeData theme) {

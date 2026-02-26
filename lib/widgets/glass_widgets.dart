@@ -479,6 +479,267 @@ class _LiquidOutlineButtonState extends State<LiquidOutlineButton>
 // CARDS & CONTAINERS: Spatial Depth Elements
 // ============================================================================
 
+
+/// 扁平化胶囊按钮 - VitalFlow 2.0 风格
+
+/// 
+
+/// 特点:
+
+/// - 纯色填充 (无渐变)
+
+/// - 胶囊形状
+
+/// - 轻阴影
+
+/// - 按下动态缩放
+
+class FlatCapsuleButton extends StatefulWidget {
+
+  final String label;
+
+  final IconData? icon;
+
+  final VoidCallback? onPressed;
+
+  final Color color;
+
+  final bool isPrimary;
+
+  final double height;
+
+  final bool isLoading;
+
+
+  const FlatCapsuleButton({
+
+    super.key,
+
+    required this.label,
+
+    this.icon,
+
+    this.onPressed,
+
+    required this.color,
+
+    this.isPrimary = true,
+
+    this.height = 56,
+
+    this.isLoading = false,
+
+  });
+
+
+  @override
+
+  State<FlatCapsuleButton> createState() => _FlatCapsuleButtonState();
+
+}
+
+
+class _FlatCapsuleButtonState extends State<FlatCapsuleButton>
+
+    with SingleTickerProviderStateMixin {
+
+  late AnimationController _controller;
+
+  late Animation<double> _scaleAnimation;
+
+
+  @override
+
+  void initState() {
+
+    super.initState();
+
+    _controller = AnimationController(
+
+      duration: const Duration(milliseconds: 150),
+
+      vsync: this,
+
+    );
+
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.96).animate(
+
+      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
+
+    );
+
+  }
+
+
+  @override
+
+  void dispose() {
+
+    _controller.dispose();
+
+    super.dispose();
+
+  }
+
+
+  @override
+
+  Widget build(BuildContext context) {
+
+    final borderRadius = widget.height / 2;
+
+
+    return GestureDetector(
+
+      onTapDown: widget.onPressed != null ? (_) => _controller.forward() : null,
+
+      onTapUp: widget.onPressed != null ? (_) {
+
+        _controller.reverse();
+
+        widget.onPressed?.call();
+
+      } : null,
+
+      onTapCancel: widget.onPressed != null ? () => _controller.reverse() : null,
+
+      child: AnimatedBuilder(
+
+        animation: _controller,
+
+        builder: (context, child) {
+
+          return Transform.scale(
+
+            scale: _scaleAnimation.value,
+
+            child: Container(
+
+              width: double.infinity,
+
+              height: widget.height,
+
+              decoration: BoxDecoration(
+
+                // 主按钮: 纯色填充 | 次要按钮: 透明 + 边框
+
+                color: widget.isPrimary ? widget.color : Colors.transparent,
+
+                borderRadius: BorderRadius.circular(borderRadius),
+
+                border: widget.isPrimary
+
+                    ? null
+
+                    : Border.all(color: widget.color, width: 1.5),
+
+                // 轻阴影 (仅主按钮)
+
+                boxShadow: widget.isPrimary
+
+                    ? [
+
+                        BoxShadow(
+
+                          color: widget.color.withValues(alpha: 0.25),
+
+                          blurRadius: 8,
+
+                          offset: const Offset(0, 3),
+
+                        ),
+
+                      ]
+
+                    : null,
+
+              ),
+
+              child: Center(
+
+                child: widget.isLoading
+
+                    ? SizedBox(
+
+                        width: 22,
+
+                        height: 22,
+
+                        child: CircularProgressIndicator(
+
+                          strokeWidth: 2.5,
+
+                          valueColor: AlwaysStoppedAnimation(
+
+                            widget.isPrimary ? Colors.white : widget.color,
+
+                          ),
+
+                        ),
+
+                      )
+
+                    : Row(
+
+                        mainAxisAlignment: MainAxisAlignment.center,
+
+                        children: [
+
+                          if (widget.icon != null) ...[
+
+                            Icon(
+
+                              widget.icon,
+
+                              color: widget.isPrimary ? Colors.white : widget.color,
+
+                              size: 20,
+
+                            ),
+
+                            const SizedBox(width: 8),
+
+                          ],
+
+                          Text(
+
+                            widget.label,
+
+                            style: TextStyle(
+
+                              fontFamily: '.SF Pro Text',
+
+                              fontSize: 17,
+
+                              fontWeight: FontWeight.w600,
+
+                              color: widget.isPrimary ? Colors.white : widget.color,
+
+                              letterSpacing: -0.3,
+
+                            ),
+
+                          ),
+
+                        ],
+
+                      ),
+
+              ),
+
+            );
+
+          );
+
+        },
+
+      ),
+
+    );
+
+  }
+
+}
 /// 液态玻璃卡片 - 空间分层设计
 /// 
 /// 特点:
@@ -862,17 +1123,17 @@ class _LiquidProgressPainter extends CustomPainter {
 /// 特点:
 /// - 平滑的数字切换动画
 /// - 下滑过渡效果
-  // AnimatedNumber is already defined above - remove this duplicate
+
 
 // ============================================================================
 // TYPOGRAPHY: iOS 26 Style Text
 // ============================================================================
 
 /// iOS 26 标题文字 - 更粗、左对齐
-  // TitleText is already defined above - remove this duplicate
+
 
 /// iOS 26 正文文字 - 清晰可读
-  // BodyText is already defined above - remove this duplicate
+
   @override
   Widget build(BuildContext context) {
     return Text(
@@ -999,4 +1260,20 @@ class SingleRowButtonArea extends StatelessWidget {
 }
 
 /// 按钮配置
-  // ButtonConfig is already defined above - remove this duplicate
+class ButtonConfig {
+  final String label;
+  final IconData? icon;
+  final Color color;
+  final VoidCallback? onPressed;
+  final bool isPrimary;
+  final bool isDestructive;
+
+  const ButtonConfig({
+    required this.label,
+    this.icon,
+    required this.color,
+    this.onPressed,
+    this.isPrimary = true,
+    this.isDestructive = false,
+  });
+}
