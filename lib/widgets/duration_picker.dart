@@ -268,31 +268,20 @@ class _DurationPickerState extends State<DurationPicker> {
     );
   }
 
-  Widget _buildConfirmButton(AppThemeData theme) {
-    final isDark = theme.isDark;
-    
+Widget _buildConfirmButton(AppThemeData theme) {
     return GestureDetector(
       onTap: _onConfirm,
       child: Container(
         width: double.infinity,
-        height: 50,
+        height: 52,
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              theme.primaryColor.withValues(alpha: 0.95),
-              theme.primaryColor.withValues(alpha: 0.85),
-            ],
-          ),
-          borderRadius: BorderRadius.circular(25),
-          border: Border.all(
-            color: Colors.white.withValues(alpha: 0.35),
-            width: 0.5,
-          ),
+          color: theme.primaryColor,
+          borderRadius: BorderRadius.circular(26),
           boxShadow: [
             BoxShadow(
               color: theme.primaryColor.withValues(alpha: 0.25),
-              blurRadius: 15,
-              offset: const Offset(0, 4),
+              blurRadius: 8,
+              offset: const Offset(0, 3),
             ),
           ],
         ),
@@ -304,7 +293,7 @@ class _DurationPickerState extends State<DurationPicker> {
               fontSize: 17,
               fontWeight: FontWeight.w600,
               color: Colors.white,
-              letterSpacing: -0.4,
+              letterSpacing: -0.3,
             ),
           ),
         ),
