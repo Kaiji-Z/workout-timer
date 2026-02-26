@@ -1,9 +1,10 @@
 import 'dart:math' as math;
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import 'glass_widgets.dart';
 
-/// iOS 26 风格动画计时器显示
+/// iOS 26 风格动画计时器显示 - VitalFlow 2.0 霓虹风格
 class AnimatedTimerDisplay extends StatelessWidget {
   final int seconds;
   final String label;
@@ -30,133 +31,189 @@ class AnimatedTimerDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final activeColor = isCountdown ? theme.successColor : theme.primaryColor;
+    
     return SizedBox(
       width: size,
       height: size,
       child: Stack(
         alignment: Alignment.center,
         children: [
-          // Glow background - stronger for prominence
+          // Layer 2a: 外层光晕 - 氛围效果
           Container(
-            width: size * 0.85,
-            height: size * 0.85,
+            width: size * 1.25,
+            height: size * 1.25,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: (isCountdown ? theme.successColor : theme.primaryColor)
-                      .withOpacity(0.3),
-                  spreadRadius: 20,
-                  blurRadius: 50,
-                ),
-              ],
-            ),
-          ),
-          // Progress ring - thicker for larger timer
-          SizedBox(
-            width: size,
-            height: size,
-            child: CustomPaint(
-              painter: _TimerProgressPainter(
-                progress: progress,
-                color: isCountdown ? theme.successColor : theme.primaryColor,
-                backgroundColor: theme.borderColor,
-                strokeWidth: size * 0.1, // 10% of size (30px for 300px timer)
-              ),
-            ),
-          ),
-          // 简洁的半透明背景 - 替代毛玻璃
-          Container(
-            width: size * 0.85,
-            height: size * 0.85,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: theme.surfaceColor.withValues(alpha: 0.6),
-              border: Border.all(
-                color: (isCountdown ? theme.successColor : theme.primaryColor).withValues(alpha: 0.3),
-                width: 1,
-              ),
-            ),
-            child: Padding(
-              padding: EdgeInsets.all(size * 0.08),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  AnimatedNumber(
-                    value: _formatTime(seconds),
-                    style: TextStyle(
-                      fontFamily: '.SF Pro Display',
-                      fontSize: size * 0.22, // Proportional to size (~66px for 300px)
-                      fontWeight: FontWeight.w300,
-                      color: theme.textColor,
-                      letterSpacing: -2,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    label,
-                    style: TextStyle(
-                      fontFamily: '.SF Pro Text',
-                      fontSize: size * 0.07,
-                      fontWeight: FontWeight.w500,
-                      color: theme.secondaryTextColor,
-                      letterSpacing: 2,
-                    ),
-                  ),
+              gradient: RadialGradient(
+                colors: [
+                  activeColor.withValues(alpha: 0.12),
+                  Colors.transparent,
                 ],
               ),
             ),
           ),
+          // Layer 2b: 内层发光 - 霓虹效果
+          Container(
+            width: size * 0.95,
+            height: size * 0.95,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: activeColor.withValues(alpha: 0.35),
+                  spreadRadius: 12,
+                  blurRadius: 35,
+                ),
+              ],
+            ),
+          ),
+          // Layer 2c: Progress ring - 霓虹进度环
+          SizedBox(
+            width: size,
+            height: size,
+            child: CustomPaint(
+              painter: _NeonProgressPainter(
+                progress: progress,
+                primaryColor: theme.primaryColor,
+                secondaryColor: theme.successColor,
+                strokeWidth: size * 0.055,
+                isCountdown: isCountdown,
+              ),
+            ),
+          ),
+          // Layer 3: Timer Card - 毛玻璃圆形卡片
+          _buildTimerCard(),
         ],
+      ),
+    );
+  }
+
+  /// 构建计时器毛玻璃卡片
+  Widget _buildTimerCard() {
+    return ClipOval(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+        child: Container(
+          width: size * 0.82,
+          height: size * 0.82,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.white.withValues(alpha: 0.92),
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.6),
+              width: 1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.06),
+                blurRadius: 20,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: Padding(
+            padding: EdgeInsets.all(size * 0.1),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                AnimatedNumber(
+                  value: _formatTime(seconds),
+                  style: TextStyle(
+                    fontFamily: '.SF Pro Display',
+                    fontSize: size * 0.22,
+                    fontWeight: FontWeight.w300,
+                    color: theme.textColor,
+                    letterSpacing: -2,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontFamily: '.SF Pro Text',
+                    fontSize: size * 0.06,
+                    fontWeight: FontWeight.w500,
+                    color: theme.secondaryTextColor,
+                    letterSpacing: 1.5,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
 }
 
-class _TimerProgressPainter extends CustomPainter {
+/// 霓虹进度环绘制器 - VitalFlow 2.0
+class _NeonProgressPainter extends ChangeNotifier implements CustomPainter {
   final double progress;
-  final Color color;
-  final Color backgroundColor;
+  final Color primaryColor;
+  final Color secondaryColor;
   final double strokeWidth;
+  final bool isCountdown;
 
-  _TimerProgressPainter({
+  _NeonProgressPainter({
     required this.progress,
-    required this.color,
-    required this.backgroundColor,
+    required this.primaryColor,
+    required this.secondaryColor,
     required this.strokeWidth,
+    required this.isCountdown,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
     final radius = size.width / 2 - strokeWidth / 2;
+    final activeColor = isCountdown ? secondaryColor : primaryColor;
 
-    // Background circle
+    // 背景环 - 极淡
     final bgPaint = Paint()
-      ..color = backgroundColor.withOpacity(0.3)
+      ..color = Colors.black.withValues(alpha: 0.04)
       ..strokeWidth = strokeWidth
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
     canvas.drawCircle(center, radius, bgPaint);
 
-    // Progress arc
+    final sweepAngle = 2 * math.pi * progress;
+
+    // 外发光层 - 霓虹光晕
+    final outerGlowPaint = Paint()
+      ..color = activeColor.withValues(alpha: 0.3)
+      ..strokeWidth = strokeWidth * 2.5
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 15);
+    
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: radius),
+      -math.pi / 2,
+      sweepAngle,
+      false,
+      outerGlowPaint,
+    );
+
+    // 进度环 - 渐变色 (青到绿)
+    final gradient = SweepGradient(
+      startAngle: -math.pi / 2,
+      endAngle: math.pi * 1.5,
+      colors: [
+        primaryColor,
+        isCountdown ? secondaryColor : primaryColor.withValues(alpha: 0.7),
+        isCountdown ? primaryColor : secondaryColor,
+      ],
+      stops: const [0.0, 0.5, 1.0],
+      transform: const GradientRotation(-math.pi / 2),
+    );
+
     final progressPaint = Paint()
-      ..shader = SweepGradient(
-        startAngle: -math.pi / 2,
-        endAngle: math.pi * 1.5,
-        colors: [
-          color,
-          color.withOpacity(0.6),
-          color,
-        ],
-        stops: const [0.0, 0.5, 1.0],
-        transform: const GradientRotation(-math.pi / 2),
-      ).createShader(Rect.fromCircle(center: center, radius: radius))
+      ..shader = gradient.createShader(Rect.fromCircle(center: center, radius: radius))
       ..strokeWidth = strokeWidth
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
 
-    final sweepAngle = 2 * math.pi * progress;
     canvas.drawArc(
       Rect.fromCircle(center: center, radius: radius),
       -math.pi / 2,
@@ -165,27 +222,45 @@ class _TimerProgressPainter extends CustomPainter {
       progressPaint,
     );
 
-    // Glow effect
-    final glowPaint = Paint()
-      ..color = color.withOpacity(0.3)
-      ..strokeWidth = strokeWidth * 2
+    // 内发光 - 沿进度环中心
+    final innerGlowPaint = Paint()
+      ..color = activeColor.withValues(alpha: 0.6)
+      ..strokeWidth = strokeWidth * 0.4
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round
-      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8);
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4);
 
     canvas.drawArc(
       Rect.fromCircle(center: center, radius: radius),
       -math.pi / 2,
       sweepAngle,
       false,
-      glowPaint,
+      innerGlowPaint,
     );
   }
 
   @override
-  bool shouldRepaint(covariant _TimerProgressPainter oldDelegate) {
-    return oldDelegate.progress != progress || oldDelegate.color != color;
+  bool shouldRepaint(covariant _NeonProgressPainter oldDelegate) {
+    return oldDelegate.progress != progress ||
+        oldDelegate.primaryColor != primaryColor ||
+        oldDelegate.secondaryColor != secondaryColor ||
+        oldDelegate.isCountdown != isCountdown;
   }
+
+  @override
+  bool shouldRebuildSemantics(covariant _NeonProgressPainter oldDelegate) => false;
+
+  @override
+  SemanticsBuilderCallback? get semanticsBuilder => null;
+
+  @override
+  bool? hitTest(Offset position) => null;
+
+  @override
+  void addListener(VoidCallback listener) {}
+
+  @override
+  void removeListener(VoidCallback listener) {}
 }
 
 /// iOS 26 风格小计时器（总时长显示）
