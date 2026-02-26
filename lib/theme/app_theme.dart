@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 /// 主题类型枚举
 enum AppThemeType {
+  vitalFlow,
   neonTempus,
   arcticFlow,
   electricPulse,
@@ -199,7 +200,39 @@ class AppThemeData {
   }
 }
 
-/// 主题 1: Neon Tempus v2 - 深色科技风格
+/// 主题 1: VitalFlow - 青绿活力风格 (推荐)
+/// 基于参考图设计规范 - 青绿科技感
+const vitalFlowTheme = AppThemeData(
+  name: 'vitalFlow',
+  nameZh: 'VitalFlow',
+  description: '青绿活力风格',
+  icon: Icons.water_drop_rounded,
+  // 背景色 - 浅青到白渐变的基础色
+  backgroundColor: Color(0xFFe6f7ff),
+  // 卡片背景 - 纯白
+  surfaceColor: Color(0xFFFFFFFF),
+  // 主色调 - 青色 (更亮、更科技感)
+  primaryColor: Color(0xFF00f0ff),
+  // 辅助色 - 薄荷绿
+  secondaryColor: Color(0xFF00ffaa),
+  // 强调色 - 薄荷绿
+  accentColor: Color(0xFF00ffaa),
+  // 成功色 - 薄荷绿
+  successColor: Color(0xFF00ffaa),
+  // 警告色 - 保持橙色
+  warningColor: Color(0xFFff9500),
+  textColor: Color(0xFF333333),
+  secondaryTextColor: Color(0xFF666666),
+  borderColor: Color(0x14000000), // rgba(0,0,0,0.08)
+  // 渐变色 - 青到绿
+  timerGradientColors: [
+    Color(0xFF00f0ff),
+    Color(0xFF00ffaa),
+  ],
+  isDark: false,
+);
+
+/// 主题 2: Neon Tempus - 深色科技风格
 const neonTempusTheme = AppThemeData(
   name: 'neonTempus',
   nameZh: 'Neon Tempus',
@@ -223,7 +256,7 @@ const neonTempusTheme = AppThemeData(
   isDark: true,
 );
 
-/// 主题 2: Arctic Flow - 浅色纯净风格
+/// 主题 3: Arctic Flow - 浅色纯净风格
 const arcticFlowTheme = AppThemeData(
   name: 'arcticFlow',
   nameZh: 'Arctic Flow',
@@ -247,7 +280,7 @@ const arcticFlowTheme = AppThemeData(
   isDark: false,
 );
 
-/// 主题 3: Electric Pulse - 深色能量风格
+/// 主题 4: Electric Pulse - 深色能量风格
 const electricPulseTheme = AppThemeData(
   name: 'electricPulse',
   nameZh: 'Electric Pulse',
@@ -274,6 +307,8 @@ const electricPulseTheme = AppThemeData(
 /// 获取主题数据
 AppThemeData getThemeData(AppThemeType type) {
   switch (type) {
+    case AppThemeType.vitalFlow:
+      return vitalFlowTheme;
     case AppThemeType.neonTempus:
       return neonTempusTheme;
     case AppThemeType.arcticFlow:
@@ -285,7 +320,8 @@ AppThemeData getThemeData(AppThemeType type) {
 
 /// 所有主题列表
 const allThemes = [
-  neonTempusTheme,
-  arcticFlowTheme,
-  electricPulseTheme,
+  vitalFlowTheme,      // 推荐 - 默认主题
+  neonTempusTheme,     // 旧版
+  arcticFlowTheme,     // 旧版
+  electricPulseTheme,  // 旧版
 ];
