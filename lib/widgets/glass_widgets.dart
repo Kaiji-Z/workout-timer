@@ -1019,3 +1019,82 @@ typedef GlassContainer = LiquidGlass;
 typedef GlassButton = LiquidButton;
 typedef GlassOutlineButton = LiquidOutlineButton;
 typedef GlassBadge = LiquidBadge;
+
+// ============================================================================
+// SINGLE ROW BUTTON AREA - Unified Button Layout
+// ============================================================================
+
+/// 单行按钮区域 - 支持 1/2/3 个按钮的统一布局
+///
+/// 特点:
+/// - 所有按钮在同一行
+/// - 等宽分布
+/// - 药丸形状 (iOS 26 风格)
+class SingleRowButtonArea extends StatelessWidget {
+  final List<ButtonConfig> buttons;
+  final double height;
+  final double gap;
+
+  const SingleRowButtonArea({
+    super.key,
+    required this.buttons,
+    this.height = 56,
+    this.gap = 10,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (buttons.isEmpty) return const SizedBox.shrink();
+    
+    return Row(
+      children: buttons.asMap().entries.map((entry) {
+        final index = entry.key;
+        final button = entry.value;
+        
+        return Expanded(
+          child: Padding(
+            padding: EdgeInsets.only(
+              right: index < buttons.length - 1 ? gap : 0,
+            ),
+            child: button.isPrimary
+                ? LiquidButton(
+                    label: button.label,
+                    icon: button.icon,
+                    color: button.color,
+                    height: height,
+                    onPressed: button.onPressed,
+                    isPrimary: true,
+                    isDestructive: button.isDestructive,
+                  )
+                : LiquidOutlineButton(
+                    label: button.label,
+                    icon: button.icon,
+                    color: button.color,
+                    height: height,
+                    onPressed: button.onPressed,
+                  ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+}
+
+/// 按钮配置
+class ButtonConfig {
+  final String label;
+  final IconData? icon;
+  final Color color;
+  final VoidCallback? onPressed;
+  final bool isPrimary;
+  final bool isDestructive;
+
+  const ButtonConfig({
+    required this.label,
+    this.icon,
+    required this.color,
+    this.onPressed,
+    this.isPrimary = true,
+    this.isDestructive = false,
+  });
+}

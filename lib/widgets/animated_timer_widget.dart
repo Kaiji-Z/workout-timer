@@ -17,7 +17,7 @@ class AnimatedTimerDisplay extends StatelessWidget {
     required this.seconds,
     required this.label,
     required this.theme,
-    this.size = 200,
+    required this.size,
     this.isCountdown = false,
     this.progress = 1.0,
   });
@@ -36,23 +36,23 @@ class AnimatedTimerDisplay extends StatelessWidget {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          // Glow background
+          // Glow background - stronger for prominence
           Container(
-            width: size * 0.9,
-            height: size * 0.9,
+            width: size * 0.85,
+            height: size * 0.85,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
                   color: (isCountdown ? theme.successColor : theme.primaryColor)
-                      .withOpacity(0.2),
-                  blurRadius: 40,
-                  spreadRadius: 10,
+                      .withOpacity(0.3),
+                  spreadRadius: 20,
+                  blurRadius: 50,
                 ),
               ],
             ),
           ),
-          // Progress ring
+          // Progress ring - thicker for larger timer
           SizedBox(
             width: size,
             height: size,
@@ -61,7 +61,7 @@ class AnimatedTimerDisplay extends StatelessWidget {
                 progress: progress,
                 color: isCountdown ? theme.successColor : theme.primaryColor,
                 backgroundColor: theme.borderColor,
-                strokeWidth: size * 0.03,
+                strokeWidth: size * 0.1, // 10% of size (30px for 300px timer)
               ),
             ),
           ),
@@ -86,7 +86,7 @@ class AnimatedTimerDisplay extends StatelessWidget {
                     value: _formatTime(seconds),
                     style: TextStyle(
                       fontFamily: '.SF Pro Display',
-                      fontSize: size * 0.22,
+                      fontSize: size * 0.22, // Proportional to size (~66px for 300px)
                       fontWeight: FontWeight.w300,
                       color: theme.textColor,
                       letterSpacing: -2,
