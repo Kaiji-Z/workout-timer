@@ -862,99 +862,17 @@ class _LiquidProgressPainter extends CustomPainter {
 /// 特点:
 /// - 平滑的数字切换动画
 /// - 下滑过渡效果
-class AnimatedNumber extends StatelessWidget {
-  final String value;
-  final TextStyle? style;
-
-  const AnimatedNumber({
-    super.key,
-    required this.value,
-    this.style,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 200),
-      transitionBuilder: (child, animation) {
-        return FadeTransition(
-          opacity: animation,
-          child: SlideTransition(
-            position: Tween<Offset>(
-              begin: const Offset(0, 0.1),
-              end: Offset.zero,
-            ).animate(CurvedAnimation(
-              parent: animation,
-              curve: Curves.easeOut,
-            )),
-            child: child,
-          ),
-        );
-      },
-      child: Text(
-        value,
-        key: ValueKey(value),
-        style: style,
-      ),
-    );
-  }
-}
+  // AnimatedNumber is already defined above - remove this duplicate
 
 // ============================================================================
 // TYPOGRAPHY: iOS 26 Style Text
 // ============================================================================
 
 /// iOS 26 标题文字 - 更粗、左对齐
-class TitleText extends StatelessWidget {
-  final String text;
-  final double fontSize;
-  final Color? color;
-  final FontWeight fontWeight;
-  final TextAlign textAlign;
-
-  const TitleText(
-    this.text, {
-    super.key,
-    this.fontSize = 28,
-    this.color,
-    this.fontWeight = FontWeight.w700,
-    this.textAlign = TextAlign.left,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      text,
-      textAlign: textAlign,
-      style: TextStyle(
-        fontFamily: '.SF Pro Display',
-        fontSize: fontSize,
-        fontWeight: fontWeight,
-        color: color ?? Theme.of(context).colorScheme.onSurface,
-        letterSpacing: -0.5,
-        height: 1.2,
-      ),
-    );
-  }
-}
+  // TitleText is already defined above - remove this duplicate
 
 /// iOS 26 正文文字 - 清晰可读
-class BodyText extends StatelessWidget {
-  final String text;
-  final double fontSize;
-  final Color? color;
-  final FontWeight fontWeight;
-  final TextAlign textAlign;
-
-  const BodyText(
-    this.text, {
-    super.key,
-    this.fontSize = 17,
-    this.color,
-    this.fontWeight = FontWeight.w400,
-    this.textAlign = TextAlign.left,
-  });
-
+  // BodyText is already defined above - remove this duplicate
   @override
   Widget build(BuildContext context) {
     return Text(
@@ -1081,20 +999,4 @@ class SingleRowButtonArea extends StatelessWidget {
 }
 
 /// 按钮配置
-class ButtonConfig {
-  final String label;
-  final IconData? icon;
-  final Color color;
-  final VoidCallback? onPressed;
-  final bool isPrimary;
-  final bool isDestructive;
-
-  const ButtonConfig({
-    required this.label,
-    this.icon,
-    required this.color,
-    this.onPressed,
-    this.isPrimary = true,
-    this.isDestructive = false,
-  });
-}
+  // ButtonConfig is already defined above - remove this duplicate
