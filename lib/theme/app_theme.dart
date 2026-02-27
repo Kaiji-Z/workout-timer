@@ -200,36 +200,38 @@ class AppThemeData {
   }
 }
 
-/// 主题 1: VitalFlow - 青绿活力风格 (推荐)
-/// 基于参考图设计规范 - 青绿科技感
+/// 主题 1: VitalFlow - 清新健康风格 (推荐)
+/// 基于现代健康应用设计趋势 - 简约、清新、和谐
+/// 主色调: 青绿色系 (Teal) - 传达健康、活力、现代感
 const vitalFlowTheme = AppThemeData(
   name: 'vitalFlow',
   nameZh: 'VitalFlow',
-  description: '青绿活力风格',
-  icon: Icons.water_drop_rounded,
-  // 背景色 - 浅青到白渐变的基础色
-  backgroundColor: Color(0xFFe6f7ff),
-  // 卡片背景 - 纯白
-  surfaceColor: Color(0xFFFFFFFF),
-  // 主色调 - 青色 (更亮、更科技感)
-  primaryColor: Color(0xFF00f0ff),
-  // 辅助色 - 薄荷绿
-  secondaryColor: Color(0xFF00ffaa),
-  // 强调色 - 薄荷绿
-  accentColor: Color(0xFF00ffaa),
-  // 成功色 - 薄荷绿
-  successColor: Color(0xFF00ffaa),
-  // 警告色 - 保持橙色
-  warningColor: Color(0xFFff9500),
-  textColor: Color(0xFF333333),
-  secondaryTextColor: Color(0xFF666666),
-  borderColor: Color(0x14000000), // rgba(0,0,0,0.08)
-  // 渐变色 - 青到绿
+  description: '清新健康风格',
+  icon: Icons.eco_rounded,
+  // 背景色 - 深青色 (配合模糊背景图)
+  backgroundColor: Color(0xFF1A3A3A),
+  // 卡片背景 - 毛玻璃效果白色
+  surfaceColor: Color(0xE6FFFFFF), // 90% white
+  // 主色调 - 清新青绿 (Fresh Teal)
+  primaryColor: Color(0xFF4DB6AC),
+  // 辅助色 - 浅青绿
+  secondaryColor: Color(0xFF80CBC4),
+  // 强调色 - 珊瑚橙 (能量感)
+  accentColor: Color(0xFFFF8A65),
+  // 成功色 - 活力绿
+  successColor: Color(0xFF66BB6A),
+  // 警告色 - 暖琥珀
+  warningColor: Color(0xFFFFA726),
+  // 文字色 - 深色 (在毛玻璃上)
+  textColor: Color(0xFF263238),
+  secondaryTextColor: Color(0xFF546E7A),
+  borderColor: Color(0x33FFFFFF), // rgba(255,255,255,0.2)
+  // 渐变色 - 青绿渐变
   timerGradientColors: [
-    Color(0xFF00f0ff),
-    Color(0xFF00ffaa),
+    Color(0xFF4DB6AC),
+    Color(0xFF26A69A),
   ],
-  isDark: false,
+  isDark: true,
 );
 
 /// 主题 2: Neon Tempus - 深色科技风格

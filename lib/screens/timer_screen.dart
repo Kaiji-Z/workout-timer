@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../widgets/training_widget.dart';
 
@@ -17,7 +18,10 @@ class TimerScreen extends StatelessWidget {
   }
 }
 
-/// VitalFlow 背景层 - 渐变 + 装饰性光晕
+/// VitalFlow 背景层 - 全局模糊背景，突出前景
+/// 模拟长焦镜头大光圈效果，背景虚化
+const double _blurSigma = 12.0; // 模糊强度
+
 class VitalFlowBackground extends StatelessWidget {
   final Widget child;
 
@@ -25,79 +29,47 @@ class VitalFlowBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Color(0xFFe6f7ff), // 浅青
-            Color(0xFFb3e0ff), // 中青
-            Color(0xFFf0faff), // 接近白
-          ],
-          stops: [0.0, 0.5, 1.0],
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        // 模糊背景层
+        Positioned.fill(
+          child: ImageFiltered(
+            imageFilter: ImageFilter.blur(
+              sigmaX: _blurSigma,
+              sigmaY: _blurSigma,
+              tileMode: TileMode.decal, // 边缘无缝
+            ),
+            child: Container(
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/images/background.jpg'),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+          ),
         ),
-      ),
-      child: Stack(
-        children: [
-          // 装饰性光晕 - 右上角 (青色)
-          Positioned(
-            top: -80,
-            right: -60,
-            child: Container(
-              width: 280,
-              height: 280,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [
-                    const Color(0xFF00f0ff).withValues(alpha: 0.12),
-                    Colors.transparent,
-                  ],
-                ),
+        // 轻微渐变叠加增加层次感
+        Positioned.fill(
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.white.withValues(alpha: 0.06),
+                  Colors.white.withValues(alpha: 0.02),
+                  Colors.white.withValues(alpha: 0.08),
+                ],
+                stops: const [0.0, 0.5, 1.0],
               ),
             ),
           ),
-          // 装饰性光晕 - 左下角 (薄荷绿)
-          Positioned(
-            bottom: 150,
-            left: -80,
-            child: Container(
-              width: 240,
-              height: 240,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [
-                    const Color(0xFF00ffaa).withValues(alpha: 0.08),
-                    Colors.transparent,
-                  ],
-                ),
-              ),
-            ),
-          ),
-          // 装饰性光晕 - 中右 (青色，较小)
-          Positioned(
-            top: 200,
-            right: -40,
-            child: Container(
-              width: 180,
-              height: 180,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [
-                    const Color(0xFF00f0ff).withValues(alpha: 0.06),
-                    Colors.transparent,
-                  ],
-                ),
-              ),
-            ),
-          ),
-          // 内容
-          child,
-        ],
-      ),
+        ),
+        // 前景内容
+        child,
+      ],
     );
   }
 }

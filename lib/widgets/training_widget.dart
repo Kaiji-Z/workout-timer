@@ -48,7 +48,7 @@ class TrainingWidget extends StatelessWidget {
               _buildBottomSection(context, training, theme),
               
               // 为底部导航栏留出空间
-              const SizedBox(height: 100),
+              const SizedBox(height: 70),
             ],
           ),
         );
@@ -114,28 +114,28 @@ class TrainingWidget extends StatelessWidget {
       );
     }
 
-    // 运动中或暂停 - 300px 大计时器
+    // 运动中或暂停 - 360px 大计时器
     if (training.isExercising || training.isExercisePaused) {
       return AnimatedTimerDisplay(
         seconds: training.sessionDuration,
         label: '运动中',
         theme: theme,
-        size: 300,
+        size: 360,
         isCountdown: false,
       );
     }
 
-    // 完成状态 - 200px 完成显示
+    // 完成状态 - 280px 完成显示
     if (training.isCompleted) {
       return _buildCompletedDisplay(training, theme);
     }
 
-    // 空闲状态 - 300px 预览计时器
+    // 空闲状态 - 360px 预览计时器
     return AnimatedTimerDisplay(
       seconds: training.restDuration,
       label: '休息时长',
       theme: theme,
-      size: 300,
+      size: 360,
       isCountdown: false,
     );
   }
@@ -154,7 +154,7 @@ PulsingWidget(
                 height: 200,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.white.withValues(alpha: 0.92),
+                  color: Colors.white.withValues(alpha: 0.30),
                   border: Border.all(
                     color: theme.successColor.withValues(alpha: 0.3),
                     width: 1,
@@ -251,23 +251,17 @@ PulsingWidget(
     return ClipRRect(
       borderRadius: BorderRadius.circular(16),
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.88),
+            // 参考底部导航栏: 深色背景用低 alpha
+            color: Colors.white.withValues(alpha: 0.12),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: Colors.white.withValues(alpha: 0.5),
+              color: Colors.white.withValues(alpha: 0.2),
               width: 1,
             ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.06),
-                blurRadius: 20,
-                offset: const Offset(0, 8),
-              ),
-            ],
           ),
           child: SingleRowButtonArea(
             buttons: buttons,
@@ -316,109 +310,119 @@ PulsingWidget(
 
 
 
+  /// 获取当前状态的统一颜色
+  Color _getStateColor(TrainingProvider training, AppThemeData theme) {
+    if (training.isExercising || training.isExercisePaused) {
+      return theme.primaryColor; // 运动状态 - 主色调青绿
+    }
+    if (training.isResting) {
+      return theme.successColor; // 休息状态 - 活力绿
+    }
+    if (training.isCompleted) {
+      return theme.successColor; // 完成状态 - 活力绿
+    }
+    return theme.primaryColor; // 空闲状态 - 主色调
+  }
+
   /// 根据状态获取按钮配置
   List<ButtonConfig> _getButtonsForState(BuildContext context, TrainingProvider training, AppThemeData theme) {
-    // 空闲状态
+    final stateColor = _getStateColor(training, theme);
+    
+    // 空闲状态 - 主色调
     if (training.isIdle) {
       return [
         ButtonConfig(
           label: '设置时长',
           icon: Icons.timer_outlined,
-          color: theme.secondaryColor,
+          color: stateColor,
           isPrimary: false,
           onPressed: () => _showDurationPicker(context, training),
         ),
         ButtonConfig(
           label: '开始运动',
           icon: Icons.play_arrow_rounded,
-          color: theme.primaryColor,
+          color: stateColor,
           onPressed: training.startExercise,
         ),
       ];
     }
 
-    // 运动中
+    // 运动中 - 运动色
     if (training.isExercising) {
       return [
         ButtonConfig(
           label: '开始休息',
           icon: Icons.pause_circle_outline,
-          color: theme.successColor,
+          color: stateColor,
           onPressed: training.startRest,
         ),
         ButtonConfig(
           label: '暂停',
           icon: Icons.pause,
-          color: theme.warningColor,
+          color: stateColor,
           isPrimary: false,
           onPressed: training.pauseExercise,
         ),
         ButtonConfig(
           label: '结束',
           icon: Icons.stop,
-          color: theme.accentColor,
+          color: stateColor,
           isPrimary: false,
           onPressed: training.endWorkout,
         ),
       ];
     }
 
-    // 运动暂停
+    // 运动暂停 - 运动色 (只保留继续和结束)
     if (training.isExercisePaused) {
       return [
         ButtonConfig(
           label: '继续',
           icon: Icons.play_arrow,
-          color: theme.primaryColor,
+          color: stateColor,
           onPressed: training.resumeFromPause,
-        ),
-        ButtonConfig(
-          label: '开始休息',
-          icon: Icons.self_improvement,
-          color: theme.successColor,
-          onPressed: training.startRest,
         ),
         ButtonConfig(
           label: '结束',
           icon: Icons.stop,
-          color: theme.accentColor,
+          color: stateColor,
           isPrimary: false,
           onPressed: training.endWorkout,
         ),
       ];
     }
 
-    // 休息中
+    // 休息中 - 休息色
     if (training.isResting) {
       return [
         ButtonConfig(
           label: '跳过休息',
           icon: Icons.skip_next,
-          color: theme.successColor,
+          color: stateColor,
           onPressed: training.skipRest,
         ),
       ];
     }
 
-    // 完成状态
+    // 完成状态 - 完成色
     if (training.isCompleted) {
       return [
         ButtonConfig(
           label: '保存',
           icon: Icons.save,
-          color: theme.primaryColor,
+          color: stateColor,
           onPressed: () => _saveWorkout(context, training),
         ),
         ButtonConfig(
           label: '继续',
           icon: Icons.replay,
-          color: theme.successColor,
+          color: stateColor,
           onPressed: training.resumeExercise,
         ),
         ButtonConfig(
           label: '放弃',
           icon: Icons.delete_outline,
-          color: theme.warningColor,
+          color: stateColor,
           isPrimary: false,
           isDestructive: true,
           onPressed: training.resetWorkout,

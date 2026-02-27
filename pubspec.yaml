@@ -48,6 +48,7 @@ flutter:
  
   assets:
     - assets/icon.png
+    - assets/images/
 
   fonts:
     - family: Orbitron

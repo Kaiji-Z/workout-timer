@@ -325,9 +325,7 @@ class _LiquidButtonState extends State<LiquidButton>
                                         fontWeight: FontWeight.w600,
                                         color: widget.isPrimary
                                             ? Colors.white
-                                            : isDark
-                                                ? Colors.white
-                                                : Colors.black,
+                                            : const Color(0xFF263238),
                                         letterSpacing: -0.4,
                                       ),
                                     ),
@@ -418,6 +416,7 @@ class _LiquidOutlineButtonState extends State<LiquidOutlineButton>
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final borderRadius = widget.height / 2;
 
     return GestureDetector(
@@ -450,7 +449,7 @@ class _LiquidOutlineButtonState extends State<LiquidOutlineButton>
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       if (widget.icon != null) ...[
-                        Icon(widget.icon, color: widget.color, size: 18),
+                        Icon(widget.icon, color: const Color(0xFF263238), size: 18),
                         const SizedBox(width: 8),
                       ],
                       Text(
@@ -459,7 +458,7 @@ class _LiquidOutlineButtonState extends State<LiquidOutlineButton>
                           fontFamily: '.SF Pro Text',
                           fontSize: 17,
                           fontWeight: FontWeight.w600,
-                          color: widget.color,
+                          color: const Color(0xFF263238),
                           letterSpacing: -0.4,
                         ),
                       ),
@@ -583,9 +582,8 @@ class _FlatCapsuleButtonState extends State<FlatCapsuleButton>
 
 
   @override
-
   Widget build(BuildContext context) {
-
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final borderRadius = widget.height / 2;
 
 
@@ -686,48 +684,30 @@ class _FlatCapsuleButtonState extends State<FlatCapsuleButton>
                         children: [
 
                           if (widget.icon != null) ...[
-
                             Icon(
-
                               widget.icon,
-
-                              color: widget.isPrimary ? Colors.white : widget.color,
-
+                              color: widget.isPrimary ? Colors.white : const Color(0xFF263238),
                               size: 20,
-
                             ),
-
                             const SizedBox(width: 8),
-
                           ],
-
                           Text(
-
                             widget.label,
-
                             style: TextStyle(
-
                               fontFamily: '.SF Pro Text',
-
                               fontSize: 17,
-
                               fontWeight: FontWeight.w600,
-
-                              color: widget.isPrimary ? Colors.white : widget.color,
-
-                              letterSpacing: -0.3,
-
+                              color: widget.isPrimary ? Colors.white : const Color(0xFF263238),
+                              letterSpacing: -0.4,
                             ),
-
                           ),
-
                         ],
 
                       ),
 
               ),
 
-            );
+            )
 
           );
 
@@ -1124,16 +1104,54 @@ class _LiquidProgressPainter extends CustomPainter {
 /// - 平滑的数字切换动画
 /// - 下滑过渡效果
 
-
-// ============================================================================
-// TYPOGRAPHY: iOS 26 Style Text
-// ============================================================================
-
 /// iOS 26 标题文字 - 更粗、左对齐
+class TitleText extends StatelessWidget {
+  final String text;
+  final double fontSize;
+  final Color? color;
+  final FontWeight fontWeight;
+  final TextAlign textAlign;
+
+  const TitleText(
+    this.text, {
+    super.key,
+    this.fontSize = 20,
+    this.color,
+    this.fontWeight = FontWeight.w700,
+    this.textAlign = TextAlign.left,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      text,
+      textAlign: textAlign,
+      style: TextStyle(
+        fontFamily: '.SF Pro Display',
+        fontSize: fontSize,
+        fontWeight: fontWeight,
+        color: color ?? Theme.of(context).colorScheme.onSurface,
+      ),
+    );
+  }
+}
 
 
-/// iOS 26 正文文字 - 清晰可读
+class BodyText extends StatelessWidget {
+  final String text;
+  final double fontSize;
+  final Color? color;
+  final FontWeight fontWeight;
+  final TextAlign textAlign;
 
+  const BodyText(
+    this.text, {
+    super.key,
+    this.fontSize = 17,
+    this.color,
+    this.fontWeight = FontWeight.w400,
+    this.textAlign = TextAlign.left,
+  });
   @override
   Widget build(BuildContext context) {
     return Text(
@@ -1150,7 +1168,6 @@ class _LiquidProgressPainter extends CustomPainter {
     );
   }
 }
-
 /// iOS 26 标签文字 - 小字号
 class LabelText extends StatelessWidget {
   final String text;
@@ -1167,7 +1184,6 @@ class LabelText extends StatelessWidget {
     this.fontWeight = FontWeight.w500,
     this.textAlign = TextAlign.left,
   });
-
   @override
   Widget build(BuildContext context) {
     return Text(
@@ -1184,11 +1200,9 @@ class LabelText extends StatelessWidget {
     );
   }
 }
-
 // ============================================================================
 // ALIASES: Backward Compatibility
 // ============================================================================
-
 typedef LiquidGlassContainer = LiquidGlass;
 typedef LiquidGlassButton = LiquidButton;
 typedef LiquidGlassOutlineButton = LiquidOutlineButton;

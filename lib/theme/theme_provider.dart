@@ -6,8 +6,9 @@ import 'app_theme.dart';
 class ThemeProvider extends ChangeNotifier {
   static const String _themeKey = 'selected_theme';
   
-  AppThemeType _currentThemeType = AppThemeType.neonTempus;
-  AppThemeData _currentTheme = neonTempusTheme;
+  // 默认使用 VitalFlow 主题
+  AppThemeType _currentThemeType = AppThemeType.vitalFlow;
+  AppThemeData _currentTheme = vitalFlowTheme;
   
   AppThemeType get currentThemeType => _currentThemeType;
   AppThemeData get currentTheme => _currentTheme;
@@ -48,6 +49,8 @@ class ThemeProvider extends ChangeNotifier {
   /// 主题类型转名称
   String _typeToThemeName(AppThemeType type) {
     switch (type) {
+      case AppThemeType.vitalFlow:
+        return 'vitalFlow';
       case AppThemeType.neonTempus:
         return 'neonTempus';
       case AppThemeType.arcticFlow:
@@ -60,13 +63,15 @@ class ThemeProvider extends ChangeNotifier {
   /// 主题名称转类型
   AppThemeType _themeNameToType(String name) {
     switch (name) {
+      case 'vitalFlow':
+        return AppThemeType.vitalFlow;
       case 'arcticFlow':
         return AppThemeType.arcticFlow;
       case 'electricPulse':
         return AppThemeType.electricPulse;
       case 'neonTempus':
       default:
-        return AppThemeType.neonTempus;
+        return AppThemeType.vitalFlow;  // 默认回 VitalFlow
     }
   }
 }

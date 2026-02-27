@@ -2,7 +2,7 @@ import 'dart:math' as math;
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
-import 'glass_widgets.dart';
+
 
 /// iOS 26 风格动画计时器显示 - VitalFlow 2.0 霓虹风格
 class AnimatedTimerDisplay extends StatelessWidget {
@@ -77,7 +77,7 @@ class AnimatedTimerDisplay extends StatelessWidget {
                 progress: progress,
                 primaryColor: theme.primaryColor,
                 secondaryColor: theme.successColor,
-                strokeWidth: size * 0.055,
+                strokeWidth: size * 0.1, // 增加到10%提高可见度
                 isCountdown: isCountdown,
               ),
             ),
@@ -99,31 +99,25 @@ class AnimatedTimerDisplay extends StatelessWidget {
           height: size * 0.82,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: Colors.white.withValues(alpha: 0.92),
+            color: Colors.white.withValues(alpha: 0.12),
             border: Border.all(
-              color: Colors.white.withValues(alpha: 0.6),
+              color: Colors.white.withValues(alpha: 0.2),
               width: 1,
             ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.06),
-                blurRadius: 20,
-                offset: const Offset(0, 8),
-              ),
-            ],
           ),
+
           child: Padding(
             padding: EdgeInsets.all(size * 0.1),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                AnimatedNumber(
-                  value: _formatTime(seconds),
+                Text(
+                  _formatTime(seconds),
                   style: TextStyle(
                     fontFamily: '.SF Pro Display',
                     fontSize: size * 0.22,
                     fontWeight: FontWeight.w300,
-                    color: theme.textColor,
+                    color: const Color(0xFF1A2B3C), // 高透毛玻璃上使用深色
                     letterSpacing: -2,
                   ),
                 ),
@@ -134,7 +128,7 @@ class AnimatedTimerDisplay extends StatelessWidget {
                     fontFamily: '.SF Pro Text',
                     fontSize: size * 0.06,
                     fontWeight: FontWeight.w500,
-                    color: theme.secondaryTextColor,
+                    color: Colors.black.withValues(alpha: 0.6), // 高透毛玻璃上使用深色
                     letterSpacing: 1.5,
                   ),
                 ),
@@ -169,9 +163,9 @@ class _NeonProgressPainter extends ChangeNotifier implements CustomPainter {
     final radius = size.width / 2 - strokeWidth / 2;
     final activeColor = isCountdown ? secondaryColor : primaryColor;
 
-    // 背景环 - 极淡
+    // 背景环 - 增加可见度
     final bgPaint = Paint()
-      ..color = Colors.black.withValues(alpha: 0.04)
+      ..color = Colors.black.withValues(alpha: 0.08)
       ..strokeWidth = strokeWidth
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
@@ -179,13 +173,13 @@ class _NeonProgressPainter extends ChangeNotifier implements CustomPainter {
 
     final sweepAngle = 2 * math.pi * progress;
 
-    // 外发光层 - 霓虹光晕
+    // 外发光层 - 增强霓虹光晕
     final outerGlowPaint = Paint()
-      ..color = activeColor.withValues(alpha: 0.3)
-      ..strokeWidth = strokeWidth * 2.5
+      ..color = activeColor.withValues(alpha: 0.5)
+      ..strokeWidth = strokeWidth * 3
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round
-      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 15);
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 20);
     
     canvas.drawArc(
       Rect.fromCircle(center: center, radius: radius),
@@ -222,13 +216,13 @@ class _NeonProgressPainter extends ChangeNotifier implements CustomPainter {
       progressPaint,
     );
 
-    // 内发光 - 沿进度环中心
+    // 内发光 - 增强沿进度环中心发光
     final innerGlowPaint = Paint()
-      ..color = activeColor.withValues(alpha: 0.6)
-      ..strokeWidth = strokeWidth * 0.4
+      ..color = activeColor.withValues(alpha: 0.8)
+      ..strokeWidth = strokeWidth * 0.5
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round
-      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4);
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6);
 
     canvas.drawArc(
       Rect.fromCircle(center: center, radius: radius),
@@ -237,6 +231,26 @@ class _NeonProgressPainter extends ChangeNotifier implements CustomPainter {
       false,
       innerGlowPaint,
     );
+
+    // 发光端点 - 进度头部的高亮效果
+    if (progress > 0) {
+      final endAngle = -math.pi / 2 + sweepAngle;
+      final endX = center.dx + radius * math.cos(endAngle);
+      final endY = center.dy + radius * math.sin(endAngle);
+      final endPoint = Offset(endX, endY);
+
+      // 外层光晕
+      final glowDotPaint = Paint()
+        ..color = activeColor.withValues(alpha: 0.6)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 12);
+      canvas.drawCircle(endPoint, strokeWidth * 0.8, glowDotPaint);
+
+      // 内层亮点
+      final brightDotPaint = Paint()
+        ..color = Colors.white.withValues(alpha: 0.9)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3);
+      canvas.drawCircle(endPoint, strokeWidth * 0.25, brightDotPaint);
+    }
   }
 
   @override
@@ -292,7 +306,7 @@ class AnimatedStopwatchDisplay extends StatelessWidget {
           height: size,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: Colors.white.withValues(alpha: 0.85),
+            color: Colors.white.withValues(alpha: 0.28),
             border: Border.all(
               color: theme.primaryColor.withValues(alpha: 0.25),
               width: 1,
@@ -308,8 +322,8 @@ class AnimatedStopwatchDisplay extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              AnimatedNumber(
-                value: _formatTime(seconds),
+              Text(
+                _formatTime(seconds),
                 style: TextStyle(
                   fontFamily: '.SF Pro Display',
                   fontSize: size * 0.22,
