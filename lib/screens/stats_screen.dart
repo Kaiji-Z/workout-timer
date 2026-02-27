@@ -147,8 +147,8 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
     return {
       'maxSets': maxSetsSession?.totalSets,
       'maxSetsDate': maxSetsSession?.createdAt,
-      'maxTime': maxTimeSession?.totalRestTimeMs,
-      'maxTimeDate': maxTimeSession?.createdAt,
+      'maxTime': maxSetsSession?.totalRestTimeMs,
+      'maxTimeDate': maxSetsSession?.createdAt,
       'longestStreak': longestStreak,
     };
   }
@@ -324,16 +324,12 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
             child: Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                // 统一玻璃效果：深色12% / 浅色60%
-                color: theme.isDark 
-                    ? Colors.white.withValues(alpha: 0.12)
-                    : Colors.white.withValues(alpha: 0.60),
+                // 统一玻璃效果：white 12%
+                color: Colors.white.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  // 统一边框：深色30% / 浅色80%
-                  color: theme.isDark 
-                      ? Colors.white.withValues(alpha: 0.30)
-                      : Colors.white.withValues(alpha: 0.80),
+                  // 统一边框：white 30%
+                  color: Colors.white.withValues(alpha: 0.30),
                   width: 1,
                 ),
               ),
@@ -358,15 +354,15 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, color: Colors.white, size: 24),
+          Icon(icon, color: theme.textColor, size: 24),
           const SizedBox(height: 8),
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: '.SF Pro Display',
               fontSize: 20,
               fontWeight: FontWeight.w700,
-              color: Colors.white,
+              color: theme.textColor,
             ),
           ),
           Text(
@@ -374,7 +370,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
             style: TextStyle(
               fontFamily: '.SF Pro Text',
               fontSize: 12,
-              color: Colors.white.withValues(alpha: 0.7),
+              color: theme.secondaryTextColor,
             ),
           ),
         ],
@@ -388,7 +384,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
         child: Text(
           '暂无数据',
           style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.5),
+            color: theme.secondaryTextColor,
             fontFamily: '.SF Pro Text',
           ),
         ),
@@ -418,7 +414,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
               style: TextStyle(
                 fontFamily: '.SF Pro Display',
                 fontSize: 10,
-                color: Colors.white.withValues(alpha: 0.7),
+                color: theme.secondaryTextColor,
               ),
             ),
             const SizedBox(height: 4),
@@ -440,7 +436,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
               style: TextStyle(
                 fontFamily: '.SF Pro Text',
                 fontSize: 10,
-                color: Colors.white.withValues(alpha: 0.7),
+                color: theme.secondaryTextColor,
               ),
             ),
           ],
@@ -461,7 +457,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
               color: color.withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(icon, color: Colors.white, size: 20),
+            child: Icon(icon, color: theme.textColor, size: 20),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -473,16 +469,16 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
                   style: TextStyle(
                     fontFamily: '.SF Pro Text',
                     fontSize: 12,
-                    color: Colors.white.withValues(alpha: 0.7),
+                    color: theme.secondaryTextColor,
                   ),
                 ),
                 Text(
                   value,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: '.SF Pro Display',
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: Colors.white,
+                    color: theme.textColor,
                   ),
                 ),
               ],
@@ -494,7 +490,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
               style: TextStyle(
                 fontFamily: '.SF Pro Text',
                 fontSize: 12,
-                color: Colors.white.withValues(alpha: 0.5),
+                color: theme.secondaryTextColor,
               ),
             ),
         ],

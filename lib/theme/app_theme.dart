@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
-/// 主题类型枚举
+/// 主题类型枚举 - iPhone 5c 色彩系列
 enum AppThemeType {
-  vitalFlow,
-  neonTempus,
-  arcticFlow,
-  electricPulse,
-  oceanFlow,
+  iphone5cBlue,
+  iphone5cGreen,
+  iphone5cYellow,
+  iphone5cPink,
+  iphone5cWhite,
 }
 
 /// 主题数据模型
@@ -26,8 +26,7 @@ class AppThemeData {
   final Color secondaryTextColor;
   final Color borderColor;
   final List<Color> timerGradientColors;
-  final List<Color> backgroundGradientColors; // 新增：背景渐变色（上深下浅）
-  final bool isDark;
+  final List<Color> decorativeCircleColors; // 装饰圆形颜色（半透明）
 
   const AppThemeData({
     required this.name,
@@ -45,24 +44,23 @@ class AppThemeData {
     required this.secondaryTextColor,
     required this.borderColor,
     required this.timerGradientColors,
-    required this.backgroundGradientColors, // 新增
-    required this.isDark,
+    required this.decorativeCircleColors,
   });
 
   /// 转换为 Flutter ThemeData
   ThemeData toThemeData() {
     return ThemeData(
       useMaterial3: true,
-      brightness: isDark ? Brightness.dark : Brightness.light,
+      brightness: Brightness.light, // iPhone 5c 风格使用浅色主题
       scaffoldBackgroundColor: backgroundColor,
       colorScheme: ColorScheme(
-        brightness: isDark ? Brightness.dark : Brightness.light,
+        brightness: Brightness.light,
         primary: primaryColor,
         secondary: secondaryColor,
         surface: surfaceColor,
         error: warningColor,
-        onPrimary: isDark ? backgroundColor : Colors.white,
-        onSecondary: isDark ? backgroundColor : Colors.white,
+        onPrimary: Colors.white,
+        onSecondary: Colors.white,
         onSurface: textColor,
         onError: Colors.white,
       ),
@@ -73,7 +71,7 @@ class AppThemeData {
       ),
       cardTheme: CardThemeData(
         color: surfaceColor,
-        elevation: isDark ? 0 : 2,
+        elevation: 2,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
           side: BorderSide(color: borderColor, width: 1),
@@ -82,7 +80,7 @@ class AppThemeData {
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: primaryColor,
-          foregroundColor: isDark ? backgroundColor : Colors.white,
+          foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
@@ -203,197 +201,221 @@ class AppThemeData {
   }
 }
 
-/// 主题 1: VitalFlow - 清新健康风格 (推荐)
-/// 基于现代健康应用设计趋势 - 简约、清新、和谐
-/// 主色调: 青绿色系 (Teal) - 传达健康、活力、现代感
-const vitalFlowTheme = AppThemeData(
-  name: 'vitalFlow',
-  nameZh: 'VitalFlow',
-  description: '清新健康风格',
-  icon: Icons.eco_rounded,
-  // 背景色 - 深青色 (配合模糊背景图)
-  backgroundColor: Color(0xFF1A3A3A),
-  // 卡片背景 - 毛玻璃效果白色
-  surfaceColor: Color(0xE6FFFFFF), // 90% white
-  // 主色调 - 清新青绿 (Fresh Teal)
-  primaryColor: Color(0xFF4DB6AC),
-  // 辅助色 - 浅青绿
-  secondaryColor: Color(0xFF80CBC4),
-  // 强调色 - 珊瑚橙 (能量感)
-  accentColor: Color(0xFFFF8A65),
-  // 成功色 - 活力绿
-  successColor: Color(0xFF66BB6A),
-  // 警告色 - 暖琥珀
-  warningColor: Color(0xFFFFA726),
-  // 文字色 - 深色 (在毛玻璃上)
-  textColor: Color(0xFF263238),
-  secondaryTextColor: Color(0xFF546E7A),
-  borderColor: Color(0x33FFFFFF), // rgba(255,255,255,0.2)
-  // 渐变色 - 青绿渐变
-  timerGradientColors: [
-    Color(0xFF4DB6AC),
-    Color(0xFF26A69A),
-  ],
-  // 背景渐变 - 上深下浅，融合主题色
-  backgroundGradientColors: [
-    Color(0xFF0A2020), // 深青黑
-    Color(0xFF153030), // 中青
-    Color(0xFF1A4040), // 浅青
-  ],
-  isDark: true,
-);
+// ============================================================================
+// iPhone 5c Theme Series
+// ============================================================================
 
-/// 主题 2: Neon Tempus - 深色科技风格
-const neonTempusTheme = AppThemeData(
-  name: 'neonTempus',
-  nameZh: 'Neon Tempus',
-  description: '深色科技风格',
-  icon: Icons.brightness_2_rounded,
-  backgroundColor: Color(0xFF0a0a12),
-  surfaceColor: Color(0xFF15151F),
-  primaryColor: Color(0xFF00f0ff),
-  secondaryColor: Color(0xFFbf00ff),
-  accentColor: Color(0xFFff00aa),
-  successColor: Color(0xFF00ff88),
-  warningColor: Color(0xFFff00aa),
-  textColor: Color(0xFFFFFFFF),
-  secondaryTextColor: Color(0xFFb0b0c0),
-  borderColor: Color(0x14ffffff),
-  timerGradientColors: [
-    Color(0xFF00f0ff),
-    Color(0xFFbf00ff),
-    Color(0xFFff00aa),
-  ],
-  // 背景渐变 - 上深下浅，融合霓虹紫
-  backgroundGradientColors: [
-    Color(0xFF050108), // 深紫黑
-    Color(0xFF0A0515), // 紫黑
-    Color(0xFF10081F), // 浅紫黑
-  ],
-  isDark: true,
-);
-
-/// 主题 3: Arctic Flow - 浅色纯净风格
-const arcticFlowTheme = AppThemeData(
-  name: 'arcticFlow',
-  nameZh: 'Arctic Flow',
-  description: '浅色纯净风格',
-  icon: Icons.ac_unit_rounded,
-  backgroundColor: Color(0xFFF5F5F7),
+/// Theme: iPhone 5c Blue - iPhone XR Blue inspired
+/// 清新蓝色风格 - 统一的蓝色系色彩语言
+const iphone5cBlueTheme = AppThemeData(
+  name: 'iphone5cBlue',
+  nameZh: 'iPhone Blue',
+  description: '清新蓝色风格',
+  icon: Icons.phone_iphone,
+  // Background - very light blue tint
+  backgroundColor: Color(0xFFF0F8FF),
+  // Surface - white for contrast
   surfaceColor: Color(0xFFFFFFFF),
-  primaryColor: Color(0xFF007AFF),
-  secondaryColor: Color(0xFF34C759),
-  accentColor: Color(0xFF5856D6),
-  successColor: Color(0xFF34C759),
-  warningColor: Color(0xFFFF9500),
-  textColor: Color(0xFF1C1C1E),
-  secondaryTextColor: Color(0xFF8E8E93),
-  borderColor: Color(0xFFE5E5EA),
+  // Primary - iPhone XR Blue
+  primaryColor: Color(0xFF48AEE6),
+  // Secondary - lighter blue
+  secondaryColor: Color(0xFF7CC4F0),
+  // Accent - deeper blue
+  accentColor: Color(0xFF2196F3),
+  // Success - teal green
+  successColor: Color(0xFF4CAF50),
+  // Warning - amber
+  warningColor: Color(0xFFFFC107),
+  // Text - dark for light background
+  textColor: Color(0xFF1A1A1A),
+  secondaryTextColor: Color(0xFF666666),
+  borderColor: Color(0xFFE0E0E0),
+  // Timer gradient - blue tones
   timerGradientColors: [
-    Color(0xFF007AFF),
-    Color(0xFF5AC8FA),
-    Color(0xFF34C759),
+    Color(0xFF48AEE6),
+    Color(0xFF2196F3),
   ],
-  // 背景渐变 - 上深下浅，融合天蓝
-  backgroundGradientColors: [
-    Color(0xFFD0E8F5), // 浅天蓝
-    Color(0xFFE2F0F8), // 更浅
-    Color(0xFFF5F8FB), // 接近白
+  // Decorative circles - semi-transparent blue
+  decorativeCircleColors: [
+    Color(0x3348AEE6), // 20% opacity
+    Color(0x2248AEE6), // 13% opacity
+    Color(0x1148AEE6), // 7% opacity
   ],
-  isDark: false,
 );
 
-/// 主题 4: Electric Pulse - 深色能量风格
-const electricPulseTheme = AppThemeData(
-  name: 'electricPulse',
-  nameZh: 'Electric Pulse',
-  description: '深色能量风格',
-  icon: Icons.flash_on_rounded,
-  backgroundColor: Color(0xFF121212),
-  surfaceColor: Color(0xFF1E1E1E),
-  primaryColor: Color(0xFFFF6F20),
-  secondaryColor: Color(0xFFFF4500),
-  accentColor: Color(0xFFFFB300),
-  successColor: Color(0xFF00C853),
-  warningColor: Color(0xFFFFB300),
-  textColor: Color(0xFFFAFAFA),
-  secondaryTextColor: Color(0xFF9E9E9E),
-  borderColor: Color(0xFF2D2D2D),
+/// Theme: iPhone 5c Green - iPhone 11 Green inspired
+/// 清新绿色风格 - 统一的绿色系色彩语言
+const iphone5cGreenTheme = AppThemeData(
+  name: 'iphone5cGreen',
+  nameZh: 'iPhone Green',
+  description: '清新绿色风格',
+  icon: Icons.eco_rounded,
+  // Background - very light green tint
+  backgroundColor: Color(0xFFF0FFF4),
+  // Surface - white for contrast
+  surfaceColor: Color(0xFFFFFFFF),
+  // Primary - iPhone 11 Green
+  primaryColor: Color(0xFFAEE1CD),
+  // Secondary - lighter green
+  secondaryColor: Color(0xFFC8EBD9),
+  // Accent - deeper green
+  accentColor: Color(0xFF66BB6A),
+  // Success - green
+  successColor: Color(0xFF4CAF50),
+  // Warning - amber
+  warningColor: Color(0xFFFFC107),
+  // Text - dark for light background
+  textColor: Color(0xFF1A1A1A),
+  secondaryTextColor: Color(0xFF666666),
+  borderColor: Color(0xFFE0E0E0),
+  // Timer gradient - green tones
   timerGradientColors: [
-    Color(0xFFFF6F20),
-    Color(0xFFFF4500),
+    Color(0xFFAEE1CD),
+    Color(0xFF66BB6A),
+  ],
+  // Decorative circles - semi-transparent green
+  decorativeCircleColors: [
+    Color(0x33AEE1CD),
+    Color(0x22AEE1CD),
+    Color(0x11AEE1CD),
+  ],
+);
+
+/// Theme: iPhone 5c Yellow - iPhone 11 Yellow inspired
+/// 明亮黄色风格 - 统一的黄色系色彩语言
+const iphone5cYellowTheme = AppThemeData(
+  name: 'iphone5cYellow',
+  nameZh: 'iPhone Yellow',
+  description: '明亮黄色风格',
+  icon: Icons.wb_sunny_rounded,
+  // Background - very light yellow tint
+  backgroundColor: Color(0xFFFFFEF5),
+  // Surface - white for contrast
+  surfaceColor: Color(0xFFFFFFFF),
+  // Primary - iPhone 11 Yellow
+  primaryColor: Color(0xFFFFE681),
+  // Secondary - lighter yellow
+  secondaryColor: Color(0xFFFFF0A3),
+  // Accent - deeper yellow/amber
+  accentColor: Color(0xFFFFB300),
+  // Success - green
+  successColor: Color(0xFF4CAF50),
+  // Warning - darker amber
+  warningColor: Color(0xFFFF8F00),
+  // Text - dark for light background
+  textColor: Color(0xFF1A1A1A),
+  secondaryTextColor: Color(0xFF666666),
+  borderColor: Color(0xFFE0E0E0),
+  // Timer gradient - yellow tones
+  timerGradientColors: [
+    Color(0xFFFFE681),
     Color(0xFFFFB300),
   ],
-  // 背景渐变 - 上深下浅，融合暖橙
-  backgroundGradientColors: [
-    Color(0xFF0F0805), // 深暖黑
-    Color(0xFF1A0D08), // 暖黑
-    Color(0xFF251510), // 浅暖黑
+  // Decorative circles - semi-transparent yellow
+  decorativeCircleColors: [
+    Color(0x33FFE681),
+    Color(0x22FFE681),
+    Color(0x11FFE681),
   ],
-  isDark: true,
 );
 
-/// 主题 5: Ocean Flow - 浅色极简风格 (新增)
-/// 基于蓝色邻近色系 - 传达专业、信任、现代感
-const oceanFlowTheme = AppThemeData(
-  name: 'oceanFlow',
-  nameZh: 'Ocean Flow',
-  description: '浅色极简风格',
-  icon: Icons.water_drop_rounded,
-  // 背景色 - 极浅灰白
-  backgroundColor: Color(0xFFFAFBFC),
-  // 卡片背景 - 纯白
+/// Theme: iPhone 5c Pink - iPhone XR Coral inspired
+/// 活力粉色风格 - 统一的粉色系色彩语言
+const iphone5cPinkTheme = AppThemeData(
+  name: 'iphone5cPink',
+  nameZh: 'iPhone Pink',
+  description: '活力粉色风格',
+  icon: Icons.favorite_rounded,
+  // Background - very light pink tint
+  backgroundColor: Color(0xFFFFF5F3),
+  // Surface - white for contrast
   surfaceColor: Color(0xFFFFFFFF),
-  // 主色调 - 深海蓝
-  primaryColor: Color(0xFF0066CC),
-  // 次要色 - 天际青
-  secondaryColor: Color(0xFF00A8B5),
-  // 强调色 - 绿松石
-  accentColor: Color(0xFF00C9B7),
-  // 成功色 - 翡翠绿
-  successColor: Color(0xFF10B981),
-  // 警告色 - 琥珀黄
-  warningColor: Color(0xFFF59E0B),
-  // 文字色 - 深蓝灰
-  textColor: Color(0xFF1A2B3C),
-  secondaryTextColor: Color(0xFF6B7280),
-  borderColor: Color(0xFFE5E7EB),
-  // 渐变色 - 蓝色邻近色渐变
+  // Primary - iPhone XR Coral
+  primaryColor: Color(0xFFFF6E5A),
+  // Secondary - lighter coral
+  secondaryColor: Color(0xFFFF8A7A),
+  // Accent - deeper pink
+  accentColor: Color(0xFFE91E63),
+  // Success - green
+  successColor: Color(0xFF4CAF50),
+  // Warning - amber
+  warningColor: Color(0xFFFFC107),
+  // Text - dark for light background
+  textColor: Color(0xFF1A1A1A),
+  secondaryTextColor: Color(0xFF666666),
+  borderColor: Color(0xFFE0E0E0),
+  // Timer gradient - pink tones
   timerGradientColors: [
-    Color(0xFF0066CC),
-    Color(0xFF00A8B5),
-    Color(0xFF00C9B7),
+    Color(0xFFFF6E5A),
+    Color(0xFFE91E63),
   ],
-  // 背景渐变 - 上深下浅，融合海洋蓝
-  backgroundGradientColors: [
-    Color(0xFFCCE5F5), // 浅海蓝
-    Color(0xFFE0F0FA), // 更浅
-    Color(0xFFF5FAFD), // 接近白
+  // Decorative circles - semi-transparent pink
+  decorativeCircleColors: [
+    Color(0x33FF6E5A),
+    Color(0x22FF6E5A),
+    Color(0x11FF6E5A),
   ],
-  isDark: false,
+);
+
+/// Theme: iPhone 5c White - Clean minimal style
+/// 纯净白色风格 - 极简设计，深灰色为主色
+const iphone5cWhiteTheme = AppThemeData(
+  name: 'iphone5cWhite',
+  nameZh: 'iPhone White',
+  description: '纯净白色风格',
+  icon: Icons.phone_iphone,
+  // Background - light gray
+  backgroundColor: Color(0xFFF3F3F3),
+  // Surface - white for contrast
+  surfaceColor: Color(0xFFFFFFFF),
+  // Primary - dark gray for contrast on white
+  primaryColor: Color(0xFF333333),
+  // Secondary - medium gray
+  secondaryColor: Color(0xFF666666),
+  // Accent - iOS blue
+  accentColor: Color(0xFF007AFF),
+  // Success - green
+  successColor: Color(0xFF4CAF50),
+  // Warning - amber
+  warningColor: Color(0xFFFFC107),
+  // Text - dark for light background
+  textColor: Color(0xFF1A1A1A),
+  secondaryTextColor: Color(0xFF666666),
+  borderColor: Color(0xFFE0E0E0),
+  // Timer gradient - gray to blue
+  timerGradientColors: [
+    Color(0xFF333333),
+    Color(0xFF007AFF),
+  ],
+  // Decorative circles - semi-transparent gray
+  decorativeCircleColors: [
+    Color(0x22333333),
+    Color(0x11333333),
+    Color(0x08333333),
+  ],
 );
 
 /// 获取主题数据
 AppThemeData getThemeData(AppThemeType type) {
   switch (type) {
-    case AppThemeType.vitalFlow:
-      return vitalFlowTheme;
-    case AppThemeType.neonTempus:
-      return neonTempusTheme;
-    case AppThemeType.arcticFlow:
-      return arcticFlowTheme;
-    case AppThemeType.electricPulse:
-      return electricPulseTheme;
-    case AppThemeType.oceanFlow:
-      return oceanFlowTheme;
+    case AppThemeType.iphone5cBlue:
+      return iphone5cBlueTheme;
+    case AppThemeType.iphone5cGreen:
+      return iphone5cGreenTheme;
+    case AppThemeType.iphone5cYellow:
+      return iphone5cYellowTheme;
+    case AppThemeType.iphone5cPink:
+      return iphone5cPinkTheme;
+    case AppThemeType.iphone5cWhite:
+      return iphone5cWhiteTheme;
   }
 }
 
 /// 所有主题列表
 const allThemes = [
-  oceanFlowTheme,     // 新默认主题
-  vitalFlowTheme,     // 原默认主题
-  neonTempusTheme,    // 旧版
-  arcticFlowTheme,    // 旧版
-  electricPulseTheme, // 旧版
+  iphone5cWhiteTheme,   // Default - neutral choice
+  iphone5cBlueTheme,
+  iphone5cGreenTheme,
+  iphone5cYellowTheme,
+  iphone5cPinkTheme,
 ];

@@ -154,15 +154,11 @@ class TrainingWidget extends StatelessWidget {
                 height: 200,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  // 统一玻璃效果：深色12% / 浅色60%
-                  color: theme.isDark 
-                      ? Colors.white.withValues(alpha: 0.12)
-                      : Colors.white.withValues(alpha: 0.60),
+                  // 统一玻璃效果：white 12%
+                  color: Colors.white.withValues(alpha: 0.12),
                   border: Border.all(
-                    // 统一边框：深色30% / 浅色80%
-                    color: theme.isDark 
-                        ? Colors.white.withValues(alpha: 0.30)
-                        : Colors.white.withValues(alpha: 0.80),
+                    // 统一边框：white 30%
+                    color: Colors.white.withValues(alpha: 0.30),
                     width: 1,
                   ),
                   boxShadow: [
@@ -254,8 +250,6 @@ class TrainingWidget extends StatelessWidget {
       return const SizedBox.shrink();
     }
     
-    final isDark = theme.isDark;
-    
     return ClipRRect(
       borderRadius: BorderRadius.circular(16),
       child: BackdropFilter(
@@ -263,16 +257,12 @@ class TrainingWidget extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            // 统一玻璃效果：深色12% / 浅色60%
-            color: isDark 
-                ? Colors.white.withValues(alpha: 0.12)
-                : Colors.white.withValues(alpha: 0.60),
+            // 统一玻璃效果：white 12%
+            color: Colors.white.withValues(alpha: 0.12),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              // 统一边框：深色30% / 浅色80%
-              color: isDark 
-                  ? Colors.white.withValues(alpha: 0.30)
-                  : Colors.white.withValues(alpha: 0.80),
+              // 统一边框：white 30%
+              color: Colors.white.withValues(alpha: 0.30),
               width: 1,
             ),
           ),
@@ -322,11 +312,10 @@ class TrainingWidget extends StatelessWidget {
   }
 
 
-
   /// 获取当前状态的统一颜色
   Color _getStateColor(TrainingProvider training, AppThemeData theme) {
     if (training.isExercising || training.isExercisePaused) {
-      return theme.primaryColor; // 运动状态 - 主色调青绿
+      return theme.primaryColor; // 运动状态 - 主色调
     }
     if (training.isResting) {
       return theme.successColor; // 休息状态 - 活力绿
@@ -471,19 +460,21 @@ class TrainingWidget extends StatelessWidget {
       training.resetWorkout();
 
       if (context.mounted) {
+        final theme = context.read<ThemeProvider>().currentTheme;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('训练已保存：完成${data['totalSets']}组，总时长 ${training.sessionDurationFormatted}'),
-            backgroundColor: Colors.green,
+            backgroundColor: theme.successColor,
           ),
         );
       }
     } catch (e) {
       if (context.mounted) {
+        final theme = context.read<ThemeProvider>().currentTheme;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('保存失败: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: theme.warningColor,
           ),
         );
       }

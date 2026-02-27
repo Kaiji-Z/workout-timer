@@ -6,9 +6,9 @@ import 'app_theme.dart';
 class ThemeProvider extends ChangeNotifier {
   static const String _themeKey = 'selected_theme';
   
-  // 默认使用 Ocean Flow 主题
-  AppThemeType _currentThemeType = AppThemeType.oceanFlow;
-  AppThemeData _currentTheme = oceanFlowTheme;
+  // 默认使用 iPhone White 主题
+  AppThemeType _currentThemeType = AppThemeType.iphone5cWhite;
+  AppThemeData _currentTheme = iphone5cWhiteTheme;
   
   AppThemeType get currentThemeType => _currentThemeType;
   AppThemeData get currentTheme => _currentTheme;
@@ -47,36 +47,45 @@ class ThemeProvider extends ChangeNotifier {
   }
   
   /// 主题类型转名称
-String _typeToThemeName(AppThemeType type) {
-switch (type) {
-case AppThemeType.vitalFlow:
-return 'vitalFlow';
-case AppThemeType.neonTempus:
-return 'neonTempus';
-case AppThemeType.arcticFlow:
-return 'arcticFlow';
-case AppThemeType.electricPulse:
-        return 'electricPulse';
-      case AppThemeType.oceanFlow:
-        return 'oceanFlow';
-}
-}
+  String _typeToThemeName(AppThemeType type) {
+    switch (type) {
+      case AppThemeType.iphone5cBlue:
+        return 'iphone5cBlue';
+      case AppThemeType.iphone5cGreen:
+        return 'iphone5cGreen';
+      case AppThemeType.iphone5cYellow:
+        return 'iphone5cYellow';
+      case AppThemeType.iphone5cPink:
+        return 'iphone5cPink';
+      case AppThemeType.iphone5cWhite:
+        return 'iphone5cWhite';
+    }
+  }
   
   /// 主题名称转类型
   AppThemeType _themeNameToType(String name) {
     switch (name) {
+      case 'iphone5cWhite':
+        return AppThemeType.iphone5cWhite;
+      case 'iphone5cBlue':
+        return AppThemeType.iphone5cBlue;
+      case 'iphone5cGreen':
+        return AppThemeType.iphone5cGreen;
+      case 'iphone5cYellow':
+        return AppThemeType.iphone5cYellow;
+      case 'iphone5cPink':
+        return AppThemeType.iphone5cPink;
+      // Legacy theme names - map to closest new theme
       case 'oceanFlow':
-        return AppThemeType.oceanFlow;
-      case 'vitalFlow':
-        return AppThemeType.vitalFlow;
       case 'arcticFlow':
-        return AppThemeType.arcticFlow;
-      case 'electricPulse':
-        return AppThemeType.electricPulse;
+        return AppThemeType.iphone5cWhite;
+      case 'vitalFlow':
+        return AppThemeType.iphone5cGreen;
       case 'neonTempus':
-        return AppThemeType.neonTempus;
+      case 'electricPulse':
+        return AppThemeType.iphone5cBlue;
       default:
-        return AppThemeType.oceanFlow;  // 默认回 Ocean Flow
+        return AppThemeType.iphone5cWhite;
     }
   }
 }
