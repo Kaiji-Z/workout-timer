@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
@@ -6,6 +7,8 @@ import '../theme/app_theme.dart';
 import '../models/workout_session.dart';
 import '../services/workout_repository.dart';
 
+import 'dart:ui' as ui;
+
 class StatsScreen extends StatefulWidget {
   const StatsScreen({super.key});
 
@@ -13,6 +16,7 @@ class StatsScreen extends StatefulWidget {
   State<StatsScreen> createState() => _StatsScreenState();
 }
 
+  
 class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final WorkoutRepository _repository = WorkoutRepository();
@@ -109,10 +113,10 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
     WorkoutSession? maxTimeSession;
 
     for (final session in _allSessions) {
-      if (maxSetsSession == null || session.totalSets > maxSetsSession.totalSets) {
+      if (maxSetsSession == null || session.totalSets > maxSetsSession!.totalSets) {
         maxSetsSession = session;
       }
-      if (maxTimeSession == null || session.totalRestTimeMs > maxTimeSession.totalRestTimeMs) {
+      if (maxTimeSession == null || session.totalRestTimeMs > maxTimeSession!.totalRestTimeMs) {
         maxTimeSession = session;
       }
     }
@@ -176,9 +180,9 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
     final theme = context.watch<ThemeProvider>().currentTheme;
 
     return Scaffold(
-      backgroundColor: theme.backgroundColor,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
-        backgroundColor: theme.backgroundColor,
+        backgroundColor: Colors.transparent,
         elevation: 0,
         title: Row(
           children: [
@@ -187,7 +191,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
               height: 20,
               margin: const EdgeInsets.only(right: 12),
               decoration: BoxDecoration(
-                gradient: LinearGradient(colors: theme.timerGradientColors),
+                gradient: LinearGradient(colors: [const Color(0xFF4DB6AC), const Color(0xFF80CBC4)]),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -198,17 +202,17 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
                 letterSpacing: 3,
-                color: theme.textColor,
+                color: Colors.white,
               ),
             ),
           ],
         ),
         bottom: TabBar(
           controller: _tabController,
-          indicatorColor: theme.primaryColor,
+          indicatorColor: const Color(0xFF4DB6AC),
           indicatorWeight: 2,
-          labelColor: theme.primaryColor,
-          unselectedLabelColor: theme.secondaryTextColor,
+          labelColor: Colors.white,
+          unselectedLabelColor: Colors.white.withValues(alpha: 0.5),
           labelStyle: TextStyle(
             fontFamily: 'Rajdhani',
             fontSize: 14,
@@ -221,7 +225,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
         ),
       ),
       body: _isLoading
-          ? Center(child: CircularProgressIndicator(color: theme.primaryColor))
+          ? Center(child: CircularProgressIndicator(color: const Color(0xFF4DB6AC)))
           : TabBarView(
               controller: _tabController,
               children: [
@@ -237,98 +241,95 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
     final bests = _getPersonalBests();
 
     return SingleChildScrollView(
-      padding: EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 100), // 增加底部padding避免被导航栏遮挡
+      padding: EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 100),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Summary Cards
-          _buildSummarySection(stats, theme),
+          // Summary Cards - 毛玻璃卡片
+          _buildGlassSection('概览', [
+            Row(
+              children: [
+                _buildGlassStatCard('总组数', '${stats['totalSets']}', '组', Icons.fitness_center, const Color(0xFF4DB6AC)),
+                _buildGlassStatCard('总时长', _formatDuration(stats['totalTime'] as int), '', Icons.timer, const Color(0xFF26A69A)),
+                _buildGlassStatCard('训练天数', '${stats['workoutDays']}', '天', Icons.calendar_today, const Color(0xFF66BB6A)),
+              ],
+            ),
+          ]),
           const SizedBox(height: 24),
 
-          // Chart
-          _buildChartSection(sessions, theme),
+          // Chart Section
+          _buildGlassSection('训练趋势', [
+            _buildGlassChart(sessions, theme),
+          ]),
           const SizedBox(height: 24),
 
           // Personal Bests
-          _buildPersonalBestSection(bests, theme),
+          _buildGlassSection('个人最佳', [
+            _buildGlassBestRow('单次最多组数', bests['maxSets'] != null ? '${bests['maxSets']} 组' : '-', '', Icons.emoji_events, const Color(0xFFFFA726)),
+            _buildGlassBestRow('单次最长训练', bests['maxTime'] != null ? _formatDuration(bests['maxTime'] as int) : '-', '', Icons.access_time, const Color(0xFF4DB6AC)),
+            _buildGlassBestRow('连续训练天数', '${bests['longestStreak']} 天', '', Icons.local_fire_department, const Color(0xFFFF8A65)),
+          ]),
         ],
       ),
     );
   }
 
-  Widget _buildSummarySection(Map<String, dynamic> stats, AppThemeData theme) {
+  // 毛玻璃 Section Header
+  Widget _buildGlassSection(String title, List<Widget> children) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionHeader('概览', theme),
+        Text(
+          title,
+          style: TextStyle(
+            fontFamily: 'Rajdhani',
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: Colors.white.withValues(alpha: 0.7),
+            letterSpacing: 1,
+          ),
+        ),
         const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: _buildStatCard(
-                '总组数',
-                '${stats['totalSets']}',
-                '组',
-                Icons.fitness_center,
-                theme.primaryColor,
-                theme,
+        ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: BackdropFilter(
+            filter: ui.ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  width: 1,
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: children,
               ),
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildStatCard(
-                '总时长',
-                _formatDuration(stats['totalTime'] as int),
-                '',
-                Icons.timer,
-                theme.secondaryColor,
-                theme,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildStatCard(
-                '训练天数',
-                '${stats['workoutDays']}',
-                '天',
-                Icons.calendar_today,
-                theme.accentColor,
-                theme,
-              ),
-            ),
-          ],
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildStatCard(
-    String label,
-    String value,
-    String unit,
-    IconData icon,
-    Color color,
-    AppThemeData theme,
-  ) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: theme.surfaceColor,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: theme.borderColor),
-      ),
+  // 毛玻璃 Stat Card
+  Widget _buildGlassStatCard(String label, String value, String unit, IconData icon, Color color) {
+    return Expanded(
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, color: color, size: 20),
+          Icon(icon, color: Colors.white, size: 24),
           const SizedBox(height: 8),
           Text(
             value,
-            style: TextStyle(
+            style: const TextStyle(
               fontFamily: 'Orbitron',
               fontSize: 20,
               fontWeight: FontWeight.w700,
-              color: theme.textColor,
+              color: Colors.white,
             ),
           ),
           Text(
@@ -336,7 +337,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
             style: TextStyle(
               fontFamily: 'Rajdhani',
               fontSize: 12,
-              color: theme.secondaryTextColor,
+              color: Colors.white.withValues(alpha: 0.7),
             ),
           ),
         ],
@@ -344,37 +345,20 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
     );
   }
 
-  Widget _buildChartSection(List<WorkoutSession> sessions, AppThemeData theme) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildSectionHeader('训练趋势', theme),
-        const SizedBox(height: 12),
-        Container(
-          height: 180, // 减小高度以避免溢出
-          padding: const EdgeInsets.all(12), // 减小内边距
-          decoration: BoxDecoration(
-            color: theme.surfaceColor,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: theme.borderColor),
+  // 毛玻璃 Chart
+  Widget _buildGlassChart(List<WorkoutSession> sessions, AppThemeData theme) {
+    if (sessions.isEmpty) {
+      return Center(
+        child: Text(
+          '暂无数据',
+          style: TextStyle(
+            color: Colors.white.withValues(alpha: 0.5),
+            fontFamily: 'Rajdhani',
           ),
-          child: sessions.isEmpty
-              ? Center(
-                  child: Text(
-                    '暂无数据',
-                    style: TextStyle(
-                      color: theme.secondaryTextColor,
-                      fontFamily: 'Rajdhani',
-                    ),
-                  ),
-                )
-              : _buildBarChart(sessions, theme),
         ),
-      ],
-    );
-  }
+      );
+    }
 
-  Widget _buildBarChart(List<WorkoutSession> sessions, AppThemeData theme) {
     // Group by date
     final Map<String, int> dailyData = {};
     for (final session in sessions.take(7).toList()) {
@@ -389,7 +373,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: entries.map((entry) {
-        final height = maxSets > 0 ? (entry.value / maxSets) * 100 : 0.0; // 减小高度
+        final height = maxSets > 0 ? (entry.value / maxSets) * 100 : 0.0;
         return Column(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
@@ -398,29 +382,29 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
               style: TextStyle(
                 fontFamily: 'Orbitron',
                 fontSize: 10,
-                color: theme.secondaryTextColor,
+                color: Colors.white.withValues(alpha: 0.7),
               ),
             ),
             const SizedBox(height: 4),
             Container(
-              width: 28, // 减小宽度
-              height: height.clamp(4.0, 100.0), // 减小最大高度
+              width: 28,
+              height: height.clamp(4.0, 100.0),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.bottomCenter,
                   end: Alignment.topCenter,
-                  colors: [theme.primaryColor, theme.primaryColor.withOpacity(0.5)],
+                  colors: [const Color(0xFF4DB6AC), const Color(0xFF80CBC4)],
                 ),
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
-            const SizedBox(height: 4), // 减小间距
+            const SizedBox(height: 4),
             Text(
               entry.key,
               style: TextStyle(
                 fontFamily: 'Rajdhani',
                 fontSize: 10,
-                color: theme.secondaryTextColor,
+                color: Colors.white.withValues(alpha: 0.7),
               ),
             ),
           ],
@@ -429,73 +413,20 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
     );
   }
 
-  Widget _buildPersonalBestSection(Map<String, dynamic> bests, AppThemeData theme) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildSectionHeader('个人最佳', theme),
-        const SizedBox(height: 12),
-        Container(
-          decoration: BoxDecoration(
-            color: theme.surfaceColor,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: theme.borderColor),
-          ),
-          child: Column(
-            children: [
-              _buildBestRow(
-                '单次最多组数',
-                bests['maxSets'] != null ? '${bests['maxSets']} 组' : '-',
-                _formatDate(bests['maxSetsDate'] as String?),
-                Icons.emoji_events,
-                theme.accentColor,
-                theme,
-              ),
-              Divider(color: theme.borderColor, height: 1),
-              _buildBestRow(
-                '单次最长训练',
-                bests['maxTime'] != null ? _formatDuration(bests['maxTime'] as int) : '-',
-                _formatDate(bests['maxTimeDate'] as String?),
-                Icons.access_time,
-                theme.primaryColor,
-                theme,
-              ),
-              Divider(color: theme.borderColor, height: 1),
-              _buildBestRow(
-                '连续训练天数',
-                '${bests['longestStreak']} 天',
-                '',
-                Icons.local_fire_department,
-                theme.warningColor,
-                theme,
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildBestRow(
-    String label,
-    String value,
-    String date,
-    IconData icon,
-    Color color,
-    AppThemeData theme,
-  ) {
+  // 毛玻璃 Best Row
+  Widget _buildGlassBestRow(String label, String value, String date, IconData icon, Color color) {
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(vertical: 12),
       child: Row(
         children: [
           Container(
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(icon, color: color, size: 20),
+            child: Icon(icon, color: Colors.white, size: 20),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -507,16 +438,16 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
                   style: TextStyle(
                     fontFamily: 'Rajdhani',
                     fontSize: 12,
-                    color: theme.secondaryTextColor,
+                    color: Colors.white.withValues(alpha: 0.7),
                   ),
                 ),
                 Text(
                   value,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontFamily: 'Orbitron',
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: theme.textColor,
+                    color: Colors.white,
                   ),
                 ),
               ],
@@ -528,23 +459,10 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
               style: TextStyle(
                 fontFamily: 'Rajdhani',
                 fontSize: 12,
-                color: theme.secondaryTextColor,
+                color: Colors.white.withValues(alpha: 0.5),
               ),
             ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildSectionHeader(String title, AppThemeData theme) {
-    return Text(
-      title,
-      style: TextStyle(
-        fontFamily: 'Rajdhani',
-        fontSize: 14,
-        fontWeight: FontWeight.w600,
-        color: theme.secondaryTextColor,
-        letterSpacing: 1,
       ),
     );
   }

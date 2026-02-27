@@ -124,18 +124,9 @@ class _MainNavigationState extends State<MainNavigation> {
                     : Colors.white.withValues(alpha: 0.85),
                 borderRadius: BorderRadius.circular(25),
                 border: Border.all(
-                  color: isDark 
-                      ? Colors.white.withValues(alpha: 0.15)
-                      : Colors.white.withValues(alpha: 0.5),
-                  width: 0.5,
+                  color: Colors.white.withValues(alpha: 0.2),
+                  width: 1,
                 ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.1),
-                    blurRadius: 20,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -156,9 +147,12 @@ class _MainNavigationState extends State<MainNavigation> {
   Widget _buildNavItem(int index, IconData icon, IconData activeIcon, String label) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    // 高透毛玻璃上使用深色文字更明显 (Fresh Flow 配色)
+    final activeColor = const Color(0xFF263238); // Deep Carbon
+    final inactiveColor = Colors.black.withValues(alpha: 0.4);
     final isSelected = _currentIndex == index;
-    final activeColor = theme.primaryColor;
-    final inactiveColor = isDark ? Colors.white54 : Colors.black54;
+
+
 
     return Expanded(
       child: GestureDetector(
