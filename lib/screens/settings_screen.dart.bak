@@ -80,9 +80,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final theme = themeProvider.currentTheme;
     
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: theme.surfaceColor,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: theme.surfaceColor,
+        elevation: 0,
         title: Row(
           children: [
             Container(
@@ -91,6 +92,147 @@ class _SettingsScreenState extends State<SettingsScreen> {
               margin: const EdgeInsets.only(right: 12),
               decoration: BoxDecoration(
                 gradient: LinearGradient(colors: [theme.primaryColor, theme.primaryColor.withValues(alpha: 0.8)]),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Text(
+              'SETTINGS',
+              style: TextStyle(
+                fontFamily: '.SF Pro Display',
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                letterSpacing: -0.5,
+                color: theme.textColor,
+              ),
+            ),
+          ],
+        ),
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          // Notification Settings
+          _buildSectionHeader('通知设置', theme),
+          _buildGlassCard(
+            theme: theme,
+            child: Column(
+              children: [
+                _buildGlassSwitch(
+                  '启用声音',
+                  _soundEnabled,
+                  (value) {
+                    setState(() => _soundEnabled = value);
+                    _saveSettings();
+                  },
+                  theme,
+                ),
+                Divider(color: theme.surfaceColor.withValues(alpha: 0.1), height: 1),
+                _buildGlassSwitch(
+                  '启用振动',
+                  _vibrationEnabled,
+                  (value) {
+                    setState(() => _vibrationEnabled = value);
+                    _saveSettings();
+                  },
+                  theme,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          // Appearance Settings
+          _buildSectionHeader('外观设置', theme),
+          _buildGlassCard(
+            theme: theme,
+            child: ListTile(
+              title: Text(
+                '主题',
+                style: TextStyle(
+                  fontFamily: '.SF Pro Text',
+                  color: theme.textColor,
+                ),
+              ),
+              subtitle: Text(
+                theme.nameZh,
+                style: TextStyle(
+                  fontFamily: '.SF Pro Text',
+                  color: theme.secondaryTextColor,
+                ),
+              ),
+              trailing: Icon(Icons.chevron_right, color: theme.secondaryTextColor),
+              onTap: () => _showThemeSelector(context, themeProvider),
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          // Custom Message
+          _buildSectionHeader('自定义提醒消息', theme),
+          _buildGlassCard(
+            theme: theme,
+            padding: const EdgeInsets.all(16),
+            child: TextField(
+              controller: TextEditingController(text: _customMessage),
+              style: TextStyle(color: theme.textColor),
+              onChanged: (value) => _customMessage = value,
+              onSubmitted: (_) => _saveSettings(),
+              decoration: InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: theme.borderColor),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: theme.borderColor),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: theme.primaryColor),
+                ),
+                hintText: '输入提醒消息',
+                hintStyle: TextStyle(color: theme.secondaryTextColor),
+                filled: true,
+                fillColor: theme.surfaceColor.withValues(alpha: 0.3),
+              ),
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          // Data Management
+          _buildSectionHeader('数据管理', theme),
+          _buildGlassCard(
+            theme: theme,
+            child: ListTile(
+              title: Text(
+                '清除所有历史记录',
+                style: TextStyle(color: theme.accentColor),
+              ),
+              trailing: Icon(Icons.delete_outline, color: theme.accentColor),
+              onTap: () => _clearHistory(theme),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+  }
+    final themeProvider = context.watch<ThemeProvider>();
+    final theme = themeProvider.currentTheme;
+    
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: Row(
+          children: [
+            Container(
+              width: 4,
+              height: 20,
+              margin: const EdgeInsets.only(right: 12),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(colors: [theme.primaryColor, theme.primaryColor.withValues(alpha: 0.8)]),
+
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -268,6 +410,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       value: value,
       onChanged: onChanged,
       activeThumbColor: theme.primaryColor,
+
       activeTrackColor: theme.primaryColor.withValues(alpha: 0.5),
     );
   }

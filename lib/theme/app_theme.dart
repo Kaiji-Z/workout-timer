@@ -234,11 +234,11 @@ const vitalFlowTheme = AppThemeData(
     Color(0xFF4DB6AC),
     Color(0xFF26A69A),
   ],
-  // 背景渐变 - 上深下浅
+  // 背景渐变 - 上深下浅，融合主题色
   backgroundGradientColors: [
-    Color(0xFF0D2B2B), // 深青色
-    Color(0xFF1A3A3A),
-    Color(0xFF2A4A4A), // 浅青色
+    Color(0xFF0A2020), // 深青黑
+    Color(0xFF153030), // 中青
+    Color(0xFF1A4040), // 浅青
   ],
   isDark: true,
 );
@@ -264,11 +264,11 @@ const neonTempusTheme = AppThemeData(
     Color(0xFFbf00ff),
     Color(0xFFff00aa),
   ],
-  // 背景渐变 - 上深下浅
+  // 背景渐变 - 上深下浅，融合霓虹紫
   backgroundGradientColors: [
-    Color(0xFF050510), // 深紫黑
-    Color(0xFF0a0a12),
-    Color(0xFF151520), // 略浅
+    Color(0xFF050108), // 深紫黑
+    Color(0xFF0A0515), // 紫黑
+    Color(0xFF10081F), // 浅紫黑
   ],
   isDark: true,
 );
@@ -294,11 +294,11 @@ const arcticFlowTheme = AppThemeData(
     Color(0xFF5AC8FA),
     Color(0xFF34C759),
   ],
-  // 背景渐变 - 上深下浅
+  // 背景渐变 - 上深下浅，融合天蓝
   backgroundGradientColors: [
-    Color(0xFFE8EEF2), // 浅蓝灰
-    Color(0xFFF0F4F6),
-    Color(0xFFF5F5F7), // 更浅
+    Color(0xFFD0E8F5), // 浅天蓝
+    Color(0xFFE2F0F8), // 更浅
+    Color(0xFFF5F8FB), // 接近白
   ],
   isDark: false,
 );
@@ -324,11 +324,11 @@ const electricPulseTheme = AppThemeData(
     Color(0xFFFF4500),
     Color(0xFFFFB300),
   ],
-  // 背景渐变 - 上深下浅
+  // 背景渐变 - 上深下浅，融合暖橙
   backgroundGradientColors: [
-    Color(0xFF0A0A0A), // 深黑
-    Color(0xFF121212),
-    Color(0xFF1A1A1A), // 略浅
+    Color(0xFF0F0805), // 深暖黑
+    Color(0xFF1A0D08), // 暖黑
+    Color(0xFF251510), // 浅暖黑
   ],
   isDark: true,
 );
@@ -364,11 +364,11 @@ const oceanFlowTheme = AppThemeData(
     Color(0xFF00A8B5),
     Color(0xFF00C9B7),
   ],
-  // 背景渐变 - 上深下浅
+  // 背景渐变 - 上深下浅，融合海洋蓝
   backgroundGradientColors: [
-    Color(0xFFE8F4FC), // 浅蓝
-    Color(0xFFF0F7FB),
-    Color(0xFFFAFBFC), // 极浅
+    Color(0xFFCCE5F5), // 浅海蓝
+    Color(0xFFE0F0FA), // 更浅
+    Color(0xFFF5FAFD), // 接近白
   ],
   isDark: false,
 );
