@@ -145,7 +145,7 @@ class TrainingWidget extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-PulsingWidget(
+        PulsingWidget(
           child: ClipOval(
             child: BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
@@ -154,9 +154,15 @@ PulsingWidget(
                 height: 200,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.white.withValues(alpha: 0.30),
+                  // 统一玻璃效果：深色12% / 浅色60%
+                  color: theme.isDark 
+                      ? Colors.white.withValues(alpha: 0.12)
+                      : Colors.white.withValues(alpha: 0.60),
                   border: Border.all(
-                    color: theme.successColor.withValues(alpha: 0.3),
+                    // 统一边框：深色30% / 浅色80%
+                    color: theme.isDark 
+                        ? Colors.white.withValues(alpha: 0.30)
+                        : Colors.white.withValues(alpha: 0.80),
                     width: 1,
                   ),
                   boxShadow: [
@@ -248,6 +254,8 @@ PulsingWidget(
       return const SizedBox.shrink();
     }
     
+    final isDark = theme.isDark;
+    
     return ClipRRect(
       borderRadius: BorderRadius.circular(16),
       child: BackdropFilter(
@@ -255,11 +263,16 @@ PulsingWidget(
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            // 参考底部导航栏: 深色背景用低 alpha
-            color: Colors.white.withValues(alpha: 0.12),
+            // 统一玻璃效果：深色12% / 浅色60%
+            color: isDark 
+                ? Colors.white.withValues(alpha: 0.12)
+                : Colors.white.withValues(alpha: 0.60),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: Colors.white.withValues(alpha: 0.2),
+              // 统一边框：深色30% / 浅色80%
+              color: isDark 
+                  ? Colors.white.withValues(alpha: 0.30)
+                  : Colors.white.withValues(alpha: 0.80),
               width: 1,
             ),
           ),

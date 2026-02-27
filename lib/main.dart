@@ -134,13 +134,16 @@ class _MainNavigationState extends State<MainNavigation> {
             child: Container(
               height: 70,
               decoration: BoxDecoration(
-                // 使用主题色半透明作为毛玻璃基础色
+                // 统一玻璃效果：深色12% / 浅色60%
                 color: isDark 
-                    ? appTheme.surfaceColor.withValues(alpha: 0.12)
-                    : appTheme.surfaceColor.withValues(alpha: 0.85),
+                    ? Colors.white.withValues(alpha: 0.12)
+                    : Colors.white.withValues(alpha: 0.60),
                 borderRadius: BorderRadius.circular(25),
                 border: Border.all(
-                  color: appTheme.borderColor.withValues(alpha: isDark ? 0.3 : 0.5),
+                  // 统一边框：深色30% / 浅色80%
+                  color: isDark 
+                      ? Colors.white.withValues(alpha: 0.30)
+                      : Colors.white.withValues(alpha: 0.80),
                   width: 1,
                 ),
               ),
