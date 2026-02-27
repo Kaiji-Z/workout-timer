@@ -6,6 +6,7 @@ enum AppThemeType {
   neonTempus,
   arcticFlow,
   electricPulse,
+  oceanFlow,
 }
 
 /// 主题数据模型
@@ -306,6 +307,40 @@ const electricPulseTheme = AppThemeData(
   isDark: true,
 );
 
+/// 主题 5: Ocean Flow - 浅色极简风格 (新增)
+/// 基于蓝色邻近色系 - 传达专业、信任、现代感
+const oceanFlowTheme = AppThemeData(
+  name: 'oceanFlow',
+  nameZh: 'Ocean Flow',
+  description: '浅色极简风格',
+  icon: Icons.water_drop_rounded,
+  // 背景色 - 极浅灰白
+  backgroundColor: Color(0xFFFAFBFC),
+  // 卡片背景 - 纯白
+  surfaceColor: Color(0xFFFFFFFF),
+  // 主色调 - 深海蓝
+  primaryColor: Color(0xFF0066CC),
+  // 次要色 - 天际青
+  secondaryColor: Color(0xFF00A8B5),
+  // 强调色 - 绿松石
+  accentColor: Color(0xFF00C9B7),
+  // 成功色 - 翡翠绿
+  successColor: Color(0xFF10B981),
+  // 警告色 - 琥珀黄
+  warningColor: Color(0xFFF59E0B),
+  // 文字色 - 深蓝灰
+  textColor: Color(0xFF1A2B3C),
+  secondaryTextColor: Color(0xFF6B7280),
+  borderColor: Color(0xFFE5E7EB),
+  // 渐变色 - 蓝色邻近色渐变
+  timerGradientColors: [
+    Color(0xFF0066CC),
+    Color(0xFF00A8B5),
+    Color(0xFF00C9B7),
+  ],
+  isDark: false,
+);
+
 /// 获取主题数据
 AppThemeData getThemeData(AppThemeType type) {
   switch (type) {
@@ -317,13 +352,16 @@ AppThemeData getThemeData(AppThemeType type) {
       return arcticFlowTheme;
     case AppThemeType.electricPulse:
       return electricPulseTheme;
+    case AppThemeType.oceanFlow:
+      return oceanFlowTheme;
   }
 }
 
 /// 所有主题列表
 const allThemes = [
-  vitalFlowTheme,      // 推荐 - 默认主题
-  neonTempusTheme,     // 旧版
-  arcticFlowTheme,     // 旧版
-  electricPulseTheme,  // 旧版
+  oceanFlowTheme,     // 新默认主题
+  vitalFlowTheme,     // 原默认主题
+  neonTempusTheme,    // 旧版
+  arcticFlowTheme,    // 旧版
+  electricPulseTheme, // 旧版
 ];
