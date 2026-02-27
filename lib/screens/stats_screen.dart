@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
@@ -265,7 +264,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
                   child: FadeInItem(
                     delay: const Duration(milliseconds: 300),
                     duration: const Duration(milliseconds: 300),
-                    child: _buildGlassStatCard('训练天数', '${stats['workoutDays']}', '天', Icons.calendar_today, theme.successColor, theme),
+                    child: _buildGlassStatCard('训练天数', '${stats['workoutDays']}', '天', Icons.calendar_today, theme.secondaryColor, theme),
                   ),
                 ),
               ],
@@ -284,7 +283,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
             FadeInItem(
               delay: const Duration(milliseconds: 400),
               duration: const Duration(milliseconds: 300),
-              child: _buildGlassBestRow('单次最多组数', bests['maxSets'] != null ? '${bests['maxSets']} 组' : '-', '', Icons.emoji_events, theme.warningColor, theme),
+              child: _buildGlassBestRow('单次最多组数', bests['maxSets'] != null ? '${bests['maxSets']} 组' : '-', '', Icons.emoji_events, theme.primaryColor, theme),
             ),
             FadeInItem(
               delay: const Duration(milliseconds: 500),
@@ -317,27 +316,22 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
           ),
         ),
         const SizedBox(height: 12),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(16),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                // 统一玻璃效果：white 12%
-                color: Colors.white.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  // 统一边框：white 30%
-                  color: Colors.white.withValues(alpha: 0.30),
-                  width: 1,
-                ),
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.9),
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.08),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: children,
-              ),
-            ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: children,
           ),
         ),
       ],
@@ -348,13 +342,13 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.15),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, color: theme.textColor, size: 24),
+          Icon(icon, color: color, size: 24),
           const SizedBox(height: 8),
           Text(
             value,

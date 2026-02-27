@@ -97,7 +97,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 'LOAD FAILED',
                 style: TextStyle(
                   fontFamily: '.SF Pro Text',
-                  color: theme.warningColor,
+                  color: theme.accentColor,
                   letterSpacing: 2,
                 ),
               ),
@@ -138,7 +138,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     child: Text(
                       'Clear all history',
                       style: TextStyle(
-                        color: theme.warningColor,
+                        color: theme.accentColor,
                       ),
                     ),
                   ),
@@ -192,7 +192,7 @@ class _SessionCard extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Colors.transparent, theme.warningColor],
+            colors: [Colors.transparent, theme.accentColor],
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
           ),
@@ -207,22 +207,11 @@ class _SessionCard extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              theme.primaryColor.withValues(alpha: 0.1),
-              theme.secondaryColor.withValues(alpha: 0.05),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          border: Border.all(
-            color: theme.borderColor,
-            width: 1,
-          ),
-          borderRadius: BorderRadius.circular(12),
+          color: Colors.white.withValues(alpha: 0.9),
+          borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: theme.primaryColor.withValues(alpha: 0.05),
+              color: Colors.black.withValues(alpha: 0.08),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),

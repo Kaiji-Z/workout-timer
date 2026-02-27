@@ -4,6 +4,13 @@ import '../bloc/timer_provider.dart';
 import '../theme/theme_provider.dart';
 import '../theme/app_theme.dart';
 
+/// Warm Vitality 风格计时器组件
+/// 
+/// 设计特点:
+/// - 粗线条进度环 (10px) - 深蓝色
+/// - 白色背景按钮 + 深色图标/文字
+/// - 扁平设计，无发光效果
+/// - 温暖渐变背景
 class TimerWidget extends StatelessWidget {
   const TimerWidget({super.key});
 
@@ -26,7 +33,7 @@ class TimerWidget extends StatelessWidget {
               end: Alignment.bottomCenter,
               colors: [
                 theme.backgroundColor,
-                theme.surfaceColor,
+                theme.backgroundGradientEnd,
               ],
             ),
           ),
@@ -62,14 +69,11 @@ class TimerWidget extends StatelessWidget {
         Text(
           'WORKOUT TIMER',
           style: TextStyle(
-            fontFamily: 'Orbitron',
+            fontFamily: '.SF Pro Display',
             fontSize: 20,
             fontWeight: FontWeight.w700,
-            letterSpacing: 4,
-            foreground: Paint()
-              ..shader = LinearGradient(
-                colors: theme.timerGradientColors.take(2).toList(),
-              ).createShader(const Rect.fromLTWH(0, 0, 200, 40)),
+            letterSpacing: 2,
+            color: theme.textColor,
           ),
         ),
       ],
@@ -83,6 +87,7 @@ class TimerWidget extends StatelessWidget {
       child: Stack(
         alignment: Alignment.center,
         children: [
+          // 进度环
           SizedBox(
             width: 240,
             height: 240,
@@ -90,27 +95,22 @@ class TimerWidget extends StatelessWidget {
               painter: _CircularProgressPainter(
                 progress: timer.progress,
                 isRunning: timer.isRunning,
-                gradientColors: theme.timerGradientColors,
+                accentColor: theme.accentColor,
                 backgroundColor: theme.borderColor,
               ),
             ),
           ),
+          // 中心内容
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
                 _formatTime(timer.remainingSeconds),
                 style: TextStyle(
-                  fontFamily: 'Orbitron',
+                  fontFamily: '.SF Pro Display',
                   fontSize: 52,
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w700,
                   color: theme.textColor,
-                  shadows: [
-                    Shadow(
-                      color: theme.primaryColor,
-                      blurRadius: 20,
-                    ),
-                  ],
                 ),
               ),
               const SizedBox(height: 8),
@@ -123,22 +123,15 @@ class TimerWidget extends StatelessWidget {
   }
 
   Widget _buildStatusBadge(TimerProvider timer, AppThemeData theme) {
-    Color bgColor;
-    Color borderColor;
-    Color textColor;
-    String text;
-
-    if (timer.isRunning) {
-      bgColor = theme.successColor.withOpacity(0.08);
-      borderColor = theme.successColor.withOpacity(0.25);
-      textColor = theme.successColor;
-      text = 'ACTIVE';
-    } else {
-      bgColor = theme.primaryColor.withOpacity(0.06);
-      borderColor = theme.primaryColor.withOpacity(0.19);
-      textColor = theme.primaryColor;
-      text = 'READY';
-    }
+    final isRunning = timer.isRunning;
+    final bgColor = isRunning 
+        ? theme.accentColor.withValues(alpha: 0.15)
+        : theme.textColor.withValues(alpha: 0.08);
+    final borderColor = isRunning 
+        ? theme.accentColor.withValues(alpha: 0.4)
+        : theme.textColor.withValues(alpha: 0.2);
+    final textColor = isRunning ? theme.accentColor : theme.textColor;
+    final text = isRunning ? 'ACTIVE' : 'READY';
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
@@ -150,10 +143,10 @@ class TimerWidget extends StatelessWidget {
       child: Text(
         text,
         style: TextStyle(
-          fontFamily: 'Rajdhani',
+          fontFamily: '.SF Pro Text',
           fontSize: 11,
           fontWeight: FontWeight.w600,
-          letterSpacing: 2,
+          letterSpacing: 1.5,
           color: textColor,
         ),
       ),
@@ -187,9 +180,15 @@ class TimerWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       decoration: BoxDecoration(
-        color: theme.surfaceColor,
-        border: Border.all(color: theme.borderColor, width: 1),
+        color: Colors.white.withValues(alpha: 0.9),
         borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -197,26 +196,20 @@ class TimerWidget extends StatelessWidget {
           Text(
             '${timer.totalSets}',
             style: TextStyle(
-              fontFamily: 'Orbitron',
+              fontFamily: '.SF Pro Display',
               fontSize: 28,
               fontWeight: FontWeight.w700,
-              color: theme.primaryColor,
-              shadows: [
-                Shadow(
-                  color: theme.primaryColor,
-                  blurRadius: 15,
-                ),
-              ],
+              color: theme.accentColor,
             ),
           ),
           const SizedBox(width: 12),
           Text(
             '完成组数',
             style: TextStyle(
-              fontFamily: 'Rajdhani',
+              fontFamily: '.SF Pro Text',
               fontSize: 14,
               fontWeight: FontWeight.w500,
-              color: theme.secondaryTextColor,
+              color: theme.textColor.withValues(alpha: 0.7),
               letterSpacing: 1,
             ),
           ),
@@ -226,41 +219,31 @@ class TimerWidget extends StatelessWidget {
   }
 
   Widget _buildControlButtons(TimerProvider timer, AppThemeData theme) {
-    return GridView.count(
-      shrinkWrap: true,
-      crossAxisCount: 4,
-      mainAxisSpacing: 8,
-      crossAxisSpacing: 8,
-      childAspectRatio: 1.4,
-      physics: const NeverScrollableScrollPhysics(),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        _ControlButton(
-          label: timer.isRunning ? 'PAUSE' : 'START',
-          color: timer.isRunning ? theme.warningColor : theme.primaryColor,
-          gradient: timer.isRunning
-              ? null
-              : LinearGradient(
-                  colors: [theme.primaryColor, theme.primaryColor.withOpacity(0.7)],
-                ),
-          onPressed: timer.isRunning ? timer.pauseTimer : timer.startTimer,
-          theme: theme,
-        ),
-        _ControlButton(
-          label: 'SKIP',
-          color: theme.successColor,
-          onPressed: timer.skipSet,
-          theme: theme,
-        ),
-        _ControlButton(
-          label: 'FINISH',
-          color: theme.secondaryColor,
-          onPressed: timer.finishWorkout,
-          theme: theme,
-        ),
-        _ControlButton(
-          label: 'RESET',
-          color: theme.accentColor,
+        // 重置按钮 (圆形白色背景)
+        _CircleControlButton(
+          icon: Icons.refresh_rounded,
           onPressed: timer.resetTimer,
+          theme: theme,
+        ),
+        // 主按钮 (开始/暂停)
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: _PrimaryControlButton(
+              label: timer.isRunning ? 'PAUSE' : 'START',
+              icon: timer.isRunning ? Icons.pause_rounded : Icons.play_arrow_rounded,
+              onPressed: timer.isRunning ? timer.pauseTimer : timer.startTimer,
+              theme: theme,
+            ),
+          ),
+        ),
+        // 跳过按钮 (圆形白色背景)
+        _CircleControlButton(
+          icon: Icons.skip_next_rounded,
+          onPressed: timer.skipSet,
           theme: theme,
         ),
       ],
@@ -268,48 +251,45 @@ class TimerWidget extends StatelessWidget {
   }
 }
 
+/// 粗线条进度环 - Warm Vitality 风格
 class _CircularProgressPainter extends CustomPainter {
   final double progress;
   final bool isRunning;
-  final List<Color> gradientColors;
+  final Color accentColor;
   final Color backgroundColor;
 
   _CircularProgressPainter({
     required this.progress,
     required this.isRunning,
-    required this.gradientColors,
+    required this.accentColor,
     required this.backgroundColor,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
-    final radius = size.width / 2 - 10;
+    final radius = size.width / 2 - 12;
 
+    // 背景环 - 浅色
     final backgroundPaint = Paint()
-      ..color = backgroundColor
-      ..strokeWidth = 6
-      ..style = PaintingStyle.stroke;
+      ..color = Colors.white.withValues(alpha: 0.3)
+      ..strokeWidth = 10
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
 
     canvas.drawCircle(center, radius, backgroundPaint);
 
-    final gradient = LinearGradient(
-      colors: gradientColors,
-      stops: List.generate(gradientColors.length, (i) => i / (gradientColors.length - 1)),
-    ).createShader(Rect.fromCircle(center: center, radius: radius));
-
+    // 进度环 - 深蓝色，粗线条
     final progressPaint = Paint()
-      ..color = gradientColors.first
-      ..strokeWidth = 6
+      ..color = accentColor
+      ..strokeWidth = 10
       ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round
-      ..shader = gradient
-      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8);
+      ..strokeCap = StrokeCap.round;
 
     final sweepAngle = 2 * 3.14159 * progress;
     canvas.drawArc(
       Rect.fromCircle(center: center, radius: radius),
-      -1.5708,
+      -1.5708, // 从顶部开始
       sweepAngle,
       false,
       progressPaint,
@@ -320,10 +300,11 @@ class _CircularProgressPainter extends CustomPainter {
   bool shouldRepaint(covariant _CircularProgressPainter oldDelegate) {
     return oldDelegate.progress != progress ||
         oldDelegate.isRunning != isRunning ||
-        oldDelegate.gradientColors != gradientColors;
+        oldDelegate.accentColor != accentColor;
   }
 }
 
+/// 预设时间选择器 - Warm Vitality 风格
 class _PresetChip extends StatelessWidget {
   final int seconds;
   final bool isSelected;
@@ -346,29 +327,25 @@ class _PresetChip extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected ? theme.primaryColor.withOpacity(0.08) : Colors.transparent,
-          border: Border.all(
-            color: isSelected ? theme.primaryColor : theme.borderColor,
-            width: 1,
-          ),
+          color: isSelected 
+              ? theme.accentColor 
+              : Colors.white.withValues(alpha: 0.9),
           borderRadius: BorderRadius.circular(20),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: theme.primaryColor.withOpacity(0.12),
-                    blurRadius: 10,
-                    spreadRadius: 2,
-                  ),
-                ]
-              : null,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.08),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
         child: Text(
           label,
           style: TextStyle(
-            fontFamily: 'Rajdhani',
+            fontFamily: '.SF Pro Text',
             fontSize: 14,
-            fontWeight: FontWeight.w500,
-            color: isSelected ? theme.primaryColor : theme.secondaryTextColor,
+            fontWeight: FontWeight.w600,
+            color: isSelected ? Colors.white : theme.textColor,
           ),
         ),
       ),
@@ -376,54 +353,97 @@ class _PresetChip extends StatelessWidget {
   }
 }
 
-class _ControlButton extends StatelessWidget {
-  final String label;
-  final Color color;
-  final LinearGradient? gradient;
+/// 圆形控制按钮 - 参考图风格
+class _CircleControlButton extends StatelessWidget {
+  final IconData icon;
   final VoidCallback onPressed;
   final AppThemeData theme;
 
-  const _ControlButton({
-    required this.label,
-    required this.color,
-    this.gradient,
+  const _CircleControlButton({
+    required this.icon,
     required this.onPressed,
     required this.theme,
   });
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
-      onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-        padding: EdgeInsets.zero,
-        backgroundColor: Colors.transparent,
-        shadowColor: Colors.transparent,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-          side: gradient == null ? BorderSide(color: color.withOpacity(0.8), width: 2) : BorderSide.none,
+    return GestureDetector(
+      onTap: onPressed,
+      child: Container(
+        width: 56,
+        height: 56,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Icon(
+          icon,
+          color: theme.accentColor,
+          size: 24,
         ),
       ),
-      child: Ink(
+    );
+  }
+}
+
+/// 主控制按钮 - 参考图风格
+class _PrimaryControlButton extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final VoidCallback onPressed;
+  final AppThemeData theme;
+
+  const _PrimaryControlButton({
+    required this.label,
+    required this.icon,
+    required this.onPressed,
+    required this.theme,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onPressed,
+      child: Container(
+        height: 56,
         decoration: BoxDecoration(
-          gradient: gradient,
-          borderRadius: BorderRadius.circular(10),
-          border: gradient != null ? null : Border.all(color: color.withOpacity(0.3), width: 1),
-        ),
-        child: Container(
-          alignment: Alignment.center,
-          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-          child: Text(
-            label,
-            style: TextStyle(
-              fontFamily: 'Orbitron',
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 0.5,
-              color: gradient != null ? theme.backgroundColor : color,
+          color: theme.accentColor,
+          borderRadius: BorderRadius.circular(28),
+          boxShadow: [
+            BoxShadow(
+              color: theme.accentColor.withValues(alpha: 0.3),
+              blurRadius: 15,
+              offset: const Offset(0, 6),
             ),
-            textAlign: TextAlign.center,
-          ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              color: Colors.white,
+              size: 24,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: const TextStyle(
+                fontFamily: '.SF Pro Text',
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+                letterSpacing: 1,
+              ),
+            ),
+          ],
         ),
       ),
     );
