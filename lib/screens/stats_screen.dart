@@ -1,4 +1,4 @@
-import 'dart:ui';
+// #TB|import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
@@ -6,7 +6,7 @@ import '../theme/theme_provider.dart';
 import '../theme/app_theme.dart';
 import '../models/workout_session.dart';
 import '../services/workout_repository.dart';
-
+import '../animations/list_animations.dart';
 import 'dart:ui' as ui;
 
 class StatsScreen extends StatefulWidget {
@@ -113,14 +113,14 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
     WorkoutSession? maxTimeSession;
 
     for (final session in _allSessions) {
-      if (maxSetsSession == null || session.totalSets > maxSetsSession!.totalSets) {
+      if (maxSetsSession == null || session.totalSets > (maxSetsSession?.totalSets ?? 0)) {
         maxSetsSession = session;
       }
-      if (maxTimeSession == null || session.totalRestTimeMs > maxTimeSession!.totalRestTimeMs) {
+      if (maxTimeSession == null || session.totalRestTimeMs > (maxTimeSession?.totalRestTimeMs ?? 0)) {
         maxTimeSession = session;
       }
-    }
-
+      if (maxTimeSession == null || session.totalRestTimeMs > (maxTimeSession?.totalRestTimeMs ?? 0)) {
+        maxTimeSession = session;
     // Calculate longest streak
     final dates = _allSessions.map((s) {
       final date = DateTime.parse(s.createdAt);
@@ -191,14 +191,13 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
               height: 20,
               margin: const EdgeInsets.only(right: 12),
               decoration: BoxDecoration(
-                gradient: LinearGradient(colors: [const Color(0xFF4DB6AC), const Color(0xFF80CBC4)]),
-                borderRadius: BorderRadius.circular(2),
+                gradient: LinearGradient(colors: [theme.primaryColor, theme.secondaryColor])
               ),
             ),
             Text(
               'STATISTICS',
               style: TextStyle(
-                fontFamily: 'Orbitron',
+                fontFamily: '.SF Pro Display'
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
                 letterSpacing: 3,
@@ -209,12 +208,12 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
         ),
         bottom: TabBar(
           controller: _tabController,
-          indicatorColor: const Color(0xFF4DB6AC),
+          indicatorColor: theme.primaryColor
           indicatorWeight: 2,
           labelColor: Colors.white,
           unselectedLabelColor: Colors.white.withValues(alpha: 0.5),
           labelStyle: TextStyle(
-            fontFamily: 'Rajdhani',
+            fontFamily: '.SF Pro Text'
             fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
@@ -225,7 +224,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
         ),
       ),
       body: _isLoading
-          ? Center(child: CircularProgressIndicator(color: const Color(0xFF4DB6AC)))
+          ? Center(child: CircularProgressIndicator(color: theme.primaryColor))
           : TabBarView(
               controller: _tabController,
               children: [
@@ -249,9 +248,18 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
           _buildGlassSection('概览', [
             Row(
               children: [
-                _buildGlassStatCard('总组数', '${stats['totalSets']}', '组', Icons.fitness_center, const Color(0xFF4DB6AC)),
-                _buildGlassStatCard('总时长', _formatDuration(stats['totalTime'] as int), '', Icons.timer, const Color(0xFF26A69A)),
-                _buildGlassStatCard('训练天数', '${stats['workoutDays']}', '天', Icons.calendar_today, const Color(0xFF66BB6A)),
+                FadeInItem(
+                  child: _buildGlassStatCard('总组数', '${stats['totalSets']}', '组', Icons.fitness_center, theme.primaryColor),
+                  delay: const Duration(milliseconds: 100),
+                ),
+                FadeInItem(
+                  child: _buildGlassStatCard('总时长', _formatDuration(stats['totalTime'] as int), '', Icons.timer, theme.timerGradientColors[1]),
+                  delay: const Duration(milliseconds: 200),
+                ),
+                FadeInItem(
+                  child: _buildGlassStatCard('训练天数', '${stats['workoutDays']}', '天', Icons.calendar_today, theme.successColor),
+                  delay: const Duration(milliseconds: 300),
+                ),
               ],
             ),
           ]),
@@ -265,9 +273,18 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
 
           // Personal Bests
           _buildGlassSection('个人最佳', [
-            _buildGlassBestRow('单次最多组数', bests['maxSets'] != null ? '${bests['maxSets']} 组' : '-', '', Icons.emoji_events, const Color(0xFFFFA726)),
-            _buildGlassBestRow('单次最长训练', bests['maxTime'] != null ? _formatDuration(bests['maxTime'] as int) : '-', '', Icons.access_time, const Color(0xFF4DB6AC)),
-            _buildGlassBestRow('连续训练天数', '${bests['longestStreak']} 天', '', Icons.local_fire_department, const Color(0xFFFF8A65)),
+            FadeInItem(
+              child: _buildGlassBestRow('单次最多组数', bests['maxSets'] != null ? '${bests['maxSets']} 组' : '-', '', Icons.emoji_events, theme.warningColor),
+              delay: const Duration(milliseconds: 400),
+            ),
+            FadeInItem(
+              child: _buildGlassBestRow('单次最长训练', bests['maxTime'] != null ? _formatDuration(bests['maxTime'] as int) : '-', '', Icons.access_time, theme.primaryColor),
+              delay: const Duration(milliseconds: 500),
+            ),
+            FadeInItem(
+              child: _buildGlassBestRow('连续训练天数', '${bests['longestStreak']} 天', '', Icons.local_fire_department, theme.accentColor),
+              delay: const Duration(milliseconds: 600),
+            ),
           ]),
         ],
       ),
@@ -282,7 +299,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
         Text(
           title,
           style: TextStyle(
-            fontFamily: 'Rajdhani',
+            fontFamily: '.SF Pro Text'
             fontSize: 14,
             fontWeight: FontWeight.w600,
             color: Colors.white.withValues(alpha: 0.7),
@@ -326,7 +343,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
           Text(
             value,
             style: const TextStyle(
-              fontFamily: 'Orbitron',
+              fontFamily: '.SF Pro Display'
               fontSize: 20,
               fontWeight: FontWeight.w700,
               color: Colors.white,
@@ -335,7 +352,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
           Text(
             label,
             style: TextStyle(
-              fontFamily: 'Rajdhani',
+              fontFamily: '.SF Pro Text'
               fontSize: 12,
               color: Colors.white.withValues(alpha: 0.7),
             ),
@@ -353,7 +370,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
           '暂无数据',
           style: TextStyle(
             color: Colors.white.withValues(alpha: 0.5),
-            fontFamily: 'Rajdhani',
+            fontFamily: '.SF Pro Text'
           ),
         ),
       );
@@ -380,7 +397,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
             Text(
               '${entry.value}',
               style: TextStyle(
-                fontFamily: 'Orbitron',
+                fontFamily: '.SF Pro Display'
                 fontSize: 10,
                 color: Colors.white.withValues(alpha: 0.7),
               ),
@@ -393,8 +410,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
                 gradient: LinearGradient(
                   begin: Alignment.bottomCenter,
                   end: Alignment.topCenter,
-                  colors: [const Color(0xFF4DB6AC), const Color(0xFF80CBC4)],
-                ),
+                  colors: [theme.primaryColor, theme.secondaryColor]
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
@@ -402,7 +418,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
             Text(
               entry.key,
               style: TextStyle(
-                fontFamily: 'Rajdhani',
+                fontFamily: '.SF Pro Text'
                 fontSize: 10,
                 color: Colors.white.withValues(alpha: 0.7),
               ),
@@ -436,7 +452,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
                 Text(
                   label,
                   style: TextStyle(
-                    fontFamily: 'Rajdhani',
+                    fontFamily: '.SF Pro Text'
                     fontSize: 12,
                     color: Colors.white.withValues(alpha: 0.7),
                   ),
@@ -444,7 +460,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
                 Text(
                   value,
                   style: const TextStyle(
-                    fontFamily: 'Orbitron',
+                    fontFamily: '.SF Pro Display'
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: Colors.white,
@@ -457,7 +473,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
             Text(
               date,
               style: TextStyle(
-                fontFamily: 'Rajdhani',
+                fontFamily: '.SF Pro Text'
                 fontSize: 12,
                 color: Colors.white.withValues(alpha: 0.5),
               ),
