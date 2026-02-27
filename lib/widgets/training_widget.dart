@@ -352,7 +352,7 @@ PulsingWidget(
       return [
         ButtonConfig(
           label: '开始休息',
-          icon: Icons.pause_circle_outline,
+          icon: Icons.local_cafe,
           color: stateColor,
           onPressed: training.startRest,
         ),
