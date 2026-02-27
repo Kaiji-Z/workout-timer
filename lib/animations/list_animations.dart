@@ -220,3 +220,30 @@ class _SlideInItemState extends State<SlideInItem>
     );
   }
 }
+
+
+/// 列表项入场动画包装器
+/// 简单的淡入上滑动画效果
+class ListAnimation extends StatelessWidget {
+  final Widget child;
+  final int index;
+  final Duration delay;
+  final Duration duration;
+
+  const ListAnimation({
+    super.key,
+    required this.child,
+    required this.index,
+    this.delay = Duration.zero,
+    this.duration = const Duration(milliseconds: 300),
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeInItem(
+      child: child,
+      delay: delay + Duration(milliseconds: index * 50),
+      duration: duration,
+    );
+  }
+}
