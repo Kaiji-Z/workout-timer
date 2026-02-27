@@ -22,12 +22,11 @@ void main() {
         ),
       ),
     );
-    await tester.pumpAndSettle();
+    // Use pump with duration instead of pumpAndSettle for continuous animations
+    await tester.pump(const Duration(seconds: 1));
 
-    // Verify that the timer screen shows the header (iOS 26 style: WORKOUT + TIMER)
-    expect(find.text('WORKOUT'), findsOneWidget);
-    expect(find.text('TIMER'), findsOneWidget);
-    
+    // Verify that the timer screen shows the header
+    expect(find.text('WORKOUT TIMER'), findsOneWidget);
     // Verify the rest duration is displayed (default 60 seconds)
     // There are multiple "01:00" displays in iOS 26 design
     expect(find.text('01:00'), findsWidgets);
