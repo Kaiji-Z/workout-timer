@@ -106,7 +106,25 @@ class _MainNavigationState extends State<MainNavigation> {
         ),
         child: SafeArea(
           bottom: false,
-          child: _screens[_currentIndex],
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            transitionBuilder: (child, animation) {
+              return FadeTransition(
+                opacity: animation,
+                child: SlideTransition(
+                  position: Tween<Offset>(
+                    begin: const Offset(0.0, 0.02),
+                    end: Offset.zero,
+                  ).animate(CurvedAnimation(
+                    parent: animation,
+                    curve: Curves.easeOut,
+                  )),
+                  child: child,
+                ),
+              );
+            },
+            child: _screens[_currentIndex],
+          ),
         ),
       ),
       // iOS 26 风格悬浮导航栏
