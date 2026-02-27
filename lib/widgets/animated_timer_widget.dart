@@ -182,29 +182,30 @@ class _AnimatedTimerDisplayState extends State<AnimatedTimerDisplay>
             ),
           ),
           child: Padding(
-            padding: EdgeInsets.all(widget.size * 0.1),
+            padding: EdgeInsets.all(widget.size * 0.06),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
                   _formatTime(widget.seconds),
                   style: TextStyle(
                     fontFamily: '.SF Pro Display',
-                    fontSize: widget.size * 0.22,
+                    fontSize: widget.size * 0.18,
                     fontWeight: FontWeight.w300,
                     color: const Color(0xFF1A2B3C),
-                    letterSpacing: -2,
+                    letterSpacing: -1.5,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 2),
                 Text(
                   widget.label,
                   style: TextStyle(
                     fontFamily: '.SF Pro Text',
-                    fontSize: widget.size * 0.06,
+                    fontSize: widget.size * 0.05,
                     fontWeight: FontWeight.w500,
                     color: Colors.black.withValues(alpha: 0.6),
-                    letterSpacing: 1.5,
+                    letterSpacing: 1,
                   ),
                 ),
               ],
