@@ -130,20 +130,22 @@ class LiquidGlass extends StatelessWidget {
 
   Color _getBackgroundColor(bool isDark, Color? tint) {
     if (tint != null) {
-      return tint.withValues(alpha: isDark ? 0.15 : 0.85);
+      return tint.withValues(alpha: isDark ? 0.12 : 0.60);
     }
+    // 统一玻璃效果：深色12% / 浅色60%
     return isDark 
-        ? Colors.white.withValues(alpha: opacity * 0.15)
-        : Colors.white.withValues(alpha: opacity * 0.85);
+        ? Colors.white.withValues(alpha: 0.12)
+        : Colors.white.withValues(alpha: 0.60);
   }
 
   Color _getBorderColor(bool isDark, Color? tint) {
     if (tint != null) {
       return tint.withValues(alpha: 0.4);
     }
+    // 统一边框：深色30% / 浅色80%
     return isDark
-        ? Colors.white.withValues(alpha: 0.25)
-        : Colors.white.withValues(alpha: 0.6);
+        ? Colors.white.withValues(alpha: 0.30)
+        : Colors.white.withValues(alpha: 0.80);
   }
 
   Color _getHighlightColor(bool isDark, Color? tint) {
@@ -247,40 +249,30 @@ class _LiquidButtonState extends State<LiquidButton>
               child: Stack(
                 children: [
                   // 主体
+                  // 主体
                   ClipRRect(
                     borderRadius: BorderRadius.circular(borderRadius),
                     child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                      filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
                       child: Container(
                         width: double.infinity,
                         height: widget.height,
                         decoration: BoxDecoration(
-                          // 半透明渐变
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: widget.isPrimary
-                                ? [
-                                    buttonColor.withValues(alpha: 0.95),
-                                    buttonColor.withValues(alpha: 0.85),
-                                  ]
-                                : isDark
-                                    ? [
-                                        Colors.white.withValues(alpha: 0.18 + _opacityAnimation.value * 0.12),
-                                        Colors.white.withValues(alpha: 0.12 + _opacityAnimation.value * 0.08),
-                                      ]
-                                    : [
-                                        Colors.white.withValues(alpha: 0.92),
-                                        Colors.white.withValues(alpha: 0.85),
-                                      ],
-                          ),
+                          // 统一玻璃效果：深色12% / 浅色60%
+                          color: widget.isPrimary
+                              ? buttonColor.withValues(alpha: 0.95)
+                              : (isDark 
+                                  ? Colors.white.withValues(alpha: 0.12)
+                                  : Colors.white.withValues(alpha: 0.60)),
                           borderRadius: BorderRadius.circular(borderRadius),
-                          // 空间分层边框
+                          // 统一边框：深色30% / 浅色80%
                           border: Border.all(
                             color: widget.isPrimary
                                 ? Colors.white.withValues(alpha: 0.35)
-                                : Colors.white.withValues(alpha: isDark ? 0.2 : 0.5),
-                            width: 0.5,
+                                : (isDark 
+                                    ? Colors.white.withValues(alpha: 0.30)
+                                    : Colors.white.withValues(alpha: 0.80)),
+                            width: 1,
                           ),
                           boxShadow: [
                             BoxShadow(
@@ -881,18 +873,20 @@ class LiquidGlassSheet extends StatelessWidget {
     return ClipRRect(
       borderRadius: BorderRadius.vertical(top: Radius.circular(borderRadius)),
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
+        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
         child: Container(
           decoration: BoxDecoration(
+            // 统一玻璃效果：深色12% / 浅色60%
             color: isDark
-                ? Colors.white.withValues(alpha: 0.08)
-                : Colors.white.withValues(alpha: 0.92),
+                ? Colors.white.withValues(alpha: 0.12)
+                : Colors.white.withValues(alpha: 0.60),
             borderRadius: BorderRadius.vertical(top: Radius.circular(borderRadius)),
             border: Border.all(
+              // 统一边框：深色30% / 浅色80%
               color: isDark
-                  ? Colors.white.withValues(alpha: 0.15)
-                  : Colors.white.withValues(alpha: 0.5),
-              width: 0.5,
+                  ? Colors.white.withValues(alpha: 0.30)
+                  : Colors.white.withValues(alpha: 0.80),
+              width: 1,
             ),
           ),
           child: Column(
@@ -945,18 +939,26 @@ class LiquidBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return ClipRRect(
       borderRadius: BorderRadius.circular(16),
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
           decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.18),
+            // 统一玻璃效果：深色12% / 浅色60%
+            color: isDark 
+                ? Colors.white.withValues(alpha: 0.12)
+                : Colors.white.withValues(alpha: 0.60),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: color.withValues(alpha: 0.35),
-              width: 0.5,
+              // 统一边框：深色30% / 浅色80%
+              color: isDark 
+                  ? Colors.white.withValues(alpha: 0.30)
+                  : Colors.white.withValues(alpha: 0.80),
+              width: 1,
             ),
           ),
           child: Row(

@@ -239,14 +239,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
         child: Container(
           padding: padding ?? const EdgeInsets.symmetric(vertical: 4),
           decoration: BoxDecoration(
+            // 统一玻璃效果：深色12% / 浅色60%
             color: theme.isDark 
                 ? Colors.white.withValues(alpha: 0.12)
-                : Colors.white.withValues(alpha: 0.85),
+                : Colors.white.withValues(alpha: 0.60),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
+              // 统一边框：深色30% / 浅色80%
               color: theme.isDark
-                  ? Colors.white.withValues(alpha: 0.2)
-                  : Colors.white.withValues(alpha: 0.6),
+                  ? Colors.white.withValues(alpha: 0.30)
+                  : Colors.white.withValues(alpha: 0.80),
               width: 1,
             ),
           ),
