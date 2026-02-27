@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../bloc/training_provider.dart';
@@ -10,13 +8,12 @@ import 'duration_picker.dart';
 import 'glass_widgets.dart';
 import 'animated_timer_widget.dart';
 
-/// 训练主界面 - 参考参考图布局
+/// 训练主界面 - Flat Vitality 设计
 /// 
-/// 布局结构：
-/// - 紧凑 Header
-/// - 大型计时器（垂直居中）
-/// - 状态徽章
-/// - 单行按钮区域
+/// 参考参考图布局:
+/// - 顶部标题
+/// - 中央大计时器
+/// - 底部状态徽章 + 控制按钮
 class TrainingWidget extends StatelessWidget {
   const TrainingWidget({super.key});
 
@@ -32,47 +29,54 @@ class TrainingWidget extends StatelessWidget {
 
     return Consumer<TrainingProvider>(
       builder: (context, training, child) {
-        return SafeArea(
-          bottom: false, // 底部导航栏在外部
-          child: Column(
-            children: [
-              // 紧凑 Header
-              _buildCompactHeader(theme),
-              
-              // 主内容区域 - 计时器垂直居中
-              Expanded(
-                child: _buildMainContent(training, theme),
-              ),
-              
-              // 底部固定区域：状态徽章 + 按钮区域
-              _buildBottomSection(context, training, theme),
-              
-              // 为底部导航栏留出空间
-              const SizedBox(height: 70),
-            ],
+        return Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                theme.primaryColor,
+                theme.secondaryColor,
+              ],
+            ),
+          ),
+          child: SafeArea(
+            bottom: false,
+            child: Column(
+              children: [
+                // 顶部标题
+                _buildHeader(theme),
+                
+                // 主内容区域 - 计时器
+                Expanded(
+                  child: _buildMainContent(training, theme),
+                ),
+                
+                // 底部区域：状态徽章 + 按钮
+                _buildBottomSection(context, training, theme),
+                
+                // 底部导航栏空间
+                const SizedBox(height: 80),
+              ],
+            ),
           ),
         );
       },
     );
   }
 
-  /// 紧凑 Header - 单行
-  Widget _buildCompactHeader(AppThemeData theme) {
+  /// 顶部标题 - 简洁扁平
+  Widget _buildHeader(AppThemeData theme) {
     return Padding(
-      padding: const EdgeInsets.only(top: 16, bottom: 8),
-      child: ShaderMask(
-        shaderCallback: (bounds) => LinearGradient(
-          colors: theme.timerGradientColors,
-        ).createShader(bounds),
-        child: Text(
-          'WORKOUT TIMER',
-          style: TextStyle(
-            fontFamily: '.SF Pro Display',
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            color: Colors.white,
-            letterSpacing: 6,
-          ),
+      padding: const EdgeInsets.only(top: 20, bottom: 16),
+      child: Text(
+        'WORKOUT TIMER',
+        style: TextStyle(
+          fontFamily: '.SF Pro Display',
+          fontSize: 18,
+          fontWeight: FontWeight.w700,
+          color: theme.textColor,
+          letterSpacing: 3,
         ),
       ),
     );
@@ -85,9 +89,9 @@ class TrainingWidget extends StatelessWidget {
     );
   }
 
-  /// 计时器显示 - 根据状态显示不同大小
+  /// 计时器显示
   Widget _buildTimerDisplay(TrainingProvider training, AppThemeData theme) {
-    // 休息状态：显示秒表 + 倒计时
+    // 休息状态：显示总时长 + 倒计时
     if (training.isResting) {
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -96,10 +100,10 @@ class TrainingWidget extends StatelessWidget {
           AnimatedStopwatchDisplay(
             seconds: training.sessionDuration,
             theme: theme,
-            size: 60,
+            size: 70,
           ),
-          const SizedBox(height: 20),
-          // 主倒计时 - 280px
+          const SizedBox(height: 24),
+          // 主倒计时
           AnimatedTimerDisplay(
             seconds: training.restRemaining,
             label: '休息倒计时',
@@ -114,92 +118,82 @@ class TrainingWidget extends StatelessWidget {
       );
     }
 
-    // 运动中或暂停 - 360px 大计时器
+    // 运动中或暂停
     if (training.isExercising || training.isExercisePaused) {
       return AnimatedTimerDisplay(
         seconds: training.sessionDuration,
         label: '运动中',
         theme: theme,
-        size: 360,
+        size: 320,
         isCountdown: false,
       );
     }
 
-    // 完成状态 - 280px 完成显示
+    // 完成状态
     if (training.isCompleted) {
       return _buildCompletedDisplay(training, theme);
     }
 
-    // 空闲状态 - 360px 预览计时器
+    // 空闲状态
     return AnimatedTimerDisplay(
       seconds: training.restDuration,
       label: '休息时长',
       theme: theme,
-      size: 360,
+      size: 320,
       isCountdown: false,
     );
   }
 
-  /// 完成状态显示
+  /// 完成状态显示 - 扁平设计
   Widget _buildCompletedDisplay(TrainingProvider training, AppThemeData theme) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
+        // 完成圆圈
         PulsingWidget(
-          child: ClipOval(
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-              child: Container(
-                width: 200,
-                height: 200,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  // 统一玻璃效果：white 12%
-                  color: Colors.white.withValues(alpha: 0.12),
-                  border: Border.all(
-                    // 统一边框：white 30%
-                    color: Colors.white.withValues(alpha: 0.30),
-                    width: 1,
+          child: Container(
+            width: 200,
+            height: 200,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.15),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.check_circle_outline,
+                  size: 48,
+                  color: theme.progressRingColor,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  _formatTime(training.sessionDuration),
+                  style: TextStyle(
+                    fontFamily: '.SF Pro Display',
+                    fontSize: 40,
+                    fontWeight: FontWeight.w300,
+                    color: theme.textColor,
+                    letterSpacing: -2,
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.06),
-                      blurRadius: 20,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
                 ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.check_circle_outline,
-                      size: 48,
-                      color: theme.successColor,
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      _formatTime(training.sessionDuration),
-                      style: TextStyle(
-                        fontFamily: '.SF Pro Display',
-                        fontSize: 40,
-                        fontWeight: FontWeight.w300,
-                        color: theme.textColor,
-                        letterSpacing: -2,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '总时长',
-                      style: TextStyle(
-                        fontFamily: '.SF Pro Text',
-                        fontSize: 14,
-                        color: theme.secondaryTextColor,
-                      ),
-                    ),
-                  ],
+                const SizedBox(height: 4),
+                Text(
+                  '总时长',
+                  style: TextStyle(
+                    fontFamily: '.SF Pro Text',
+                    fontSize: 14,
+                    color: theme.secondaryTextColor,
+                  ),
                 ),
-              ),
+              ],
             ),
           ),
         ),
@@ -208,15 +202,15 @@ class TrainingWidget extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            GlassBadge(
+            StatusBadge(
               text: '${training.currentSet} 组',
-              color: theme.successColor,
+              color: theme.progressRingColor,
               icon: Icons.repeat,
             ),
             const SizedBox(width: 12),
-            GlassBadge(
+            StatusBadge(
               text: _formatTime(training.totalExerciseTime),
-              color: theme.primaryColor,
+              color: theme.progressRingColor,
               icon: Icons.timer,
             ),
           ],
@@ -225,77 +219,43 @@ class TrainingWidget extends StatelessWidget {
     );
   }
 
-  /// 底部区域：状态徽章 + 按钮区域卡片
+  /// 底部区域
   Widget _buildBottomSection(BuildContext context, TrainingProvider training, AppThemeData theme) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
         children: [
           // 状态徽章
           _buildStatusBadge(training, theme),
-          const SizedBox(height: 16),
-          // 按钮区域 - 毛玻璃卡片
-          _buildButtonAreaCard(context, training, theme),
+          const SizedBox(height: 20),
+          // 按钮区域
+          _buildButtonArea(context, training, theme),
           const SizedBox(height: 16),
         ],
       ),
     );
   }
 
-  /// 按钮区域毛玻璃卡片
-  Widget _buildButtonAreaCard(BuildContext context, TrainingProvider training, AppThemeData theme) {
-    final buttons = _getButtonsForState(context, training, theme);
-    
-    if (buttons.isEmpty) {
-      return const SizedBox.shrink();
-    }
-    
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            // 统一玻璃效果：white 12%
-            color: Colors.white.withValues(alpha: 0.12),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              // 统一边框：white 30%
-              color: Colors.white.withValues(alpha: 0.30),
-              width: 1,
-            ),
-          ),
-          child: SingleRowButtonArea(
-            buttons: buttons,
-            height: 52,
-            gap: 10,
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// 状态徽章
+  /// 状态徽章 - 扁平设计
   Widget _buildStatusBadge(TrainingProvider training, AppThemeData theme) {
     Color color;
     String text;
     IconData icon;
 
     if (training.isExercising) {
-      color = theme.primaryColor;
+      color = theme.progressRingColor;
       text = '第 ${training.currentSet} 组 · 运动中';
       icon = Icons.fitness_center;
     } else if (training.isResting) {
-      color = theme.successColor;
+      color = theme.progressRingColor;
       text = '第 ${training.currentSet} 组 · 休息中';
       icon = Icons.self_improvement;
     } else if (training.isCompleted) {
-      color = theme.successColor;
+      color = theme.progressRingColor;
       text = '训练完成';
       icon = Icons.emoji_events;
     } else if (training.isExercisePaused) {
-      color = theme.warningColor;
+      color = theme.progressRingColor;
       text = '第 ${training.currentSet} 组 · 已暂停';
       icon = Icons.pause_circle_outline;
     } else {
@@ -304,130 +264,157 @@ class TrainingWidget extends StatelessWidget {
       icon = Icons.play_circle_outline;
     }
 
-    return GlassBadge(
+    return StatusBadge(
       text: text,
       color: color,
       icon: icon,
     );
   }
 
+  /// 按钮区域 - 参考图风格
+  Widget _buildButtonArea(BuildContext context, TrainingProvider training, AppThemeData theme) {
+    final buttons = _getButtonsForState(context, training, theme);
+    
+    if (buttons.isEmpty) return const SizedBox.shrink();
 
-  /// 获取当前状态的统一颜色
-  Color _getStateColor(TrainingProvider training, AppThemeData theme) {
-    if (training.isExercising || training.isExercisePaused) {
-      return theme.primaryColor; // 运动状态 - 主色调
-    }
-    if (training.isResting) {
-      return theme.successColor; // 休息状态 - 活力绿
-    }
-    if (training.isCompleted) {
-      return theme.successColor; // 完成状态 - 活力绿
-    }
-    return theme.primaryColor; // 空闲状态 - 主色调
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: _buildButtonRow(buttons),
+    );
   }
 
-  /// 根据状态获取按钮配置
-  List<ButtonConfig> _getButtonsForState(BuildContext context, TrainingProvider training, AppThemeData theme) {
-    final stateColor = _getStateColor(training, theme);
-    
-    // 空闲状态 - 主色调
+  /// 构建按钮行 - 参考图风格: 圆形按钮
+  List<Widget> _buildButtonRow(List<_ButtonInfo> buttons) {
+    if (buttons.length == 1) {
+      // 单个按钮 - 大胶囊按钮
+      return [
+        PrimaryActionButton(
+          label: buttons[0].label,
+          icon: buttons[0].icon,
+          backgroundColor: buttons[0].isDestructive ? Colors.red : null,
+          onPressed: buttons[0].onPressed,
+          isWide: true,
+        ),
+      ];
+    } else if (buttons.length == 2) {
+      // 两个按钮 - 左圆形 + 右胶囊
+      return [
+        CircularControlButton(
+          icon: buttons[0].icon,
+          iconColor: buttons[0].isDestructive ? Colors.red : null,
+          onPressed: buttons[0].onPressed,
+        ),
+        const SizedBox(width: 16),
+        PrimaryActionButton(
+          label: buttons[1].label,
+          icon: buttons[1].icon,
+          onPressed: buttons[1].onPressed,
+          isWide: true,
+        ),
+      ];
+    } else {
+      // 三个按钮 - 左圆 + 中圆 + 右胶囊
+      return [
+        CircularControlButton(
+          icon: buttons[0].icon,
+          onPressed: buttons[0].onPressed,
+        ),
+        const SizedBox(width: 12),
+        CircularControlButton(
+          icon: buttons[1].icon,
+          onPressed: buttons[1].onPressed,
+        ),
+        const SizedBox(width: 12),
+        PrimaryActionButton(
+          label: buttons[2].label,
+          icon: buttons[2].icon,
+          onPressed: buttons[2].onPressed,
+          isWide: true,
+        ),
+      ];
+    }
+  }
+
+  /// 获取当前状态的按钮配置
+  List<_ButtonInfo> _getButtonsForState(BuildContext context, TrainingProvider training, AppThemeData theme) {
+    // 空闲状态
     if (training.isIdle) {
       return [
-        ButtonConfig(
-          label: '设置时长',
+        _ButtonInfo(
+          label: '设置',
           icon: Icons.timer_outlined,
-          color: stateColor,
-          isPrimary: false,
           onPressed: () => _showDurationPicker(context, training),
         ),
-        ButtonConfig(
+        _ButtonInfo(
           label: '开始运动',
           icon: Icons.play_arrow_rounded,
-          color: stateColor,
           onPressed: training.startExercise,
+          isPrimary: true,
         ),
       ];
     }
 
-    // 运动中 - 运动色
+    // 运动中
     if (training.isExercising) {
       return [
-        ButtonConfig(
-          label: '开始休息',
-          icon: Icons.local_cafe,
-          color: stateColor,
-          onPressed: training.startRest,
-        ),
-        ButtonConfig(
-          label: '暂停',
+        _ButtonInfo(
           icon: Icons.pause,
-          color: stateColor,
-          isPrimary: false,
           onPressed: training.pauseExercise,
         ),
-        ButtonConfig(
+        _ButtonInfo(
+          icon: Icons.local_cafe,
+          onPressed: training.startRest,
+        ),
+        _ButtonInfo(
           label: '结束',
           icon: Icons.stop,
-          color: stateColor,
-          isPrimary: false,
           onPressed: training.endWorkout,
         ),
       ];
     }
 
-    // 运动暂停 - 运动色 (只保留继续和结束)
+    // 运动暂停
     if (training.isExercisePaused) {
       return [
-        ButtonConfig(
+        _ButtonInfo(
+          icon: Icons.stop,
+          onPressed: training.endWorkout,
+          isDestructive: true,
+        ),
+        _ButtonInfo(
           label: '继续',
           icon: Icons.play_arrow,
-          color: stateColor,
           onPressed: training.resumeFromPause,
-        ),
-        ButtonConfig(
-          label: '结束',
-          icon: Icons.stop,
-          color: stateColor,
-          isPrimary: false,
-          onPressed: training.endWorkout,
+          isPrimary: true,
         ),
       ];
     }
 
-    // 休息中 - 休息色
+    // 休息中
     if (training.isResting) {
       return [
-        ButtonConfig(
+        _ButtonInfo(
           label: '跳过休息',
           icon: Icons.skip_next,
-          color: stateColor,
           onPressed: training.skipRest,
+          isPrimary: true,
         ),
       ];
     }
 
-    // 完成状态 - 完成色
+    // 完成状态
     if (training.isCompleted) {
       return [
-        ButtonConfig(
+        _ButtonInfo(
+          icon: Icons.delete_outline,
+          onPressed: training.resetWorkout,
+          isDestructive: true,
+        ),
+        _ButtonInfo(
           label: '保存',
           icon: Icons.save,
-          color: stateColor,
-          onPressed: () => _saveWorkout(context, training),
-        ),
-        ButtonConfig(
-          label: '继续',
-          icon: Icons.replay,
-          color: stateColor,
-          onPressed: training.resumeExercise,
-        ),
-        ButtonConfig(
-          label: '放弃',
-          icon: Icons.delete_outline,
-          color: stateColor,
-          isPrimary: false,
-          isDestructive: true,
-          onPressed: training.resetWorkout,
+          onPressed: () => _saveWorkout(context, training, theme),
+          isPrimary: true,
         ),
       ];
     }
@@ -447,7 +434,7 @@ class TrainingWidget extends StatelessWidget {
   }
 
   /// 保存训练记录
-  Future<void> _saveWorkout(BuildContext context, TrainingProvider training) async {
+  Future<void> _saveWorkout(BuildContext context, TrainingProvider training, AppThemeData theme) async {
     final repository = WorkoutRepository();
     final data = training.getWorkoutData();
 
@@ -460,24 +447,42 @@ class TrainingWidget extends StatelessWidget {
       training.resetWorkout();
 
       if (context.mounted) {
-        final theme = context.read<ThemeProvider>().currentTheme;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('训练已保存：完成${data['totalSets']}组，总时长 ${training.sessionDurationFormatted}'),
-            backgroundColor: theme.successColor,
+            backgroundColor: theme.progressRingColor,
+            behavior: SnackBarBehavior.floating,
           ),
         );
       }
     } catch (e) {
       if (context.mounted) {
-        final theme = context.read<ThemeProvider>().currentTheme;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('保存失败: $e'),
-            backgroundColor: theme.warningColor,
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
           ),
         );
       }
     }
   }
 }
+
+/// 按钮信息
+class _ButtonInfo {
+  final String label;
+  final IconData icon;
+  final VoidCallback? onPressed;
+  final bool isPrimary;
+  final bool isDestructive;
+
+  _ButtonInfo({
+    this.label = '',
+    required this.icon,
+    this.onPressed,
+    this.isPrimary = false,
+    this.isDestructive = false,
+  });
+}
+

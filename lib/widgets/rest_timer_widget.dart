@@ -42,7 +42,7 @@ class RestTimerWidget extends StatelessWidget {
             child: CustomPaint(
               painter: CircularProgressPainter(
                 progress: progress,
-                gradientColors: [theme.successColor, theme.successColor.withOpacity(0.5)],
+                gradientColors: [theme.accentColor, theme.accentColor.withValues(alpha: 0.5)],
                 backgroundColor: theme.borderColor,
               ),
             ),
@@ -59,7 +59,7 @@ class RestTimerWidget extends StatelessWidget {
                   color: theme.textColor,
                   shadows: [
                     Shadow(
-                      color: theme.successColor,
+                      color: theme.accentColor,
                       blurRadius: 20,
                     ),
                   ],

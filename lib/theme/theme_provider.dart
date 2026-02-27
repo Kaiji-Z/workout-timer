@@ -6,9 +6,9 @@ import 'app_theme.dart';
 class ThemeProvider extends ChangeNotifier {
   static const String _themeKey = 'selected_theme';
   
-  // 默认使用 iPhone White 主题
-  AppThemeType _currentThemeType = AppThemeType.iphone5cWhite;
-  AppThemeData _currentTheme = iphone5cWhiteTheme;
+  // 默认使用琥珀金主题 (参考图风格)
+  AppThemeType _currentThemeType = AppThemeType.amberGold;
+  AppThemeData _currentTheme = amberGoldTheme;
   
   AppThemeType get currentThemeType => _currentThemeType;
   AppThemeData get currentTheme => _currentTheme;
@@ -49,43 +49,59 @@ class ThemeProvider extends ChangeNotifier {
   /// 主题类型转名称
   String _typeToThemeName(AppThemeType type) {
     switch (type) {
-      case AppThemeType.iphone5cBlue:
-        return 'iphone5cBlue';
-      case AppThemeType.iphone5cGreen:
-        return 'iphone5cGreen';
-      case AppThemeType.iphone5cYellow:
-        return 'iphone5cYellow';
-      case AppThemeType.iphone5cPink:
-        return 'iphone5cPink';
-      case AppThemeType.iphone5cWhite:
-        return 'iphone5cWhite';
+      case AppThemeType.amberGold:
+        return 'amberGold';
+      case AppThemeType.coralOrange:
+        return 'coralOrange';
+      case AppThemeType.mintGreen:
+        return 'mintGreen';
+      case AppThemeType.rosePink:
+        return 'rosePink';
+      case AppThemeType.skyBlue:
+        return 'skyBlue';
     }
   }
   
   /// 主题名称转类型
   AppThemeType _themeNameToType(String name) {
     switch (name) {
-      case 'iphone5cWhite':
-        return AppThemeType.iphone5cWhite;
-      case 'iphone5cBlue':
-        return AppThemeType.iphone5cBlue;
-      case 'iphone5cGreen':
-        return AppThemeType.iphone5cGreen;
+      case 'amberGold':
+        return AppThemeType.amberGold;
+      case 'coralOrange':
+        return AppThemeType.coralOrange;
+      case 'mintGreen':
+        return AppThemeType.mintGreen;
+      case 'rosePink':
+        return AppThemeType.rosePink;
+      case 'skyBlue':
+        return AppThemeType.skyBlue;
+      // Legacy theme names - map to new themes
+      case 'vitalityYellow':
       case 'iphone5cYellow':
-        return AppThemeType.iphone5cYellow;
+        return AppThemeType.amberGold;
+      case 'vitalityOrange':
+      case 'iphone5cOrange':
+        return AppThemeType.coralOrange;
+      case 'vitalityGreen':
+      case 'iphone5cGreen':
+        return AppThemeType.mintGreen;
+      case 'vitalityPink':
       case 'iphone5cPink':
-        return AppThemeType.iphone5cPink;
-      // Legacy theme names - map to closest new theme
+        return AppThemeType.rosePink;
+      case 'vitalityBlue':
+      case 'iphone5cBlue':
+      case 'iphone5cWhite':
+        return AppThemeType.skyBlue;
       case 'oceanFlow':
       case 'arcticFlow':
-        return AppThemeType.iphone5cWhite;
+        return AppThemeType.skyBlue;
       case 'vitalFlow':
-        return AppThemeType.iphone5cGreen;
+        return AppThemeType.mintGreen;
       case 'neonTempus':
       case 'electricPulse':
-        return AppThemeType.iphone5cBlue;
+        return AppThemeType.skyBlue;
       default:
-        return AppThemeType.iphone5cWhite;
+        return AppThemeType.amberGold;
     }
   }
 }

@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../services/workout_repository.dart';
 import '../theme/theme_provider.dart';
 import '../theme/app_theme.dart';
-import '../widgets/glass_widgets.dart';
+
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -274,8 +274,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      builder: (context) => LiquidGlassSheet(
+      builder: (context) => Container(
         padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: themeProvider.currentTheme.surfaceColor.withValues(alpha: 0.95),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -316,7 +320,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 onTap: () {
                   final themeType = AppThemeType.values.firstWhere(
                     (t) => getThemeData(t).name == theme.name,
-                    orElse: () => AppThemeType.iphone5cWhite,
+                    orElse: () => AppThemeType.amberGold,
                   );
                   themeProvider.setTheme(themeType);
                   Navigator.pop(context);

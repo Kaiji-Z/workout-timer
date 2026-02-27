@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -148,9 +147,18 @@ class _MainNavigationState extends State<MainNavigation> {
       extendBodyBehindAppBar: true,
       body: Stack(
         children: [
-          // Solid background color
+          // 渐变背景 - Warm Vitality 风格
           Container(
-            color: appTheme.backgroundColor,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  appTheme.backgroundColor,
+                  appTheme.backgroundGradientEnd,
+                ],
+              ),
+            ),
           ),
           // Decorative circles
           DecorativeCircles(colors: appTheme.decorativeCircleColors),
@@ -180,34 +188,30 @@ class _MainNavigationState extends State<MainNavigation> {
         ],
       ),
       // iOS 26 风格悬浮导航栏 - 统一毛玻璃效果
+      // 扁平导航栏 - Flat Vitality 风格
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.only(bottom: 16, left: 20, right: 20),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(25),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-            child: Container(
-              height: 70,
-              decoration: BoxDecoration(
-                // 统一玻璃效果：white 12%
-                color: Colors.white.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(25),
-                border: Border.all(
-                  // 统一边框：white 30%
-                  color: Colors.white.withValues(alpha: 0.30),
-                  width: 1,
-                ),
+        child: Container(
+          height: 70,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(25),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.1),
+                blurRadius: 15,
+                offset: const Offset(0, 4),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  _buildNavItem(0, Icons.timer_outlined, Icons.timer, '计时器', appTheme),
-                  _buildNavItem(1, Icons.history_outlined, Icons.history, '历史', appTheme),
-                  _buildNavItem(2, Icons.bar_chart_outlined, Icons.bar_chart, '统计', appTheme),
-                  _buildNavItem(3, Icons.settings_outlined, Icons.settings, '设置', appTheme),
-                ],
-              ),
-            ),
+            ],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildNavItem(0, Icons.timer_outlined, Icons.timer, '计时器', appTheme),
+              _buildNavItem(1, Icons.history_outlined, Icons.history, '历史', appTheme),
+              _buildNavItem(2, Icons.bar_chart_outlined, Icons.bar_chart, '统计', appTheme),
+              _buildNavItem(3, Icons.settings_outlined, Icons.settings, '设置', appTheme),
+            ],
           ),
         ),
       ),
@@ -215,8 +219,8 @@ class _MainNavigationState extends State<MainNavigation> {
   }
 
   Widget _buildNavItem(int index, IconData icon, IconData activeIcon, String label, AppThemeData appTheme) {
-    // 使用主题色作为导航栏颜色
-    final activeColor = appTheme.primaryColor;
+    // 使用 accentColor (深色) 确保可见性
+    final activeColor = appTheme.accentColor;
     final inactiveColor = appTheme.textColor.withValues(alpha: 0.5);
     final isSelected = _currentIndex == index;
 
