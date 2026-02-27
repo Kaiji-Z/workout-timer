@@ -6,9 +6,9 @@ import 'app_theme.dart';
 class ThemeProvider extends ChangeNotifier {
   static const String _themeKey = 'selected_theme';
   
-  // 默认使用 VitalFlow 主题
-  AppThemeType _currentThemeType = AppThemeType.vitalFlow;
-  AppThemeData _currentTheme = vitalFlowTheme;
+  // 默认使用 Ocean Flow 主题
+  AppThemeType _currentThemeType = AppThemeType.oceanFlow;
+  AppThemeData _currentTheme = oceanFlowTheme;
   
   AppThemeType get currentThemeType => _currentThemeType;
   AppThemeData get currentTheme => _currentTheme;
@@ -47,22 +47,26 @@ class ThemeProvider extends ChangeNotifier {
   }
   
   /// 主题类型转名称
-  String _typeToThemeName(AppThemeType type) {
-    switch (type) {
-      case AppThemeType.vitalFlow:
-        return 'vitalFlow';
-      case AppThemeType.neonTempus:
-        return 'neonTempus';
-      case AppThemeType.arcticFlow:
-        return 'arcticFlow';
-      case AppThemeType.electricPulse:
+String _typeToThemeName(AppThemeType type) {
+switch (type) {
+case AppThemeType.vitalFlow:
+return 'vitalFlow';
+case AppThemeType.neonTempus:
+return 'neonTempus';
+case AppThemeType.arcticFlow:
+return 'arcticFlow';
+case AppThemeType.electricPulse:
         return 'electricPulse';
-    }
-  }
+      case AppThemeType.oceanFlow:
+        return 'oceanFlow';
+}
+}
   
   /// 主题名称转类型
   AppThemeType _themeNameToType(String name) {
     switch (name) {
+      case 'oceanFlow':
+        return AppThemeType.oceanFlow;
       case 'vitalFlow':
         return AppThemeType.vitalFlow;
       case 'arcticFlow':
@@ -70,8 +74,9 @@ class ThemeProvider extends ChangeNotifier {
       case 'electricPulse':
         return AppThemeType.electricPulse;
       case 'neonTempus':
+        return AppThemeType.neonTempus;
       default:
-        return AppThemeType.vitalFlow;  // 默认回 VitalFlow
+        return AppThemeType.oceanFlow;  // 默认回 Ocean Flow
     }
   }
 }
