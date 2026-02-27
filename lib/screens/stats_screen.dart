@@ -245,24 +245,32 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
           _buildGlassSection('概览', theme, [
             Row(
               children: [
-                FadeInItem(
-              delay: const Duration(milliseconds: 100),
-              duration: const Duration(milliseconds: 300),
-              child: _buildGlassStatCard('总组数', '${stats['totalSets']}', '组', Icons.fitness_center, theme.primaryColor, theme),
+                Expanded(
+                  child: FadeInItem(
+                    delay: const Duration(milliseconds: 100),
+                    duration: const Duration(milliseconds: 300),
+                    child: _buildGlassStatCard('总组数', '${stats['totalSets']}', '组', Icons.fitness_center, theme.primaryColor, theme),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: FadeInItem(
+                    delay: const Duration(milliseconds: 200),
+                    duration: const Duration(milliseconds: 300),
+                    child: _buildGlassStatCard('总时长', formatDuration(stats['totalTime'] as int), '', Icons.timer, theme.secondaryColor, theme),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: FadeInItem(
+                    delay: const Duration(milliseconds: 300),
+                    duration: const Duration(milliseconds: 300),
+                    child: _buildGlassStatCard('训练天数', '${stats['workoutDays']}', '天', Icons.calendar_today, theme.successColor, theme),
+                  ),
+                ),
+              ],
             ),
-            FadeInItem(
-              delay: const Duration(milliseconds: 200),
-              duration: const Duration(milliseconds: 300),
-              child: _buildGlassStatCard('总时长', formatDuration(stats['totalTime'] as int), '', Icons.timer, theme.secondaryColor, theme),
-            ),
-            FadeInItem(
-              delay: const Duration(milliseconds: 300),
-              duration: const Duration(milliseconds: 300),
-              child: _buildGlassStatCard('训练天数', '${stats['workoutDays']}', '天', Icons.calendar_today, theme.successColor, theme),
-            ),
-          ],
-        ),
-      ]),
+          ]),
           const SizedBox(height: 24),
 
           // Chart Section
@@ -335,37 +343,35 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
   }
 
   Widget _buildGlassStatCard(String label, String value, String unit, IconData icon, Color color, AppThemeData theme) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.15),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, color: Colors.white, size: 24),
-            const SizedBox(height: 8),
-            Text(
-              value,
-              style: const TextStyle(
-                fontFamily: '.SF Pro Display',
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
-              ),
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, color: Colors.white, size: 24),
+          const SizedBox(height: 8),
+          Text(
+            value,
+            style: const TextStyle(
+              fontFamily: '.SF Pro Display',
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
             ),
-            Text(
-              label,
-              style: TextStyle(
-                fontFamily: '.SF Pro Text',
-                fontSize: 12,
-                color: Colors.white.withValues(alpha: 0.7),
-              ),
+          ),
+          Text(
+            label,
+            style: TextStyle(
+              fontFamily: '.SF Pro Text',
+              fontSize: 12,
+              color: Colors.white.withValues(alpha: 0.7),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
