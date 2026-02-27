@@ -5,6 +5,7 @@ import '../models/workout_session.dart';
 import '../services/workout_repository.dart';
 import '../theme/theme_provider.dart';
 import '../theme/app_theme.dart';
+import '../animations/list_animations.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -146,19 +147,19 @@ class _HistoryScreenState extends State<HistoryScreen> {
             );
           } else {
             final sessions = snapshot.data!;
-            return AnimatedList(
+            return ListView.builder(
               padding: const EdgeInsets.all(16),
-              initialItemCount: sessions.length,
-              itemBuilder: (context, index, animation) {
+              itemCount: sessions.length,
+              itemBuilder: (context, index) {
                 final session = sessions[index];
-                return SizeTransition(
-                  sizeFactor: animation,
+                return ListAnimation(
                   child: _SessionCard(
                     session: session,
                     formatDate: _formatDate,
                     onDelete: () => _deleteSession(session.id),
                     theme: theme,
                   ),
+                  index: index,
                 );
               },
             );
@@ -261,8 +262,8 @@ class _SessionCard extends StatelessWidget {
                       fontFamily: '.SF Pro Text',
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: theme.textColor.withValues(alpha: 0.9),
-                      letterSpacing: 2,
+                      color: theme.textColor,
+                      letterSpacing: 0,
                     ),
                   ),
                   const SizedBox(height: 4),
