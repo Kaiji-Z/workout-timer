@@ -246,7 +246,8 @@ class _SessionCard extends StatelessWidget {
                     fontFamily: '.SF Pro Display',
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
-                    color: theme.isDark ? theme.backgroundColor : theme.surfaceColor,
+                    // 使用白色文字在渐变背景上
+                    color: Colors.white,
                   ),
                 ),
               ),

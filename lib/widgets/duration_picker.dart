@@ -97,7 +97,7 @@ class _DurationPickerState extends State<DurationPicker> {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().currentTheme;
-    final isDark = theme.isDark;
+    // iPhone 5c 主题统一使用浅色风格
     final screenHeight = MediaQuery.of(context).size.height;
 
     return Container(
@@ -112,16 +112,11 @@ class _DurationPickerState extends State<DurationPicker> {
           filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
           child: Container(
             decoration: BoxDecoration(
-              // 半透明材质
-              color: isDark
-                  ? Colors.white.withValues(alpha: 0.08)
-                  : Colors.white.withValues(alpha: 0.92),
+              // 半透明材质 - 浅色风格
+              color: Colors.white.withValues(alpha: 0.92),
               borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-              // 边框
               border: Border.all(
-                color: isDark
-                    ? Colors.white.withValues(alpha: 0.15)
-                    : Colors.white.withValues(alpha: 0.5),
+                color: Colors.white.withValues(alpha: 0.5),
                 width: 0.5,
               ),
             ),
@@ -133,9 +128,7 @@ class _DurationPickerState extends State<DurationPicker> {
                   width: 36,
                   height: 5,
                   decoration: BoxDecoration(
-                    color: isDark
-                        ? Colors.white.withValues(alpha: 0.3)
-                        : Colors.black.withValues(alpha: 0.2),
+                    color: Colors.black.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(2.5),
                   ),
                 ),
@@ -268,7 +261,7 @@ class _DurationPickerState extends State<DurationPicker> {
     );
   }
 
-Widget _buildConfirmButton(AppThemeData theme) {
+  Widget _buildConfirmButton(AppThemeData theme) {
     return GestureDetector(
       onTap: _onConfirm,
       child: Container(
@@ -308,7 +301,7 @@ Widget _buildConfirmButton(AppThemeData theme) {
     required AppThemeData theme,
     required Function(int) onChanged,
   }) {
-    final isDark = theme.isDark;
+    // iPhone 5c 主题统一使用浅色风格
     
     return Stack(
       children: [
@@ -319,9 +312,7 @@ Widget _buildConfirmButton(AppThemeData theme) {
             margin: const EdgeInsets.symmetric(horizontal: 16),
             decoration: BoxDecoration(
               // 液态玻璃选择器背景
-              color: isDark
-                  ? theme.primaryColor.withValues(alpha: 0.08)
-                  : theme.primaryColor.withValues(alpha: 0.08),
+              color: theme.primaryColor.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: theme.primaryColor.withValues(alpha: 0.2),

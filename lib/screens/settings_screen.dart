@@ -239,16 +239,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
         child: Container(
           padding: padding ?? const EdgeInsets.symmetric(vertical: 4),
           decoration: BoxDecoration(
-            // 统一玻璃效果：深色12% / 浅色60%
-            color: theme.isDark 
-                ? Colors.white.withValues(alpha: 0.12)
-                : Colors.white.withValues(alpha: 0.60),
+            // 统一玻璃效果：white 12%
+            color: Colors.white.withValues(alpha: 0.12),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              // 统一边框：深色30% / 浅色80%
-              color: theme.isDark
-                  ? Colors.white.withValues(alpha: 0.30)
-                  : Colors.white.withValues(alpha: 0.80),
+              // 统一边框：white 30%
+              color: Colors.white.withValues(alpha: 0.30),
               width: 1,
             ),
           ),
@@ -320,7 +316,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 onTap: () {
                   final themeType = AppThemeType.values.firstWhere(
                     (t) => getThemeData(t).name == theme.name,
-                    orElse: () => AppThemeType.oceanFlow,
+                    orElse: () => AppThemeType.iphone5cWhite,
                   );
                   themeProvider.setTheme(themeType);
                   Navigator.pop(context);

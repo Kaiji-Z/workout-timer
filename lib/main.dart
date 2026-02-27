@@ -66,6 +66,60 @@ class MyApp extends StatelessWidget {
   }
 }
 
+/// Decorative background circles - iPhone 5c style
+class DecorativeCircles extends StatelessWidget {
+  final List<Color> colors;
+  
+  const DecorativeCircles({super.key, required this.colors});
+  
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        // Top-right circle
+        Positioned(
+          top: -100,
+          right: -50,
+          child: Container(
+            width: 250,
+            height: 250,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: colors.isNotEmpty ? colors[0] : const Color(0x00000000),
+            ),
+          ),
+        ),
+        // Bottom-left circle
+        Positioned(
+          bottom: 100,
+          left: -80,
+          child: Container(
+            width: 200,
+            height: 200,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: colors.length > 1 ? colors[1] : const Color(0x00000000),
+            ),
+          ),
+        ),
+        // Center-right small circle
+        Positioned(
+          top: 300,
+          right: -30,
+          child: Container(
+            width: 120,
+            height: 120,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: colors.length > 2 ? colors[2] : const Color(0x00000000),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 /// iOS 26 风格主导航 - 悬浮药丸导航栏
 class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
@@ -87,42 +141,43 @@ class _MainNavigationState extends State<MainNavigation> {
   @override
   Widget build(BuildContext context) {
     final appTheme = context.watch<ThemeProvider>().currentTheme;
-    final isDark = appTheme.isDark;
 
     return Scaffold(
       // 使用半透明背景
       extendBody: true,
       extendBodyBehindAppBar: true,
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: appTheme.backgroundGradientColors,
+      body: Stack(
+        children: [
+          // Solid background color
+          Container(
+            color: appTheme.backgroundColor,
           ),
-        ),
-        child: SafeArea(
-          bottom: false,
-          child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 300),
-            transitionBuilder: (child, animation) {
-              return FadeTransition(
-                opacity: animation,
-                child: SlideTransition(
-                  position: Tween<Offset>(
-                    begin: const Offset(0.0, 0.02),
-                    end: Offset.zero,
-                  ).animate(CurvedAnimation(
-                    parent: animation,
-                    curve: Curves.easeOut,
-                  )),
-                  child: child,
-                ),
-              );
-            },
-            child: _screens[_currentIndex],
+          // Decorative circles
+          DecorativeCircles(colors: appTheme.decorativeCircleColors),
+          // Content
+          SafeArea(
+            bottom: false,
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              transitionBuilder: (child, animation) {
+                return FadeTransition(
+                  opacity: animation,
+                  child: SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(0.0, 0.02),
+                      end: Offset.zero,
+                    ).animate(CurvedAnimation(
+                      parent: animation,
+                      curve: Curves.easeOut,
+                    )),
+                    child: child,
+                  ),
+                );
+              },
+              child: _screens[_currentIndex],
+            ),
           ),
-        ),
+        ],
       ),
       // iOS 26 风格悬浮导航栏 - 统一毛玻璃效果
       bottomNavigationBar: Padding(
@@ -134,16 +189,12 @@ class _MainNavigationState extends State<MainNavigation> {
             child: Container(
               height: 70,
               decoration: BoxDecoration(
-                // 统一玻璃效果：深色12% / 浅色60%
-                color: isDark 
-                    ? Colors.white.withValues(alpha: 0.12)
-                    : Colors.white.withValues(alpha: 0.60),
+                // 统一玻璃效果：white 12%
+                color: Colors.white.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(25),
                 border: Border.all(
-                  // 统一边框：深色30% / 浅色80%
-                  color: isDark 
-                      ? Colors.white.withValues(alpha: 0.30)
-                      : Colors.white.withValues(alpha: 0.80),
+                  // 统一边框：white 30%
+                  color: Colors.white.withValues(alpha: 0.30),
                   width: 1,
                 ),
               ),
@@ -166,9 +217,7 @@ class _MainNavigationState extends State<MainNavigation> {
   Widget _buildNavItem(int index, IconData icon, IconData activeIcon, String label, AppThemeData appTheme) {
     // 使用主题色作为导航栏颜色
     final activeColor = appTheme.primaryColor;
-    final inactiveColor = appTheme.isDark 
-        ? appTheme.textColor.withValues(alpha: 0.5)
-        : appTheme.textColor.withValues(alpha: 0.4);
+    final inactiveColor = appTheme.textColor.withValues(alpha: 0.5);
     final isSelected = _currentIndex == index;
 
     return Expanded(
