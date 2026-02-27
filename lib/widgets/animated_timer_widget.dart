@@ -5,7 +5,8 @@ import '../theme/app_theme.dart';
 
 
 /// iOS 26 风格动画计时器显示 - VitalFlow 2.0 霓虹风格
-class AnimatedTimerDisplay extends StatelessWidget {
+/// 增强版：添加呼吸氛围动画
+class AnimatedTimerDisplay extends StatefulWidget {
   final int seconds;
   final String label;
   final AppThemeData theme;
@@ -23,6 +24,47 @@ class AnimatedTimerDisplay extends StatelessWidget {
     this.progress = 1.0,
   });
 
+  @override
+  State<AnimatedTimerDisplay> createState() => _AnimatedTimerDisplayState();
+}
+
+class _AnimatedTimerDisplayState extends State<AnimatedTimerDisplay>
+    with TickerProviderStateMixin {
+  late AnimationController _breathController;
+  late AnimationController _glowController;
+  late Animation<double> _breathAnimation;
+  late Animation<double> _glowAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    
+    // 呼吸动画 - 缓慢缩放
+    _breathController = AnimationController(
+      duration: const Duration(milliseconds: 3000),
+      vsync: this,
+    )..repeat(reverse: true);
+    _breathAnimation = Tween<double>(begin: 0.98, end: 1.02).animate(
+      CurvedAnimation(parent: _breathController, curve: Curves.easeInOut),
+    );
+
+    // 发光脉冲动画 - 更快的光晕变化
+    _glowController = AnimationController(
+      duration: const Duration(milliseconds: 2000),
+      vsync: this,
+    )..repeat(reverse: true);
+    _glowAnimation = Tween<double>(begin: 0.25, end: 0.45).animate(
+      CurvedAnimation(parent: _glowController, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _breathController.dispose();
+    _glowController.dispose();
+    super.dispose();
+  }
+
   String _formatTime(int totalSeconds) {
     final minutes = totalSeconds ~/ 60;
     final secs = totalSeconds % 60;
@@ -31,60 +73,94 @@ class AnimatedTimerDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final activeColor = isCountdown ? theme.successColor : theme.primaryColor;
+    final activeColor = widget.isCountdown ? widget.theme.successColor : widget.theme.primaryColor;
     
-    return SizedBox(
-      width: size,
-      height: size,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          // Layer 2a: 外层光晕 - 氛围效果
-          Container(
-            width: size * 1.25,
-            height: size * 1.25,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: RadialGradient(
-                colors: [
-                  activeColor.withValues(alpha: 0.12),
-                  Colors.transparent,
-                ],
-              ),
-            ),
-          ),
-          // Layer 2b: 内层发光 - 霓虹效果
-          Container(
-            width: size * 0.95,
-            height: size * 0.95,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: activeColor.withValues(alpha: 0.35),
-                  spreadRadius: 12,
-                  blurRadius: 35,
+    return AnimatedBuilder(
+      animation: Listenable.merge([_breathAnimation, _glowAnimation]),
+      builder: (context, child) {
+        return SizedBox(
+          width: widget.size,
+          height: widget.size,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              // Layer 1: 呼吸外光晕 - 氛围效果（带动画）
+              Transform.scale(
+                scale: _breathAnimation.value * 1.1,
+                child: Container(
+                  width: widget.size * 1.35,
+                  height: widget.size * 1.35,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: RadialGradient(
+                      colors: [
+                        activeColor.withValues(alpha: _glowAnimation.value * 0.3),
+                        activeColor.withValues(alpha: _glowAnimation.value * 0.1),
+                        Colors.transparent,
+                      ],
+                      stops: const [0.0, 0.5, 1.0],
+                    ),
+                  ),
                 ),
-              ],
-            ),
-          ),
-          // Layer 2c: Progress ring - 霓虹进度环
-          SizedBox(
-            width: size,
-            height: size,
-            child: CustomPaint(
-              painter: _NeonProgressPainter(
-                progress: progress,
-                primaryColor: theme.primaryColor,
-                secondaryColor: theme.successColor,
-                strokeWidth: size * 0.1, // 增加到10%提高可见度
-                isCountdown: isCountdown,
               ),
-            ),
+              // Layer 2: 涟漪效果（当倒计时时）
+              if (widget.isCountdown) ...[
+                _buildRipple(1.3, 0.15),
+                _buildRipple(1.45, 0.08),
+              ],
+              // Layer 3: 内层发光 - 霓虹效果（带动画）
+              Container(
+                width: widget.size * 0.95,
+                height: widget.size * 0.95,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: activeColor.withValues(alpha: _glowAnimation.value + 0.1),
+                      spreadRadius: 12 + (_breathAnimation.value - 1) * 20,
+                      blurRadius: 35 + (_breathAnimation.value - 1) * 10,
+                    ),
+                  ],
+                ),
+              ),
+              // Layer 4: Progress ring - 霓虹进度环
+              SizedBox(
+                width: widget.size,
+                height: widget.size,
+                child: CustomPaint(
+                  painter: _NeonProgressPainter(
+                    progress: widget.progress,
+                    primaryColor: widget.theme.primaryColor,
+                    secondaryColor: widget.theme.successColor,
+                    strokeWidth: widget.size * 0.1,
+                    isCountdown: widget.isCountdown,
+                    glowIntensity: _glowAnimation.value,
+                  ),
+                ),
+              ),
+              // Layer 5: Timer Card - 毛玻璃圆形卡片
+              _buildTimerCard(),
+            ],
           ),
-          // Layer 3: Timer Card - 毛玻璃圆形卡片
-          _buildTimerCard(),
-        ],
+        );
+      },
+    );
+  }
+
+  /// 构建涟漪效果
+  Widget _buildRipple(double scale, double opacity) {
+    return Transform.scale(
+      scale: _breathAnimation.value * scale,
+      child: Container(
+        width: widget.size,
+        height: widget.size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: widget.theme.successColor.withValues(alpha: opacity * _glowAnimation.value),
+            width: 1.5,
+          ),
+        ),
       ),
     );
   }
@@ -95,8 +171,8 @@ class AnimatedTimerDisplay extends StatelessWidget {
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
         child: Container(
-          width: size * 0.82,
-          height: size * 0.82,
+          width: widget.size * 0.82,
+          height: widget.size * 0.82,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: Colors.white.withValues(alpha: 0.12),
@@ -105,30 +181,29 @@ class AnimatedTimerDisplay extends StatelessWidget {
               width: 1,
             ),
           ),
-
           child: Padding(
-            padding: EdgeInsets.all(size * 0.1),
+            padding: EdgeInsets.all(widget.size * 0.1),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  _formatTime(seconds),
+                  _formatTime(widget.seconds),
                   style: TextStyle(
                     fontFamily: '.SF Pro Display',
-                    fontSize: size * 0.22,
+                    fontSize: widget.size * 0.22,
                     fontWeight: FontWeight.w300,
-                    color: const Color(0xFF1A2B3C), // 高透毛玻璃上使用深色
+                    color: const Color(0xFF1A2B3C),
                     letterSpacing: -2,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  label,
+                  widget.label,
                   style: TextStyle(
                     fontFamily: '.SF Pro Text',
-                    fontSize: size * 0.06,
+                    fontSize: widget.size * 0.06,
                     fontWeight: FontWeight.w500,
-                    color: Colors.black.withValues(alpha: 0.6), // 高透毛玻璃上使用深色
+                    color: Colors.black.withValues(alpha: 0.6),
                     letterSpacing: 1.5,
                   ),
                 ),
@@ -139,15 +214,16 @@ class AnimatedTimerDisplay extends StatelessWidget {
       ),
     );
   }
+
 }
 
-/// 霓虹进度环绘制器 - VitalFlow 2.0
 class _NeonProgressPainter extends ChangeNotifier implements CustomPainter {
   final double progress;
   final Color primaryColor;
   final Color secondaryColor;
   final double strokeWidth;
   final bool isCountdown;
+  final double glowIntensity;
 
   _NeonProgressPainter({
     required this.progress,
@@ -155,6 +231,7 @@ class _NeonProgressPainter extends ChangeNotifier implements CustomPainter {
     required this.secondaryColor,
     required this.strokeWidth,
     required this.isCountdown,
+    this.glowIntensity = 0.35,
   });
 
   @override
@@ -175,7 +252,7 @@ class _NeonProgressPainter extends ChangeNotifier implements CustomPainter {
 
     // 外发光层 - 增强霓虹光晕
     final outerGlowPaint = Paint()
-      ..color = activeColor.withValues(alpha: 0.5)
+      ..color = activeColor.withValues(alpha: glowIntensity + 0.15)
       ..strokeWidth = strokeWidth * 3
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round
@@ -258,7 +335,8 @@ class _NeonProgressPainter extends ChangeNotifier implements CustomPainter {
     return oldDelegate.progress != progress ||
         oldDelegate.primaryColor != primaryColor ||
         oldDelegate.secondaryColor != secondaryColor ||
-        oldDelegate.isCountdown != isCountdown;
+        oldDelegate.isCountdown != isCountdown ||
+        oldDelegate.glowIntensity != glowIntensity;
   }
 
   @override
