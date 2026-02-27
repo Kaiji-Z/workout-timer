@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../services/workout_repository.dart';
 import '../theme/theme_provider.dart';
 import '../theme/app_theme.dart';
+import '../widgets/glass_widgets.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -42,13 +43,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
     await _prefs.setString('custom_message', _customMessage);
   }
 
-  Future<void> _clearHistory() async {
+  Future<void> _clearHistory(AppThemeData theme) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: Colors.white.withValues(alpha: 0.95),
-        title: const Text('确认清除', style: TextStyle(color: Color(0xFF263238))),
-        content: const Text('确定要清除所有历史记录吗？此操作不可撤销。', style: TextStyle(color: Color(0xFF263238))),
+        backgroundColor: theme.surfaceColor.withValues(alpha: 0.95),
+        title: Text('确认清除', style: TextStyle(color: theme.textColor)),
+        content: Text('确定要清除所有历史记录吗？此操作不可撤销。', style: TextStyle(color: theme.textColor)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -56,7 +57,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            style: TextButton.styleFrom(foregroundColor: theme.accentColor),
             child: const Text('清除'),
           ),
         ],
@@ -75,6 +76,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = context.watch<ThemeProvider>();
+    final theme = themeProvider.currentTheme;
+    
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppBar(
@@ -87,18 +91,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
               height: 20,
               margin: const EdgeInsets.only(right: 12),
               decoration: BoxDecoration(
-                gradient: LinearGradient(colors: [const Color(0xFF4DB6AC), const Color(0xFF80CBC4)]),
+                gradient: LinearGradient(colors: [theme.primaryColor, theme.primaryColor.withValues(alpha: 0.8)]),
+
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
             Text(
               'SETTINGS',
               style: TextStyle(
-                fontFamily: 'Orbitron',
+                fontFamily: '.SF Pro Display',
                 fontSize: 18,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 3,
-                color: Colors.white,
+                fontWeight: FontWeight.w700,
+                letterSpacing: -0.5,
+                color: theme.textColor,
               ),
             ),
           ],
@@ -107,10 +112,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-
           // Notification Settings
-          _buildSectionHeader('通知设置'),
+          _buildSectionHeader('通知设置', theme),
           _buildGlassCard(
+            theme: theme,
             child: Column(
               children: [
                 _buildGlassSwitch(
@@ -120,8 +125,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     setState(() => _soundEnabled = value);
                     _saveSettings();
                   },
+                  theme,
                 ),
-                Divider(color: Colors.white.withValues(alpha: 0.1), height: 1),
+                Divider(color: theme.surfaceColor.withValues(alpha: 0.1), height: 1),
                 _buildGlassSwitch(
                   '启用振动',
                   _vibrationEnabled,
@@ -129,53 +135,81 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     setState(() => _vibrationEnabled = value);
                     _saveSettings();
                   },
+                  theme,
                 ),
               ],
             ),
           ),
           const SizedBox(height: 24),
 
-          // Custom Message
-          _buildSectionHeader('自定义提醒消息'),
+          // Appearance Settings
+          _buildSectionHeader('外观设置', theme),
           _buildGlassCard(
+            theme: theme,
+            child: ListTile(
+              title: Text(
+                '主题',
+                style: TextStyle(
+                  fontFamily: '.SF Pro Text',
+                  color: theme.textColor,
+                ),
+              ),
+              subtitle: Text(
+                theme.nameZh,
+                style: TextStyle(
+                  fontFamily: '.SF Pro Text',
+                  color: theme.secondaryTextColor,
+                ),
+              ),
+              trailing: Icon(Icons.chevron_right, color: theme.secondaryTextColor),
+              onTap: () => _showThemeSelector(context, themeProvider),
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          // Custom Message
+          _buildSectionHeader('自定义提醒消息', theme),
+          _buildGlassCard(
+            theme: theme,
             padding: const EdgeInsets.all(16),
             child: TextField(
               controller: TextEditingController(text: _customMessage),
-              style: const TextStyle(color: Colors.white),
+              style: TextStyle(color: theme.textColor),
               onChanged: (value) => _customMessage = value,
               onSubmitted: (_) => _saveSettings(),
               decoration: InputDecoration(
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.2)),
+                  borderSide: BorderSide(color: theme.borderColor),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.2)),
+                  borderSide: BorderSide(color: theme.borderColor),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
-                  borderSide: const BorderSide(color: Color(0xFF4DB6AC)),
+                  borderSide: BorderSide(color: theme.primaryColor),
                 ),
                 hintText: '输入提醒消息',
-                hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.4)),
+                hintStyle: TextStyle(color: theme.secondaryTextColor),
                 filled: true,
-                fillColor: Colors.white.withValues(alpha: 0.05),
+                fillColor: theme.surfaceColor.withValues(alpha: 0.3),
               ),
             ),
           ),
           const SizedBox(height: 24),
 
           // Data Management
-          _buildSectionHeader('数据管理'),
+          _buildSectionHeader('数据管理', theme),
           _buildGlassCard(
+            theme: theme,
             child: ListTile(
-              title: const Text(
+              title: Text(
                 '清除所有历史记录',
-                style: TextStyle(color: Color(0xFFFF8A65)),
+                style: TextStyle(color: theme.accentColor),
               ),
-              trailing: const Icon(Icons.delete_outline, color: Color(0xFFFF8A65)),
-              onTap: _clearHistory,
+              trailing: Icon(Icons.delete_outline, color: theme.accentColor),
+              onTap: () => _clearHistory(theme),
             ),
           ),
         ],
@@ -183,23 +217,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildSectionHeader(String title) {
+  Widget _buildSectionHeader(String title, AppThemeData theme) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Text(
         title,
         style: TextStyle(
-          fontFamily: 'Rajdhani',
-          fontSize: 14,
+          fontFamily: '.SF Pro Text',
+          fontSize: 13,
           fontWeight: FontWeight.w600,
-          color: Colors.white.withValues(alpha: 0.7),
+          color: theme.secondaryTextColor,
           letterSpacing: 1,
         ),
       ),
     );
   }
 
-  Widget _buildGlassCard({required Widget child, EdgeInsetsGeometry? padding}) {
+  Widget _buildGlassCard({required AppThemeData theme, required Widget child, EdgeInsetsGeometry? padding}) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(16),
       child: BackdropFilter(
@@ -207,10 +241,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
         child: Container(
           padding: padding ?? const EdgeInsets.symmetric(vertical: 4),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.12),
+            color: theme.isDark 
+                ? Colors.white.withValues(alpha: 0.12)
+                : Colors.white.withValues(alpha: 0.85),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: Colors.white.withValues(alpha: 0.2),
+              color: theme.isDark
+                  ? Colors.white.withValues(alpha: 0.2)
+                  : Colors.white.withValues(alpha: 0.6),
               width: 1,
             ),
           ),
@@ -220,16 +258,80 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildGlassSwitch(String title, bool value, ValueChanged<bool> onChanged) {
+  Widget _buildGlassSwitch(String title, bool value, ValueChanged<bool> onChanged, AppThemeData theme) {
     return SwitchListTile(
       title: Text(
         title,
-        style: const TextStyle(color: Colors.white),
+        style: TextStyle(
+          fontFamily: '.SF Pro Text',
+          color: theme.textColor,
+        ),
       ),
       value: value,
       onChanged: onChanged,
-      activeColor: const Color(0xFF4DB6AC),
-      activeTrackColor: const Color(0xFF4DB6AC).withValues(alpha: 0.5),
+      activeThumbColor: theme.primaryColor,
+
+      activeTrackColor: theme.primaryColor.withValues(alpha: 0.5),
+    );
+  }
+
+  void _showThemeSelector(BuildContext context, ThemeProvider themeProvider) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => LiquidGlassSheet(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '选择主题',
+              style: TextStyle(
+                fontFamily: '.SF Pro Display',
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+                color: themeProvider.currentTheme.textColor,
+              ),
+            ),
+            const SizedBox(height: 16),
+            ...allThemes.map((theme) {
+              final isSelected = themeProvider.currentTheme.name == theme.name;
+              return ListTile(
+                leading: Icon(theme.icon, color: theme.primaryColor),
+                title: Text(
+                  theme.nameZh,
+                  style: TextStyle(
+                    fontFamily: '.SF Pro Text',
+                    fontWeight: FontWeight.w500,
+                    color: themeProvider.currentTheme.textColor,
+                  ),
+                ),
+                subtitle: Text(
+                  theme.description,
+                  style: TextStyle(
+                    fontFamily: '.SF Pro Text',
+                    fontSize: 12,
+                    color: themeProvider.currentTheme.secondaryTextColor,
+                  ),
+                ),
+                trailing: isSelected
+                    ? Icon(Icons.check, color: themeProvider.currentTheme.primaryColor)
+                    : null,
+                onTap: () {
+                  final themeType = AppThemeType.values.firstWhere(
+                    (t) => getThemeData(t).name == theme.name,
+                    orElse: () => AppThemeType.oceanFlow,
+                  );
+                  themeProvider.setTheme(themeType);
+                  Navigator.pop(context);
+                },
+              );
+            }),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
     );
   }
 }
