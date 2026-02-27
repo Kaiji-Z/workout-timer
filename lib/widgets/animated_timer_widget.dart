@@ -132,7 +132,7 @@ class _AnimatedTimerDisplayState extends State<AnimatedTimerDisplay>
                     progress: widget.progress,
                     primaryColor: widget.theme.primaryColor,
                     secondaryColor: widget.theme.successColor,
-                    strokeWidth: widget.size * 0.1,
+                    strokeWidth: widget.size * 0.04, // 更细的进度条
                     isCountdown: widget.isCountdown,
                     glowIntensity: _glowAnimation.value,
                   ),
@@ -167,6 +167,8 @@ class _AnimatedTimerDisplayState extends State<AnimatedTimerDisplay>
 
   /// 构建计时器毛玻璃卡片
   Widget _buildTimerCard() {
+    final timeText = _formatTime(widget.seconds);
+    
     return ClipOval(
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
@@ -187,14 +189,34 @@ class _AnimatedTimerDisplayState extends State<AnimatedTimerDisplay>
               mainAxisAlignment: MainAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  _formatTime(widget.seconds),
-                  style: TextStyle(
-                    fontFamily: '.SF Pro Display',
-                    fontSize: widget.size * 0.18,
-                    fontWeight: FontWeight.w300,
-                    color: const Color(0xFF1A2B3C),
-                    letterSpacing: -1.5,
+                // 计时器数字 - 带动画过渡效果
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 250),
+                  transitionBuilder: (child, animation) {
+                    return FadeTransition(
+                      opacity: animation,
+                      child: SlideTransition(
+                        position: Tween<Offset>(
+                          begin: const Offset(0.0, 0.15),
+                          end: Offset.zero,
+                        ).animate(CurvedAnimation(
+                          parent: animation,
+                          curve: Curves.easeOut,
+                        )),
+                        child: child,
+                      ),
+                    );
+                  },
+                  child: Text(
+                    timeText,
+                    key: ValueKey(timeText), // 关键：使用时间作为 key 触发动画
+                    style: TextStyle(
+                      fontFamily: '.SF Pro Display',
+                      fontSize: widget.size * 0.18,
+                      fontWeight: FontWeight.w300,
+                      color: const Color(0xFF1A2B3C),
+                      letterSpacing: -1.5,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 2),

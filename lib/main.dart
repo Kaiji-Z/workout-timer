@@ -9,6 +9,7 @@ import 'screens/stats_screen.dart';
 import 'bloc/timer_provider.dart';
 import 'bloc/training_provider.dart';
 import 'theme/theme_provider.dart';
+import 'theme/app_theme.dart';
 import 'services/notification_service.dart';
 
 void main() async {
@@ -85,8 +86,8 @@ class _MainNavigationState extends State<MainNavigation> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
+    final appTheme = context.watch<ThemeProvider>().currentTheme;
+    final isDark = appTheme.isDark;
 
     return Scaffold(
       // 使用半透明背景
@@ -97,11 +98,7 @@ class _MainNavigationState extends State<MainNavigation> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              theme.scaffoldBackgroundColor,
-              theme.scaffoldBackgroundColor.withValues(alpha: 0.95),
-              theme.colorScheme.surface,
-            ],
+            colors: appTheme.backgroundGradientColors,
           ),
         ),
         child: SafeArea(
@@ -127,7 +124,7 @@ class _MainNavigationState extends State<MainNavigation> {
           ),
         ),
       ),
-      // iOS 26 风格悬浮导航栏
+      // iOS 26 风格悬浮导航栏 - 统一毛玻璃效果
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.only(bottom: 16, left: 20, right: 20),
         child: ClipRRect(
@@ -137,22 +134,23 @@ class _MainNavigationState extends State<MainNavigation> {
             child: Container(
               height: 70,
               decoration: BoxDecoration(
+                // 使用主题色半透明作为毛玻璃基础色
                 color: isDark 
-                    ? Colors.white.withValues(alpha: 0.08)
-                    : Colors.white.withValues(alpha: 0.85),
+                    ? appTheme.surfaceColor.withValues(alpha: 0.12)
+                    : appTheme.surfaceColor.withValues(alpha: 0.85),
                 borderRadius: BorderRadius.circular(25),
                 border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.2),
+                  color: appTheme.borderColor.withValues(alpha: isDark ? 0.3 : 0.5),
                   width: 1,
                 ),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _buildNavItem(0, Icons.timer_outlined, Icons.timer, '计时器'),
-                  _buildNavItem(1, Icons.history_outlined, Icons.history, '历史'),
-                  _buildNavItem(2, Icons.bar_chart_outlined, Icons.bar_chart, '统计'),
-                  _buildNavItem(3, Icons.settings_outlined, Icons.settings, '设置'),
+                  _buildNavItem(0, Icons.timer_outlined, Icons.timer, '计时器', appTheme),
+                  _buildNavItem(1, Icons.history_outlined, Icons.history, '历史', appTheme),
+                  _buildNavItem(2, Icons.bar_chart_outlined, Icons.bar_chart, '统计', appTheme),
+                  _buildNavItem(3, Icons.settings_outlined, Icons.settings, '设置', appTheme),
                 ],
               ),
             ),
@@ -162,15 +160,13 @@ class _MainNavigationState extends State<MainNavigation> {
     );
   }
 
-  Widget _buildNavItem(int index, IconData icon, IconData activeIcon, String label) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    // 高透毛玻璃上使用深色文字更明显 (Fresh Flow 配色)
-    final activeColor = const Color(0xFF263238); // Deep Carbon
-    final inactiveColor = Colors.black.withValues(alpha: 0.4);
+  Widget _buildNavItem(int index, IconData icon, IconData activeIcon, String label, AppThemeData appTheme) {
+    // 使用主题色作为导航栏颜色
+    final activeColor = appTheme.primaryColor;
+    final inactiveColor = appTheme.isDark 
+        ? appTheme.textColor.withValues(alpha: 0.5)
+        : appTheme.textColor.withValues(alpha: 0.4);
     final isSelected = _currentIndex == index;
-
-
 
     return Expanded(
       child: GestureDetector(
