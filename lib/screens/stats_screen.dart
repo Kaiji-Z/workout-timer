@@ -1,4 +1,4 @@
-// #TB|import 'dart:ui';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
@@ -7,7 +7,6 @@ import '../theme/app_theme.dart';
 import '../models/workout_session.dart';
 import '../services/workout_repository.dart';
 import '../animations/list_animations.dart';
-import 'dart:ui' as ui;
 
 class StatsScreen extends StatefulWidget {
   const StatsScreen({super.key});
@@ -16,7 +15,6 @@ class StatsScreen extends StatefulWidget {
   State<StatsScreen> createState() => _StatsScreenState();
 }
 
-  
 class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final WorkoutRepository _repository = WorkoutRepository();
@@ -45,9 +43,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
       });
     } catch (e) {
       debugPrint('Error loading sessions: $e');
-      setState(() {
-        _isLoading = false;
-      });
+      setState(() => _isLoading = false);
     }
   }
 
@@ -113,14 +109,14 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
     WorkoutSession? maxTimeSession;
 
     for (final session in _allSessions) {
-      if (maxSetsSession == null || session.totalSets > (maxSetsSession?.totalSets ?? 0)) {
+      if (maxSetsSession == null || session.totalSets > maxSetsSession.totalSets) {
         maxSetsSession = session;
       }
-      if (maxTimeSession == null || session.totalRestTimeMs > (maxTimeSession?.totalRestTimeMs ?? 0)) {
+      if (maxTimeSession == null || session.totalRestTimeMs > maxTimeSession.totalRestTimeMs) {
         maxTimeSession = session;
       }
-      if (maxTimeSession == null || session.totalRestTimeMs > (maxTimeSession?.totalRestTimeMs ?? 0)) {
-        maxTimeSession = session;
+    }
+
     // Calculate longest streak
     final dates = _allSessions.map((s) {
       final date = DateTime.parse(s.createdAt);
@@ -157,7 +153,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
     };
   }
 
-  String _formatDuration(int ms) {
+  String formatDuration(int ms) {
     final seconds = ms ~/ 1000;
     final hours = seconds ~/ 3600;
     final minutes = (seconds % 3600) ~/ 60;
@@ -169,7 +165,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
     }
   }
 
-  String _formatDate(String? isoString) {
+  String formatDate(String? isoString) {
     if (isoString == null) return '-';
     final date = DateTime.parse(isoString);
     return DateFormat('MM-dd').format(date);
@@ -191,29 +187,30 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
               height: 20,
               margin: const EdgeInsets.only(right: 12),
               decoration: BoxDecoration(
-                gradient: LinearGradient(colors: [theme.primaryColor, theme.secondaryColor])
+                gradient: LinearGradient(colors: [theme.primaryColor, theme.secondaryColor]),
+                borderRadius: BorderRadius.circular(2),
               ),
             ),
             Text(
               'STATISTICS',
               style: TextStyle(
-                fontFamily: '.SF Pro Display'
+                fontFamily: '.SF Pro Display',
                 fontSize: 18,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 3,
-                color: Colors.white,
+                fontWeight: FontWeight.w700,
+                letterSpacing: -0.5,
+                color: theme.textColor,
               ),
             ),
           ],
         ),
         bottom: TabBar(
           controller: _tabController,
-          indicatorColor: theme.primaryColor
+          indicatorColor: theme.primaryColor,
           indicatorWeight: 2,
-          labelColor: Colors.white,
-          unselectedLabelColor: Colors.white.withValues(alpha: 0.5),
+          labelColor: theme.textColor,
+          unselectedLabelColor: theme.secondaryTextColor,
           labelStyle: TextStyle(
-            fontFamily: '.SF Pro Text'
+            fontFamily: '.SF Pro Text',
             fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
@@ -244,46 +241,52 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Summary Cards - 毛玻璃卡片
-          _buildGlassSection('概览', [
+          // Summary Cards
+          _buildGlassSection('概览', theme, [
             Row(
               children: [
                 FadeInItem(
-                  child: _buildGlassStatCard('总组数', '${stats['totalSets']}', '组', Icons.fitness_center, theme.primaryColor),
-                  delay: const Duration(milliseconds: 100),
-                ),
-                FadeInItem(
-                  child: _buildGlassStatCard('总时长', _formatDuration(stats['totalTime'] as int), '', Icons.timer, theme.timerGradientColors[1]),
-                  delay: const Duration(milliseconds: 200),
-                ),
-                FadeInItem(
-                  child: _buildGlassStatCard('训练天数', '${stats['workoutDays']}', '天', Icons.calendar_today, theme.successColor),
-                  delay: const Duration(milliseconds: 300),
-                ),
-              ],
+              delay: const Duration(milliseconds: 100),
+              duration: const Duration(milliseconds: 300),
+              child: _buildGlassStatCard('总组数', '${stats['totalSets']}', '组', Icons.fitness_center, theme.primaryColor, theme),
             ),
-          ]),
+            FadeInItem(
+              delay: const Duration(milliseconds: 200),
+              duration: const Duration(milliseconds: 300),
+              child: _buildGlassStatCard('总时长', formatDuration(stats['totalTime'] as int), '', Icons.timer, theme.secondaryColor, theme),
+            ),
+            FadeInItem(
+              delay: const Duration(milliseconds: 300),
+              duration: const Duration(milliseconds: 300),
+              child: _buildGlassStatCard('训练天数', '${stats['workoutDays']}', '天', Icons.calendar_today, theme.successColor, theme),
+            ),
+          ],
+        ),
+      ]),
           const SizedBox(height: 24),
 
           // Chart Section
-          _buildGlassSection('训练趋势', [
+          _buildGlassSection('训练趋势', theme, [
             _buildGlassChart(sessions, theme),
           ]),
           const SizedBox(height: 24),
 
           // Personal Bests
-          _buildGlassSection('个人最佳', [
+          _buildGlassSection('个人最佳', theme, [
             FadeInItem(
-              child: _buildGlassBestRow('单次最多组数', bests['maxSets'] != null ? '${bests['maxSets']} 组' : '-', '', Icons.emoji_events, theme.warningColor),
               delay: const Duration(milliseconds: 400),
+              duration: const Duration(milliseconds: 300),
+              child: _buildGlassBestRow('单次最多组数', bests['maxSets'] != null ? '${bests['maxSets']} 组' : '-', '', Icons.emoji_events, theme.warningColor, theme),
             ),
             FadeInItem(
-              child: _buildGlassBestRow('单次最长训练', bests['maxTime'] != null ? _formatDuration(bests['maxTime'] as int) : '-', '', Icons.access_time, theme.primaryColor),
               delay: const Duration(milliseconds: 500),
+              duration: const Duration(milliseconds: 300),
+              child: _buildGlassBestRow('单次最长训练', bests['maxTime'] != null ? formatDuration(bests['maxTime'] as int) : '-', '', Icons.access_time, theme.primaryColor, theme),
             ),
             FadeInItem(
-              child: _buildGlassBestRow('连续训练天数', '${bests['longestStreak']} 天', '', Icons.local_fire_department, theme.accentColor),
               delay: const Duration(milliseconds: 600),
+              duration: const Duration(milliseconds: 300),
+              child: _buildGlassBestRow('连续训练天数', '${bests['longestStreak']} 天', '', Icons.local_fire_department, theme.accentColor, theme),
             ),
           ]),
         ],
@@ -291,18 +294,17 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
     );
   }
 
-  // 毛玻璃 Section Header
-  Widget _buildGlassSection(String title, List<Widget> children) {
+  Widget _buildGlassSection(String title, AppThemeData theme, List<Widget> children) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           title,
           style: TextStyle(
-            fontFamily: '.SF Pro Text'
-            fontSize: 14,
+            fontFamily: '.SF Pro Text',
+            fontSize: 13,
             fontWeight: FontWeight.w600,
-            color: Colors.white.withValues(alpha: 0.7),
+            color: theme.secondaryTextColor,
             letterSpacing: 1,
           ),
         ),
@@ -310,14 +312,14 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
         ClipRRect(
           borderRadius: BorderRadius.circular(16),
           child: BackdropFilter(
-            filter: ui.ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
             child: Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.12),
+                color: theme.surfaceColor.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.2),
+                  color: theme.surfaceColor.withValues(alpha: 0.2),
                   width: 1,
                 ),
               ),
@@ -332,37 +334,42 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
     );
   }
 
-  // 毛玻璃 Stat Card
-  Widget _buildGlassStatCard(String label, String value, String unit, IconData icon, Color color) {
+  Widget _buildGlassStatCard(String label, String value, String unit, IconData icon, Color color, AppThemeData theme) {
     return Expanded(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, color: Colors.white, size: 24),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: const TextStyle(
-              fontFamily: '.SF Pro Display'
-              fontSize: 20,
-              fontWeight: FontWeight.w700,
-              color: Colors.white,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: Colors.white, size: 24),
+            const SizedBox(height: 8),
+            Text(
+              value,
+              style: const TextStyle(
+                fontFamily: '.SF Pro Display',
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+              ),
             ),
-          ),
-          Text(
-            label,
-            style: TextStyle(
-              fontFamily: '.SF Pro Text'
-              fontSize: 12,
-              color: Colors.white.withValues(alpha: 0.7),
+            Text(
+              label,
+              style: TextStyle(
+                fontFamily: '.SF Pro Text',
+                fontSize: 12,
+                color: Colors.white.withValues(alpha: 0.7),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  // 毛玻璃 Chart
   Widget _buildGlassChart(List<WorkoutSession> sessions, AppThemeData theme) {
     if (sessions.isEmpty) {
       return Center(
@@ -370,7 +377,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
           '暂无数据',
           style: TextStyle(
             color: Colors.white.withValues(alpha: 0.5),
-            fontFamily: '.SF Pro Text'
+            fontFamily: '.SF Pro Text',
           ),
         ),
       );
@@ -379,7 +386,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
     // Group by date
     final Map<String, int> dailyData = {};
     for (final session in sessions.take(7).toList()) {
-      final date = _formatDate(session.createdAt);
+      final date = formatDate(session.createdAt);
       dailyData[date] = (dailyData[date] ?? 0) + session.totalSets;
     }
 
@@ -397,7 +404,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
             Text(
               '${entry.value}',
               style: TextStyle(
-                fontFamily: '.SF Pro Display'
+                fontFamily: '.SF Pro Display',
                 fontSize: 10,
                 color: Colors.white.withValues(alpha: 0.7),
               ),
@@ -410,7 +417,8 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
                 gradient: LinearGradient(
                   begin: Alignment.bottomCenter,
                   end: Alignment.topCenter,
-                  colors: [theme.primaryColor, theme.secondaryColor]
+                  colors: [theme.primaryColor, theme.secondaryColor],
+                ),
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
@@ -418,7 +426,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
             Text(
               entry.key,
               style: TextStyle(
-                fontFamily: '.SF Pro Text'
+                fontFamily: '.SF Pro Text',
                 fontSize: 10,
                 color: Colors.white.withValues(alpha: 0.7),
               ),
@@ -429,8 +437,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
     );
   }
 
-  // 毛玻璃 Best Row
-  Widget _buildGlassBestRow(String label, String value, String date, IconData icon, Color color) {
+  Widget _buildGlassBestRow(String label, String value, String date, IconData icon, Color color, AppThemeData theme) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
       child: Row(
@@ -452,7 +459,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
                 Text(
                   label,
                   style: TextStyle(
-                    fontFamily: '.SF Pro Text'
+                    fontFamily: '.SF Pro Text',
                     fontSize: 12,
                     color: Colors.white.withValues(alpha: 0.7),
                   ),
@@ -460,7 +467,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
                 Text(
                   value,
                   style: const TextStyle(
-                    fontFamily: '.SF Pro Display'
+                    fontFamily: '.SF Pro Display',
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: Colors.white,
@@ -473,7 +480,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
             Text(
               date,
               style: TextStyle(
-                fontFamily: '.SF Pro Text'
+                fontFamily: '.SF Pro Text',
                 fontSize: 12,
                 color: Colors.white.withValues(alpha: 0.5),
               ),
