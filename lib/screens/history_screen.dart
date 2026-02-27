@@ -109,7 +109,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   Icon(
                     Icons.fitness_center,
                     size: 64,
-                    color: theme.secondaryTextColor.withOpacity(0.3),
+                    color: theme.secondaryTextColor.withValues(alpha: 0.3),
                   ),
                   const SizedBox(height: 16),
                   Text(
@@ -129,7 +129,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       fontFamily: '.SF Pro Text',
                       fontSize: 14,
                       color: theme.secondaryTextColor.withValues(alpha: 0.4),
-
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -209,8 +208,8 @@ class _SessionCard extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              theme.primaryColor.withOpacity(0.1),
-              theme.secondaryColor.withOpacity(0.05),
+              theme.primaryColor.withValues(alpha: 0.1),
+              theme.secondaryColor.withValues(alpha: 0.05),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -222,7 +221,7 @@ class _SessionCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: theme.primaryColor.withOpacity(0.05),
+              color: theme.primaryColor.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -262,7 +261,7 @@ class _SessionCard extends StatelessWidget {
                       fontFamily: '.SF Pro Text',
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: theme.textColor.withOpacity(0.9),
+                      color: theme.textColor.withValues(alpha: 0.9),
                       letterSpacing: 2,
                     ),
                   ),
@@ -281,7 +280,7 @@ class _SessionCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: theme.borderColor.withOpacity(0.3),
+                color: theme.borderColor.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
