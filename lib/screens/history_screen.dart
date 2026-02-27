@@ -54,9 +54,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
     final theme = context.watch<ThemeProvider>().currentTheme;
 
     return Scaffold(
-      backgroundColor: theme.backgroundColor,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
-        backgroundColor: theme.backgroundColor,
+        backgroundColor: Colors.transparent,
         elevation: 0,
         title: Row(
           children: [
