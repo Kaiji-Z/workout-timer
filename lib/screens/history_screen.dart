@@ -34,6 +34,15 @@ class _HistoryScreenState extends State<HistoryScreen> {
     }
   }
 
+  Future<void> _clearHistory() async {
+    try {
+      await _repository.clearAllSessions();
+      setState(() {});
+    } catch (e) {
+      debugPrint('Error clearing history: $e');
+    }
+  }
+
   String _formatDate(String isoString) {
     final date = DateTime.parse(isoString);
     return DateFormat('yyyy-MM-dd HH:mm').format(date);
@@ -62,12 +71,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
               ),
             ),
             Text(
-              'WORKOUT HISTORY',
+              'WORKout History',
               style: TextStyle(
-                fontFamily: 'Orbitron',
+                fontFamily: '.SF Pro Display',
                 fontSize: 18,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 3,
+                fontWeight: FontWeight.w700,
+                letterSpacing: -0.5,
                 color: theme.textColor,
               ),
             ),
@@ -86,7 +95,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
               child: Text(
                 'LOAD FAILED',
                 style: TextStyle(
-                  fontFamily: 'Rajdhani',
+                  fontFamily: '.SF Pro Text',
                   color: theme.warningColor,
                   letterSpacing: 2,
                 ),
@@ -104,21 +113,33 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'NO RECORDS YET',
+                    'No record yet',
                     style: TextStyle(
-                      fontFamily: 'Orbitron',
+                      fontFamily: '.SF Pro Display',
                       fontSize: 16,
-                      color: theme.secondaryTextColor.withOpacity(0.5),
-                      letterSpacing: 3,
+                      fontWeight: FontWeight.w600,
+                      color: theme.secondaryTextColor,
+                      letterSpacing: 1,
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Complete a workout and press FINISH',
+                    'complete a workout to see results',
                     style: TextStyle(
-                      fontFamily: 'Rajdhani',
+                      fontFamily: '.SF Pro Text',
                       fontSize: 14,
-                      color: theme.secondaryTextColor.withOpacity(0.4),
+                      color: theme.secondaryTextColor.withValues(alpha: 0.4),
+
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  GestureDetector(
+                    onTap: _clearHistory,
+                    child: Text(
+                      'Clear all history',
+                      style: TextStyle(
+                        color: theme.warningColor,
+                      ),
                     ),
                   ),
                 ],
@@ -126,16 +147,19 @@ class _HistoryScreenState extends State<HistoryScreen> {
             );
           } else {
             final sessions = snapshot.data!;
-            return ListView.builder(
+            return AnimatedList(
               padding: const EdgeInsets.all(16),
-              itemCount: sessions.length,
-              itemBuilder: (context, index) {
+              initialItemCount: sessions.length,
+              itemBuilder: (context, index, animation) {
                 final session = sessions[index];
-                return _SessionCard(
-                  session: session,
-                  formatDate: _formatDate,
-                  onDelete: () => _deleteSession(session.id),
-                  theme: theme,
+                return SizeTransition(
+                  sizeFactor: animation,
+                  child: _SessionCard(
+                    session: session,
+                    formatDate: _formatDate,
+                    onDelete: () => _deleteSession(session.id),
+                    theme: theme,
+                  ),
                 );
               },
             );
@@ -185,8 +209,8 @@ class _SessionCard extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              theme.surfaceColor.withOpacity(0.8),
-              theme.surfaceColor,
+              theme.primaryColor.withOpacity(0.1),
+              theme.secondaryColor.withOpacity(0.05),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -219,10 +243,10 @@ class _SessionCard extends StatelessWidget {
                 child: Text(
                   '${session.totalSets}',
                   style: TextStyle(
-                    fontFamily: 'Orbitron',
+                    fontFamily: '.SF Pro Display',
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
-                    color: theme.isDark ? theme.backgroundColor : Colors.white,
+                    color: theme.isDark ? theme.backgroundColor : theme.surfaceColor,
                   ),
                 ),
               ),
@@ -235,7 +259,7 @@ class _SessionCard extends StatelessWidget {
                   Text(
                     'SETS COMPLETED',
                     style: TextStyle(
-                      fontFamily: 'Rajdhani',
+                      fontFamily: '.SF Pro Text',
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                       color: theme.textColor.withOpacity(0.9),
@@ -246,7 +270,7 @@ class _SessionCard extends StatelessWidget {
                   Text(
                     formatDate(session.createdAt),
                     style: TextStyle(
-                      fontFamily: 'Rajdhani',
+                      fontFamily: '.SF Pro Text',
                       fontSize: 12,
                       color: theme.secondaryTextColor,
                     ),
