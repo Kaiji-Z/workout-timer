@@ -80,9 +80,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final theme = themeProvider.currentTheme;
     
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: theme.surfaceColor,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: theme.surfaceColor,
         elevation: 0,
         title: Row(
           children: [
@@ -92,7 +92,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
               margin: const EdgeInsets.only(right: 12),
               decoration: BoxDecoration(
                 gradient: LinearGradient(colors: [theme.primaryColor, theme.primaryColor.withValues(alpha: 0.8)]),
-
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -270,7 +269,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       value: value,
       onChanged: onChanged,
       activeThumbColor: theme.primaryColor,
-
       activeTrackColor: theme.primaryColor.withValues(alpha: 0.5),
     );
   }
