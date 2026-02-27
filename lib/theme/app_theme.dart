@@ -26,6 +26,7 @@ class AppThemeData {
   final Color secondaryTextColor;
   final Color borderColor;
   final List<Color> timerGradientColors;
+  final List<Color> backgroundGradientColors; // 新增：背景渐变色（上深下浅）
   final bool isDark;
 
   const AppThemeData({
@@ -44,6 +45,7 @@ class AppThemeData {
     required this.secondaryTextColor,
     required this.borderColor,
     required this.timerGradientColors,
+    required this.backgroundGradientColors, // 新增
     required this.isDark,
   });
 
@@ -232,6 +234,12 @@ const vitalFlowTheme = AppThemeData(
     Color(0xFF4DB6AC),
     Color(0xFF26A69A),
   ],
+  // 背景渐变 - 上深下浅
+  backgroundGradientColors: [
+    Color(0xFF0D2B2B), // 深青色
+    Color(0xFF1A3A3A),
+    Color(0xFF2A4A4A), // 浅青色
+  ],
   isDark: true,
 );
 
@@ -255,6 +263,12 @@ const neonTempusTheme = AppThemeData(
     Color(0xFF00f0ff),
     Color(0xFFbf00ff),
     Color(0xFFff00aa),
+  ],
+  // 背景渐变 - 上深下浅
+  backgroundGradientColors: [
+    Color(0xFF050510), // 深紫黑
+    Color(0xFF0a0a12),
+    Color(0xFF151520), // 略浅
   ],
   isDark: true,
 );
@@ -280,6 +294,12 @@ const arcticFlowTheme = AppThemeData(
     Color(0xFF5AC8FA),
     Color(0xFF34C759),
   ],
+  // 背景渐变 - 上深下浅
+  backgroundGradientColors: [
+    Color(0xFFE8EEF2), // 浅蓝灰
+    Color(0xFFF0F4F6),
+    Color(0xFFF5F5F7), // 更浅
+  ],
   isDark: false,
 );
 
@@ -303,6 +323,12 @@ const electricPulseTheme = AppThemeData(
     Color(0xFFFF6F20),
     Color(0xFFFF4500),
     Color(0xFFFFB300),
+  ],
+  // 背景渐变 - 上深下浅
+  backgroundGradientColors: [
+    Color(0xFF0A0A0A), // 深黑
+    Color(0xFF121212),
+    Color(0xFF1A1A1A), // 略浅
   ],
   isDark: true,
 );
@@ -337,6 +363,12 @@ const oceanFlowTheme = AppThemeData(
     Color(0xFF0066CC),
     Color(0xFF00A8B5),
     Color(0xFF00C9B7),
+  ],
+  // 背景渐变 - 上深下浅
+  backgroundGradientColors: [
+    Color(0xFFE8F4FC), // 浅蓝
+    Color(0xFFF0F7FB),
+    Color(0xFFFAFBFC), // 极浅
   ],
   isDark: false,
 );
