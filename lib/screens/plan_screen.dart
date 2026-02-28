@@ -432,20 +432,21 @@ class _PlanScreenState extends State<PlanScreen> {
           ),
           TextButton(
             onPressed: () async {
+              final messenger = ScaffoldMessenger.of(context);
               Navigator.pop(context);
               try {
                 await planProvider.removePlanFromDate(plan.id, _selectedDate);
                 if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: const Text('已移除'),
+                  messenger.showSnackBar(
+                    const SnackBar(
+                      content: Text('已移除'),
                       behavior: SnackBarBehavior.floating,
                     ),
                   );
                 }
               } catch (e) {
                 if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
+                  messenger.showSnackBar(
                     SnackBar(
                       content: Text('移除失败: $e'),
                       backgroundColor: Colors.red,
