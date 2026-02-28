@@ -26,35 +26,23 @@ class TimerWidget extends StatelessWidget {
 
     return Consumer<TimerProvider>(
       builder: (context, timer, child) {
-        return Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                theme.backgroundColor,
-                theme.backgroundGradientEnd,
+        return SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              children: [
+                const SizedBox(height: 8),
+                _buildHeader(theme),
+                const SizedBox(height: 16),
+                _buildTimerDisplay(timer, context, theme),
+                const SizedBox(height: 16),
+                _buildPresetChips(timer, theme),
+                const SizedBox(height: 12),
+                _buildCompletedSets(timer, theme),
+                const SizedBox(height: 24),
+                _buildControlButtons(timer, theme),
+                const SizedBox(height: 24),
               ],
-            ),
-          ),
-          child: SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                children: [
-                  const SizedBox(height: 8),
-                  _buildHeader(theme),
-                  const SizedBox(height: 16),
-                  _buildTimerDisplay(timer, context, theme),
-                  const SizedBox(height: 16),
-                  _buildPresetChips(timer, theme),
-                  const SizedBox(height: 12),
-                  _buildCompletedSets(timer, theme),
-                  const SizedBox(height: 24),
-                  _buildControlButtons(timer, theme),
-                  const SizedBox(height: 24),
-                ],
-              ),
             ),
           ),
         );
