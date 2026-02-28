@@ -4,7 +4,10 @@ import 'package:intl/intl.dart';
 import '../theme/theme_provider.dart';
 import '../theme/app_theme.dart';
 import '../models/workout_session.dart';
+import '../models/workout_record.dart';
+import '../models/muscle_group.dart';
 import '../services/workout_repository.dart';
+import '../bloc/record_provider.dart';
 import '../animations/list_animations.dart';
 
 class StatsScreen extends StatefulWidget {
@@ -17,7 +20,8 @@ class StatsScreen extends StatefulWidget {
 class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final WorkoutRepository _repository = WorkoutRepository();
-  List<WorkoutSession> _allSessions = [];
+  List<WorkoutSession> _oldSessions = [];
+  List<WorkoutRecord> _newRecords = [];
   bool _isLoading = true;
 
   @override
@@ -35,40 +39,65 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
 
   Future<void> _loadData() async {
     try {
-      final sessions = await _repository.getAllSessions();
+final sessions = await _repository.getAllSessions();
+      if (!mounted) return;
+      final records = context.read<RecordProvider>().records;
       setState(() {
-        _allSessions = sessions;
+        _oldSessions = sessions;
+        _newRecords = records;
         _isLoading = false;
       });
     } catch (e) {
-      debugPrint('Error loading sessions: $e');
+      debugPrint('Error loading data: $e');
       setState(() => _isLoading = false);
     }
   }
 
-  List<WorkoutSession> _filterByWeek() {
+  /// 获取所有记录（合并旧记录和新记录）
+  List<dynamic> _getAllRecords() {
+    return [..._oldSessions, ..._newRecords];
+  }
+
+  /// 按周筛选
+  List<dynamic> _filterByWeek() {
     final now = DateTime.now();
     final weekStart = now.subtract(Duration(days: now.weekday - 1));
     final startOfWeek = DateTime(weekStart.year, weekStart.month, weekStart.day);
     
-    return _allSessions.where((s) {
-      final date = DateTime.parse(s.createdAt);
+    return _getAllRecords().where((record) {
+      DateTime date;
+      if (record is WorkoutSession) {
+        date = DateTime.parse(record.createdAt);
+      } else if (record is WorkoutRecord) {
+        date = record.date;
+      } else {
+        return false;
+      }
       return date.isAfter(startOfWeek) || date.isAtSameMomentAs(startOfWeek);
     }).toList();
   }
 
-  List<WorkoutSession> _filterByMonth() {
+  /// 按月筛选
+  List<dynamic> _filterByMonth() {
     final now = DateTime.now();
     final monthStart = DateTime(now.year, now.month, 1);
     
-    return _allSessions.where((s) {
-      final date = DateTime.parse(s.createdAt);
+    return _getAllRecords().where((record) {
+      DateTime date;
+      if (record is WorkoutSession) {
+        date = DateTime.parse(record.createdAt);
+      } else if (record is WorkoutRecord) {
+        date = record.date;
+      } else {
+        return false;
+      }
       return date.isAfter(monthStart) || date.isAtSameMomentAs(monthStart);
     }).toList();
   }
 
-  Map<String, dynamic> _calculateStats(List<WorkoutSession> sessions) {
-    if (sessions.isEmpty) {
+  /// 计算统计数据
+  Map<String, dynamic> _calculateStats(List<dynamic> records) {
+    if (records.isEmpty) {
       return {
         'totalSets': 0,
         'totalTime': 0,
@@ -77,24 +106,50 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
       };
     }
 
-    final totalSets = sessions.fold<int>(0, (sum, s) => sum + s.totalSets);
-    final totalTime = sessions.fold<int>(0, (sum, s) => sum + s.totalRestTimeMs);
-    
-    final uniqueDays = sessions.map((s) {
-      final date = DateTime.parse(s.createdAt);
-      return '${date.year}-${date.month}-${date.day}';
-    }).toSet().length;
+    int totalSets = 0;
+    int totalTime = 0;
+    final uniqueDays = <String>{};
+
+    for (final record in records) {
+      if (record is WorkoutSession) {
+        totalSets += record.totalSets;
+        totalTime += record.totalRestTimeMs;
+        final date = DateTime.parse(record.createdAt);
+        uniqueDays.add('${date.year}-${date.month}-${date.day}');
+      } else if (record is WorkoutRecord) {
+        totalSets += record.totalSets;
+        totalTime += record.durationSeconds * 1000;
+        uniqueDays.add('${record.date.year}-${record.date.month}-${record.date.day}');
+      }
+    }
 
     return {
       'totalSets': totalSets,
       'totalTime': totalTime,
-      'workoutDays': uniqueDays,
-      'avgSets': sessions.isEmpty ? 0.0 : totalSets / sessions.length,
+      'workoutDays': uniqueDays.length,
+      'avgSets': records.isEmpty ? 0.0 : totalSets / records.length,
     };
   }
 
+  /// 计算肌肉部位分布
+  Map<PrimaryMuscleGroup, int> _calculateMuscleDistribution(List<dynamic> records) {
+    final distribution = <PrimaryMuscleGroup, int>{};
+    
+    for (final record in records) {
+      if (record is WorkoutRecord && record.trainedMuscles.isNotEmpty) {
+        for (final muscle in record.trainedMuscles) {
+          distribution[muscle] = (distribution[muscle] ?? 0) + 1;
+        }
+      }
+    }
+    
+    return distribution;
+  }
+
+  /// 获取个人最佳
   Map<String, dynamic> _getPersonalBests() {
-    if (_allSessions.isEmpty) {
+    final allRecords = _getAllRecords();
+    if (allRecords.isEmpty) {
       return {
         'maxSets': null,
         'maxSetsDate': null,
@@ -104,23 +159,43 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
       };
     }
 
-    WorkoutSession? maxSetsSession;
-    WorkoutSession? maxTimeSession;
+    dynamic maxSetsRecord;
+    dynamic maxTimeRecord;
+    int maxSets = 0;
+    int maxTime = 0;
 
-    for (final session in _allSessions) {
-      if (maxSetsSession == null || session.totalSets > maxSetsSession.totalSets) {
-        maxSetsSession = session;
+    for (final record in allRecords) {
+      int sets, time;
+      if (record is WorkoutSession) {
+        sets = record.totalSets;
+        time = record.totalRestTimeMs;
+      } else if (record is WorkoutRecord) {
+        sets = record.totalSets;
+        time = record.durationSeconds * 1000;
+      } else {
+        continue;
       }
-      if (maxTimeSession == null || session.totalRestTimeMs > maxTimeSession.totalRestTimeMs) {
-        maxTimeSession = session;
+
+      if (sets > maxSets) {
+        maxSets = sets;
+        maxSetsRecord = record;
+      }
+      if (time > maxTime) {
+        maxTime = time;
+        maxTimeRecord = record;
       }
     }
 
     // Calculate longest streak
-    final dates = _allSessions.map((s) {
-      final date = DateTime.parse(s.createdAt);
-      return DateTime(date.year, date.month, date.day);
-    }).toSet().toList()
+    final dates = allRecords.map((record) {
+      if (record is WorkoutSession) {
+        final date = DateTime.parse(record.createdAt);
+        return DateTime(date.year, date.month, date.day);
+      } else if (record is WorkoutRecord) {
+        return DateTime(record.date.year, record.date.month, record.date.day);
+      }
+      return null;
+    }).whereType<DateTime>().toSet().toList()
       ..sort((a, b) => b.compareTo(a));
 
     int longestStreak = 0;
@@ -144,12 +219,21 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
     longestStreak = longestStreak > currentStreak ? longestStreak : currentStreak;
 
     return {
-      'maxSets': maxSetsSession?.totalSets,
-      'maxSetsDate': maxSetsSession?.createdAt,
-      'maxTime': maxSetsSession?.totalRestTimeMs,
-      'maxTimeDate': maxSetsSession?.createdAt,
+      'maxSets': maxSets > 0 ? maxSets : null,
+      'maxSetsDate': maxSetsRecord != null ? _getRecordDate(maxSetsRecord) : null,
+      'maxTime': maxTime > 0 ? maxTime : null,
+      'maxTimeDate': maxTimeRecord != null ? _getRecordDate(maxTimeRecord) : null,
       'longestStreak': longestStreak,
     };
+  }
+
+  String _getRecordDate(dynamic record) {
+    if (record is WorkoutSession) {
+      return record.createdAt;
+    } else if (record is WorkoutRecord) {
+      return record.date.toIso8601String();
+    }
+    return '';
   }
 
   String formatDuration(int ms) {
@@ -186,7 +270,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
               height: 20,
               margin: const EdgeInsets.only(right: 12),
               decoration: BoxDecoration(
-                gradient: LinearGradient(colors: [theme.primaryColor, theme.secondaryColor]),
+                gradient: LinearGradient(colors: theme.timerGradientColors),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -231,12 +315,13 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
     );
   }
 
-  Widget _buildStatsView(List<WorkoutSession> sessions, AppThemeData theme) {
-    final stats = _calculateStats(sessions);
+  Widget _buildStatsView(List<dynamic> records, AppThemeData theme) {
+    final stats = _calculateStats(records);
     final bests = _getPersonalBests();
+    final muscleDistribution = _calculateMuscleDistribution(records);
 
     return SingleChildScrollView(
-      padding: EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 100),
+      padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 100),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -274,9 +359,17 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
 
           // Chart Section
           _buildGlassSection('训练趋势', theme, [
-            _buildGlassChart(sessions, theme),
+            _buildGlassChart(records, theme),
           ]),
           const SizedBox(height: 24),
+
+          // Muscle Distribution (新记录才有)
+          if (muscleDistribution.isNotEmpty) ...[
+            _buildGlassSection('部位训练分布', theme, [
+              _buildMuscleDistributionChart(muscleDistribution, theme),
+            ]),
+            const SizedBox(height: 24),
+          ],
 
           // Personal Bests
           _buildGlassSection('个人最佳', theme, [
@@ -372,14 +465,17 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
     );
   }
 
-  Widget _buildGlassChart(List<WorkoutSession> sessions, AppThemeData theme) {
-    if (sessions.isEmpty) {
+  Widget _buildGlassChart(List<dynamic> records, AppThemeData theme) {
+    if (records.isEmpty) {
       return Center(
-        child: Text(
-          '暂无数据',
-          style: TextStyle(
-            color: theme.secondaryTextColor,
-            fontFamily: '.SF Pro Text',
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Text(
+            '暂无数据',
+            style: TextStyle(
+              color: theme.secondaryTextColor,
+              fontFamily: '.SF Pro Text',
+            ),
           ),
         ),
       );
@@ -387,56 +483,156 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
 
     // Group by date
     final Map<String, int> dailyData = {};
-    for (final session in sessions.take(7).toList()) {
-      final date = formatDate(session.createdAt);
-      dailyData[date] = (dailyData[date] ?? 0) + session.totalSets;
+    for (final record in records.take(7).toList()) {
+      String dateStr;
+      int sets;
+      
+      if (record is WorkoutSession) {
+        dateStr = formatDate(record.createdAt);
+        sets = record.totalSets;
+      } else if (record is WorkoutRecord) {
+        dateStr = formatDate(record.date.toIso8601String());
+        sets = record.totalSets;
+      } else {
+        continue;
+      }
+      
+      dailyData[dateStr] = (dailyData[dateStr] ?? 0) + sets;
     }
 
     final entries = dailyData.entries.toList();
     final maxSets = entries.fold<int>(0, (max, e) => e.value > max ? e.value : max);
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: entries.map((entry) {
-        final height = maxSets > 0 ? (entry.value / maxSets) * 100 : 0.0;
-        return Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Text(
-              '${entry.value}',
-              style: TextStyle(
-                fontFamily: '.SF Pro Display',
-                fontSize: 10,
-                color: theme.secondaryTextColor,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Container(
-              width: 28,
-              height: height.clamp(4.0, 100.0),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.bottomCenter,
-                  end: Alignment.topCenter,
-                  colors: [theme.primaryColor, theme.secondaryColor],
+    return SizedBox(
+      height: 120,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: entries.map((entry) {
+          final height = maxSets > 0 ? (entry.value / maxSets) * 100 : 0.0;
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Text(
+                '${entry.value}',
+                style: TextStyle(
+                  fontFamily: '.SF Pro Display',
+                  fontSize: 10,
+                  color: theme.secondaryTextColor,
                 ),
+              ),
+              const SizedBox(height: 4),
+              Container(
+                width: 28,
+                height: height.clamp(4.0, 100.0),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
+                    colors: [theme.primaryColor, theme.secondaryColor],
+                  ),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                entry.key,
+                style: TextStyle(
+                  fontFamily: '.SF Pro Text',
+                  fontSize: 10,
+                  color: theme.secondaryTextColor,
+                ),
+              ),
+            ],
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  /// 肌肉部位分布图
+  Widget _buildMuscleDistributionChart(Map<PrimaryMuscleGroup, int> distribution, AppThemeData theme) {
+    if (distribution.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    final total = distribution.values.fold(0, (sum, count) => sum + count);
+    final sortedEntries = distribution.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
+    return Column(
+      children: sortedEntries.map((entry) {
+        final percentage = total > 0 ? (entry.value / total * 100).toStringAsFixed(0) : '0';
+        
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        _getMuscleIcon(entry.key),
+                        size: 18,
+                        color: theme.accentColor,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        entry.key.displayName,
+                        style: TextStyle(
+                          fontFamily: '.SF Pro Text',
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: theme.textColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Text(
+                    '${entry.value}次 ($percentage%)',
+                    style: TextStyle(
+                      fontFamily: '.SF Pro Text',
+                      fontSize: 13,
+                      color: theme.secondaryTextColor,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              ClipRRect(
                 borderRadius: BorderRadius.circular(4),
+                child: LinearProgressIndicator(
+                  value: total > 0 ? entry.value / total : 0,
+                  backgroundColor: theme.textColor.withValues(alpha: 0.1),
+                  valueColor: AlwaysStoppedAnimation<Color>(theme.accentColor),
+                  minHeight: 8,
+                ),
               ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              entry.key,
-              style: TextStyle(
-                fontFamily: '.SF Pro Text',
-                fontSize: 10,
-                color: theme.secondaryTextColor,
-              ),
-            ),
-          ],
+            ],
+          ),
         );
       }).toList(),
     );
+  }
+
+  IconData _getMuscleIcon(PrimaryMuscleGroup muscle) {
+    switch (muscle) {
+      case PrimaryMuscleGroup.chest:
+        return Icons.fitness_center_rounded;
+      case PrimaryMuscleGroup.back:
+        return Icons.accessibility_new_rounded;
+      case PrimaryMuscleGroup.shoulders:
+        return Icons.arrow_upward_rounded;
+      case PrimaryMuscleGroup.arms:
+        return Icons.back_hand_rounded;
+      case PrimaryMuscleGroup.legs:
+        return Icons.directions_walk_rounded;
+      case PrimaryMuscleGroup.core:
+        return Icons.circle_rounded;
+    }
   }
 
   Widget _buildGlassBestRow(String label, String value, String date, IconData icon, Color color, AppThemeData theme) {

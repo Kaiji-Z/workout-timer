@@ -1,18 +1,26 @@
 import 'package:flutter/foundation.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'screens/timer_screen.dart';
 import 'screens/settings_screen.dart';
 import 'screens/history_screen.dart';
 import 'screens/stats_screen.dart';
+import 'screens/plan_screen.dart';
 import 'bloc/timer_provider.dart';
 import 'bloc/training_provider.dart';
+import 'bloc/plan_provider.dart';
+import 'bloc/record_provider.dart';
+import 'bloc/training_progress_provider.dart';
 import 'theme/theme_provider.dart';
 import 'theme/app_theme.dart';
 import 'services/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize date formatting for Chinese locale
+  await initializeDateFormatting('zh_CN', null);
 
   // Initialize theme provider
   final themeProvider = ThemeProvider();
@@ -46,6 +54,10 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider.value(value: themeProvider),
         ChangeNotifierProvider(create: (_) => TimerProvider()),
         ChangeNotifierProvider(create: (_) => TrainingProvider()),
+        // 健身计划相关Providers
+        ChangeNotifierProvider(create: (_) => PlanProvider()..loadPlans()),
+        ChangeNotifierProvider(create: (_) => RecordProvider()..loadRecords()),
+        ChangeNotifierProvider(create: (_) => TrainingProgressProvider()),
       ],
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child) {
@@ -132,6 +144,7 @@ class _MainNavigationState extends State<MainNavigation> {
   
   final List<Widget> _screens = const [
     TimerScreen(),
+    PlanScreen(),
     HistoryScreen(),
     StatsScreen(),
     SettingsScreen(),
@@ -208,12 +221,13 @@ class _MainNavigationState extends State<MainNavigation> {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               _buildNavItem(0, Icons.timer_outlined, Icons.timer, '计时器', appTheme),
-              _buildNavItem(1, Icons.history_outlined, Icons.history, '历史', appTheme),
-              _buildNavItem(2, Icons.bar_chart_outlined, Icons.bar_chart, '统计', appTheme),
-              _buildNavItem(3, Icons.settings_outlined, Icons.settings, '设置', appTheme),
+              _buildNavItem(1, Icons.fitness_center_outlined, Icons.fitness_center, '计划', appTheme),
+              _buildNavItem(2, Icons.history_outlined, Icons.history, '历史', appTheme),
+              _buildNavItem(3, Icons.bar_chart_outlined, Icons.bar_chart, '统计', appTheme),
+              _buildNavItem(4, Icons.settings_outlined, Icons.settings, '设置', appTheme),
             ],
-          ),
         ),
+      ),
       ),
     );
   }

@@ -31,12 +31,12 @@ class SessionStopwatchWidget extends StatelessWidget {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         border: Border.all(
-          color: theme.primaryColor.withOpacity(0.3),
+          color: theme.primaryColor.withValues(alpha: 0.3),
           width: 2,
         ),
         boxShadow: [
           BoxShadow(
-            color: theme.primaryColor.withOpacity(0.1),
+            color: theme.primaryColor.withValues(alpha: 0.1),
             blurRadius: 10,
             spreadRadius: 2,
           ),
@@ -54,7 +54,7 @@ class SessionStopwatchWidget extends StatelessWidget {
               color: theme.textColor,
               shadows: [
                 Shadow(
-                  color: theme.primaryColor.withOpacity(0.5),
+                  color: theme.primaryColor.withValues(alpha: 0.5),
                   blurRadius: 8,
                 ),
               ],

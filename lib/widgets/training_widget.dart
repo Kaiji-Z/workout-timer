@@ -1,22 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../bloc/training_provider.dart';
+import '../bloc/plan_provider.dart';
+import '../bloc/training_progress_provider.dart';
+import '../bloc/record_provider.dart';
 import '../theme/theme_provider.dart';
 import '../theme/app_theme.dart';
 import '../services/workout_repository.dart';
+import '../models/workout_plan.dart';
+
 import 'duration_picker.dart';
 import 'glass_widgets.dart';
 import 'animated_timer_widget.dart';
-
+import 'plan_card.dart';
 /// 训练主界面 - Flat Vitality 设计
 /// 
 /// 参考参考图布局:
 /// - 顶部标题
 /// - 中央大计时器
 /// - 底部状态徽章 + 控制按钮
-class TrainingWidget extends StatelessWidget {
+class TrainingWidget extends StatefulWidget {
   const TrainingWidget({super.key});
 
+  @override
+  State<TrainingWidget> createState() => _TrainingWidgetState();
+}
+
+class _TrainingWidgetState extends State<TrainingWidget> {
+  bool _isPlanMode = false;
+  WorkoutPlan? _selectedPlan;
+  
   String _formatTime(int seconds) {
     final minutes = seconds ~/ 60;
     final remainingSeconds = seconds % 60;
@@ -26,15 +39,41 @@ class TrainingWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().currentTheme;
+    final planProvider = context.watch<PlanProvider>();
+    final progressProvider = context.watch<TrainingProgressProvider>();
 
     return Consumer<TrainingProvider>(
       builder: (context, training, child) {
+        // 同步计划模式状态
+        _isPlanMode = progressProvider.isPlanMode;
+        _selectedPlan = progressProvider.currentPlan;
+        
         return SafeArea(
           bottom: false,
           child: Column(
             children: [
-              // 顶部标题
-              _buildHeader(theme),
+              // 顶部标题 + 模式切换
+              _buildHeader(theme, planProvider, progressProvider),
+              
+              // 计划进度卡片（计划模式下显示）
+              if (_isPlanMode && _selectedPlan != null) ...[
+                const SizedBox(height: 8),
+                PlanProgressCard(
+                  plan: _selectedPlan!,
+                  currentExerciseIndex: progressProvider.currentExerciseIndex,
+                  completedSets: Map<String, int>.from(
+                    _selectedPlan!.exercises.fold({}, (map, e) {
+                      map[e.exerciseId] = progressProvider.getCompletedSets(e.exerciseId);
+                      return map;
+                    }),
+                  ),
+                  isExpanded: progressProvider.isExpanded,
+                  onToggle: progressProvider.toggleExpanded,
+                  onNextExercise: progressProvider.isCurrentExerciseComplete
+                      ? progressProvider.nextExercise
+                      : null,
+                ),
+              ],
               
               // 主内容区域 - 计时器
               Expanded(
@@ -42,7 +81,7 @@ class TrainingWidget extends StatelessWidget {
               ),
               
               // 底部区域：状态徽章 + 按钮
-              _buildBottomSection(context, training, theme),
+              _buildBottomSection(context, training, theme, progressProvider),
               
               // 底部导航栏空间
               const SizedBox(height: 80),
@@ -53,18 +92,174 @@ class TrainingWidget extends StatelessWidget {
     );
   }
 
-  /// 顶部标题 - 简洁扁平
-  Widget _buildHeader(AppThemeData theme) {
+  /// 顶部标题 + 模式切换
+  Widget _buildHeader(AppThemeData theme, PlanProvider planProvider, TrainingProgressProvider progressProvider) {
     return Padding(
-      padding: const EdgeInsets.only(top: 20, bottom: 16),
-      child: Text(
-        'WORKOUT TIMER',
-        style: TextStyle(
-          fontFamily: '.SF Pro Display',
-          fontSize: 18,
-          fontWeight: FontWeight.w700,
-          color: theme.textColor,
-          letterSpacing: 3,
+      padding: const EdgeInsets.only(top: 12, bottom: 8, left: 20, right: 20),
+      child: Column(
+        children: [
+          // 标题
+          Text(
+            'WORKOUT TIMER',
+            style: TextStyle(
+              fontFamily: '.SF Pro Display',
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+              color: theme.textColor,
+              letterSpacing: 3,
+            ),
+          ),
+          const SizedBox(height: 12),
+          // 模式切换
+          _buildModeToggle(theme, planProvider, progressProvider),
+        ],
+      ),
+    );
+  }
+
+  /// 模式切换按钮
+  Widget _buildModeToggle(AppThemeData theme, PlanProvider planProvider, TrainingProgressProvider progressProvider) {
+    return Container(
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(25),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildModeButton(
+            '自由模式',
+            !_isPlanMode,
+            () => _switchToFreeMode(progressProvider),
+            theme,
+          ),
+          _buildModeButton(
+            '计划模式',
+            _isPlanMode,
+            () => _showPlanSelector(theme, planProvider, progressProvider),
+            theme,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildModeButton(String label, bool isSelected, VoidCallback onTap, AppThemeData theme) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        decoration: BoxDecoration(
+          color: isSelected ? theme.accentColor : Colors.transparent,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontFamily: '.SF Pro Text',
+            fontSize: 14,
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+            color: isSelected ? Colors.white : theme.textColor,
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _switchToFreeMode(TrainingProgressProvider progressProvider) {
+    if (_isPlanMode) {
+      progressProvider.endPlan();
+    }
+  }
+
+  void _showPlanSelector(AppThemeData theme, PlanProvider planProvider, TrainingProgressProvider progressProvider) {
+    final plans = planProvider.plans;
+    
+    if (plans.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('还没有计划，请先创建计划'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+    
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              '选择训练计划',
+              style: TextStyle(
+                fontFamily: '.SF Pro Display',
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: theme.textColor,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Flexible(
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: plans.length,
+                itemBuilder: (context, index) {
+                  final plan = plans[index];
+                  final isSelected = _selectedPlan?.id == plan.id;
+                  return ListTile(
+                    leading: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: isSelected ? theme.accentColor : theme.accentColor.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        Icons.fitness_center,
+                        color: isSelected ? Colors.white : theme.accentColor,
+                      ),
+                    ),
+                    title: Text(plan.name),
+                    subtitle: Text(plan.targetMusclesText),
+                    trailing: Text('${plan.exerciseCount}动作 · ${plan.totalSets}组'),
+                    selected: isSelected,
+                    onTap: () {
+                      progressProvider.startPlan(plan);
+                      Navigator.pop(context);
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -208,16 +403,16 @@ class TrainingWidget extends StatelessWidget {
   }
 
   /// 底部区域
-  Widget _buildBottomSection(BuildContext context, TrainingProvider training, AppThemeData theme) {
+  Widget _buildBottomSection(BuildContext context, TrainingProvider training, AppThemeData theme, TrainingProgressProvider progressProvider) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
         children: [
           // 状态徽章
-          _buildStatusBadge(training, theme),
+          _buildStatusBadge(training, theme, progressProvider),
           const SizedBox(height: 20),
           // 按钮区域
-          _buildButtonArea(context, training, theme),
+          _buildButtonArea(context, training, theme, progressProvider),
           const SizedBox(height: 16),
         ],
       ),
@@ -225,18 +420,28 @@ class TrainingWidget extends StatelessWidget {
   }
 
   /// 状态徽章 - 扁平设计
-  Widget _buildStatusBadge(TrainingProvider training, AppThemeData theme) {
+  Widget _buildStatusBadge(TrainingProvider training, AppThemeData theme, TrainingProgressProvider progressProvider) {
     Color color;
     String text;
     IconData icon;
 
     if (training.isExercising) {
       color = theme.progressRingColor;
-      text = '第 ${training.currentSet} 组 · 运动中';
+      if (_isPlanMode && progressProvider.currentExercise != null) {
+        final exercise = progressProvider.currentExercise!;
+        text = '${exercise.name} · 第${progressProvider.currentSetInExercise + 1}组 · 运动中';
+      } else {
+        text = '第 ${training.currentSet} 组 · 运动中';
+      }
       icon = Icons.fitness_center;
     } else if (training.isResting) {
       color = theme.progressRingColor;
-      text = '第 ${training.currentSet} 组 · 休息中';
+      if (_isPlanMode && progressProvider.currentExercise != null) {
+        final exercise = progressProvider.currentExercise!;
+        text = '${exercise.name} · 已完成${progressProvider.currentSetInExercise}组 · 休息中';
+      } else {
+        text = '第 ${training.currentSet} 组 · 休息中';
+      }
       icon = Icons.self_improvement;
     } else if (training.isCompleted) {
       color = theme.progressRingColor;
@@ -248,7 +453,11 @@ class TrainingWidget extends StatelessWidget {
       icon = Icons.pause_circle_outline;
     } else {
       color = theme.secondaryTextColor;
-      text = '准备开始';
+      if (_isPlanMode && _selectedPlan != null) {
+        text = '${_selectedPlan!.name} · 准备开始';
+      } else {
+        text = '准备开始';
+      }
       icon = Icons.play_circle_outline;
     }
 
@@ -260,8 +469,8 @@ class TrainingWidget extends StatelessWidget {
   }
 
   /// 按钮区域 - 参考图风格
-  Widget _buildButtonArea(BuildContext context, TrainingProvider training, AppThemeData theme) {
-    final buttons = _getButtonsForState(context, training, theme);
+  Widget _buildButtonArea(BuildContext context, TrainingProvider training, AppThemeData theme, TrainingProgressProvider progressProvider) {
+    final buttons = _getButtonsForState(context, training, theme, progressProvider);
     
     if (buttons.isEmpty) return const SizedBox.shrink();
 
@@ -324,7 +533,7 @@ class TrainingWidget extends StatelessWidget {
   }
 
   /// 获取当前状态的按钮配置
-  List<_ButtonInfo> _getButtonsForState(BuildContext context, TrainingProvider training, AppThemeData theme) {
+  List<_ButtonInfo> _getButtonsForState(BuildContext context, TrainingProvider training, AppThemeData theme, TrainingProgressProvider progressProvider) {
     // 空闲状态
     if (training.isIdle) {
       return [
@@ -336,7 +545,13 @@ class TrainingWidget extends StatelessWidget {
         _ButtonInfo(
           label: '开始运动',
           icon: Icons.play_arrow_rounded,
-          onPressed: training.startExercise,
+          onPressed: () {
+            training.startExercise();
+            // 计划模式下，开始训练时记录进度
+            if (_isPlanMode && _selectedPlan != null && progressProvider.startTime == null) {
+              progressProvider.startPlan(_selectedPlan!);
+            }
+          },
           isPrimary: true,
         ),
       ];
@@ -351,7 +566,13 @@ class TrainingWidget extends StatelessWidget {
         ),
         _ButtonInfo(
           icon: Icons.local_cafe,
-          onPressed: training.startRest,
+          onPressed: () {
+            training.startRest();
+            // 计划模式下，完成一组
+            if (_isPlanMode) {
+              progressProvider.completeSet();
+            }
+          },
         ),
         _ButtonInfo(
           label: '结束',
@@ -395,13 +616,18 @@ class TrainingWidget extends StatelessWidget {
       return [
         _ButtonInfo(
           icon: Icons.delete_outline,
-          onPressed: training.resetWorkout,
+          onPressed: () {
+            training.resetWorkout();
+            if (_isPlanMode) {
+              progressProvider.endPlan();
+            }
+          },
           isDestructive: true,
         ),
         _ButtonInfo(
           label: '保存',
           icon: Icons.save,
-          onPressed: () => _saveWorkout(context, training, theme),
+          onPressed: () => _saveWorkout(context, training, theme, progressProvider),
           isPrimary: true,
         ),
       ];
@@ -422,26 +648,46 @@ class TrainingWidget extends StatelessWidget {
   }
 
   /// 保存训练记录
-  Future<void> _saveWorkout(BuildContext context, TrainingProvider training, AppThemeData theme) async {
-    final repository = WorkoutRepository();
-    final data = training.getWorkoutData();
-
+  Future<void> _saveWorkout(BuildContext context, TrainingProvider training, AppThemeData theme, TrainingProgressProvider progressProvider) async {
     try {
-      await repository.saveSession(
-        data['totalSets'],
-        data['sessionDurationMs'],
-      );
+      if (_isPlanMode && _selectedPlan != null) {
+        // 计划模式：保存带详细动作的记录
+        final record = progressProvider.generateRecord();
+        await context.read<RecordProvider>().saveRecord(record);
+        
+        training.resetWorkout();
+        progressProvider.endPlan();
+        
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('训练已保存：${record.totalSets}组，总时长 ${record.durationText}'),
+              backgroundColor: theme.progressRingColor,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      } else {
+        // 自由模式：保存简单记录
+        final repository = WorkoutRepository();
+        final data = training.getWorkoutData();
 
-      training.resetWorkout();
-
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('训练已保存：完成${data['totalSets']}组，总时长 ${training.sessionDurationFormatted}'),
-            backgroundColor: theme.progressRingColor,
-            behavior: SnackBarBehavior.floating,
-          ),
+        await repository.saveSession(
+          data['totalSets'],
+          data['sessionDurationMs'],
         );
+
+        training.resetWorkout();
+
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('训练已保存：完成${data['totalSets']}组，总时长 ${training.sessionDurationFormatted}'),
+              backgroundColor: theme.progressRingColor,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
       }
     } catch (e) {
       if (context.mounted) {
@@ -457,7 +703,6 @@ class TrainingWidget extends StatelessWidget {
   }
 }
 
-/// 按钮信息
 class _ButtonInfo {
   final String label;
   final IconData icon;

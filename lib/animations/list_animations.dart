@@ -240,10 +240,10 @@ class ListAnimation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FadeInItem(
-      child: child,
+return FadeInItem(
       delay: delay + Duration(milliseconds: index * 50),
       duration: duration,
+      child: child,
     );
   }
 }
