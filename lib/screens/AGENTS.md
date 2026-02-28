@@ -1,6 +1,6 @@
 # AGENTS.md - Screens
 
-**Generated:** 2026-02-13
+**Generated:** 2026-02-28
 
 ## OVERVIEW
 
@@ -13,6 +13,7 @@ UI screens/pages for the WorkoutTimer app. Each screen is a standalone page with
 | `timer_screen.dart` | 38 | Main timer page with app bar actions |
 | `history_screen.dart` | 263 | Workout history list with swipe-to-delete |
 | `settings_screen.dart` | 96 | User preferences (sound, vibration, message) |
+| `stats_screen.dart` | - | Statistics dashboard |
 
 ## WHERE TO LOOK
 
