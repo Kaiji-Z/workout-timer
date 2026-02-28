@@ -9,6 +9,84 @@ import '../models/muscle_group.dart';
 import '../services/database_helper.dart';
 import 'package:sqflite/sqflite.dart';
 
+/// 解析次要肌肉部位（从内置数据）
+SecondaryMuscleGroup? _parseSecondaryMuscle(String value) {
+  final lower = value.toLowerCase();
+  switch (lower) {
+    // 胸部
+    case 'upper chest':
+    case 'clavicular head':
+      return SecondaryMuscleGroup.upperChest;
+    case 'middle chest':
+    case 'sternal head':
+      return SecondaryMuscleGroup.middleChest;
+    case 'lower chest':
+    case 'abdominal head':
+      return SecondaryMuscleGroup.lowerChest;
+    // 背部
+    case 'lats':
+    case 'latissimus dorsi':
+      return SecondaryMuscleGroup.lats;
+    case 'upper back':
+    case 'traps':
+    case 'trapezius':
+      return SecondaryMuscleGroup.upperBack;
+    case 'rhomboids':
+      return SecondaryMuscleGroup.rhomboids;
+    case 'lower back':
+    case 'erector spinae':
+      return SecondaryMuscleGroup.lowerBack;
+    // 肩部
+    case 'front delt':
+    case 'anterior deltoid':
+    case 'front delts':
+      return SecondaryMuscleGroup.frontDelt;
+    case 'side delt':
+    case 'lateral deltoid':
+    case 'side delts':
+      return SecondaryMuscleGroup.sideDelt;
+    case 'rear delt':
+    case 'posterior deltoid':
+    case 'rear delts':
+      return SecondaryMuscleGroup.rearDelt;
+    // 手臂
+    case 'biceps':
+    case 'bicep':
+      return SecondaryMuscleGroup.biceps;
+    case 'triceps':
+    case 'tricep':
+      return SecondaryMuscleGroup.triceps;
+    case 'forearms':
+    case 'forearm':
+      return SecondaryMuscleGroup.forearms;
+    // 腿部
+    case 'quads':
+    case 'quadriceps':
+      return SecondaryMuscleGroup.quads;
+    case 'hamstrings':
+    case 'hamstring':
+      return SecondaryMuscleGroup.hamstrings;
+    case 'glutes':
+    case 'gluteus':
+    case 'glute':
+      return SecondaryMuscleGroup.glutes;
+    case 'calves':
+    case 'calf':
+    case 'gastrocnemius':
+      return SecondaryMuscleGroup.calves;
+    // 核心
+    case 'abs':
+    case 'abdominals':
+    case 'rectus abdominis':
+      return SecondaryMuscleGroup.abs;
+    case 'obliques':
+    case 'oblique':
+      return SecondaryMuscleGroup.obliques;
+    default:
+      return null;
+  }
+}
+
 class ExerciseData {
   /// 内置动作列表（精选常见动作）
   static const List<Map<String, dynamic>> builtInExercises = [
@@ -618,6 +696,72 @@ class ExerciseData {
       'level': 'beginner',
     },
   ];
+
+  /// 获取所有内置动作（转换为Exercise对象列表）
+  static List<Exercise> getBuiltInExercises() {
+    return builtInExercises.map((data) {
+      // 解析主要肌肉部位
+      final primaryMuscle = PrimaryMuscleGroupExtension.fromString(
+        data['primaryMuscle'] as String,
+      ) ?? PrimaryMuscleGroup.chest;
+
+      // 解析次要肌肉部位
+      final secondaryMusclesList = data['secondaryMuscles'] as List<dynamic>? ?? [];
+      final secondaryMuscles = secondaryMusclesList
+          .map((s) => _parseSecondaryMuscle(s as String))
+          .whereType<SecondaryMuscleGroup>()
+          .toList();
+
+      // 根据难度设置推荐配置
+      final level = data['level'] as String? ?? 'beginner';
+      ExerciseRecommendation recommendation;
+      switch (level) {
+        case 'beginner':
+          recommendation = const ExerciseRecommendation(
+            recommendedSets: 3,
+            minReps: 10,
+            maxReps: 15,
+            restSeconds: 60,
+          );
+          break;
+        case 'intermediate':
+          recommendation = const ExerciseRecommendation(
+            recommendedSets: 4,
+            minReps: 8,
+            maxReps: 12,
+            restSeconds: 90,
+          );
+          break;
+        case 'advanced':
+        case 'expert':
+          recommendation = const ExerciseRecommendation(
+            recommendedSets: 5,
+            minReps: 6,
+            maxReps: 10,
+            restSeconds: 120,
+          );
+          break;
+        default:
+          recommendation = const ExerciseRecommendation(
+            recommendedSets: 3,
+            minReps: 8,
+            maxReps: 12,
+            restSeconds: 60,
+          );
+      }
+
+      return Exercise(
+        id: data['id'] as String,
+        name: data['name'] as String,
+        nameEn: data['nameEn'] as String? ?? '',
+        primaryMuscle: primaryMuscle,
+        secondaryMuscles: secondaryMuscles,
+        equipment: data['equipment'] as String? ?? '',
+        level: level,
+        recommendation: recommendation,
+      );
+    }).toList();
+  }
 
   /// 将内置动作数据导入数据库
   static Future<void> importToDatabase(dynamic db) async {

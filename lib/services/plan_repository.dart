@@ -106,6 +106,9 @@ class PlanRepository {
 
   /// 根据ID获取计划
   Future<WorkoutPlan?> getPlanById(String id, {List<Exercise>? exercises}) async {
+    if (!_isDatabaseAvailable) {
+      return null;
+    }
     final database = await _db.database;
 
     final maps = await database.query(
@@ -173,6 +176,10 @@ class PlanRepository {
 
   /// 安排计划到日期
   Future<void> assignPlanToDate(String planId, DateTime date) async {
+    if (!_isDatabaseAvailable) {
+      debugPrint('Database not available on web - assignPlanToDate skipped');
+      return;
+    }
     final database = await _db.database;
 
     final dateStr = date.toIso8601String();
@@ -201,6 +208,10 @@ class PlanRepository {
 
   /// 从日期移除计划
   Future<void> removePlanFromDate(String planId, DateTime date) async {
+    if (!_isDatabaseAvailable) {
+      debugPrint('Database not available on web - removePlanFromDate skipped');
+      return;
+    }
     final database = await _db.database;
 
     await database.delete(
@@ -214,6 +225,9 @@ class PlanRepository {
 
   /// 获取某日期的计划列表
   Future<List<WorkoutPlan>> getPlansForDate(DateTime date, {List<Exercise>? exercises}) async {
+    if (!_isDatabaseAvailable) {
+      return [];
+    }
     final database = await _db.database;
 
     final dateStr = date.toIso8601String();
@@ -240,6 +254,9 @@ class PlanRepository {
 
   /// 获取某月的计划（返回日期->计划ID列表的映射）
   Future<Map<DateTime, List<String>>> getPlansForMonth(DateTime month) async {
+    if (!_isDatabaseAvailable) {
+      return {};
+    }
     final database = await _db.database;
 
     final startDate = DateTime(month.year, month.month, 1);
@@ -266,6 +283,9 @@ class PlanRepository {
 
   /// 获取有计划的日期列表
   Future<Set<DateTime>> getDatesWithPlans(DateTime from, DateTime to) async {
+    if (!_isDatabaseAvailable) {
+      return {};
+    }
     final database = await _db.database;
 
     final results = await database.query(
