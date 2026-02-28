@@ -583,7 +583,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
     setState(() {
       final exercise = _selectedExercises[index];
       _selectedExercises[index] = exercise.copyWith(
-        customSets: newSets != exercise.targetSets ? newSets : null,
+        customSets: newSets,
       );
     });
   }
@@ -606,7 +606,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
         break;
       case 2:
         buttonText = isEditMode ? '保存修改' : '创建计划';
-        isEnabled = _nameController.text.isNotEmpty && _selectedExercises.isNotEmpty;
+        isEnabled = _selectedExercises.isNotEmpty;
         onPressed = isEnabled ? _savePlan : null;
         break;
       default:
@@ -671,12 +671,11 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
   }
 
   Future<void> _savePlan() async {
-    final name = _nameController.text.trim();
+    var name = _nameController.text.trim();
+    // 如果未输入名称，自动按训练部位命名
     if (name.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('请输入计划名称')),
-      );
-      return;
+      name = _selectedMuscles.map((m) => m.displayName).join(' + ');
+      if (name.isEmpty) name = '训练计划';
     }
     
     final planProvider = context.read<PlanProvider>();
