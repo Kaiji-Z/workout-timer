@@ -193,9 +193,54 @@ class _PlanScreenState extends State<PlanScreen> {
           
           // 计划库列表
           if (allPlans.isNotEmpty)
-            ...allPlans.map((plan) => CompactPlanCard(
-                  plan: plan,
-                  onTap: () => _showPlanDetail(plan),
+            ...allPlans.map((plan) => Dismissible(
+                  key: Key(plan.id),
+                  direction: DismissDirection.endToStart,
+                  background: Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                    alignment: Alignment.centerRight,
+                    padding: const EdgeInsets.only(right: 20),
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(Icons.delete, color: Colors.white),
+                  ),
+                  confirmDismiss: (direction) async {
+                    return await showDialog<bool>(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text('删除计划'),
+                        content: Text('确定要删除「${plan.name}」吗？此操作无法撤销。'),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, false),
+                            child: const Text('取消'),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, true),
+                            style: TextButton.styleFrom(foregroundColor: Colors.red),
+                            child: const Text('删除'),
+                          ),
+                        ],
+                      ),
+                    ) ?? false;
+                  },
+                  onDismissed: (direction) async {
+                    await context.read<PlanProvider>().deletePlan(plan.id);
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('已删除「${plan.name}」'),
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    }
+                  },
+                  child: CompactPlanCard(
+                    plan: plan,
+                    onTap: () => _showPlanDetail(plan),
+                  ),
                 ))
           else
             EmptyPlanCard(
@@ -300,8 +345,42 @@ class _PlanScreenState extends State<PlanScreen> {
       builder: (context) => _PlanDetailSheet(
         plan: plan,
         onAddToDate: () => _addPlanToDate(context.read<PlanProvider>(), plan),
+        onDelete: () => _deletePlan(plan),
       ),
     );
+  }
+
+  void _deletePlan(WorkoutPlan plan) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('删除计划'),
+        content: Text('确定要删除「${plan.name}」吗？此操作无法撤销。 '),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('取消'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('删除'),
+          ),
+        ],
+      ),
+    );
+    
+    if (confirmed == true) {
+      await context.read<PlanProvider>().deletePlan(plan.id);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('已删除「${plan.name}」 '),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
   }
 
   void _showAddPlanToDateSheet(PlanProvider planProvider) {
@@ -372,6 +451,27 @@ class _PlanScreenState extends State<PlanScreen> {
                       },
                     );
                   },
+                ),
+              ),
+              const SizedBox(height: 16),
+              // 创建新计划按钮
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    _navigateToCreatePlan();
+                  },
+                  icon: const Icon(Icons.add),
+                  label: const Text('创建新计划'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Theme.of(context).primaryColor,
+                    side: BorderSide(color: Theme.of(context).primaryColor),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -454,10 +554,12 @@ class _PlanScreenState extends State<PlanScreen> {
 class _PlanDetailSheet extends StatelessWidget {
   final WorkoutPlan plan;
   final VoidCallback onAddToDate;
+  final VoidCallback? onDelete;
 
   const _PlanDetailSheet({
     required this.plan,
     required this.onAddToDate,
+    this.onDelete,
   });
 
   @override
@@ -498,6 +600,20 @@ class _PlanDetailSheet extends StatelessWidget {
                 color: theme.textColor,
               ),
             ),
+            const SizedBox(height: 8),
+            // 右上角删除按钮
+            if (onDelete != null)
+              Align(
+                alignment: Alignment.centerRight,
+                child: IconButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    onDelete!();
+                  },
+                  icon: Icon(Icons.delete_outline, color: Colors.red),
+                  tooltip: '删除计划',
+                ),
+              ),
             const SizedBox(height: 8),
             
             // 目标部位
