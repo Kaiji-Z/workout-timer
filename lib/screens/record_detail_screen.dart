@@ -697,12 +697,14 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
           ),
           TextButton(
             onPressed: () async {
+              final messenger = ScaffoldMessenger.of(context);
+              final navigator = Navigator.of(context);
               Navigator.pop(context);
               try {
                 await context.read<RecordProvider>().deleteRecord(widget.record.id);
                 if (mounted) {
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
+                  navigator.pop();
+                  messenger.showSnackBar(
                     const SnackBar(
                       content: Text('已删除'),
                       behavior: SnackBarBehavior.floating,
@@ -711,7 +713,7 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
                 }
               } catch (e) {
                 if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
+                  messenger.showSnackBar(
                     SnackBar(
                       content: Text('删除失败: $e'),
                       backgroundColor: Colors.red,
