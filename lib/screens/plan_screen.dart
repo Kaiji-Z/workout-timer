@@ -60,20 +60,24 @@ class _PlanScreenState extends State<PlanScreen> {
           ],
         ),
       ),
-      // 浮动添加按钮
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _navigateToCreatePlan(),
-        backgroundColor: theme.accentColor,
-        icon: const Icon(Icons.add, color: Colors.white),
-        label: const Text(
-          '创建计划',
-          style: TextStyle(
-            fontFamily: '.SF Pro Text',
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
+      // 浮动添加按钮 - 放在导航栏上方
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 16),
+        child: FloatingActionButton.extended(
+          onPressed: () => _navigateToCreatePlan(),
+          backgroundColor: theme.accentColor,
+          icon: const Icon(Icons.add, color: Colors.white),
+          label: const Text(
+            '创建计划',
+            style: TextStyle(
+              fontFamily: '.SF Pro Text',
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 
