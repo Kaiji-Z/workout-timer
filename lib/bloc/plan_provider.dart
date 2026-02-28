@@ -4,6 +4,8 @@ import '../models/exercise.dart';
 
 import '../services/plan_repository.dart';
 
+import '../data/exercise_data.dart';
+
 
 /// 训练计划状态管理
 class PlanProvider extends ChangeNotifier {
@@ -34,12 +36,11 @@ class PlanProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      // 先加载所有动作
-      // 存储动作列表
-      _exercises = exercises;
+      // 加载内置动作列表
+      _exercises = ExerciseData.getBuiltInExercises();
 
       // 加载计划
-      _plans = await _repository.getAllPlans(exercises: exercises);
+      _plans = await _repository.getAllPlans(exercises: _exercises);
       _isLoading = false;
       notifyListeners();
     } catch (e) {

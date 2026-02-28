@@ -47,6 +47,10 @@ class RecordRepository {
 
   /// 更新训练记录
   Future<void> updateRecord(WorkoutRecord record) async {
+    if (!_isDatabaseAvailable) {
+      debugPrint('Database not available on web - updateRecord skipped');
+      return;
+    }
     final database = await _db.database;
 
     await database.transaction((txn) async {
@@ -82,6 +86,10 @@ class RecordRepository {
 
   /// 删除训练记录
   Future<void> deleteRecord(String recordId) async {
+    if (!_isDatabaseAvailable) {
+      debugPrint('Database not available on web - deleteRecord skipped');
+      return;
+    }
     final database = await _db.database;
 
     // 由于有外键级联删除，删除记录会自动删除关联动作
@@ -96,6 +104,9 @@ class RecordRepository {
 
   /// 根据ID获取记录
   Future<WorkoutRecord?> getRecordById(String id, {List<Exercise>? exercises}) async {
+    if (!_isDatabaseAvailable) {
+      return null;
+    }
     final database = await _db.database;
 
     final maps = await database.query(
@@ -170,6 +181,9 @@ class RecordRepository {
     DateTime to, {
     List<Exercise>? exercises,
   }) async {
+    if (!_isDatabaseAvailable) {
+      return [];
+    }
     final database = await _db.database;
 
     final maps = await database.query(
@@ -249,6 +263,9 @@ class RecordRepository {
     DateTime from,
     DateTime to,
   ) async {
+    if (!_isDatabaseAvailable) {
+      return {};
+    }
     final database = await _db.database;
 
     final results = await database.rawQuery('''
@@ -289,6 +306,9 @@ class RecordRepository {
 
   /// 获取最近使用的计划
   Future<List<Map<String, dynamic>>> getRecentPlans({int? limit}) async {
+    if (!_isDatabaseAvailable) {
+      return [];
+    }
     final database = await _db.database;
 
     final results = await database.rawQuery('''

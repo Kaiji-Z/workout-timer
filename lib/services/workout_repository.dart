@@ -7,7 +7,14 @@ class WorkoutRepository {
   final DatabaseHelper _dbHelper = DatabaseHelper.instance;
   final Uuid _uuid = const Uuid();
 
+  /// Check if database is available (web has limited support)
+  bool get _isDatabaseAvailable => !kIsWeb;
+
   Future<void> saveSession(int totalSets, int totalRestTimeMs) async {
+    if (!_isDatabaseAvailable) {
+      debugPrint('Database not available on web - saveSession skipped');
+      return;
+    }
     try {
       final session = WorkoutSession(
         id: _uuid.v4(),
@@ -17,13 +24,16 @@ class WorkoutRepository {
       );
       await _dbHelper.insert(session);
     } catch (e) {
-      // Log error or show message
       debugPrint('Error saving session: $e');
       rethrow;
     }
   }
 
   Future<List<WorkoutSession>> getAllSessions() async {
+    if (!_isDatabaseAvailable) {
+      debugPrint('Database not available on web - returning empty sessions list');
+      return [];
+    }
     try {
       return await _dbHelper.queryAllRows();
     } catch (e) {
@@ -33,6 +43,10 @@ class WorkoutRepository {
   }
 
   Future<void> deleteSession(String id) async {
+    if (!_isDatabaseAvailable) {
+      debugPrint('Database not available on web - deleteSession skipped');
+      return;
+    }
     try {
       await _dbHelper.delete(id);
     } catch (e) {
@@ -42,6 +56,10 @@ class WorkoutRepository {
   }
 
   Future<void> clearAllSessions() async {
+    if (!_isDatabaseAvailable) {
+      debugPrint('Database not available on web - clearAllSessions skipped');
+      return;
+    }
     try {
       await _dbHelper.deleteAll();
     } catch (e) {
