@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../models/workout_session.dart';
+import '../models/workout_record.dart';
 import '../services/workout_repository.dart';
+import '../bloc/record_provider.dart';
 import '../theme/theme_provider.dart';
 import '../theme/app_theme.dart';
 import '../animations/list_animations.dart';
+import 'record_detail_screen.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -17,13 +20,32 @@ class HistoryScreen extends StatefulWidget {
 class _HistoryScreenState extends State<HistoryScreen> {
   final WorkoutRepository _repository = WorkoutRepository();
 
-  Future<List<WorkoutSession>> _loadSessions() async {
-    try {
-      return await _repository.getAllSessions();
-    } catch (e) {
-      debugPrint('Error loading sessions: $e');
-      return [];
+  Future<List<dynamic>> _loadAllRecords() async {
+    // 加载旧记录
+final oldSessions = await _repository.getAllSessions();
+    
+    if (!mounted) return [];
+    
+    // 获取新记录（从Provider中直接获取，需要先加载）
+    final recordProvider = context.read<RecordProvider>();
+    if (recordProvider.recordCount == 0) {
+      await recordProvider.loadRecords();
     }
+    final newRecords = recordProvider.records;
+    
+    // 按日期排序
+    final allRecords = <dynamic>[...oldSessions, ...newRecords];
+    allRecords.sort((a, b) {
+      final dateA = a is WorkoutSession 
+          ? DateTime.parse(a.createdAt) 
+          : a.date;
+      final dateB = b is WorkoutSession 
+          ? DateTime.parse(b.createdAt) 
+          : b.date;
+      return dateB.compareTo(dateA);
+    });
+    
+    return allRecords;
   }
 
   Future<void> _deleteSession(String id) async {
@@ -32,6 +54,15 @@ class _HistoryScreenState extends State<HistoryScreen> {
       setState(() {});
     } catch (e) {
       debugPrint('Error deleting session: $e');
+    }
+  }
+
+  Future<void> _deleteRecord(String id) async {
+    try {
+      await context.read<RecordProvider>().deleteRecord(id);
+      setState(() {});
+    } catch (e) {
+      debugPrint('Error deleting record: $e');
     }
   }
 
@@ -44,8 +75,15 @@ class _HistoryScreenState extends State<HistoryScreen> {
     }
   }
 
-  String _formatDate(String isoString) {
-    final date = DateTime.parse(isoString);
+  String _formatDate(dynamic record) {
+    DateTime date;
+    if (record is WorkoutSession) {
+      date = DateTime.parse(record.createdAt);
+    } else if (record is WorkoutRecord) {
+      date = record.date;
+    } else {
+      return '';
+    }
     return DateFormat('yyyy-MM-dd HH:mm').format(date);
   }
 
@@ -83,9 +121,21 @@ class _HistoryScreenState extends State<HistoryScreen> {
             ),
           ],
         ),
+        actions: [
+          TextButton(
+            onPressed: () => _showClearConfirmDialog(),
+            child: Text(
+              'Clear',
+              style: TextStyle(
+                fontFamily: '.SF Pro Text',
+                color: theme.accentColor,
+              ),
+            ),
+          ),
+        ],
       ),
-      body: FutureBuilder<List<WorkoutSession>>(
-        future: _loadSessions(),
+      body: FutureBuilder<List<dynamic>>(
+        future: _loadAllRecords(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(
@@ -132,34 +182,32 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       color: theme.secondaryTextColor.withValues(alpha: 0.4),
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  GestureDetector(
-                    onTap: _clearHistory,
-                    child: Text(
-                      'Clear all history',
-                      style: TextStyle(
-                        color: theme.accentColor,
-                      ),
-                    ),
-                  ),
                 ],
               ),
             );
           } else {
-            final sessions = snapshot.data!;
+            final records = snapshot.data!;
             return ListView.builder(
               padding: const EdgeInsets.all(16),
-              itemCount: sessions.length,
+              itemCount: records.length,
               itemBuilder: (context, index) {
-                final session = sessions[index];
-                return ListAnimation(
-                  child: _SessionCard(
-                    session: session,
-                    formatDate: _formatDate,
-                    onDelete: () => _deleteSession(session.id),
-                    theme: theme,
-                  ),
+                final record = records[index];
+return ListAnimation(
                   index: index,
+                  child: record is WorkoutRecord
+                      ? _RecordCard(
+                          record: record,
+                          formatDate: _formatDate,
+                          onDelete: () => _deleteRecord(record.id),
+                          onTap: () => _navigateToDetail(record),
+                          theme: theme,
+                        )
+                      : _SessionCard(
+                          session: record as WorkoutSession,
+                          formatDate: _formatDate,
+                          onDelete: () => _deleteSession(record.id),
+                          theme: theme,
+                        ),
                 );
               },
             );
@@ -168,11 +216,249 @@ class _HistoryScreenState extends State<HistoryScreen> {
       ),
     );
   }
+
+  void _showClearConfirmDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Clear History'),
+        content: const Text('Are you sure you want to clear all history?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _clearHistory();
+            },
+            child: const Text('Clear', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _navigateToDetail(WorkoutRecord record) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => RecordDetailScreen(record: record),
+      ),
+    );
+  }
 }
 
+/// 新记录卡片 - 支持计划模式记录
+class _RecordCard extends StatelessWidget {
+  final WorkoutRecord record;
+  final String Function(dynamic) formatDate;
+  final VoidCallback onDelete;
+  final VoidCallback onTap;
+  final AppThemeData theme;
+
+  const _RecordCard({
+    required this.record,
+    required this.formatDate,
+    required this.onDelete,
+    required this.onTap,
+    required this.theme,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Dismissible(
+      key: Key(record.id),
+      direction: DismissDirection.endToStart,
+      background: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.transparent, theme.accentColor],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+          ),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 20),
+        child: Icon(Icons.delete, color: theme.textColor),
+      ),
+      onDismissed: (direction) => onDelete(),
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.9),
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.08),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              // 图标
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  gradient: record.isPlanMode
+                      ? LinearGradient(
+                          colors: [theme.accentColor, theme.accentColor.withValues(alpha: 0.8)],
+                        )
+                      : LinearGradient(
+                          colors: [theme.primaryColor, theme.secondaryColor],
+                        ),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Center(
+                  child: record.isPlanMode
+                      ? const Icon(Icons.playlist_add_check, color: Colors.white, size: 24)
+                      : Text(
+                          '${record.totalSets}',
+                          style: const TextStyle(
+                            fontFamily: '.SF Pro Display',
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
+                        ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              // 内容
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // 计划名称或"自由训练"
+                    Row(
+                      children: [
+                        if (record.isPlanMode) ...[
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: theme.accentColor.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              record.planName ?? '计划模式',
+                              style: TextStyle(
+                                fontFamily: '.SF Pro Text',
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                color: theme.accentColor,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                        ],
+                        Text(
+                          record.dateText,
+                          style: TextStyle(
+                            fontFamily: '.SF Pro Text',
+                            fontSize: 12,
+                            color: theme.secondaryTextColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    // 训练部位
+                    if (record.trainedMuscles.isNotEmpty)
+                      Text(
+                        record.trainedMusclesText,
+                        style: TextStyle(
+                          fontFamily: '.SF Pro Text',
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: theme.textColor,
+                        ),
+                      )
+                    else
+                      Text(
+                        '自由训练',
+                        style: TextStyle(
+                          fontFamily: '.SF Pro Text',
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: theme.textColor,
+                        ),
+                      ),
+                    const SizedBox(height: 4),
+                    // 统计信息
+                    Row(
+                      children: [
+                        Icon(Icons.timer_outlined, size: 14, color: theme.secondaryTextColor),
+                        const SizedBox(width: 4),
+                        Text(
+                          record.durationText,
+                          style: TextStyle(
+                            fontFamily: '.SF Pro Text',
+                            fontSize: 12,
+                            color: theme.secondaryTextColor,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Icon(Icons.repeat, size: 14, color: theme.secondaryTextColor),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${record.totalSets}组',
+                          style: TextStyle(
+                            fontFamily: '.SF Pro Text',
+                            fontSize: 12,
+                            color: theme.secondaryTextColor,
+                          ),
+                        ),
+                        if (record.exerciseCount > 0) ...[
+                          const SizedBox(width: 12),
+                          Icon(Icons.fitness_center, size: 14, color: theme.secondaryTextColor),
+                          const SizedBox(width: 4),
+                          Text(
+                            '${record.exerciseCount}动作',
+                            style: TextStyle(
+                              fontFamily: '.SF Pro Text',
+                              fontSize: 12,
+                              color: theme.secondaryTextColor,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              // 箭头
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: theme.borderColor.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  Icons.chevron_right,
+                  color: theme.secondaryTextColor,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// 旧记录卡片 - 保持兼容性
 class _SessionCard extends StatelessWidget {
   final WorkoutSession session;
-  final String Function(String) formatDate;
+  final String Function(dynamic) formatDate;
   final VoidCallback onDelete;
   final AppThemeData theme;
 
@@ -231,11 +517,10 @@ class _SessionCard extends StatelessWidget {
               child: Center(
                 child: Text(
                   '${session.totalSets}',
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontFamily: '.SF Pro Display',
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
-                    // 使用白色文字在渐变背景上
                     color: Colors.white,
                   ),
                 ),
@@ -258,7 +543,7 @@ class _SessionCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    formatDate(session.createdAt),
+                    formatDate(session),
                     style: TextStyle(
                       fontFamily: '.SF Pro Text',
                       fontSize: 12,
