@@ -29,36 +29,24 @@ class TrainingWidget extends StatelessWidget {
 
     return Consumer<TrainingProvider>(
       builder: (context, training, child) {
-        return Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                theme.primaryColor,
-                theme.secondaryColor,
-              ],
-            ),
-          ),
-          child: SafeArea(
-            bottom: false,
-            child: Column(
-              children: [
-                // 顶部标题
-                _buildHeader(theme),
-                
-                // 主内容区域 - 计时器
-                Expanded(
-                  child: _buildMainContent(training, theme),
-                ),
-                
-                // 底部区域：状态徽章 + 按钮
-                _buildBottomSection(context, training, theme),
-                
-                // 底部导航栏空间
-                const SizedBox(height: 80),
-              ],
-            ),
+        return SafeArea(
+          bottom: false,
+          child: Column(
+            children: [
+              // 顶部标题
+              _buildHeader(theme),
+              
+              // 主内容区域 - 计时器
+              Expanded(
+                child: _buildMainContent(training, theme),
+              ),
+              
+              // 底部区域：状态徽章 + 按钮
+              _buildBottomSection(context, training, theme),
+              
+              // 底部导航栏空间
+              const SizedBox(height: 80),
+            ],
           ),
         );
       },
