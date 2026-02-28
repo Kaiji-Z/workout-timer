@@ -50,42 +50,53 @@ class _TrainingWidgetState extends State<TrainingWidget> {
         
         return SafeArea(
           bottom: false,
-          child: Column(
-            children: [
-              // 顶部标题 + 模式切换
-              _buildHeader(theme, planProvider, progressProvider),
-              
-              // 计划进度卡片（计划模式下显示）
-              if (_isPlanMode && _selectedPlan != null) ...[
-                const SizedBox(height: 8),
-                PlanProgressCard(
-                  plan: _selectedPlan!,
-                  currentExerciseIndex: progressProvider.currentExerciseIndex,
-                  completedSets: Map<String, int>.from(
-                    _selectedPlan!.exercises.fold({}, (map, e) {
-                      map[e.exerciseId] = progressProvider.getCompletedSets(e.exerciseId);
-                      return map;
-                    }),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return SingleChildScrollView(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                  child: IntrinsicHeight(
+                    child: Column(
+                      children: [
+                        // 顶部标题 + 模式切换
+                        _buildHeader(theme, planProvider, progressProvider),
+                        
+                        // 计划进度卡片（计划模式下显示）
+                        if (_isPlanMode && _selectedPlan != null) ...[
+                          const SizedBox(height: 8),
+                          PlanProgressCard(
+                            plan: _selectedPlan!,
+                            currentExerciseIndex: progressProvider.currentExerciseIndex,
+                            completedSets: Map<String, int>.from(
+                              _selectedPlan!.exercises.fold({}, (map, e) {
+                                map[e.exerciseId] = progressProvider.getCompletedSets(e.exerciseId);
+                                return map;
+                              }),
+                            ),
+                            isExpanded: progressProvider.isExpanded,
+                            onToggle: progressProvider.toggleExpanded,
+                            onNextExercise: progressProvider.isCurrentExerciseComplete
+                                ? progressProvider.nextExercise
+                                : null,
+                          ),
+                        ],
+                        
+                        // 主内容区域 - 计时器
+                        Expanded(
+                          child: _buildMainContent(training, theme),
+                        ),
+                        
+                        // 底部区域：状态徽章 + 按钮
+                        _buildBottomSection(context, training, theme, progressProvider),
+                        
+                        // 底部导航栏空间
+                        const SizedBox(height: 80),
+                      ],
+                    ),
                   ),
-                  isExpanded: progressProvider.isExpanded,
-                  onToggle: progressProvider.toggleExpanded,
-                  onNextExercise: progressProvider.isCurrentExerciseComplete
-                      ? progressProvider.nextExercise
-                      : null,
                 ),
-              ],
-              
-              // 主内容区域 - 计时器
-              Expanded(
-                child: _buildMainContent(training, theme),
-              ),
-              
-              // 底部区域：状态徽章 + 按钮
-              _buildBottomSection(context, training, theme, progressProvider),
-              
-              // 底部导航栏空间
-              const SizedBox(height: 80),
-            ],
+              );
+            },
           ),
         );
       },
