@@ -269,6 +269,7 @@ class _ExerciseSelectorState extends State<ExerciseSelector> {
 
   Widget _buildSelectedPreview(AppThemeData theme) {
     return Container(
+      constraints: const BoxConstraints(maxHeight: 110),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: theme.accentColor.withValues(alpha: 0.05),
@@ -276,6 +277,7 @@ class _ExerciseSelectorState extends State<ExerciseSelector> {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -302,56 +304,60 @@ class _ExerciseSelectorState extends State<ExerciseSelector> {
             ],
           ),
           const SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: widget.selectedExercises.map((planExercise) {
-              return Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
-                      blurRadius: 4,
-                      offset: const Offset(0, 1),
+          Flexible(
+            child: SingleChildScrollView(
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: widget.selectedExercises.map((planExercise) {
+                  return Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 4,
+                          offset: const Offset(0, 1),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      planExercise.name,
-                      style: TextStyle(
-                        fontFamily: '.SF Pro Text',
-                        fontSize: 13,
-                        color: theme.textColor,
-                      ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          planExercise.name,
+                          style: TextStyle(
+                            fontFamily: '.SF Pro Text',
+                            fontSize: 13,
+                            color: theme.textColor,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '(${planExercise.targetSets}组)',
+                          style: TextStyle(
+                            fontFamily: '.SF Pro Text',
+                            fontSize: 12,
+                            color: theme.secondaryTextColor,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        GestureDetector(
+                          onTap: () => _removeExerciseById(planExercise.exerciseId),
+                          child: Icon(
+                            Icons.close,
+                            size: 16,
+                            color: theme.secondaryTextColor,
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 4),
-                    Text(
-                      '(${planExercise.targetSets}组)',
-                      style: TextStyle(
-                        fontFamily: '.SF Pro Text',
-                        fontSize: 12,
-                        color: theme.secondaryTextColor,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    GestureDetector(
-                      onTap: () => _removeExerciseById(planExercise.exerciseId),
-                      child: Icon(
-                        Icons.close,
-                        size: 16,
-                        color: theme.secondaryTextColor,
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }).toList(),
+                  );
+                }).toList(),
+              ),
+            ),
           ),
         ],
       ),
