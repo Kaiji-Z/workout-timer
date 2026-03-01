@@ -22,6 +22,9 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
   List<WorkoutSession> _oldSessions = [];
   List<WorkoutRecord> _newRecords = [];
   bool _isLoading = true;
+  DateTime _selectedWeekStart = DateTime.now();
+  int _selectedMonth = DateTime.now().month;
+  int _selectedYear = DateTime.now().year;
 
   @override
   void initState() {
@@ -122,6 +125,141 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
       return record.durationSeconds;
     }
     return 0;
+  }
+
+  /// 获取一周的开始日期（周一）
+  DateTime _getStartOfWeek(DateTime date) {
+    return date.subtract(Duration(days: date.weekday - 1));
+  }
+
+  /// 获取一周的7天列表
+  List<DateTime> _getWeekDays(DateTime weekStart) {
+    return List.generate(7, (i) => weekStart.add(Duration(days: i)));
+  }
+
+  /// 导航周（-1上一周，1下一周）
+  void _navigateWeek(int direction) {
+    setState(() {
+      _selectedWeekStart = _selectedWeekStart.add(Duration(days: 7 * direction));
+      // 不允许导航到未来的周
+      final now = DateTime.now();
+      final thisWeekStart = _getStartOfWeek(now);
+      if (_selectedWeekStart.isAfter(thisWeekStart)) {
+        _selectedWeekStart = thisWeekStart;
+      }
+    });
+  }
+
+  /// 导航年份
+  void _navigateYear(int direction) {
+    setState(() {
+      _selectedYear += direction;
+      // 不允许导航到未来年份
+      if (_selectedYear > DateTime.now().year) {
+        _selectedYear = DateTime.now().year;
+      }
+    });
+  }
+
+  /// 选择月份
+  void _selectMonth(int month) {
+    setState(() {
+      _selectedMonth = month;
+      // 如果选择的月份在未来，重置为当前月
+      final now = DateTime.now();
+      if (_selectedYear == now.year && month > now.month) {
+        _selectedMonth = now.month;
+      }
+    });
+  }
+
+  /// 按选中的周筛选记录
+  List<dynamic> _filterBySelectedWeek() {
+    final weekStart = _getStartOfWeek(_selectedWeekStart);
+    final startOfWeek = DateTime(weekStart.year, weekStart.month, weekStart.day);
+    final endOfWeek = startOfWeek.add(const Duration(days: 7));
+
+    return _getAllRecords().where((record) {
+      DateTime date = _getRecordDate(record);
+      return date.isAfter(startOfWeek.subtract(const Duration(milliseconds: 1))) &&
+             date.isBefore(endOfWeek);
+    }).toList();
+  }
+
+  /// 按选中的月份筛选记录
+  List<dynamic> _filterBySelectedMonth() {
+    return _getAllRecords().where((record) {
+      DateTime date = _getRecordDate(record);
+      return date.year == _selectedYear && date.month == _selectedMonth;
+    }).toList();
+  }
+
+  /// 获取一年中每月的训练次数
+  Map<int, int> _getMonthlyCounts(int year) {
+    final counts = <int, int>{};
+    for (int i = 1; i <= 12; i++) {
+      counts[i] = 0;
+    }
+
+    for (final record in _getAllRecords()) {
+      final date = _getRecordDate(record);
+      if (date.year == year) {
+        counts[date.month] = (counts[date.month] ?? 0) + 1;
+      }
+    }
+
+    return counts;
+  }
+
+  /// 获取选中周内有训练的天数
+  Set<int> _getWorkoutDaysInWeek() {
+    final days = <int>{};
+    final records = _filterBySelectedWeek();
+    final weekStart = _getStartOfWeek(_selectedWeekStart);
+
+    for (final record in records) {
+      final date = _getRecordDate(record);
+      final dayIndex = date.difference(weekStart).inDays;
+      if (dayIndex >= 0 && dayIndex < 7) {
+        days.add(dayIndex);
+      }
+    }
+
+    return days;
+  }
+
+  /// 获取每日训练时长（周视图或月视图）
+  Map<int, int> _getDailyDurations(List<dynamic> records, bool isWeek) {
+    final durations = <int, int>{};
+
+    if (isWeek) {
+      final weekStart = _getStartOfWeek(_selectedWeekStart);
+      for (int i = 0; i < 7; i++) {
+        durations[i] = 0;
+      }
+
+      for (final record in records) {
+        final date = _getRecordDate(record);
+        final dayIndex = date.difference(weekStart).inDays;
+        if (dayIndex >= 0 && dayIndex < 7) {
+          durations[dayIndex] = (durations[dayIndex] ?? 0) + _getRecordDuration(record);
+        }
+      }
+    } else {
+      final daysInMonth = DateTime(_selectedYear, _selectedMonth + 1, 0).day;
+      for (int i = 1; i <= daysInMonth; i++) {
+        durations[i] = 0;
+      }
+
+      for (final record in records) {
+        final date = _getRecordDate(record);
+        if (date.year == _selectedYear && date.month == _selectedMonth) {
+          durations[date.day] = (durations[date.day] ?? 0) + _getRecordDuration(record);
+        }
+      }
+    }
+
+    return durations;
   }
 
   /// 计算训练频率统计
@@ -350,8 +488,8 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
           : TabBarView(
               controller: _tabController,
               children: [
-                _buildStatsView(_filterByWeek(), theme),
-                _buildStatsView(_filterByMonth(), theme),
+                _buildWeekView(theme),
+                _buildMonthView(theme),
               ],
             ),
     );
@@ -879,5 +1017,502 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
       case PrimaryMuscleGroup.core:
         return Icons.circle_rounded;
     }
+  }
+
+  // ==================== 周视图和月视图 UI ====================
+
+  /// 周视图
+  Widget _buildWeekView(AppThemeData theme) {
+    final records = _filterBySelectedWeek();
+    final frequencyStats = _calculateFrequencyStats(records);
+    final volumeStats = _calculateVolumeStats(records);
+    final workoutDays = _getWorkoutDaysInWeek();
+    final dailyDurations = _getDailyDurations(records, true);
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 100),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 周选择器
+          _buildWeekSelector(theme),
+          const SizedBox(height: 20),
+
+          // 训练频率概览
+          _buildSection('训练频率', theme, [
+            _buildFrequencyOverview(frequencyStats, theme),
+          ]),
+          const SizedBox(height: 20),
+
+          // 训练量统计
+          _buildSection('训练量', theme, [
+            _buildVolumeOverview(volumeStats, theme),
+          ]),
+          const SizedBox(height: 20),
+
+          // 每日训练时长图表
+          _buildSection('每日训练时长', theme, [
+            _buildDailyDurationChart(dailyDurations, theme, isWeekView: true, days: 7),
+          ]),
+          const SizedBox(height: 20),
+
+          // 本周训练日标记
+          if (workoutDays.isNotEmpty)
+            _buildSection('训练日', theme, [
+              Wrap(
+                spacing: 8,
+                children: workoutDays.map((dayIndex) {
+                  final weekDays = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+                  return Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: theme.primaryColor.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Text(
+                      weekDays[dayIndex],
+                      style: TextStyle(
+                        fontFamily: '.SF Pro Text',
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                        color: theme.primaryColor,
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ]),
+        ],
+      ),
+    );
+  }
+
+  /// 月视图
+  Widget _buildMonthView(AppThemeData theme) {
+    final records = _filterBySelectedMonth();
+    final frequencyStats = _calculateFrequencyStats(records);
+    final volumeStats = _calculateVolumeStats(records);
+    final monthlyCounts = _getMonthlyCounts(_selectedYear);
+    final dailyDurations = _getDailyDurations(records, false);
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 100),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 年份选择器
+          _buildYearSelector(theme),
+          const SizedBox(height: 16),
+
+          // 月份网格
+          _buildMonthGrid(monthlyCounts, theme),
+          const SizedBox(height: 20),
+
+          // 训练频率概览
+          _buildSection('训练频率 ($_selectedMonth月)', theme, [
+            _buildFrequencyOverview(frequencyStats, theme),
+          ]),
+          const SizedBox(height: 20),
+
+          // 训练量统计
+          _buildSection('训练量 ($_selectedMonth月)', theme, [
+            _buildVolumeOverview(volumeStats, theme),
+          ]),
+          const SizedBox(height: 20),
+
+          // 每日训练时长图表
+          _buildSection('每日训练时长', theme, [
+            _buildDailyDurationChart(
+              dailyDurations,
+              theme,
+              isWeekView: false,
+              days: DateTime(_selectedYear, _selectedMonth + 1, 0).day,
+            ),
+          ]),
+        ],
+      ),
+    );
+  }
+
+  /// 周选择器
+  Widget _buildWeekSelector(AppThemeData theme) {
+    final weekStart = _getStartOfWeek(_selectedWeekStart);
+    final weekDays = _getWeekDays(weekStart);
+    final today = DateTime.now();
+    final workoutDays = _getWorkoutDaysInWeek();
+    final canGoNext = weekStart.add(const Duration(days: 7)).isBefore(DateTime(today.year, today.month, today.day).add(const Duration(days: 1)));
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.9),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          // 周导航
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              IconButton(
+                onPressed: () => _navigateWeek(-1),
+                icon: Icon(Icons.chevron_left, color: theme.textColor),
+              ),
+              Column(
+                children: [
+                  Text(
+                    '${weekStart.month}月 ${weekStart.day}日 - ${weekDays.last.month}月 ${weekDays.last.day}日',
+                    style: TextStyle(
+                      fontFamily: '.SF Pro Display',
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: theme.textColor,
+                    ),
+                  ),
+                  Text(
+                    '${weekStart.year}年',
+                    style: TextStyle(
+                      fontFamily: '.SF Pro Text',
+                      fontSize: 12,
+                      color: theme.secondaryTextColor,
+                    ),
+                  ),
+                ],
+              ),
+              IconButton(
+                onPressed: canGoNext ? () => _navigateWeek(1) : null,
+                icon: Icon(Icons.chevron_right, color: canGoNext ? theme.textColor : theme.secondaryTextColor.withValues(alpha: 0.3)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          // 7天日历
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: List.generate(7, (index) {
+              final day = weekDays[index];
+              final isToday = day.year == today.year &&
+                              day.month == today.month &&
+                              day.day == today.day;
+              final hasWorkout = workoutDays.contains(index);
+              final dayNames = ['一', '二', '三', '四', '五', '六', '日'];
+
+              return Expanded(
+                child: Column(
+                  children: [
+                    Text(
+                      dayNames[index],
+                      style: TextStyle(
+                        fontFamily: '.SF Pro Text',
+                        fontSize: 11,
+                        color: theme.secondaryTextColor,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: isToday
+                            ? const Color(0xFF1A237E)
+                            : hasWorkout
+                                ? theme.primaryColor.withValues(alpha: 0.2)
+                                : Colors.transparent,
+                        borderRadius: BorderRadius.circular(18),
+                        border: isToday
+                            ? null
+                            : Border.all(
+                                color: hasWorkout
+                                    ? theme.primaryColor
+                                    : theme.textColor.withValues(alpha: 0.1),
+                                width: 1,
+                              ),
+                      ),
+                      child: Center(
+                        child: Text(
+                          '${day.day}',
+                          style: TextStyle(
+                            fontFamily: '.SF Pro Display',
+                            fontSize: 14,
+                            fontWeight: isToday ? FontWeight.w700 : FontWeight.w500,
+                            color: isToday
+                                ? Colors.white
+                                : hasWorkout
+                                    ? theme.primaryColor
+                                    : theme.textColor,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 年份选择器
+  Widget _buildYearSelector(AppThemeData theme) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.9),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          IconButton(
+            onPressed: () => _navigateYear(-1),
+            icon: Icon(Icons.chevron_left, color: theme.textColor),
+          ),
+          Text(
+            '$_selectedYear 年',
+            style: TextStyle(
+              fontFamily: '.SF Pro Display',
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: theme.textColor,
+            ),
+          ),
+          IconButton(
+            onPressed: _selectedYear < DateTime.now().year ? () => _navigateYear(1) : null,
+            icon: Icon(
+              Icons.chevron_right,
+              color: _selectedYear < DateTime.now().year
+                  ? theme.textColor
+                  : theme.secondaryTextColor.withValues(alpha: 0.3),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 月份网格
+  Widget _buildMonthGrid(Map<int, int> counts, AppThemeData theme) {
+    final monthNames = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
+    final now = DateTime.now();
+    final maxCount = counts.values.fold(0, (max, e) => e > max ? e : max);
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.9),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 4,
+          childAspectRatio: 1.0,
+          crossAxisSpacing: 8,
+          mainAxisSpacing: 8,
+        ),
+        itemCount: 12,
+        itemBuilder: (context, index) {
+          final month = index + 1;
+          final count = counts[month] ?? 0;
+          final isSelected = month == _selectedMonth;
+          final isFuture = _selectedYear == now.year && month > now.month;
+          final intensity = maxCount > 0 ? count / maxCount : 0.0;
+
+          return GestureDetector(
+            onTap: isFuture ? null : () => _selectMonth(month),
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: isSelected
+                    ? LinearGradient(
+                        colors: [theme.primaryColor, theme.secondaryColor],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      )
+                    : null,
+                color: isSelected
+                    ? null
+                    : isFuture
+                        ? theme.textColor.withValues(alpha: 0.05)
+                        : intensity > 0
+                            ? theme.primaryColor.withValues(alpha: 0.1 + intensity * 0.3)
+                            : theme.textColor.withValues(alpha: 0.05),
+                borderRadius: BorderRadius.circular(12),
+                border: isSelected
+                    ? null
+                    : Border.all(
+                        color: isSelected
+                            ? Colors.transparent
+                            : theme.textColor.withValues(alpha: 0.1),
+                      ),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    monthNames[index],
+                    style: TextStyle(
+                      fontFamily: '.SF Pro Text',
+                      fontSize: 12,
+                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                      color: isSelected
+                          ? Colors.white
+                          : isFuture
+                              ? theme.secondaryTextColor.withValues(alpha: 0.3)
+                              : theme.textColor,
+                    ),
+                  ),
+                  if (count > 0) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      '$count',
+                      style: TextStyle(
+                        fontFamily: '.SF Pro Display',
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: isSelected
+                            ? Colors.white
+                            : theme.primaryColor,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  /// 每日训练时长图表
+  Widget _buildDailyDurationChart(Map<int, int> durations, AppThemeData theme, {required bool isWeekView, int? days}) {
+    final maxDuration = durations.values.fold(0, (max, e) => e > max ? e : max);
+    final displayDays = days ?? (isWeekView ? 7 : 31);
+
+    if (maxDuration == 0) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Text(
+            '暂无训练数据',
+            style: TextStyle(
+              color: theme.secondaryTextColor,
+              fontFamily: '.SF Pro Text',
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Column(
+      children: [
+        // 图例
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Container(
+              width: 12,
+              height: 12,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(colors: [theme.primaryColor, theme.secondaryColor]),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(width: 6),
+            Text(
+              '训练时长',
+              style: TextStyle(
+                fontFamily: '.SF Pro Text',
+                fontSize: 11,
+                color: theme.secondaryTextColor,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        // 图表
+        SizedBox(
+          height: 120,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: isWeekView ? 7 : displayDays,
+            itemBuilder: (context, index) {
+              final key = isWeekView ? index : index + 1;
+              final duration = durations[key] ?? 0;
+              final heightPercent = maxDuration > 0 ? duration / maxDuration : 0.0;
+              final barHeight = (heightPercent * 70).clamp(4.0, 70.0);
+
+              return Container(
+                width: isWeekView ? 40 : 20,
+                margin: EdgeInsets.symmetric(horizontal: isWeekView ? 4 : 2),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    if (duration > 0)
+                      Text(
+                        formatDuration(duration),
+                        style: TextStyle(
+                          fontFamily: '.SF Pro Text',
+                          fontSize: 9,
+                          color: theme.secondaryTextColor,
+                        ),
+                      ),
+                    const SizedBox(height: 4),
+                    Container(
+                      width: isWeekView ? 20 : 12,
+                      height: barHeight,
+                      decoration: BoxDecoration(
+                        gradient: duration > 0
+                            ? LinearGradient(
+                                begin: Alignment.bottomCenter,
+                                end: Alignment.topCenter,
+                                colors: [theme.primaryColor, theme.secondaryColor],
+                              )
+                            : null,
+                        color: duration > 0 ? null : theme.textColor.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(isWeekView ? 4 : 2),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      isWeekView ? ['一', '二', '三', '四', '五', '六', '日'][index] : '$key',
+                      style: TextStyle(
+                        fontFamily: '.SF Pro Text',
+                        fontSize: 10,
+                        color: theme.secondaryTextColor,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
   }
 }
