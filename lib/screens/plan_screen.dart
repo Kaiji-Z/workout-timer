@@ -54,9 +54,6 @@ class _PlanScreenState extends State<PlanScreen> {
             Expanded(
               child: _buildPlanList(planProvider, theme),
             ),
-            
-            // 底部导航栏空间
-            const SizedBox(height: 80),
           ],
         ),
       ),
@@ -111,7 +108,7 @@ class _PlanScreenState extends State<PlanScreen> {
     final isToday = _isToday(_selectedDate);
     
     return SingleChildScrollView(
-      padding: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.only(bottom: 100),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
