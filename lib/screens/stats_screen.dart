@@ -8,7 +8,6 @@ import '../models/workout_record.dart';
 import '../models/muscle_group.dart';
 import '../services/workout_repository.dart';
 import '../bloc/record_provider.dart';
-import '../animations/list_animations.dart';
 
 class StatsScreen extends StatefulWidget {
   const StatsScreen({super.key});
@@ -803,33 +802,38 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
 
   Widget _buildMetricCard(String label, String value, String unit, IconData icon, Color color, AppThemeData theme) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, color: color, size: 22),
-          const SizedBox(height: 8),
+          Icon(icon, color: color, size: 20),
+          const SizedBox(height: 6),
           Text(
             value,
             style: TextStyle(
               fontFamily: '.SF Pro Display',
-              fontSize: 18,
+              fontSize: 16,
               fontWeight: FontWeight.w700,
               color: theme.textColor,
             ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
           Text(
             label,
             style: TextStyle(
               fontFamily: '.SF Pro Text',
-              fontSize: 11,
+              fontSize: 10,
               color: theme.secondaryTextColor,
             ),
             textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
