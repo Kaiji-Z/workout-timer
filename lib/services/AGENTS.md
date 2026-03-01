@@ -1,18 +1,21 @@
 # AGENTS.md - Services
 
-**Generated:** 2026-02-28
+**Generated:** 2026-03-01
 
 ## OVERVIEW
 
-Business logic and external service integrations. Follows repository pattern for data access.
+Business logic and external service integrations. Follows repository pattern for data access with dedicated repositories for each domain.
 
 ## FILES
 
 | File | Lines | Purpose |
 |------|-------|---------|
-| `database_helper.dart` | 88 | SQLite singleton, CRUD operations |
+| `database_helper.dart` | 395 | SQLite singleton, CRUD operations, migrations |
 | `notification_service.dart` | 74 | Local notifications (Android) |
-| `workout_repository.dart` | 63 | Data abstraction layer |
+| `workout_repository.dart` | 63 | Session data abstraction |
+| `exercise_repository.dart` | - | Exercise data queries |
+| `plan_repository.dart` | - | Workout plan CRUD |
+| `record_repository.dart` | - | Workout record CRUD |
 | `timer_service.dart` | 31 | Android foreground service via MethodChannel |
 
 ## WHERE TO LOOK
@@ -32,7 +35,7 @@ Business logic and external service integrations. Follows repository pattern for
 
 **Singleton**: `DatabaseHelper.instance` for single DB connection.
 
-**Repository**: `WorkoutRepository` wraps `DatabaseHelper` with business logic.
+**Repository Pattern**: Each domain has dedicated repository (Workout, Exercise, Plan, Record) wrapping `DatabaseHelper`.
 
 **Platform Channel**: `TimerService` uses `MethodChannel` for Android-native foreground service.
 

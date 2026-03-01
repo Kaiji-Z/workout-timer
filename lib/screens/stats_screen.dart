@@ -262,6 +262,40 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
     return durations;
   }
 
+  /// 获取每日训练组数（周视图或月视图）
+  Map<int, int> _getDailySets(List<dynamic> records, bool isWeek) {
+    final sets = <int, int>{};
+
+    if (isWeek) {
+      final weekStart = _getStartOfWeek(_selectedWeekStart);
+      for (int i = 0; i < 7; i++) {
+        sets[i] = 0;
+      }
+
+      for (final record in records) {
+        final date = _getRecordDate(record);
+        final dayIndex = date.difference(weekStart).inDays;
+        if (dayIndex >= 0 && dayIndex < 7) {
+          sets[dayIndex] = (sets[dayIndex] ?? 0) + _getRecordSets(record);
+        }
+      }
+    } else {
+      final daysInMonth = DateTime(_selectedYear, _selectedMonth + 1, 0).day;
+      for (int i = 1; i <= daysInMonth; i++) {
+        sets[i] = 0;
+      }
+
+      for (final record in records) {
+        final date = _getRecordDate(record);
+        if (date.year == _selectedYear && date.month == _selectedMonth) {
+          sets[date.day] = (sets[date.day] ?? 0) + _getRecordSets(record);
+        }
+      }
+    }
+
+    return sets;
+  }
+
   /// 计算训练频率统计
   Map<String, dynamic> _calculateFrequencyStats(List<dynamic> records) {
     if (records.isEmpty) {
@@ -1026,8 +1060,8 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
     final records = _filterBySelectedWeek();
     final frequencyStats = _calculateFrequencyStats(records);
     final volumeStats = _calculateVolumeStats(records);
-    final workoutDays = _getWorkoutDaysInWeek();
     final dailyDurations = _getDailyDurations(records, true);
+    final dailySets = _getDailySets(records, true);
 
     return SingleChildScrollView(
       padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 100),
@@ -1052,36 +1086,9 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
 
           // 每日训练时长图表
           _buildSection('每日训练时长', theme, [
-            _buildDailyDurationChart(dailyDurations, theme, isWeekView: true, days: 7),
+            _buildDailyDurationChart(dailyDurations, dailySets, theme, isWeekView: true, days: 7),
           ]),
           const SizedBox(height: 20),
-
-          // 本周训练日标记
-          if (workoutDays.isNotEmpty)
-            _buildSection('训练日', theme, [
-              Wrap(
-                spacing: 8,
-                children: workoutDays.map((dayIndex) {
-                  final weekDays = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
-                  return Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: theme.primaryColor.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Text(
-                      weekDays[dayIndex],
-                      style: TextStyle(
-                        fontFamily: '.SF Pro Text',
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                        color: theme.primaryColor,
-                      ),
-                    ),
-                  );
-                }).toList(),
-              ),
-            ]),
         ],
       ),
     );
@@ -1094,6 +1101,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
     final volumeStats = _calculateVolumeStats(records);
     final monthlyCounts = _getMonthlyCounts(_selectedYear);
     final dailyDurations = _getDailyDurations(records, false);
+    final dailySets = _getDailySets(records, false);
 
     return SingleChildScrollView(
       padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 100),
@@ -1124,6 +1132,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
           _buildSection('每日训练时长', theme, [
             _buildDailyDurationChart(
               dailyDurations,
+              dailySets,
               theme,
               isWeekView: false,
               days: DateTime(_selectedYear, _selectedMonth + 1, 0).day,
@@ -1409,7 +1418,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
   }
 
   /// 每日训练时长图表
-  Widget _buildDailyDurationChart(Map<int, int> durations, AppThemeData theme, {required bool isWeekView, int? days}) {
+  Widget _buildDailyDurationChart(Map<int, int> durations, Map<int, int> sets, AppThemeData theme, {required bool isWeekView, int? days}) {
     final maxDuration = durations.values.fold(0, (max, e) => e > max ? e : max);
     final displayDays = days ?? (isWeekView ? 7 : 31);
 
@@ -1444,7 +1453,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
             ),
             const SizedBox(width: 6),
             Text(
-              '训练时长',
+              '时长/组数',
               style: TextStyle(
                 fontFamily: '.SF Pro Text',
                 fontSize: 11,
@@ -1454,65 +1463,83 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
           ],
         ),
         const SizedBox(height: 12),
-        // 图表
+        // 图表 - 使用Row with Expanded自动填充宽度
         SizedBox(
-          height: 120,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: isWeekView ? 7 : displayDays,
-            itemBuilder: (context, index) {
+          height: isWeekView ? 130 : 140,
+          child: Row(
+            children: List.generate(displayDays, (index) {
               final key = isWeekView ? index : index + 1;
               final duration = durations[key] ?? 0;
+              final setCount = sets[key] ?? 0;
               final heightPercent = maxDuration > 0 ? duration / maxDuration : 0.0;
               final barHeight = (heightPercent * 70).clamp(4.0, 70.0);
 
-              return Container(
-                width: isWeekView ? 40 : 20,
-                margin: EdgeInsets.symmetric(horizontal: isWeekView ? 4 : 2),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    if (duration > 0)
+              return Expanded(
+                child: Container(
+                  margin: EdgeInsets.symmetric(horizontal: isWeekView ? 2 : 1),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      // 时长和组数显示
+                      if (duration > 0 || setCount > 0)
+                        Column(
+                          children: [
+                            Text(
+                              formatDuration(duration),
+                              style: TextStyle(
+                                fontFamily: '.SF Pro Text',
+                                fontSize: isWeekView ? 9 : 7,
+                                color: theme.secondaryTextColor,
+                              ),
+                            ),
+                            if (setCount > 0)
+                              Text(
+                                '${setCount}组',
+                                style: TextStyle(
+                                  fontFamily: '.SF Pro Text',
+                                  fontSize: isWeekView ? 8 : 6,
+                                  color: theme.primaryColor,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                          ],
+                        ),
+                      const SizedBox(height: 4),
+                      // 柱状条
+                      Container(
+                        width: double.infinity,
+                        height: barHeight,
+                        decoration: BoxDecoration(
+                          gradient: duration > 0
+                              ? LinearGradient(
+                                  begin: Alignment.bottomCenter,
+                                  end: Alignment.topCenter,
+                                  colors: [theme.primaryColor, theme.secondaryColor],
+                                )
+                              : null,
+                          color: duration > 0 ? null : theme.textColor.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(isWeekView ? 4 : 2),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      // 日期标签
                       Text(
-                        formatDuration(duration),
+                        isWeekView ? ['一', '二', '三', '四', '五', '六', '日'][index] : '$key',
                         style: TextStyle(
                           fontFamily: '.SF Pro Text',
-                          fontSize: 9,
+                          fontSize: isWeekView ? 10 : 8,
                           color: theme.secondaryTextColor,
                         ),
                       ),
-                    const SizedBox(height: 4),
-                    Container(
-                      width: isWeekView ? 20 : 12,
-                      height: barHeight,
-                      decoration: BoxDecoration(
-                        gradient: duration > 0
-                            ? LinearGradient(
-                                begin: Alignment.bottomCenter,
-                                end: Alignment.topCenter,
-                                colors: [theme.primaryColor, theme.secondaryColor],
-                              )
-                            : null,
-                        color: duration > 0 ? null : theme.textColor.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(isWeekView ? 4 : 2),
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      isWeekView ? ['一', '二', '三', '四', '五', '六', '日'][index] : '$key',
-                      style: TextStyle(
-                        fontFamily: '.SF Pro Text',
-                        fontSize: 10,
-                        color: theme.secondaryTextColor,
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               );
-            },
+            }),
           ),
         ),
       ],
     );
-  }
+}
+
 }
