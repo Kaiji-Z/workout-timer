@@ -265,8 +265,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
       value: value,
       onChanged: onChanged,
-      activeThumbColor: theme.primaryColor,
-      activeTrackColor: theme.primaryColor.withValues(alpha: 0.5),
+      activeThumbColor: Colors.white,
+      activeTrackColor: theme.primaryColor.withValues(alpha: 0.7),
+      inactiveThumbColor: Colors.white.withValues(alpha: 0.9),
+      inactiveTrackColor: Colors.white.withValues(alpha: 0.2),
+      thumbColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
+          return Colors.white;
+        }
+        return Colors.white.withValues(alpha: 0.9);
+      }),
+      trackColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
+          return theme.primaryColor.withValues(alpha: 0.7);
+        }
+        return Colors.white.withValues(alpha: 0.2);
+      }),
+      trackOutlineColor: WidgetStateProperty.resolveWith((states) {
+        return Colors.white.withValues(alpha: 0.9);
+      }),
     );
   }
 
