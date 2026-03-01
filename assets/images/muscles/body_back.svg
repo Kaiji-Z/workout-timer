@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 400" width="200" height="400">
+  <!-- Human Body Back View - Muscle Groups -->
+  <!-- Base body outline -->
+  <g id="body-outline" fill="none" stroke="#e0e0e0" stroke-width="1">
+    <!-- Head -->
+    <ellipse cx="100" cy="30" rx="25" ry="28"/>
+    <!-- Neck -->
+    <path d="M90 55 L90 70 M110 55 L110 70"/>
+    <!-- Torso outline -->
+    <path d="M70 70 Q65 80 60 120 L60 200 Q70 210 100 210 Q130 210 140 200 L140 120 Q135 80 130 70 Z"/>
+    <!-- Arms -->
+    <path d="M60 75 Q45 85 35 120 L30 180 Q32 185 38 185 L45 130 Q50 100 60 90"/>
+    <path d="M140 75 Q155 85 165 120 L170 180 Q168 185 162 185 L155 130 Q150 100 140 90"/>
+    <!-- Legs -->
+    <path d="M70 210 L65 300 L60 380 Q65 385 75 385 L80 310 L85 220"/>
+    <path d="M130 210 L135 300 L140 380 Q135 385 125 385 L120 310 L115 220"/>
+  </g>
+  
+  <!-- Muscle Groups (each with unique ID for coloring) -->
+  <!-- Upper Back / Trapezius -->
+  <path id="traps" class="muscle back upper-back" d="M80 70 Q100 60 120 70 L115 100 Q100 95 85 100 Z" fill="#f5f5f5"/>
+  
+  <!-- Rear Delts (Shoulders) -->
+  <path id="rear-delt-left" class="muscle shoulders rear-delt" d="M60 75 Q50 80 48 100 L58 105 Q62 90 68 82 Z" fill="#f5f5f5"/>
+  <path id="rear-delt-right" class="muscle shoulders rear-delt" d="M140 75 Q150 80 152 100 L142 105 Q138 90 132 82 Z" fill="#f5f5f5"/>
+  
+  <!-- Lats (Latissimus Dorsi) -->
+  <path id="lats-left" class="muscle back lats" d="M65 100 Q62 130 62 160 L80 170 Q82 130 82 100 Z" fill="#f5f5f5"/>
+  <path id="lats-right" class="muscle back lats" d="M135 100 Q138 130 138 160 L120 170 Q118 130 118 100 Z" fill="#f5f5f5"/>
+  
+  <!-- Rhomboids -->
+  <path id="rhomboids-left" class="muscle back rhomboids" d="M82 95 Q88 100 95 105 L90 120 Q85 115 80 110 Z" fill="#f5f5f5"/>
+  <path id="rhomboids-right" class="muscle back rhomboids" d="M118 95 Q112 100 105 105 L110 120 Q115 115 120 110 Z" fill="#f5f5f5"/>
+  
+  <!-- Lower Back -->
+  <path id="lower-back" class="muscle back lower-back" d="M80 140 Q100 145 120 140 L115 180 Q100 185 85 180 Z" fill="#f5f5f5"/>
+  
+  <!-- Triceps -->
+  <path id="triceps-left" class="muscle arms triceps" d="M45 100 Q40 120 38 150 L45 150 Q48 120 50 105 Z" fill="#f5f5f5"/>
+  <path id="triceps-right" class="muscle arms triceps" d="M155 100 Q160 120 162 150 L155 150 Q152 120 150 105 Z" fill="#f5f5f5"/>
+  
+  <!-- Forearms (back) -->
+  <path id="forearms-left-back" class="muscle arms forearms" d="M38 155 Q35 170 32 185 L40 185 Q42 170 45 158 Z" fill="#f5f5f5"/>
+  <path id="forearms-right-back" class="muscle arms forearms" d="M162 155 Q165 170 168 185 L160 185 Q158 170 155 158 Z" fill="#f5f5f5"/>
+  
+  <!-- Glutes -->
+  <path id="glutes-left" class="muscle legs glutes" d="M65 200 Q62 220 65 240 L85 240 Q88 220 85 205 Z" fill="#f5f5f5"/>
+  <path id="glutes-right" class="muscle legs glutes" d="M135 200 Q138 220 135 240 L115 240 Q112 220 115 205 Z" fill="#f5f5f5"/>
+  
+  <!-- Hamstrings -->
+  <path id="hamstrings-left" class="muscle legs hamstrings" d="M68 245 Q65 270 65 295 L82 295 Q82 270 80 250 Z" fill="#f5f5f5"/>
+  <path id="hamstrings-right" class="muscle legs hamstrings" d="M132 245 Q135 270 135 295 L118 295 Q118 270 120 250 Z" fill="#f5f5f5"/>
+  
+  <!-- Calves (back) -->
+  <path id="calves-left-back" class="muscle legs calves" d="M65 300 Q60 330 60 360 L75 360 Q75 330 72 300 Z" fill="#f5f5f5"/>
+  <path id="calves-right-back" class="muscle legs calves" d="M135 300 Q140 330 140 360 L125 360 Q125 330 128 300 Z" fill="#f5f5f5"/>
+</svg>

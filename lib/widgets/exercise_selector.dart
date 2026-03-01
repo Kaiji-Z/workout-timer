@@ -6,7 +6,7 @@ import '../models/workout_plan.dart';
 import '../theme/theme_provider.dart';
 import '../bloc/plan_provider.dart';
 import '../theme/app_theme.dart';
-
+import 'package:cached_network_image/cached_network_image.dart';
 /// 动作选择器 - Flat Vitality 设计
 /// 
 /// 按肌肉部位筛选，支持多选，可查看详情
@@ -424,7 +424,6 @@ class _ExerciseListItem extends StatelessWidget {
         ],
       ),
       child: ListTile(
-        onTap: onTap,
         leading: Container(
           width: 44,
           height: 44,
@@ -432,10 +431,28 @@ class _ExerciseListItem extends StatelessWidget {
             color: isSelected ? theme.accentColor : theme.accentColor.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(10),
           ),
-          child: Icon(
-            Icons.fitness_center,
-            color: isSelected ? Colors.white : theme.accentColor,
-            size: 22,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: exercise.imageUrl != null
+                ? CachedNetworkImage(
+                    imageUrl: exercise.imageUrl!,
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) => Icon(
+                      Icons.fitness_center,
+                      color: isSelected ? Colors.white : theme.accentColor,
+                      size: 22,
+                    ),
+                    errorWidget: (context, url, error) => Icon(
+                      Icons.fitness_center,
+                      color: isSelected ? Colors.white : theme.accentColor,
+                      size: 22,
+                    ),
+                  )
+                : Icon(
+                    Icons.fitness_center,
+                    color: isSelected ? Colors.white : theme.accentColor,
+                    size: 22,
+                  ),
           ),
         ),
         title: Text(
@@ -576,6 +593,68 @@ class ExerciseDetailSheet extends StatelessWidget {
               _buildTag(exercise.levelDisplayName, Icons.signal_cellular_alt, theme),
             ],
           ),
+          const SizedBox(height: 24),
+          // 动作图片
+            Center(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: CachedNetworkImage(
+                  imageUrl: exercise.imageUrl!,
+                  width: double.infinity,
+                  height: 180,
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) => Container(
+                    color: theme.accentColor.withValues(alpha: 0.1),
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: theme.accentColor,
+                      ),
+                    ),
+                  ),
+                  errorWidget: (context, url, error) => Container(
+                    color: theme.accentColor.withValues(alpha: 0.1),
+                    child: Icon(Icons.fitness_center, size: 48, color: theme.accentColor),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+          // 简单的肌肉部位标签
+          if (exercise.secondaryMuscles.isNotEmpty) ...[
+            Text(
+              '涉及部位',
+              style: TextStyle(
+                fontFamily: '.SF Pro Text',
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: theme.textColor,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: exercise.secondaryMuscles.map((muscle) {
+                return Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: theme.textColor.withValues(alpha: 0.1)),
+                  ),
+                  child: Text(
+                    muscle.displayName,
+                    style: TextStyle(
+                      fontFamily: '.SF Pro Text',
+                      fontSize: 13,
+                      color: theme.textColor,
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ],
           const SizedBox(height: 24),
           
           // 推荐配置

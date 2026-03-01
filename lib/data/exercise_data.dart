@@ -697,6 +697,90 @@ class ExerciseData {
     },
   ];
 
+  /// 动作ID到free-exercise-db图片路径的映射
+  /// 图片来源: https://github.com/yuhonas/free-exercise-db (Unlicense)
+  static const Map<String, String> _exerciseImageMap = {
+    // 胸部
+    'barbell_bench_press': 'Barbell_Bench_Press',
+    'incline_barbell_bench_press': 'Incline_Barbell_Bench_Press',
+    'decline_barbell_bench_press': 'Decline_Barbell_Bench_Press',
+    'dumbbell_bench_press': 'Dumbbell_Bench_Press',
+    'incline_dumbbell_press': 'Incline_Dumbbell_Press',
+    'dumbbell_flyes': 'Dumbbell_Flyes',
+    'cable_crossover': 'Cable_Crossover',
+    'push_ups': 'Push-Ups',
+    'chest_dips': 'Chest_Dips',
+    'pec_deck': 'Pec_Deck_Flyes',
+    // 背部
+    'deadlift': 'Deadlift',
+    'barbell_row': 'Barbell_Row',
+    'dumbbell_row': 'One-Arm_Dumbbell_Row',
+    'lat_pulldown': 'Lat_Pulldown',
+    'seated_cable_row': 'Seated_Cable_Row',
+    'pull_ups': 'Pull-Ups',
+    'chin_ups': 'Chin-Ups',
+    't_bar_row': 'T-Bar_Row',
+    'hyperextensions': 'Hyperextensions',
+    'face_pulls': 'Face_Pulls',
+    // 肩部
+    'overhead_press': 'Barbell_Overhead_Press',
+    'dumbbell_shoulder_press': 'Dumbbell_Shoulder_Press',
+    'arnold_press': 'Arnold_Press',
+    'lateral_raises': 'Dumbbell_Lateral_Raise',
+    'front_raises': 'Dumbbell_Front_Raise',
+    'rear_delt_flyes': 'Rear_Delt_Flyes',
+    'upright_row': 'Upright_Row',
+    'shrugs': 'Dumbbell_Shrugs',
+    'cable_lateral_raises': 'Cable_Lateral_Raise',
+    'machine_shoulder_press': 'Machine_Shoulder_Press',
+    // 手臂
+    'barbell_curl': 'Barbell_Curl',
+    'dumbbell_curl': 'Dumbbell_Curl',
+    'hammer_curl': 'Hammer_Curl',
+    'preacher_curl': 'Preacher_Curl',
+    'concentration_curl': 'Concentration_Curl',
+    'incline_dumbbell_curl': 'Incline_Dumbbell_Curl',
+    'tricep_pushdown': 'Tricep_Pushdown',
+    'skull_crushers': 'Skull_Crushers',
+    'close_grip_bench_press': 'Close-Grip_Barbell_Bench_Press',
+    'tricep_dips': 'Tricep_Dips',
+    'overhead_tricep_extension': 'Overhead_Dumbbell_Tricep_Extension',
+    'wrist_curl': 'Wrist_Curl',
+    // 腿部
+    'barbell_squat': 'Barbell_Squat',
+    'front_squat': 'Front_Squat',
+    'leg_press': 'Leg_Press',
+    'leg_extension': 'Leg_Extensions',
+    'romanian_deadlift': 'Romanian_Deadlift',
+    'leg_curl': 'Leg_Curl',
+    'lunges': 'Lunges',
+    'bulgarian_split_squat': 'Bulgarian_Split_Squat',
+    'calf_raises': 'Standing_Calf_Raise',
+    'hip_thrust': 'Hip_Thrust',
+    'goblet_squat': 'Goblet_Squat',
+    'hack_squat': 'Hack_Squat',
+    // 核心
+    'plank': 'Plank',
+    'crunches': 'Crunches',
+    'sit_ups': 'Sit-Ups',
+    'russian_twist': 'Russian_Twist',
+    'leg_raises': 'Leg_Raises',
+    'hanging_leg_raises': 'Hanging_Leg_Raise',
+    'cable_crunch': 'Cable_Crunch',
+    'ab_wheel_rollout': 'Ab_Wheel_Rollout',
+    'side_plank': 'Side_Plank',
+    'mountain_climbers': 'Mountain_Climbers',
+    'dead_bug': 'Dead_Bug',
+    'bicycle_crunches': 'Bicycle_Crunches',
+  };
+
+  /// 获取动作图片URL
+  static String? getExerciseImageUrl(String exerciseId) {
+    final imagePath = _exerciseImageMap[exerciseId];
+    if (imagePath == null) return null;
+    return 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/$imagePath/0.jpg';
+  }
+
   /// 获取所有内置动作（转换为Exercise对象列表）
   static List<Exercise> getBuiltInExercises() {
     return builtInExercises.map((data) {
@@ -758,6 +842,7 @@ class ExerciseData {
         secondaryMuscles: secondaryMuscles,
         equipment: data['equipment'] as String? ?? '',
         level: level,
+        imageUrl: getExerciseImageUrl(data['id'] as String),
         recommendation: recommendation,
       );
     }).toList();
@@ -824,6 +909,7 @@ class ExerciseData {
         'recommended_min_reps': minReps,
         'recommended_max_reps': maxReps,
         'rest_seconds': restSeconds,
+        'image_url': getExerciseImageUrl(exerciseData['id'] as String),
       },
     );
   }

@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 400" width="200" height="400">
+  <!-- Human Body Front View - Muscle Groups -->
+  <!-- Base body outline -->
+  <g id="body-outline" fill="none" stroke="#e0e0e0" stroke-width="1">
+    <!-- Head -->
+    <ellipse cx="100" cy="30" rx="25" ry="28"/>
+    <!-- Neck -->
+    <path d="M90 55 L90 70 M110 55 L110 70"/>
+    <!-- Torso outline -->
+    <path d="M70 70 Q65 80 60 120 L60 200 Q70 210 100 210 Q130 210 140 200 L140 120 Q135 80 130 70 Z"/>
+    <!-- Arms -->
+    <path d="M60 75 Q45 85 35 120 L30 180 Q32 185 38 185 L45 130 Q50 100 60 90"/>
+    <path d="M140 75 Q155 85 165 120 L170 180 Q168 185 162 185 L155 130 Q150 100 140 90"/>
+    <!-- Legs -->
+    <path d="M70 210 L65 300 L60 380 Q65 385 75 385 L80 310 L85 220"/>
+    <path d="M130 210 L135 300 L140 380 Q135 385 125 385 L120 310 L115 220"/>
+  </g>
+  
+  <!-- Muscle Groups (each with unique ID for coloring) -->
+  <!-- Chest (Pectorals) -->
+  <path id="chest-left" class="muscle chest" d="M72 85 Q85 80 95 90 L95 115 Q85 120 75 110 Z" fill="#f5f5f5"/>
+  <path id="chest-right" class="muscle chest" d="M128 85 Q115 80 105 90 L105 115 Q115 120 125 110 Z" fill="#f5f5f5"/>
+  
+  <!-- Shoulders (Deltoids) -->
+  <path id="front-delt-left" class="muscle shoulders front-delt" d="M60 75 Q50 80 45 95 L55 100 Q60 85 65 80 Z" fill="#f5f5f5"/>
+  <path id="front-delt-right" class="muscle shoulders front-delt" d="M140 75 Q150 80 155 95 L145 100 Q140 85 135 80 Z" fill="#f5f5f5"/>
+  
+  <!-- Biceps -->
+  <path id="biceps-left" class="muscle arms biceps" d="M45 100 Q40 120 38 150 L45 150 Q48 120 50 105 Z" fill="#f5f5f5"/>
+  <path id="biceps-right" class="muscle arms biceps" d="M155 100 Q160 120 162 150 L155 150 Q152 120 150 105 Z" fill="#f5f5f5"/>
+  
+  <!-- Forearms -->
+  <path id="forearms-left" class="muscle arms forearms" d="M38 155 Q35 170 32 185 L40 185 Q42 170 45 158 Z" fill="#f5f5f5"/>
+  <path id="forearms-right" class="muscle arms forearms" d="M162 155 Q165 170 168 185 L160 185 Q158 170 155 158 Z" fill="#f5f5f5"/>
+  
+  <!-- Abs (Core) -->
+  <path id="abs-upper" class="muscle core abs" d="M80 120 L80 150 Q90 155 100 150 L100 120 Q90 115 80 120 Z" fill="#f5f5f5"/>
+  <path id="abs-middle" class="muscle core abs" d="M80 155 L80 185 Q90 190 100 185 L100 155 Q90 160 80 155 Z" fill="#f5f5f5"/>
+  <path id="abs-lower" class="muscle core abs" d="M80 190 L80 210 Q90 215 100 210 L100 190 Q90 195 80 190 Z" fill="#f5f5f5"/>
+  
+  <!-- Obliques -->
+  <path id="obliques-left" class="muscle core obliques" d="M65 120 Q68 150 70 180 L80 175 Q78 145 75 120 Z" fill="#f5f5f5"/>
+  <path id="obliques-right" class="muscle core obliques" d="M135 120 Q132 150 130 180 L120 175 Q122 145 125 120 Z" fill="#f5f5f5"/>
+  
+  <!-- Quads (Quadriceps) -->
+  <path id="quads-left" class="muscle legs quads" d="M70 215 Q68 250 65 290 L80 290 Q82 250 82 220 Z" fill="#f5f5f5"/>
+  <path id="quads-right" class="muscle legs quads" d="M130 215 Q132 250 135 290 L120 290 Q118 250 118 220 Z" fill="#f5f5f5"/>
+  
+  <!-- Adductors (Inner thigh) -->
+  <path id="adductors-left" class="muscle legs" d="M82 220 Q85 260 85 290 L92 285 Q90 250 88 220 Z" fill="#f5f5f5"/>
+  <path id="adductors-right" class="muscle legs" d="M118 220 Q115 260 115 290 L108 285 Q110 250 112 220 Z" fill="#f5f5f5"/>
+  
+  <!-- Calves -->
+  <path id="calves-left" class="muscle legs calves" d="M65 300 Q60 330 60 360 L75 360 Q75 330 72 300 Z" fill="#f5f5f5"/>
+  <path id="calves-right" class="muscle legs calves" d="M135 300 Q140 330 140 360 L125 360 Q125 330 128 300 Z" fill="#f5f5f5"/>
+</svg>
