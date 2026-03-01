@@ -340,8 +340,8 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
             fontWeight: FontWeight.w600,
           ),
           tabs: const [
-            Tab(text: '本周'),
-            Tab(text: '本月'),
+            Tab(text: '周视图'),
+            Tab(text: '月视图'),
           ],
         ),
       ),
