@@ -1,8 +1,8 @@
 # AGENTS.md - WorkoutTimer Flutter App
 
-**Generated:** 2026-02-28
-**Commit:** 2130aff
-**Branch:** master
+**Generated:** 2026-03-01
+**Commit:** 788b8ae
+**Branch:** feature/workout-plan
 
 ## OVERVIEW
 
@@ -18,9 +18,8 @@ Cross-platform Flutter workout rest timer with preset durations (30s/60s/90s/120
 ```
 lib/
 ├── main.dart                 # Entry point, routing, MultiProvider setup
-├── bloc/                     # Timer & Training providers (ChangeNotifier, NOT BLoC despite dir name)
-├── models/
-│   └── workout_session.dart   # WorkoutSession model
+├── bloc/                     # See lib/bloc/AGENTS.md (ChangeNotifier, NOT BLoC)
+├── models/                  # See lib/models/AGENTS.md
 ├── screens/                  # See lib/screens/AGENTS.md
 ├── widgets/                  # See lib/widgets/AGENTS.md
 ├── theme/
@@ -39,13 +38,13 @@ lib/
 | Task | Location | Notes |
 |------|----------|-------|
 | Timer countdown logic | `bloc/timer_provider.dart:86-97` | `_tick()` method, Timer.periodic |
-| Add new screen | `lib/screens/` + route in `main.dart:56-59` | Traditional MaterialApp.routes map |
+| Add new screen | `lib/screens/` + route in `main.dart` | Traditional MaterialApp.routes map |
 | Notification config | `services/notification_service.dart` | Android/iOS notifications, skipped on web |
 | Database schema | `services/database_helper.dart` | `_onCreate()` - sessions table |
 | Preset times | `bloc/timer_provider.dart:18` | `presetTimes = [30, 60, 90, 120]` |
 | Flat Vitality themes | `theme/app_theme.dart:212-358` | 5 themes: amberGold, coralOrange, mintGreen, rosePink, skyBlue |
-| Theme switching | `main.dart:46-49` | MultiProvider setup with ThemeProvider |
-| Main navigation | `main.dart:123-268` | Custom `MainNavigation` with bottom nav bar |
+| Theme switching | `main.dart` | MultiProvider setup with ThemeProvider |
+| Stats calendar view | `screens/stats_screen.dart:1025-1169` | Week/month views with daily charts |
 | China mirror setup | `setup_mirrors.sh`, `android/build.gradle.kts` | Aliyun maven mirrors |
 
 ## CONVENTIONS
@@ -66,12 +65,13 @@ lib/
 
 ## ANTI-PATTERNS (THIS PROJECT)
 
-| Pattern | Why Bad | Instead |
-|---------|---------|---------|
-| Empty catch blocks | Silent failures | Log + rethrow |
-| `!` operator | Runtime crashes | Null check `if (x != null)` |
-| `bloc/` directory naming | Misleading - contains Provider, not BLoC | Rename to `providers/` or keep with comment |
-| Service instantiation in Provider | Testing harder | Provider injection |
+| Pattern | Location | Why Bad | Instead |
+|---------|----------|---------|--------|
+| Empty catch blocks | `history_screen.dart:55-75` | Silent failures | Log + rethrow |
+| `!` operator | `history_screen.dart:155,189` | Runtime crashes | Null check `if (x != null)` |
+| `bloc/` directory naming | `lib/bloc/` | Misleading - contains Provider | Rename to `providers/` |
+| Service in Provider | `timer_provider.dart:8-9` | Testing harder | Provider injection |
+| Silent failure | `plan_provider.dart:67-69` | Catch with only debugPrint | Add rethrow
 
 ## COMMANDS
 

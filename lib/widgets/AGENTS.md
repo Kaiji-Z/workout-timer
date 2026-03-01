@@ -1,10 +1,10 @@
 # AGENTS.md - Widgets
 
-**Generated:** 2026-02-28
+**Generated:** 2026-03-01
 
 ## OVERVIEW
 
-Reusable UI components for the WorkoutTimer app following Flat Vitality design system. High complexity with 2367 total lines across 8 widget files.
+Reusable UI components for the WorkoutTimer app following Flat Vitality design system. 12 widget files with varying complexity.
 
 ## FILES
 
@@ -12,12 +12,16 @@ Reusable UI components for the WorkoutTimer app following Flat Vitality design s
 |------|-------|---------|
 | `timer_widget.dart` | 439 | Main timer component (circular progress, chips, buttons) |
 | `glass_widgets.dart` | 565 | Circular control buttons, shared Flat Vitality UI |
+| `training_widget.dart` | 732 | Training mode component with state machine |
+| `exercise_selector.dart` | 750 | Exercise selection UI with search/filter |
+| `plan_card.dart` | 621 | Plan card display with swipe actions |
+| `calendar_widget.dart` | 560 | Calendar picker for plan scheduling |
 | `animated_timer_widget.dart` | - | Animated timer variant |
 | `circular_progress_painter.dart` | - | Progress ring painter |
 | `duration_picker.dart` | - | Duration selection UI |
 | `rest_timer_widget.dart` | - | Rest timer component |
-| `session_stopwatch_widget.dart` | - | Session stopwatch |
-| `training_widget.dart` | - | Training mode component |
+| `session_stopwatch_widget.dart` | 79 | Session stopwatch |
+| `muscle_selector.dart` | - | Muscle group selection |
 
 ## WHERE TO LOOK
 
