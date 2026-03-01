@@ -495,6 +495,7 @@ class _ExerciseListItem extends StatelessWidget {
         trailing: isSelected
             ? Icon(Icons.check_circle, color: theme.accentColor, size: 24)
             : Icon(Icons.add_circle_outline, color: theme.secondaryTextColor, size: 24),
+        onTap: onTap,
       ),
     );
   }
