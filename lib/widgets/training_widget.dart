@@ -64,21 +64,22 @@ class _TrainingWidgetState extends State<TrainingWidget> {
                         // 计划进度卡片（计划模式下显示）
                         if (_isPlanMode && _selectedPlan != null) ...[
                           const SizedBox(height: 16),
-                          PlanProgressCard(
-                            plan: _selectedPlan!,
-                            currentExerciseIndex: progressProvider.currentExerciseIndex,
-                            completedSets: Map<String, int>.from(
-                              _selectedPlan!.exercises.fold({}, (map, e) {
-                                map[e.exerciseId] = progressProvider.getCompletedSets(e.exerciseId);
-                                return map;
-                              }),
-                            ),
+PlanProgressCard(
+plan: _selectedPlan!,
+currentExerciseIndex: progressProvider.currentExerciseIndex,
+completedSets: Map<String, int>.from(
+_selectedPlan!.exercises.fold({}, (map, e) {
+map[e.exerciseId] = progressProvider.getCompletedSets(e.exerciseId);
+return map;
+}),
+),
                             isExpanded: progressProvider.isExpanded,
-                            onToggle: progressProvider.toggleExpanded,
-                            onNextExercise: progressProvider.isCurrentExerciseComplete
-                                ? progressProvider.nextExercise
-                                : null,
-                          ),
+                            isResting: training.isResting,
+onToggle: progressProvider.toggleExpanded,
+onNextExercise: progressProvider.isCurrentExerciseComplete
+? progressProvider.nextExercise
+: null,
+),
                           const SizedBox(height: 16),
                         ],
                         
@@ -589,17 +590,29 @@ class _TrainingWidgetState extends State<TrainingWidget> {
         _ButtonInfo(
           label: '结束',
           icon: Icons.stop,
-          onPressed: training.endWorkout,
+          onPressed: () {
+            // 计划模式下，结束运动时计数当前组
+            if (_isPlanMode) {
+              progressProvider.completeSet();
+            }
+            training.endWorkout();
+          },
         ),
       ];
-    }
+}
 
     // 运动暂停
     if (training.isExercisePaused) {
       return [
         _ButtonInfo(
           icon: Icons.stop,
-          onPressed: training.endWorkout,
+          onPressed: () {
+            // 计划模式下，结束运动时计数当前组
+            if (_isPlanMode) {
+              progressProvider.completeSet();
+            }
+            training.endWorkout();
+          },
           isDestructive: true,
         ),
         _ButtonInfo(
@@ -623,27 +636,33 @@ class _TrainingWidgetState extends State<TrainingWidget> {
       ];
     }
 
-    // 完成状态
-    if (training.isCompleted) {
-      return [
+// 完成状态
+if (training.isCompleted) {
+return [
+_ButtonInfo(
+icon: Icons.delete_outline,
+onPressed: () {
+training.resetWorkout();
+if (_isPlanMode) {
+progressProvider.endPlan();
+}
+},
+isDestructive: true,
+),
         _ButtonInfo(
-          icon: Icons.delete_outline,
+          icon: Icons.play_arrow,
           onPressed: () {
-            training.resetWorkout();
-            if (_isPlanMode) {
-              progressProvider.endPlan();
-            }
+            training.resumeExercise();
           },
-          isDestructive: true,
         ),
         _ButtonInfo(
-          label: '保存',
-          icon: Icons.save,
-          onPressed: () => _saveWorkout(context, training, theme, progressProvider),
-          isPrimary: true,
-        ),
-      ];
-    }
+label: '保存',
+icon: Icons.save,
+onPressed: () => _saveWorkout(context, training, theme, progressProvider),
+isPrimary: true,
+),
+];
+}
 
     return [];
   }
