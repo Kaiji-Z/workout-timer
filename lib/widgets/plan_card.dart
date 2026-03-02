@@ -302,6 +302,7 @@ class PlanProgressCard extends StatefulWidget {
   final VoidCallback? onToggle;
   final VoidCallback? onNextExercise;
   final bool isExpanded;
+  final bool isResting; // 是否处于休息状态
 
   const PlanProgressCard({
     super.key,
@@ -311,6 +312,7 @@ class PlanProgressCard extends StatefulWidget {
     this.onToggle,
     this.onNextExercise,
     this.isExpanded = false,
+    this.isResting = false,
   });
 
   @override
@@ -514,24 +516,63 @@ class _PlanProgressCardState extends State<PlanProgressCard> with SingleTickerPr
                         );
                       }),
                       
-                      // 切换下一动作按钮
+                      // 切换下一动作按钮 - 醒目样式
                       if (widget.onNextExercise != null &&
                           widget.currentExerciseIndex < widget.plan.exercises.length - 1) ...[
-                        const SizedBox(height: 12),
-                        SizedBox(
+                        const SizedBox(height: 16),
+                        Container(
                           width: double.infinity,
-                          child: TextButton.icon(
-                            onPressed: widget.onNextExercise,
-                            icon: Icon(Icons.skip_next, color: theme.accentColor),
-                            label: Text(
-                              '切换下一动作',
-                              style: TextStyle(
-                                fontFamily: '.SF Pro Text',
-                                color: theme.accentColor,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                theme.accentColor,
+                                theme.accentColor.withValues(alpha: 0.8),
+                              ],
+                            ),
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: theme.accentColor.withValues(alpha: 0.3),
+                                blurRadius: 12,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              onTap: widget.onNextExercise,
+                              borderRadius: BorderRadius.circular(16),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                  vertical: 16,
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(
+                                      Icons.arrow_forward_rounded,
+                                      color: Colors.white,
+                                      size: 24,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      '切换下一动作',
+                                      style: TextStyle(
+                                        fontFamily: '.SF Pro Text',
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
                         ),
+                        const SizedBox(height: 8),
                       ],
                     ],
                   ),
@@ -545,7 +586,13 @@ class _PlanProgressCardState extends State<PlanProgressCard> with SingleTickerPr
   }
 
   int _getCurrentSetNumber(PlanExercise exercise) {
-    return (widget.completedSets[exercise.exerciseId] ?? 0) + 1;
+    final completed = widget.completedSets[exercise.exerciseId] ?? 0;
+    // 休息状态：显示已完成的组数
+    // 运动状态：显示当前进行中的组数（已完成 + 1）
+    if (widget.isResting) {
+      return completed > 0 ? completed : 1;
+    }
+    return completed + 1;
   }
 }
 
