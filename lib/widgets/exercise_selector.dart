@@ -1,3 +1,4 @@
+import 'fullscreen_image_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/exercise.dart';
@@ -595,32 +596,43 @@ class ExerciseDetailSheet extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 24),
-          // 动作图片
-            Center(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: CachedNetworkImage(
-                  imageUrl: exercise.imageUrl!,
-                  width: double.infinity,
-                  height: 180,
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) => Container(
-                    color: theme.accentColor.withValues(alpha: 0.1),
-                    child: Center(
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: theme.accentColor,
+          // 动作图片 - 点击查看大图
+          if (exercise.imageUrl != null)
+            GestureDetector(
+              onTap: () => FullscreenImageViewer.show(
+                context,
+                imageUrl: exercise.imageUrl!,
+                title: exercise.name,
+              ),
+              child: Hero(
+                tag: exercise.imageUrl!,
+                child: Center(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: CachedNetworkImage(
+                      imageUrl: exercise.imageUrl!,
+                      width: double.infinity,
+                      height: 180,
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) => Container(
+                        color: theme.accentColor.withValues(alpha: 0.1),
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: theme.accentColor,
+                          ),
+                        ),
+                      ),
+                      errorWidget: (context, url, error) => Container(
+                        color: theme.accentColor.withValues(alpha: 0.1),
+                        child: Icon(Icons.fitness_center, size: 48, color: theme.accentColor),
                       ),
                     ),
-                  ),
-                  errorWidget: (context, url, error) => Container(
-                    color: theme.accentColor.withValues(alpha: 0.1),
-                    child: Icon(Icons.fitness_center, size: 48, color: theme.accentColor),
                   ),
                 ),
               ),
             ),
-            const SizedBox(height: 16),
+          if (exercise.imageUrl != null)
           // 简单的肌肉部位标签
           if (exercise.secondaryMuscles.isNotEmpty) ...[
             Text(
