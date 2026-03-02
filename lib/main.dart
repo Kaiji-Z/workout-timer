@@ -15,12 +15,22 @@ import 'bloc/training_progress_provider.dart';
 import 'theme/theme_provider.dart';
 import 'theme/app_theme.dart';
 import 'services/notification_service.dart';
+import 'services/exercise_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize date formatting for Chinese locale
   await initializeDateFormatting('zh_CN', null);
+
+  // Load exercise data from assets
+  try {
+    await ExerciseService.loadExercises();
+    debugPrint('Loaded ${ExerciseService.exercises.length} exercises');
+  } catch (e) {
+    debugPrint('Failed to load exercises: $e');
+    // Continue with fallback built-in exercises
+  }
 
   // Initialize theme provider
   final themeProvider = ThemeProvider();

@@ -8,6 +8,7 @@ import '../models/exercise.dart';
 import '../models/muscle_group.dart';
 import '../services/database_helper.dart';
 import 'package:sqflite/sqflite.dart';
+import '../services/exercise_service.dart';
 
 /// 解析次要肌肉部位（从内置数据）
 SecondaryMuscleGroup? _parseSecondaryMuscle(String value) {
@@ -947,6 +948,27 @@ class ExerciseData {
     List<Exercise> exercises,
     String level,
   ) {
-    return exercises.where((e) => e.level == level).toList();
+return exercises.where((e) => e.level == level).toList();
+  }
+
+  /// 获取完整的动作列表（优先使用ExerciseService加载的数据）
+  /// 
+  /// 如果ExerciseService已加载数据，返回完整的800+动作
+  /// 否则返回内置的67个精选动作作为备用
+  static List<Exercise> getFullExerciseList() {
+    if (ExerciseService.isLoaded && ExerciseService.exercises.isNotEmpty) {
+      return ExerciseService.exercises;
+    }
+    return getBuiltInExercises();
+  }
+
+  /// 异步加载并获取完整的动作列表
+  /// 
+  /// 会自动调用ExerciseService.loadExercises()加载数据
+  static Future<List<Exercise>> loadAndGetFullExerciseList() async {
+    if (!ExerciseService.isLoaded) {
+      await ExerciseService.loadExercises();
+    }
+    return getFullExerciseList();
   }
 }

@@ -136,18 +136,68 @@ class Exercise {
         );
     }
 
+    // 解析图片URL
+    final imagesList = json['images'] as List<dynamic>?;
+    String? imageUrl;
+    if (imagesList != null && imagesList.isNotEmpty) {
+      final imagePath = imagesList[0] as String;
+      imageUrl = 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/$imagePath';
+    }
+
+    // 解析器械名称
+    final equipmentRaw = json['equipment'] as String?;
+    final equipment = _normalizeEquipment(equipmentRaw);
+
     return Exercise(
       id: json['id'] as String? ?? '',
       name: json['name'] as String? ?? '',
-      nameEn: json['nameEn'] as String? ?? json['name'] as String? ?? '',
+      nameEn: json['name'] as String? ?? '',
       primaryMuscle: primaryMuscle,
       secondaryMuscles: secondaryMuscles,
-      equipment: json['equipment'] as String? ?? '',
+      equipment: equipment,
       level: level,
-      imageUrl: json['imageUrl'] as String?,
+      imageUrl: imageUrl,
       muscleImageUrl: json['muscleImageUrl'] as String?,
       recommendation: recommendation,
     );
+  }
+
+  /// 标准化器械名称
+  static String _normalizeEquipment(String? equipment) {
+    if (equipment == null) return 'body only';
+    switch (equipment.toLowerCase()) {
+      case 'barbell':
+      case 'ez-barbell':
+        return 'barbell';
+      case 'dumbbell':
+      case 'dumbbells':
+        return 'dumbbell';
+      case 'cable':
+      case 'cables':
+        return 'cable';
+      case 'machine':
+      case 'leverage machine':
+        return 'machine';
+      case 'body only':
+      case 'bodyweight':
+        return 'body only';
+      case 'kettlebells':
+      case 'kettlebell':
+        return 'kettlebells';
+      case 'bands':
+      case 'band':
+        return 'bands';
+      case 'medicine ball':
+        return 'medicine ball';
+      case 'exercise ball':
+        return 'exercise ball';
+      case 'foam roll':
+        return 'foam roll';
+      case 'other':
+        return 'other';
+      default:
+        return equipment.toLowerCase();
+    }
   }
 
   /// 从数据库Map解析
