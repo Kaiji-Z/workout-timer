@@ -63,7 +63,7 @@ class _TrainingWidgetState extends State<TrainingWidget> {
                         
                         // 计划进度卡片（计划模式下显示）
                         if (_isPlanMode && _selectedPlan != null) ...[
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 16),
                           PlanProgressCard(
                             plan: _selectedPlan!,
                             currentExerciseIndex: progressProvider.currentExerciseIndex,
@@ -79,6 +79,7 @@ class _TrainingWidgetState extends State<TrainingWidget> {
                                 ? progressProvider.nextExercise
                                 : null,
                           ),
+                          const SizedBox(height: 16),
                         ],
                         
                         // 主内容区域 - 计时器
@@ -87,8 +88,8 @@ class _TrainingWidgetState extends State<TrainingWidget> {
                         ),
                         
                         // 底部区域：状态徽章 + 按钮
+                        const SizedBox(height: 16),
                         _buildBottomSection(context, training, theme, progressProvider),
-                        
                         // 底部导航栏空间
                         const SizedBox(height: 80),
                       ],
