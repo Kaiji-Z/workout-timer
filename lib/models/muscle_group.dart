@@ -123,30 +123,45 @@ extension PrimaryMuscleGroupExtension on PrimaryMuscleGroup {
     }
   }
 
-  /// 从字符串解析
-  static PrimaryMuscleGroup? fromString(String value) {
-    switch (value.toLowerCase()) {
-      case 'chest':
-        return PrimaryMuscleGroup.chest;
+  /// 从字符串解析（支持 free-exercise-db 格式）
+static PrimaryMuscleGroup? fromString(String value) {
+switch (value.toLowerCase()) {
+case 'chest':
+return PrimaryMuscleGroup.chest;
       case 'back':
-        return PrimaryMuscleGroup.back;
-      case 'shoulders':
-      case 'shoulder':
-        return PrimaryMuscleGroup.shoulders;
-      case 'arms':
+      case 'middle back':
+      case 'lats':
+      case 'lower back':
+      case 'traps':
+      case 'upper back':
+return PrimaryMuscleGroup.back;
+case 'shoulders':
+case 'shoulder':
+return PrimaryMuscleGroup.shoulders;
+case 'arms':
       case 'arm':
-        return PrimaryMuscleGroup.arms;
-      case 'legs':
+      case 'biceps':
+      case 'triceps':
+      case 'forearms':
+return PrimaryMuscleGroup.arms;
+case 'legs':
       case 'leg':
-        return PrimaryMuscleGroup.legs;
-      case 'core':
-      case 'abs':
-      case 'abdominals':
-        return PrimaryMuscleGroup.core;
-      default:
-        return null;
-    }
-  }
+      case 'quadriceps':
+      case 'quads':
+      case 'hamstrings':
+      case 'glutes':
+      case 'calves':
+      case 'adductors':
+      case 'abductors':
+return PrimaryMuscleGroup.legs;
+case 'core':
+case 'abs':
+case 'abdominals':
+return PrimaryMuscleGroup.core;
+default:
+return null;
+}
+}
 }
 
 /// 次要肌肉部位扩展方法
