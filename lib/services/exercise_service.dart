@@ -10,8 +10,10 @@ import '../models/muscle_group.dart';
 /// 图片URL格式: https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/{imagePath}
 class ExerciseService {
   static const String _exerciseDbAsset = 'assets/data/exercises.json';
+  static const String _translationsAsset = 'assets/data/exercise_translations.json';
   
   static List<Exercise> _exercises = [];
+  static Map<String, String> _translations = {}; // 英文名 -> 中文名
   static bool _isLoaded = false;
   static String? _error;
 
@@ -49,7 +51,8 @@ class ExerciseService {
     final lowerQuery = query.toLowerCase();
     return _exercises.where((e) {
       return e.name.toLowerCase().contains(lowerQuery) ||
-          e.nameEn.toLowerCase().contains(lowerQuery);
+          e.nameEn.toLowerCase().contains(lowerQuery) ||
+          (e.nameZh?.contains(query) ?? false);
     }).toList();
   }
 
@@ -60,23 +63,49 @@ class ExerciseService {
     }
 
     try {
+      // 加载中文翻译
+      await _loadTranslations();
+      
+      // 加载动作数据
       final String jsonString = await rootBundle.loadString(_exerciseDbAsset);
       final List<dynamic> data = json.decode(jsonString) as List<dynamic>;
       
       _exercises = data
-          .map((json) => Exercise.fromJson(json as Map<String, dynamic>))
+          .map((json) {
+            final exerciseJson = json as Map<String, dynamic>;
+            // 应用中文翻译
+            final name = exerciseJson['name'] as String? ?? '';
+            final nameZh = _translations[name];
+            if (nameZh != null) {
+              exerciseJson['nameZh'] = nameZh;
+            }
+            return Exercise.fromJson(exerciseJson);
+          })
           .toList();
       
       _isLoaded = true;
       _error = null;
       
-      debugPrint('ExerciseService: Loaded ${_exercises.length} exercises from $_exerciseDbAsset');
+      debugPrint('ExerciseService: Loaded ${_exercises.length} exercises with ${_translations.length} translations');
     } catch (e, stackTrace) {
       _isLoaded = false;
       _error = e.toString();
       debugPrint('ExerciseService: Error loading exercises: $e');
       debugPrint('StackTrace: $stackTrace');
       rethrow;
+    }
+  }
+
+  /// 加载中文翻译
+  static Future<void> _loadTranslations() async {
+    try {
+      final String jsonString = await rootBundle.loadString(_translationsAsset);
+      final Map<String, dynamic> data = json.decode(jsonString) as Map<String, dynamic>;
+      _translations = data.map((key, value) => MapEntry(key, value as String));
+      debugPrint('ExerciseService: Loaded ${_translations.length} translations');
+    } catch (e) {
+      debugPrint('ExerciseService: No translations file found, using English names');
+      _translations = {};
     }
   }
 
@@ -101,6 +130,7 @@ class ExerciseService {
   /// 清除缓存（用于重新加载）
   static void clearCache() {
     _exercises = [];
+    _translations = {};
     _isLoaded = false;
     _error = null;
   }

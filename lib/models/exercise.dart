@@ -58,6 +58,7 @@ class Exercise {
   final String id;
   final String name;
   final String nameEn;
+  final String? nameZh;
   final PrimaryMuscleGroup primaryMuscle;
   final List<SecondaryMuscleGroup> secondaryMuscles;
   final String equipment;
@@ -70,6 +71,7 @@ class Exercise {
     required this.id,
     required this.name,
     required this.nameEn,
+    this.nameZh,
     required this.primaryMuscle,
     required this.secondaryMuscles,
     required this.equipment,
@@ -150,8 +152,9 @@ class Exercise {
 
     return Exercise(
       id: json['id'] as String? ?? '',
-      name: json['name'] as String? ?? '',
+      name: json['nameZh'] as String? ?? json['name'] as String? ?? '',
       nameEn: json['name'] as String? ?? '',
+      nameZh: json['nameZh'] as String?,
       primaryMuscle: primaryMuscle,
       secondaryMuscles: secondaryMuscles,
       equipment: equipment,
@@ -218,6 +221,7 @@ class Exercise {
       id: map['id'] as String,
       name: map['name'] as String,
       nameEn: map['name_en'] as String? ?? '',
+      nameZh: map['name_zh'] as String?,
       primaryMuscle: PrimaryMuscleGroupExtension.fromString(map['primary_muscle'] as String) ?? PrimaryMuscleGroup.chest,
       secondaryMuscles: secondaryMuscles,
       equipment: map['equipment'] as String? ?? '',
@@ -234,6 +238,7 @@ class Exercise {
       'id': id,
       'name': name,
       'name_en': nameEn,
+      'name_zh': nameZh,
       'primary_muscle': primaryMuscle.name,
       'secondary_muscles': jsonEncode(secondaryMuscles.map((e) => e.name).toList()),
       'equipment': equipment,
@@ -299,6 +304,7 @@ class Exercise {
     String? id,
     String? name,
     String? nameEn,
+    String? nameZh,
     PrimaryMuscleGroup? primaryMuscle,
     List<SecondaryMuscleGroup>? secondaryMuscles,
     String? equipment,
@@ -311,6 +317,7 @@ class Exercise {
       id: id ?? this.id,
       name: name ?? this.name,
       nameEn: nameEn ?? this.nameEn,
+      nameZh: nameZh ?? this.nameZh,
       primaryMuscle: primaryMuscle ?? this.primaryMuscle,
       secondaryMuscles: secondaryMuscles ?? this.secondaryMuscles,
       equipment: equipment ?? this.equipment,
