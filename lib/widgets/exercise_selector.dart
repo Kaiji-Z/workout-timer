@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'fullscreen_image_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -8,6 +9,7 @@ import '../theme/theme_provider.dart';
 import '../bloc/plan_provider.dart';
 import '../theme/app_theme.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+
 /// 动作选择器 - Flat Vitality 设计
 /// 
 /// 按肌肉部位筛选，支持多选，可查看详情
@@ -516,8 +518,8 @@ class _ExerciseListItem extends StatelessWidget {
   }
 }
 
-/// 动作详情弹窗
-class ExerciseDetailSheet extends StatelessWidget {
+/// 动作详情弹窗（支持图片轮播和动作指导）
+class ExerciseDetailSheet extends StatefulWidget {
   final Exercise exercise;
   final bool isSelected;
   final VoidCallback onToggle;
@@ -552,81 +554,230 @@ class ExerciseDetailSheet extends StatelessWidget {
   }
 
   @override
+  State<ExerciseDetailSheet> createState() => _ExerciseDetailSheetState();
+}
+
+class _ExerciseDetailSheetState extends State<ExerciseDetailSheet> with SingleTickerProviderStateMixin {
+  int _currentPage = 0;
+  Timer? _autoPlayTimer;
+  static const _autoPlayDuration = Duration(seconds: 3);
+  static const _fadeDuration = Duration(milliseconds: 500);
+
+  @override
+  void initState() {
+    super.initState();
+    _startAutoPlay();
+  }
+
+  void _startAutoPlay() {
+    _autoPlayTimer?.cancel();
+    _autoPlayTimer = Timer.periodic(_autoPlayDuration, (_) {
+      if (widget.exercise.images.isNotEmpty) {
+        setState(() {
+          _currentPage = (_currentPage + 1) % widget.exercise.images.length;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _autoPlayTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().currentTheme;
+    final hasImages = widget.exercise.images.isNotEmpty;
     
-    return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 拖动条
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
+    return DraggableScrollableSheet(
+      initialChildSize: 0.85,
+      minChildSize: 0.5,
+      maxChildSize: 0.95,
+      builder: (context, scrollController) {
+        return Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
           ),
-          const SizedBox(height: 24),
-          
-          // 动作名称
-          Text(
-            exercise.name,
-            style: TextStyle(
-              fontFamily: '.SF Pro Display',
-              fontSize: 24,
-              fontWeight: FontWeight.w700,
-              color: theme.textColor,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            exercise.nameEn,
-            style: TextStyle(
-              fontFamily: '.SF Pro Text',
-              fontSize: 14,
-              color: theme.secondaryTextColor,
-            ),
-          ),
-          const SizedBox(height: 16),
-          
-          // 标签
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
+          child: Column(
             children: [
-              _buildTag(exercise.primaryMuscle.displayName, Icons.fitness_center, theme),
-              _buildTag(exercise.equipmentDisplayName, Icons.sports_gymnastics, theme),
-              _buildTag(exercise.levelDisplayName, Icons.signal_cellular_alt, theme),
+              // 拖动条
+              Center(
+                child: Container(
+                  margin: const EdgeInsets.only(top: 12),
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              
+              // 内容区域
+              Expanded(
+                child: SingleChildScrollView(
+                  controller: scrollController,
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // 动作名称
+                      Text(
+                        widget.exercise.name,
+                        style: TextStyle(
+                          fontFamily: '.SF Pro Display',
+                          fontSize: 24,
+                          fontWeight: FontWeight.w700,
+                          color: theme.textColor,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        widget.exercise.nameEn,
+                        style: TextStyle(
+                          fontFamily: '.SF Pro Text',
+                          fontSize: 14,
+                          color: theme.secondaryTextColor,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      
+                      // 标签
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          _buildTag(widget.exercise.primaryMuscle.displayName, Icons.fitness_center, theme),
+                          _buildTag(widget.exercise.equipmentDisplayName, Icons.sports_gymnastics, theme),
+                          _buildTag(widget.exercise.levelDisplayName, Icons.signal_cellular_alt, theme),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      
+                      // 图片轮播
+                      if (hasImages)
+                        _buildImageCarousel(theme),
+                      
+                      // 动作指导
+                      if (widget.exercise.instructions.isNotEmpty) ...[
+                        const SizedBox(height: 24),
+                        _buildInstructions(theme),
+                      ],
+                      
+                      const SizedBox(height: 24),
+                      
+                      // 推荐配置
+                      _buildRecommendation(theme),
+                      
+                      const SizedBox(height: 24),
+                      
+                      // 次要肌肉部位
+                      if (widget.exercise.secondaryMuscles.isNotEmpty) ...[
+                        Text(
+                          '涉及部位',
+                          style: TextStyle(
+                            fontFamily: '.SF Pro Text',
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: theme.textColor,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: widget.exercise.secondaryMuscles.map((muscle) {
+                            return Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(color: theme.textColor.withValues(alpha: 0.1)),
+                              ),
+                              child: Text(
+                                muscle.displayName,
+                                style: TextStyle(
+                                  fontFamily: '.SF Pro Text',
+                                  fontSize: 13,
+                                  color: theme.textColor,
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                        const SizedBox(height: 24),
+                      ],
+                      
+                      // 操作按钮
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            widget.onToggle();
+                            Navigator.pop(context);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: widget.isSelected ? Colors.red : theme.accentColor,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            elevation: 0,
+                          ),
+                          child: Text(
+                            widget.isSelected ? '从计划中移除' : '添加到计划',
+                            style: const TextStyle(
+                              fontFamily: '.SF Pro Text',
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                  ),
+                ),
+              ),
             ],
           ),
-          const SizedBox(height: 24),
-          // 动作图片 - 点击查看大图
-          if (exercise.imageUrl != null)
-            GestureDetector(
-              onTap: () => FullscreenImageViewer.show(
-                context,
-                imageUrl: exercise.imageUrl!,
-                title: exercise.name,
-              ),
-              child: Hero(
-                tag: exercise.imageUrl!,
-                child: Center(
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
+        );
+      },
+    );
+  }
+
+  /// 图片轮播组件（交叉渐隐自动轮播）
+  Widget _buildImageCarousel(AppThemeData theme) {
+    final images = widget.exercise.images;
+    
+    return Column(
+      children: [
+        // 轮播图片 - 使用 AnimatedSwitcher 实现交叉渐隐
+        GestureDetector(
+          onTap: () => _showFullscreenImage(_currentPage),
+          child: SizedBox(
+            height: 200,
+            child: AnimatedSwitcher(
+              duration: _fadeDuration,
+              transitionBuilder: (child, animation) {
+                return FadeTransition(
+                  opacity: animation,
+                  child: child,
+                );
+              },
+              child: Container(
+                key: ValueKey<int>(_currentPage),
+                margin: const EdgeInsets.symmetric(horizontal: 4),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Hero(
+                    tag: 'exercise_image_$_currentPage',
                     child: CachedNetworkImage(
-                      imageUrl: exercise.imageUrl!,
-                      width: double.infinity,
-                      height: 180,
+                      imageUrl: images[_currentPage],
                       fit: BoxFit.cover,
                       placeholder: (context, url) => Container(
                         color: theme.accentColor.withValues(alpha: 0.1),
@@ -646,162 +797,174 @@ class ExerciseDetailSheet extends StatelessWidget {
                 ),
               ),
             ),
-          if (exercise.imageUrl != null)
-          // 简单的肌肉部位标签
-          if (exercise.secondaryMuscles.isNotEmpty) ...[
+          ),
+        ),
+        
+        const SizedBox(height: 12),
+        
+        // 页面指示器
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(images.length, (index) {
+            return GestureDetector(
+              onTap: () {
+                setState(() => _currentPage = index);
+              },
+              child: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 4),
+                width: _currentPage == index ? 24 : 8,
+                height: 8,
+                decoration: BoxDecoration(
+                  color: _currentPage == index 
+                      ? theme.accentColor 
+                      : theme.textColor.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+            );
+          }),
+        ),
+        
+        const SizedBox(height: 8),
+        
+        // 图片说明
+        Text(
+          '第 ${_currentPage + 1} 步 / 共 ${images.length} 步',
+          style: TextStyle(
+            fontFamily: '.SF Pro Text',
+            fontSize: 12,
+            color: theme.secondaryTextColor,
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// 动作指导组件
+  Widget _buildInstructions(AppThemeData theme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(Icons.list_alt, size: 20, color: theme.accentColor),
+            const SizedBox(width: 8),
             Text(
-              '涉及部位',
+              '动作指导',
               style: TextStyle(
                 fontFamily: '.SF Pro Text',
-                fontSize: 14,
+                fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: theme.textColor,
               ),
             ),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: exercise.secondaryMuscles.map((muscle) {
-                return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: theme.textColor.withValues(alpha: 0.1)),
-                  ),
-                  child: Text(
-                    muscle.displayName,
-                    style: TextStyle(
-                      fontFamily: '.SF Pro Text',
-                      fontSize: 13,
-                      color: theme.textColor,
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
           ],
-          const SizedBox(height: 24),
-          
-          // 推荐配置
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: theme.accentColor.withValues(alpha: 0.05),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Column(
+        ),
+        const SizedBox(height: 16),
+        ...widget.exercise.instructions.asMap().entries.map((entry) {
+          final index = entry.key;
+          final instruction = entry.value;
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  '推荐配置',
-                  style: TextStyle(
-                    fontFamily: '.SF Pro Text',
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: theme.textColor,
+                // 步骤编号
+                Container(
+                  width: 28,
+                  height: 28,
+                  decoration: BoxDecoration(
+                    color: theme.accentColor,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Center(
+                    child: Text(
+                      '${index + 1}',
+                      style: TextStyle(
+                        fontFamily: '.SF Pro Text',
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
                 ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildStatItem(
-                        '${exercise.recommendation.recommendedSets} 组',
-                        '推荐组数',
-                        Icons.repeat,
-                        theme,
+                const SizedBox(width: 12),
+                // 步骤内容
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: theme.accentColor.withValues(alpha: 0.05),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      instruction,
+                      style: TextStyle(
+                        fontFamily: '.SF Pro Text',
+                        fontSize: 14,
+                        height: 1.5,
+                        color: theme.textColor,
                       ),
                     ),
-                    Expanded(
-                      child: _buildStatItem(
-                        exercise.recommendation.repsRangeText,
-                        '次数范围',
-                        Icons.filter_list,
-                        theme,
-                      ),
-                    ),
-                    Expanded(
-                      child: _buildStatItem(
-                        exercise.recommendation.restText,
-                        '组间休息',
-                        Icons.timer,
-                        theme,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ],
             ),
+          );
+        }),
+      ],
+    );
+  }
+
+  /// 推荐配置组件
+  Widget _buildRecommendation(AppThemeData theme) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: theme.accentColor.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '推荐配置',
+            style: TextStyle(
+              fontFamily: '.SF Pro Text',
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: theme.textColor,
+            ),
           ),
-          const SizedBox(height: 24),
-          
-          // 次要肌肉部位
-          if (exercise.secondaryMuscles.isNotEmpty) ...[
-            Text(
-              '涉及部位',
-              style: TextStyle(
-                fontFamily: '.SF Pro Text',
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: theme.textColor,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: exercise.secondaryMuscles.map((muscle) {
-                return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: theme.textColor.withValues(alpha: 0.1)),
-                  ),
-                  child: Text(
-                    muscle.displayName,
-                    style: TextStyle(
-                      fontFamily: '.SF Pro Text',
-                      fontSize: 13,
-                      color: theme.textColor,
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: 24),
-          ],
-          
-          // 操作按钮
-          SafeArea(
-            child: SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  onToggle();
-                  Navigator.pop(context);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: isSelected ? Colors.red : theme.accentColor,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  elevation: 0,
-                ),
-                child: Text(
-                  isSelected ? '从计划中移除' : '添加到计划',
-                  style: const TextStyle(
-                    fontFamily: '.SF Pro Text',
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: _buildStatItem(
+                  '${widget.exercise.recommendation.recommendedSets} 组',
+                  '推荐组数',
+                  Icons.repeat,
+                  theme,
                 ),
               ),
-            ),
+              Expanded(
+                child: _buildStatItem(
+                  widget.exercise.recommendation.repsRangeText,
+                  '次数范围',
+                  Icons.filter_list,
+                  theme,
+                ),
+              ),
+              Expanded(
+                child: _buildStatItem(
+                  widget.exercise.recommendation.restText,
+                  '组间休息',
+                  Icons.timer,
+                  theme,
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -857,6 +1020,198 @@ class ExerciseDetailSheet extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  void _showFullscreenImage(int initialIndex) {
+    // 使用全屏查看器显示所有图片
+    showDialog(
+      context: context,
+      builder: (context) => _FullscreenImageGallery(
+        images: widget.exercise.images,
+        initialIndex: initialIndex,
+        title: widget.exercise.name,
+      ),
+    );
+  }
+}
+
+/// 全屏图片画廊查看器（自动轮播 + 交叉渐隐）
+class _FullscreenImageGallery extends StatefulWidget {
+  final List<String> images;
+  final int initialIndex;
+  final String title;
+
+  const _FullscreenImageGallery({
+    super.key,
+    required this.images,
+    required this.initialIndex,
+    required this.title,
+  });
+
+  @override
+  State<_FullscreenImageGallery> createState() => _FullscreenImageGalleryState();
+}
+
+class _FullscreenImageGalleryState extends State<_FullscreenImageGallery> with SingleTickerProviderStateMixin {
+  late int _currentIndex;
+  Timer? _autoPlayTimer;
+  static const _autoPlayDuration = Duration(seconds: 3);
+  static const _fadeDuration = Duration(milliseconds: 500);
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialIndex;
+    _startAutoPlay();
+  }
+
+  void _startAutoPlay() {
+    _autoPlayTimer?.cancel();
+    _autoPlayTimer = Timer.periodic(_autoPlayDuration, (_) {
+      if (widget.images.isNotEmpty) {
+        setState(() {
+          _currentIndex = (_currentIndex + 1) % widget.images.length;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _autoPlayTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.watch<ThemeProvider>().currentTheme;
+    
+    return Dialog(
+      backgroundColor: Colors.black,
+      insetPadding: EdgeInsets.zero,
+      child: Stack(
+        children: [
+          // 图片轮播 - 交叉渐隐
+          GestureDetector(
+            onTap: () => Navigator.pop(context),
+            child: Center(
+              child: AnimatedSwitcher(
+                duration: _fadeDuration,
+                transitionBuilder: (child, animation) {
+                  return FadeTransition(
+                    opacity: animation,
+                    child: child,
+                  );
+                },
+                child: InteractiveViewer(
+                  key: ValueKey<int>(_currentIndex),
+                  minScale: 0.5,
+                  maxScale: 3.0,
+                  child: Center(
+                    child: CachedNetworkImage(
+                      imageUrl: widget.images[_currentIndex],
+                      fit: BoxFit.contain,
+                      placeholder: (context, url) => Center(
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                        ),
+                      ),
+                      errorWidget: (context, url, error) => Center(
+                        child: Icon(Icons.broken_image, size: 64, color: Colors.white54),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          
+          // 顶部栏
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: SafeArea(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [Colors.black54, Colors.transparent],
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.close, color: Colors.white),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                    Expanded(
+                      child: Text(
+                        widget.title,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      '${_currentIndex + 1} / ${widget.images.length}',
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          
+          // 底部指示器
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: SafeArea(
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
+                    colors: [Colors.black54, Colors.transparent],
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(widget.images.length, (index) {
+                    return GestureDetector(
+                      onTap: () {
+                        setState(() => _currentIndex = index);
+                      },
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 4),
+                        width: _currentIndex == index ? 24 : 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          color: _currentIndex == index 
+                              ? Colors.white 
+                              : Colors.white38,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                    );
+                  }),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
