@@ -336,6 +336,11 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
     // 获取所有动作
     List<Exercise> exercises = planProvider.exercises;
     
+    // 按肌肉部位筛选
+    if (_filterMuscle != null) {
+      exercises = exercises.where((e) => e.primaryMuscle == _filterMuscle).toList();
+    }
+    
     // 按器械类型筛选
     if (_filterEquipment != null) {
       exercises = exercises.where((e) => e.equipment == _filterEquipment).toList();
@@ -699,7 +704,14 @@ class _ExerciseListItemState extends State<_ExerciseListItem>
           child: ListTile(
             leading: GestureDetector(
               onTap: () {
-                if (widget.exercise.imageUrl != null) {
+                // 如果有多张图片，使用轮播模式
+                if (widget.exercise.images.isNotEmpty) {
+                  FullscreenImageViewer.showCarousel(
+                    context,
+                    images: widget.exercise.images,
+                    title: widget.exercise.name,
+                  );
+                } else if (widget.exercise.imageUrl != null) {
                   FullscreenImageViewer.show(
                     context,
                     imageUrl: widget.exercise.imageUrl!,

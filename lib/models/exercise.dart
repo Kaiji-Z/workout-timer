@@ -65,6 +65,8 @@ class Exercise {
   final String level;
   final String? imageUrl;
   final String? muscleImageUrl;
+  final List<String> images; // 所有图片URL列表（支持轮播）
+  final List<String> instructions; // 动作指导步骤
   final ExerciseRecommendation recommendation;
 
   const Exercise({
@@ -78,8 +80,11 @@ class Exercise {
     required this.level,
     this.imageUrl,
     this.muscleImageUrl,
+    this.images = const [],
+    this.instructions = const [],
     required this.recommendation,
   });
+
 
   /// 从JSON解析（用于导入yuhonas/free-exercise-db数据）
   factory Exercise.fromJson(Map<String, dynamic> json) {
@@ -138,13 +143,28 @@ class Exercise {
         );
     }
 
-    // 解析图片URL
+    // 解析图片URL列表
     final imagesList = json['images'] as List<dynamic>?;
-    String? imageUrl;
+    final List<String> images = [];
     if (imagesList != null && imagesList.isNotEmpty) {
-      final imagePath = imagesList[0] as String;
-      imageUrl = 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/$imagePath';
+      for (String imagePath in imagesList) {
+        images.add('https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/$imagePath');
+      }
     }
+
+    // 解析动作指导
+    final instructionsList = json['instructions'] as List<dynamic>?;
+    final List<String> instructions = [];
+    if (instructionsList != null) {
+      for (var instruction in instructionsList) {
+        if (instruction is String) {
+          instructions.add(instruction);
+        }
+      }
+    }
+
+    // 第一张图片作为主图
+    final String? imageUrl = images.isNotEmpty ? images.first : null;
 
     // 解析器械名称
     final equipmentRaw = json['equipment'] as String?;
@@ -161,10 +181,11 @@ class Exercise {
       level: level,
       imageUrl: imageUrl,
       muscleImageUrl: json['muscleImageUrl'] as String?,
+      images: images,
+      instructions: instructions,
       recommendation: recommendation,
     );
   }
-
   /// 标准化器械名称
   static String _normalizeEquipment(String? equipment) {
     if (equipment == null) return 'body only';
