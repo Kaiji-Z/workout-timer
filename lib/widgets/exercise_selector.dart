@@ -425,35 +425,49 @@ class _ExerciseListItem extends StatelessWidget {
         ],
       ),
       child: ListTile(
-        leading: Container(
-          width: 44,
-          height: 44,
-          decoration: BoxDecoration(
-            color: isSelected ? theme.accentColor : theme.accentColor.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: exercise.imageUrl != null
-                ? CachedNetworkImage(
-                    imageUrl: exercise.imageUrl!,
-                    fit: BoxFit.cover,
-                    placeholder: (context, url) => Icon(
+        leading: GestureDetector(
+          onTap: () {
+            if (exercise.imageUrl != null) {
+              FullscreenImageViewer.show(
+                context,
+                imageUrl: exercise.imageUrl!,
+                title: exercise.name,
+              );
+            }
+          },
+          child: Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: isSelected ? theme.accentColor : theme.accentColor.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: exercise.imageUrl != null
+                  ? Hero(
+                      tag: exercise.imageUrl!,
+                      child: CachedNetworkImage(
+                        imageUrl: exercise.imageUrl!,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) => Icon(
+                          Icons.fitness_center,
+                          color: isSelected ? Colors.white : theme.accentColor,
+                          size: 22,
+                        ),
+                        errorWidget: (context, url, error) => Icon(
+                          Icons.fitness_center,
+                          color: isSelected ? Colors.white : theme.accentColor,
+                          size: 22,
+                        ),
+                      ),
+                    )
+                  : Icon(
                       Icons.fitness_center,
                       color: isSelected ? Colors.white : theme.accentColor,
                       size: 22,
                     ),
-                    errorWidget: (context, url, error) => Icon(
-                      Icons.fitness_center,
-                      color: isSelected ? Colors.white : theme.accentColor,
-                      size: 22,
-                    ),
-                  )
-                : Icon(
-                    Icons.fitness_center,
-                    color: isSelected ? Colors.white : theme.accentColor,
-                    size: 22,
-                  ),
+            ),
           ),
         ),
         title: Text(
