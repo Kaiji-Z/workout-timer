@@ -3,7 +3,7 @@
 
 import 'dart:convert';
 import 'dart:io';
-import '../lib/utils/exercise_translator.dart';
+import '../lib/utils/fitness_vocabulary.dart';
 
 void main() async {
   // 读取动作名称
