@@ -1,7 +1,6 @@
 # AGENTS.md - WorkoutTimer Flutter App
 
-**Generated:** 2026-03-01
-**Commit:** 788b8ae
+**Generated:** 2026-03-04
 **Branch:** feature/workout-plan
 
 ## OVERVIEW
@@ -11,125 +10,213 @@ Cross-platform Flutter workout rest timer with preset durations (30s/60s/90s/120
 **Architecture**: MVVM with Provider (ChangeNotifier), services layer, local SQLite.
 **Stack**: Flutter 3.10+ / Dart 3.10+ / sqflite / provider / flutter_local_notifications / uuid / intl / shared_preferences.
 
-**Design System**: "Flat Vitality" — warm gradients (amber/orange/green/pink/blue), deep indigo accent (#1A237E), white circular buttons, flat design. Custom fonts: .SF Pro Display/Text.
+**Design System**: "Flat Vitality" — warm gradients (amber/orange/green/pink/blue), deep indigo accent (#1A237E), white circular buttons, flat design. Custom fonts: .SF Pro Display/Text, Rajdhani, Orbitron.
 
 ## STRUCTURE
 
 ```
 lib/
-├── main.dart                 # Entry point, routing, MultiProvider setup
-├── bloc/                     # See lib/bloc/AGENTS.md (ChangeNotifier, NOT BLoC)
-├── models/                  # See lib/models/AGENTS.md
-├── screens/                  # See lib/screens/AGENTS.md
-├── widgets/                  # See lib/widgets/AGENTS.md
+├── main.dart                 # Entry point, MultiProvider setup, navigation
+├── bloc/                     # State providers (ChangeNotifier, NOT BLoC)
+│   ├── timer_provider.dart   # Timer countdown, sets counter
+│   ├── training_provider.dart # Training mode state machine
+│   ├── plan_provider.dart    # Workout plan CRUD
+│   ├── record_provider.dart  # History and stats
+│   └── training_progress_provider.dart # Real-time progress
+├── models/                   # Data models (WorkoutSession, etc.)
+├── screens/                  # UI screens (TimerScreen, PlanScreen, etc.)
+├── widgets/                  # Reusable UI components
 ├── theme/
-│   ├── app_theme.dart         # Flat Vitality theme system (5 themes)
-│   └── theme_provider.dart    # Theme state management
-├── animations/
-│   ├── list_animations.dart   # List animation widgets
-│   └── page_transitions.dart  # Page transition utilities
-├── utils/
-│   └── color_extension.dart   # Color utilities
-└── services/                 # See lib/services/AGENTS.md
+│   ├── app_theme.dart        # Flat Vitality theme system (5 themes)
+│   └── theme_provider.dart   # Theme state management
+├── animations/               # List animations, page transitions
+├── utils/                    # Color utilities
+├── data/                     # Static exercise data (JSON)
+└── services/                 # Database, notifications, repositories
 ```
-
-## WHERE TO LOOK
-
-| Task | Location | Notes |
-|------|----------|-------|
-| Timer countdown logic | `bloc/timer_provider.dart:86-97` | `_tick()` method, Timer.periodic |
-| Add new screen | `lib/screens/` + route in `main.dart` | Traditional MaterialApp.routes map |
-| Notification config | `services/notification_service.dart` | Android/iOS notifications, skipped on web |
-| Database schema | `services/database_helper.dart` | `_onCreate()` - sessions table |
-| Preset times | `bloc/timer_provider.dart:18` | `presetTimes = [30, 60, 90, 120]` |
-| Flat Vitality themes | `theme/app_theme.dart:212-358` | 5 themes: amberGold, coralOrange, mintGreen, rosePink, skyBlue |
-| Theme switching | `main.dart` | MultiProvider setup with ThemeProvider |
-| Stats calendar view | `screens/stats_screen.dart:1025-1169` | Week/month views with daily charts |
-| China mirror setup | `setup_mirrors.sh`, `android/build.gradle.kts` | Aliyun maven mirrors |
-
-## CONVENTIONS
-
-**Naming**: PascalCase classes, camelCase methods/vars, UPPER_SNAKE_CASE constants, `_` prefix for private.
-
-**Imports**: `dart:` → `package:flutter/` → third-party → relative. Use relative imports within package.
-
-**Null Safety**: Use `late` for lazy init, `final` for immutables, avoid `!` operator (use null checks).
-
-**State**: ChangeNotifier pattern. `context.read<T>()` for actions, `Consumer<T>` or `context.watch<T>()` for UI.
-
-**Design System**: Flat Vitality themes use `AppThemeType` enum with 5 preset themes. Deep indigo (#1A237E) for progress rings/accents, warm gradients for backgrounds.
-
-**Testing**: Widget tests use `pump(Duration(seconds: 1))` instead of `pumpAndSettle()` for continuous animations. Integration tests use proper `IntegrationTestWidgetsFlutterBinding.ensureInitialized()`.
-
-**Error Handling**: Try-catch with `debugPrint` logging + rethrow. NEVER empty catch blocks.
-
-## ANTI-PATTERNS (THIS PROJECT)
-
-| Pattern | Location | Why Bad | Instead |
-|---------|----------|---------|--------|
-| Empty catch blocks | `history_screen.dart:55-75` | Silent failures | Log + rethrow |
-| `!` operator | `history_screen.dart:155,189` | Runtime crashes | Null check `if (x != null)` |
-| `bloc/` directory naming | `lib/bloc/` | Misleading - contains Provider | Rename to `providers/` |
-| Service in Provider | `timer_provider.dart:8-9` | Testing harder | Provider injection |
-| Silent failure | `plan_provider.dart:67-69` | Catch with only debugPrint | Add rethrow
 
 ## COMMANDS
 
+### Install & Run
 ```bash
-# Install (China mirrors)
+# Install dependencies (China mirrors recommended)
 export PUB_HOSTED_URL=https://pub.flutter-io.cn
 export FLUTTER_STORAGE_BASE_URL=https://storage.flutter-io.cn
 flutter pub get
 
-# Run
+# Run on device/emulator
 flutter run
-
-# Build
-flutter build apk --debug
-flutter build apk --release
-
-# Test
-flutter test
-flutter test integration_test/
-
-# Analyze
-flutter analyze
-dart format lib/ test/
-dart fix --apply
+flutter run -d chrome     # Web
+flutter run -d windows    # Desktop
 ```
 
-## SPECIFIC RULES
+### Build
+```bash
+flutter build apk --debug
+flutter build apk --release
+flutter build web
+flutter build ios
+```
 
-### Timer Logic
-- Use `Timer.periodic` for countdown in `TimerProvider._tick()`
-- Cancel timers in `dispose()`
-- Handle app background/foreground transitions
-- Android foreground service via MethodChannel (`TimerService`)
+### Test
+```bash
+# Run all unit tests
+flutter test
 
-### Database
-- Max 1000 history records (auto-cleanup in `WorkoutRepository`)
-- Use transactions for multi-step ops
-- In-memory DB fallback for web (`kIsWeb` check in `DatabaseHelper`)
+# Run single test file
+flutter test test/widget_test.dart
 
-### Notifications
-- Request permissions on first launch
-- Check vibration capability before use
-- Skipped on web platform
+# Run specific test by name
+flutter test --name "TrainingWidget shows training screen"
 
-### UI - Flat Vitality Design System
-- 5 preset themes: amberGold (default), coralOrange, mintGreen, rosePink, skyBlue
-- Deep indigo accent (#1A237E or #0D47A1) for progress rings, icons, active states
-- Warm gradient backgrounds (primaryColor → secondaryColor)
-- White circular buttons with shadow, flat design (no glow/glass effects)
-- 10px stroke width for progress rings
+# Run with verbose output
+flutter test --reporter expanded
+
+# Run integration tests
+flutter test integration_test/
+flutter test integration_test/app_test.dart
+```
+
+### Analyze & Format
+```bash
+# Static analysis
+flutter analyze
+flutter analyze lib/bloc/timer_provider.dart  # Single file
+
+# Format code
+dart format lib/ test/
+dart format --set-exit-if-changed lib/  # CI check
+
+# Auto-fix issues
+dart fix --apply
+dart fix --dry-run  # Preview changes
+```
+
+### Clean & Reset
+```bash
+flutter clean
+flutter pub get
+rm -rf build/ .dart_tool/
+```
+
+## CODE STYLE
+
+### Naming Conventions
+- **Classes**: PascalCase (`TimerProvider`, `WorkoutSession`)
+- **Methods/Variables**: camelCase (`startTimer`, `remainingSeconds`)
+- **Constants**: UPPER_SNAKE_CASE (`MAX_HISTORY_RECORDS`)
+- **Private members**: Prefix with `_` (`_timer`, `_tick()`)
+- **Files**: snake_case (`timer_provider.dart`)
+
+### Import Order
+```dart
+import 'dart:async';           // 1. Dart SDK
+import 'package:flutter/foundation.dart';  // 2. Flutter SDK
+import 'package:provider/provider.dart';   // 3. Third-party packages
+import '../services/notification_service.dart';  // 4. Relative imports
+```
+
+### Null Safety
+- Use `late` for lazy initialization of non-nullable fields
+- Use `final` for immutable values
+- Prefer null checks over `!` operator:
+  ```dart
+  // GOOD
+  if (session != null) {
+    await _repository.saveSession(session);
+  }
+  // BAD - can crash at runtime
+  await _repository.saveSession(session!);
+  ```
+
+### State Management
+- All providers extend `ChangeNotifier`
+- Use `context.read<T>()` for actions (doesn't rebuild)
+- Use `context.watch<T>()` or `Consumer<T>` for UI (rebuilds on change)
+- Cancel timers and dispose resources in `dispose()`:
+  ```dart
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+  ```
+
+### Error Handling
+- ALWAYS use try-catch with logging and rethrow:
+  ```dart
+  // GOOD
+  try {
+    await _repository.saveSession(sets, time);
+  } catch (e) {
+    debugPrint('Error saving session: $e');
+    rethrow;  // Don't swallow errors
+  }
+  // BAD - silent failure
+  try { ... } catch (e) { debugPrint('$e'); }
+  // BAD - empty catch
+  try { ... } catch (e) {}  // NEVER do this
+  ```
+
+### Testing Patterns
+- Widget tests: Use `pump(Duration(seconds: 1))` instead of `pumpAndSettle()` for continuous animations
+- Integration tests: Must call `IntegrationTestWidgetsFlutterBinding.ensureInitialized()`
+- Always wrap test widgets in required providers:
+  ```dart
+  await tester.pumpWidget(MultiProvider(
+    providers: [ChangeNotifierProvider(create: (_) => TimerProvider())],
+    child: const MaterialApp(home: TimerScreen()),
+  ));
+  ```
+
+## DESIGN SYSTEM - Flat Vitality
+
+### Theme Colors
+- **5 themes**: amberGold (default), coralOrange, mintGreen, rosePink, skyBlue
+- **Accent**: Deep indigo (#1A237E or #0D47A1) for progress rings, icons, active states
+- **Backgrounds**: Warm gradient (primaryColor → secondaryColor)
+- **Buttons**: White circular with shadow, flat design (no glow/glass effects)
+- **Progress rings**: 10px stroke width
+
+### UI Rules
 - Material 3 design with `.SF Pro Display/Text` fonts
-- `ThemeProvider` for theme switching with `shared_preferences` persistence
+- `ThemeProvider` persists theme choice via `shared_preferences`
+- Use `kIsWeb` guard for platform-specific features (notifications, foreground service)
 
-## NOTES
+## WHERE TO LOOK
 
+| Task | Location |
+|------|----------|
+| Timer countdown logic | `bloc/timer_provider.dart:86-97` (`_tick()`) |
+| Preset times | `bloc/timer_provider.dart:18` (`[30, 60, 90, 120]`) |
+| Add new screen | `lib/screens/` + navigation in `main.dart` |
+| Notification config | `services/notification_service.dart` |
+| Database schema | `services/database_helper.dart` (`_onCreate()`) |
+| Theme definitions | `theme/app_theme.dart:212-358` |
+| Stats calendar | `screens/stats_screen.dart:1025-1169` |
+| China mirrors | `setup_mirrors.sh`, `android/build.gradle.kts` |
+
+## ANTI-PATTERNS (TO AVOID)
+
+| Pattern | Why Bad | Instead |
+|---------|---------|--------|
+| Empty catch blocks | Silent failures | Log + rethrow |
+| `!` operator | Runtime crashes | Null check `if (x != null)` |
+| Service in Provider | Testing harder | Constructor injection |
+| `as any`, `@ts-ignore` | Type unsafety | Proper type handling |
+
+## KNOWN ISSUES
+
+- **bloc/ naming**: Directory named `bloc/` but uses Provider (ChangeNotifier), not BLoC
 - **No CI/CD**: Project lacks `.github/workflows` — manual testing required
-- **Design system evolution**: Originally "Neon Tempus" (cyan/purple/pink), now "Flat Vitality" (warm gradients + deep indigo)
-- **bloc/ naming**: Directory misnamed — contains Provider (ChangeNotifier), not BLoC
-- **Service instantiation**: Services created inside `TimerProvider`, not injected via Provider
-- **Package naming**: Two MainActivity.kt files with different package names (inconsistent)
-- **Web support**: Database and notifications have web fallbacks (`kIsWeb` checks)
+- **No dependency injection**: Services instantiated inside providers
+- **Package naming inconsistency**: Two MainActivity.kt files with different package names
+
+## CONFIGURATION FILES
+
+| File | Purpose |
+|------|----------|
+| `pubspec.yaml` | Dependencies, assets, fonts |
+| `analysis_options.yaml` | Linting rules (flutter_lints) |
+| `setup_mirrors.sh` | China mirror configuration script |
+| `android/build.gradle.kts` | Aliyun maven mirrors for Android |
