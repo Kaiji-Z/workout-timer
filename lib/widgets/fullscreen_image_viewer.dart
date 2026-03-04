@@ -11,6 +11,7 @@ class FullscreenImageViewer extends StatefulWidget {
   final List<String>? images; // 多图模式
   final int initialIndex; // 多图模式初始索引
   final String? title;
+  final String? heroTag; // Hero 标签（用于从缩略图过渡）
 
   const FullscreenImageViewer({
     super.key,
@@ -18,6 +19,7 @@ class FullscreenImageViewer extends StatefulWidget {
     this.images,
     this.initialIndex = 0,
     this.title,
+    this.heroTag,
   });
 
   /// 显示全屏单图
@@ -49,11 +51,13 @@ class FullscreenImageViewer extends StatefulWidget {
   }
 
   /// 显示全屏多图轮播（自动播放，交叉渐隐）
+  /// [heroTag] 可选的 Hero 标签，用于从缩略图过渡
   static Future<void> showCarousel(
     BuildContext context, {
     required List<String> images,
     int initialIndex = 0,
     String? title,
+    String? heroTag,
   }) {
     return Navigator.push(
       context,
@@ -68,6 +72,7 @@ class FullscreenImageViewer extends StatefulWidget {
           images: images,
           initialIndex: initialIndex,
           title: title,
+          heroTag: heroTag,
         ),
         transitionsBuilder: (context, animation, _, child) {
           return FadeTransition(
@@ -274,17 +279,20 @@ class _FullscreenImageViewerState extends State<FullscreenImageViewer>
                   key: ValueKey<int>(_currentIndex),
                   minScale: 0.5,
                   maxScale: 3.0,
-                  child: Center(
-                    child: CachedNetworkImage(
-                      imageUrl: images[_currentIndex],
-                      fit: BoxFit.contain,
-                      placeholder: (context, url) => const Center(
-                        child: CircularProgressIndicator(
-                          color: Colors.white,
+                  child: Hero(
+                    tag: widget.heroTag ?? 'carousel_${images[_currentIndex]}',
+                    child: Center(
+                      child: CachedNetworkImage(
+                        imageUrl: images[_currentIndex],
+                        fit: BoxFit.contain,
+                        placeholder: (context, url) => const Center(
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                          ),
                         ),
-                      ),
-                      errorWidget: (context, url, error) => Center(
-                        child: Icon(Icons.broken_image, size: 64, color: Colors.white54),
+                        errorWidget: (context, url, error) => Center(
+                          child: Icon(Icons.broken_image, size: 64, color: Colors.white54),
+                        ),
                       ),
                     ),
                   ),

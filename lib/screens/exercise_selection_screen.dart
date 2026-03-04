@@ -710,6 +710,7 @@ class _ExerciseListItemState extends State<_ExerciseListItem>
                     context,
                     images: widget.exercise.images,
                     title: widget.exercise.name,
+                    heroTag: widget.exercise.imageUrl, // 传递 Hero 标签
                   );
                 } else if (widget.exercise.imageUrl != null) {
                   FullscreenImageViewer.show(
