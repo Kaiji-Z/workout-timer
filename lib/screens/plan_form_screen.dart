@@ -7,8 +7,8 @@ import '../models/workout_plan.dart';
 import '../models/muscle_group.dart';
 
 import '../widgets/muscle_selector.dart';
-import '../widgets/exercise_selector.dart';
 import '../theme/app_theme.dart';
+import 'exercise_selection_screen.dart';
 
 /// 创建/编辑计划页面 - 3步流程
 /// 
@@ -246,38 +246,10 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
     );
   }
 
-  Widget _buildQuickButton(String label, List<PrimaryMuscleGroup> muscles, AppThemeData theme) {
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedMuscles = muscles;
-        });
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        decoration: BoxDecoration(
-          color: theme.accentColor.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: theme.accentColor.withValues(alpha: 0.3),
-          ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontFamily: '.SF Pro Text',
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-            color: theme.accentColor,
-          ),
-        ),
-      ),
-    );
-  }
 
   // ==================== 第2步：选择动作 ====================
   Widget _buildStep2(AppThemeData theme) {
-    return Padding(
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -300,21 +272,244 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
               color: theme.secondaryTextColor,
             ),
           ),
-          const SizedBox(height: 16),
-          Expanded(
-            child: ExerciseSelector(
-              selectedMuscles: _selectedMuscles,
-              selectedExercises: _selectedExercises,
-              onSelectionChanged: (exercises) {
-                setState(() {
-                  _selectedExercises = exercises;
-                });
-              },
-            ),
+          const SizedBox(height: 24),
+          
+          // 已选动作摘要卡片
+          if (_selectedExercises.isNotEmpty) ...[
+            _buildSelectedSummaryCard(theme),
+            const SizedBox(height: 16),
+          ],
+          
+          // 选择动作入口按钮
+          _buildSelectExerciseButton(theme),
+          const SizedBox(height: 32),
+          
+          // 快速推荐（可选）
+          _buildQuickRecommendations(theme),
+        ],
+      ),
+    );
+  }
+  
+  /// 已选动作摘要卡片
+  Widget _buildSelectedSummaryCard(AppThemeData theme) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                '已选动作',
+                style: TextStyle(
+                  fontFamily: '.SF Pro Text',
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: theme.textColor,
+                ),
+              ),
+              TextButton(
+                onPressed: () => setState(() => _selectedExercises.clear()),
+                child: Text(
+                  '清空',
+                  style: TextStyle(
+                    fontFamily: '.SF Pro Text',
+                    color: theme.accentColor,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: _selectedExercises.map((exercise) {
+              return Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: theme.accentColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      exercise.name,
+                      style: TextStyle(
+                        fontFamily: '.SF Pro Text',
+                        fontSize: 13,
+                        color: theme.textColor,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      '(${exercise.targetSets}组)',
+                      style: TextStyle(
+                        fontFamily: '.SF Pro Text',
+                        fontSize: 12,
+                        color: theme.secondaryTextColor,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
           ),
         ],
       ),
     );
+  }
+  
+  /// 选择动作入口按钮
+  Widget _buildSelectExerciseButton(AppThemeData theme) {
+    return GestureDetector(
+      onTap: _openExerciseSelection,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: theme.accentColor.withValues(alpha: 0.3),
+            width: 2,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Icon(
+              Icons.add_circle_outline,
+              size: 40,
+              color: theme.accentColor,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              _selectedExercises.isEmpty 
+                  ? '选择训练动作' 
+                  : '继续添加动作',
+              style: TextStyle(
+                fontFamily: '.SF Pro Text',
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: theme.accentColor,
+              ),
+            ),
+            if (_selectedExercises.isNotEmpty) ...[
+              const SizedBox(height: 4),
+              Text(
+                '已选 ${_selectedExercises.length} 个动作',
+                style: TextStyle(
+                  fontFamily: '.SF Pro Text',
+                  fontSize: 13,
+                  color: theme.secondaryTextColor,
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+  
+  /// 快速推荐
+  Widget _buildQuickRecommendations(AppThemeData theme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '或从推荐计划开始',
+          style: TextStyle(
+            fontFamily: '.SF Pro Text',
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: theme.textColor,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            _buildQuickButton('上肢推', [PrimaryMuscleGroup.chest, PrimaryMuscleGroup.shoulders, PrimaryMuscleGroup.arms], theme),
+            _buildQuickButton('上肢拉', [PrimaryMuscleGroup.back, PrimaryMuscleGroup.arms], theme),
+            _buildQuickButton('下肢', [PrimaryMuscleGroup.legs, PrimaryMuscleGroup.core], theme),
+            _buildQuickButton('全身', PrimaryMuscleGroup.values.toList(), theme),
+          ],
+        ),
+      ],
+    );
+  }
+  
+  Widget _buildQuickButton(String label, List<PrimaryMuscleGroup> muscles, AppThemeData theme) {
+    final isSelected = _selectedMuscles.length == muscles.length && 
+        _selectedMuscles.every((m) => muscles.contains(m));
+    
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedMuscles = muscles;
+        });
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: isSelected 
+              ? theme.accentColor 
+              : theme.accentColor.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected 
+                ? theme.accentColor 
+                : theme.accentColor.withValues(alpha: 0.3),
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontFamily: '.SF Pro Text',
+            fontSize: 14,
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+            color: isSelected ? Colors.white : theme.accentColor,
+          ),
+        ),
+      ),
+    );
+  }
+  
+  /// 打开动作选择页面
+  Future<void> _openExerciseSelection() async {
+    final result = await ExerciseSelectionScreen.show(
+      context,
+      selectedMuscles: _selectedMuscles,
+      initialExercises: _selectedExercises,
+    );
+    
+    if (result != null && mounted) {
+      setState(() {
+        _selectedExercises = result;
+      });
+    }
   }
 
   // ==================== 第3步：确认计划 ====================
