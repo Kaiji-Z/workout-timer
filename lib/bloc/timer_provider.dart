@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/widgets.dart';
 import 'package:flutter/foundation.dart';
 import '../services/notification_service.dart';
 import '../services/timer_service.dart';
@@ -14,6 +15,7 @@ class TimerProvider extends ChangeNotifier {
   int _totalSets = 0;
   int _currentSessionRestTime = 0;
   int _selectedPresetIndex = 1;
+  DateTime? _sessionStartTime;  // For accurate time tracking in background
 
   final List<int> presetTimes = [30, 60, 90, 120];
 
@@ -34,6 +36,7 @@ class TimerProvider extends ChangeNotifier {
   void startTimer() {
     if (_isRunning) return;
     _isRunning = true;
+    _sessionStartTime = DateTime.now();  // Record start time for accurate tracking
     _timer = Timer.periodic(const Duration(seconds: 1), _tick);
 
     if (!kIsWeb) {
@@ -66,6 +69,15 @@ class TimerProvider extends ChangeNotifier {
     _remainingSeconds = _initialSeconds;
     _totalSets = 0;
     notifyListeners();
+  }
+
+  /// 刷新会话时长（从后台恢复时调用）
+  void refreshDuration() {
+    if (_isRunning && _sessionStartTime != null) {
+      // Recalculate rest time from DateTime for accuracy
+      _currentSessionRestTime = DateTime.now().difference(_sessionStartTime!).inSeconds;
+      notifyListeners();
+    }
   }
 
   void finishWorkout() async {
