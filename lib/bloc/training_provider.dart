@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/widgets.dart';
 import 'package:flutter/foundation.dart';
 import '../services/notification_service.dart';
 import '../services/timer_service.dart';
@@ -32,6 +33,8 @@ class TrainingProvider extends ChangeNotifier {
   Stopwatch? _stopwatch;
   Stopwatch? _sessionStopwatch;  // Runs continuously from start to end
   int _sessionDuration = 0;   // Total session duration in seconds
+  DateTime? _sessionStartTime;  // When session started (for accurate time tracking)
+  DateTime? _pauseStartTime;   // When session was paused (to exclude paused time)
 
   // Getters
   TrainingState get state => _state;
@@ -96,6 +99,8 @@ class TrainingProvider extends ChangeNotifier {
 
     // Start session stopwatch (runs continuously)
     _sessionStopwatch = Stopwatch()..start();
+    _sessionStartTime = DateTime.now();  // Record actual start time for accurate tracking
+    _pauseStartTime = null;
     _startSessionTimer();
     
     // Start exercise stopwatch
@@ -147,6 +152,7 @@ class TrainingProvider extends ChangeNotifier {
     _sessionTimer = null;
     // Fix: Also stop session stopwatch to prevent time accumulation during pause
     _sessionStopwatch?.stop();
+    _pauseStartTime = DateTime.now();  // Record pause time to exclude from duration
 
     if (!kIsWeb) {
       TimerService.stopService();
@@ -162,6 +168,7 @@ class TrainingProvider extends ChangeNotifier {
     _state = TrainingState.exercising;
     _isPaused = false;
     // Fix: Resume session stopwatch too, not just exercise stopwatch
+    _pauseStartTime = null;  // Clear pause time
     _sessionStopwatch?.start();
     _stopwatch = Stopwatch()..start();
     _startExerciseTimer();
@@ -228,6 +235,10 @@ class TrainingProvider extends ChangeNotifier {
     
     // Stop session stopwatch
     _sessionStopwatch?.stop();
+    // Calculate final duration using DateTime for accuracy (works after background)
+    if (_sessionStartTime != null) {
+      _sessionDuration = DateTime.now().difference(_sessionStartTime!).inSeconds;
+    }
     _sessionTimer?.cancel();
     _sessionTimer = null;
 
@@ -279,6 +290,14 @@ class TrainingProvider extends ChangeNotifier {
     };
   }
 
+  /// 刷新会话时长（从后台恢复时调用）
+  void refreshDuration() {
+    if (_sessionStartTime != null && _pauseStartTime == null) {
+      _sessionDuration = DateTime.now().difference(_sessionStartTime!).inSeconds;
+      notifyListeners();
+    }
+  }
+
   // Private methods
 
   void _startExerciseTimer() {
@@ -292,9 +311,11 @@ class TrainingProvider extends ChangeNotifier {
   }
 
   void _startSessionTimer() {
-    _sessionTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (_sessionStopwatch != null) {
-        _sessionDuration = _sessionStopwatch!.elapsed.inSeconds;
+    _sessionTimer = Timer.periodic(const Duration(milliseconds: 500), (timer) {
+      // Calculate duration from DateTime for accuracy (works in background)
+      if (_sessionStartTime != null && _pauseStartTime == null) {
+        _sessionDuration = DateTime.now().difference(_sessionStartTime!).inSeconds;
+        _updateServiceNotification();
         notifyListeners();
       }
     });
