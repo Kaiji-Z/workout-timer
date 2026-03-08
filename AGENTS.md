@@ -1,107 +1,80 @@
 # AGENTS.md - WorkoutTimer Flutter App
 
-**Generated:** 2026-03-04
-**Branch:** feature/workout-plan
+**Updated:** 2026-03-08
+**Branch:** master
 
 ## OVERVIEW
 
 Cross-platform Flutter workout rest timer with preset durations (30s/60s/90s/120s), multi-channel notifications, and SQLite-backed workout history. Supports Android, iOS, Web, and Desktop.
 
 **Architecture**: MVVM with Provider (ChangeNotifier), services layer, local SQLite.
-**Stack**: Flutter 3.10+ / Dart 3.10+ / sqflite / provider / flutter_local_notifications / uuid / intl / shared_preferences.
+**Stack**: Flutter 3.10+ / Dart 3.10+ / sqflite / provider / flutter_local_notifications / uuid / intl.
 
-**Design System**: "Flat Vitality" — warm gradients (amber/orange/green/pink/blue), deep indigo accent (#1A237E), white circular buttons, flat design. Custom fonts: .SF Pro Display/Text, Rajdhani, Orbitron.
-
-## STRUCTURE
-
-```
-lib/
-├── main.dart                 # Entry point, MultiProvider setup, navigation
-├── bloc/                     # State providers (ChangeNotifier, NOT BLoC)
-│   ├── timer_provider.dart   # Timer countdown, sets counter
-│   ├── training_provider.dart # Training mode state machine
-│   ├── plan_provider.dart    # Workout plan CRUD
-│   ├── record_provider.dart  # History and stats
-│   └── training_progress_provider.dart # Real-time progress
-├── models/                   # Data models (WorkoutSession, etc.)
-├── screens/                  # UI screens (TimerScreen, PlanScreen, etc.)
-├── widgets/                  # Reusable UI components
-├── theme/
-│   ├── app_theme.dart        # Flat Vitality theme system (5 themes)
-│   └── theme_provider.dart   # Theme state management
-├── animations/               # List animations, page transitions
-├── utils/                    # Color utilities
-├── data/                     # Static exercise data (JSON)
-└── services/                 # Database, notifications, repositories
-```
+**Design System**: "Flat Vitality" — warm gradients, deep indigo accent (#1A237E), white circular buttons. Fonts: Rajdhani, Orbitron.
 
 ## COMMANDS
 
 ### Install & Run
 ```bash
-# Install dependencies (China mirrors recommended)
-export PUB_HOSTED_URL=https://pub.flutter-io.cn
-export FLUTTER_STORAGE_BASE_URL=https://storage.flutter-io.cn
-flutter pub get
-
-# Run on device/emulator
-flutter run
-flutter run -d chrome     # Web
-flutter run -d windows    # Desktop
+flutter pub get                    # Install dependencies
+flutter run                        # Run on device/emulator
+flutter run -d chrome              # Web
+flutter run -d windows             # Desktop
 ```
 
 ### Build
 ```bash
-flutter build apk --debug
-flutter build apk --release
-flutter build web
-flutter build ios
+flutter build apk --debug          # Debug APK
+./build_release.sh                 # Release APK (with --no-tree-shake-icons)
+flutter build web                  # Web build
 ```
+
+> **IMPORTANT**: Always use `--no-tree-shake-icons` for release builds to prevent Material Icons from displaying as garbled text.
 
 ### Test
 ```bash
-# Run all unit tests
-flutter test
-
-# Run single test file
-flutter test test/widget_test.dart
-
-# Run specific test by name
-flutter test --name "TrainingWidget shows training screen"
-
-# Run with verbose output
-flutter test --reporter expanded
-
-# Run integration tests
-flutter test integration_test/
-flutter test integration_test/app_test.dart
+flutter test                       # Run all unit tests
+flutter test test/widget_test.dart # Run single test file
+flutter test --name "testName"     # Run specific test by name
+flutter test --reporter expanded   # Verbose output
+flutter test integration_test/     # Integration tests
 ```
 
 ### Analyze & Format
 ```bash
-# Static analysis
-flutter analyze
-flutter analyze lib/bloc/timer_provider.dart  # Single file
-
-# Format code
-dart format lib/ test/
-dart format --set-exit-if-changed lib/  # CI check
-
-# Auto-fix issues
-dart fix --apply
-dart fix --dry-run  # Preview changes
+flutter analyze                    # Static analysis
+flutter analyze lib/bloc/          # Analyze specific directory
+dart format lib/ test/             # Format code
+dart fix --apply                   # Auto-fix issues
 ```
 
-### Clean & Reset
+### Clean
 ```bash
-flutter clean
-flutter pub get
-rm -rf build/ .dart_tool/
+flutter clean && flutter pub get
+```
+
+## STRUCTURE
+
+```
+lib/
+├── main.dart                 # Entry point, MultiProvider, navigation
+├── bloc/                     # State providers (ChangeNotifier, NOT BLoC)
+│   ├── timer_provider.dart   # Timer countdown, sets counter
+│   ├── training_provider.dart # Training mode state machine
+│   ├── plan_provider.dart    # Workout plan CRUD
+│   └── record_provider.dart  # History and stats
+├── models/                   # Data models with fromMap/toMap
+├── screens/                  # UI screens
+├── widgets/                  # Reusable UI components
+├── theme/                    # Flat Vitality theme (5 themes)
+├── services/                 # Database, notifications, repositories
+├── utils/                    # Color utilities, vocabulary
+└── data/                     # Static exercise data (JSON)
 ```
 
 ## CODE STYLE
 
-### Naming Conventions
+### Naming
 - **Classes**: PascalCase (`TimerProvider`, `WorkoutSession`)
 - **Methods/Variables**: camelCase (`startTimer`, `remainingSeconds`)
 - **Constants**: UPPER_SNAKE_CASE (`MAX_HISTORY_RECORDS`)
@@ -110,113 +83,114 @@ rm -rf build/ .dart_tool/
 
 ### Import Order
 ```dart
-import 'dart:async';           // 1. Dart SDK
-import 'package:flutter/foundation.dart';  // 2. Flutter SDK
-import 'package:provider/provider.dart';   // 3. Third-party packages
+import 'dart:async';                        // 1. Dart SDK
+import 'package:flutter/foundation.dart';   // 2. Flutter SDK
+import 'package:provider/provider.dart';    // 3. Third-party packages
 import '../services/notification_service.dart';  // 4. Relative imports
 ```
 
 ### Null Safety
-- Use `late` for lazy initialization of non-nullable fields
-- Use `final` for immutable values
-- Prefer null checks over `!` operator:
-  ```dart
-  // GOOD
-  if (session != null) {
-    await _repository.saveSession(session);
-  }
-  // BAD - can crash at runtime
-  await _repository.saveSession(session!);
-  ```
+```dart
+// GOOD - null check
+if (session != null) {
+  await _repository.saveSession(session);
+}
+
+// BAD - can crash at runtime
+await _repository.saveSession(session!);
+```
 
 ### State Management
 - All providers extend `ChangeNotifier`
-- Use `context.read<T>()` for actions (doesn't rebuild)
-- Use `context.watch<T>()` or `Consumer<T>` for UI (rebuilds on change)
-- Cancel timers and dispose resources in `dispose()`:
-  ```dart
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
-  }
-  ```
+- Use `context.read<T>()` for actions (no rebuild)
+- Use `context.watch<T>()` or `Consumer<T>` for UI (rebuilds)
+- Always cancel timers in `dispose()`:
+```dart
+@override
+void dispose() {
+  _timer?.cancel();
+  super.dispose();
+}
+```
 
 ### Error Handling
-- ALWAYS use try-catch with logging and rethrow:
-  ```dart
-  // GOOD
-  try {
-    await _repository.saveSession(sets, time);
-  } catch (e) {
-    debugPrint('Error saving session: $e');
-    rethrow;  // Don't swallow errors
-  }
-  // BAD - silent failure
-  try { ... } catch (e) { debugPrint('$e'); }
-  // BAD - empty catch
-  try { ... } catch (e) {}  // NEVER do this
-  ```
+```dart
+// GOOD - log and rethrow
+try {
+  await _repository.saveSession(sets, time);
+} catch (e) {
+  debugPrint('Error saving session: $e');
+  rethrow;
+}
 
-### Testing Patterns
-- Widget tests: Use `pump(Duration(seconds: 1))` instead of `pumpAndSettle()` for continuous animations
-- Integration tests: Must call `IntegrationTestWidgetsFlutterBinding.ensureInitialized()`
-- Always wrap test widgets in required providers:
-  ```dart
-  await tester.pumpWidget(MultiProvider(
-    providers: [ChangeNotifierProvider(create: (_) => TimerProvider())],
-    child: const MaterialApp(home: TimerScreen()),
-  ));
-  ```
+// BAD - silent failure
+try { ... } catch (e) { debugPrint('$e'); }
+// NEVER - empty catch
+try { ... } catch (e) {}
+```
 
-## DESIGN SYSTEM - Flat Vitality
+### Testing
+```dart
+// Widget test pattern
+await tester.pumpWidget(MultiProvider(
+  providers: [
+    ChangeNotifierProvider(create: (_) => TimerProvider()),
+    ChangeNotifierProvider.value(value: trainingProvider),
+  ],
+  child: const MaterialApp(home: TrainingWidget()),
+));
+await tester.pump(const Duration(seconds: 1));  // For animations
+```
 
-### Theme Colors
-- **5 themes**: amberGold (default), coralOrange, mintGreen, rosePink, skyBlue
-- **Accent**: Deep indigo (#1A237E or #0D47A1) for progress rings, icons, active states
-- **Backgrounds**: Warm gradient (primaryColor → secondaryColor)
-- **Buttons**: White circular with shadow, flat design (no glow/glass effects)
-- **Progress rings**: 10px stroke width
-
-### UI Rules
-- Material 3 design with `.SF Pro Display/Text` fonts
-- `ThemeProvider` persists theme choice via `shared_preferences`
-- Use `kIsWeb` guard for platform-specific features (notifications, foreground service)
-
-## WHERE TO LOOK
+## KEY LOCATIONS
 
 | Task | Location |
 |------|----------|
-| Timer countdown logic | `bloc/timer_provider.dart:86-97` (`_tick()`) |
-| Preset times | `bloc/timer_provider.dart:18` (`[30, 60, 90, 120]`) |
-| Add new screen | `lib/screens/` + navigation in `main.dart` |
-| Notification config | `services/notification_service.dart` |
+| Timer countdown | `bloc/timer_provider.dart` (`_tick()`) |
+| Preset times | `bloc/timer_provider.dart:20` (`[30, 60, 90, 120]`) |
+| Training states | `bloc/training_provider.dart` (`TrainingState` enum) |
 | Database schema | `services/database_helper.dart` (`_onCreate()`) |
-| Theme definitions | `theme/app_theme.dart:212-358` |
-| Stats calendar | `screens/stats_screen.dart:1025-1169` |
-| China mirrors | `setup_mirrors.sh`, `android/build.gradle.kts` |
+| Theme definitions | `theme/app_theme.dart` |
+| Exercise data | `services/exercise_service.dart` |
 
-## ANTI-PATTERNS (TO AVOID)
+## PLATFORM GUARDS
 
-| Pattern | Why Bad | Instead |
-|---------|---------|--------|
+Use `kIsWeb` for platform-specific features:
+```dart
+if (!kIsWeb) {
+  TimerService.startService();
+  _notificationService.showNotification();
+}
+```
+
+## DATA SOURCES
+
+| Resource | Source | License |
+|----------|--------|---------|
+| Exercise database | [yuhonas/free-exercise-db](https://github.com/yuhonas/free-exercise-db) | Public Domain (CC0) |
+| Exercise images | [yuhonas/free-exercise-db](https://github.com/yuhonas/free-exercise-db) | Public Domain (CC0) |
+| Fonts (Orbitron, Rajdhani) | Google Fonts | SIL Open Font License |
+
+## ANTI-PATTERNS (AVOID)
+
+| Pattern | Issue | Instead |
+|---------|-------|---------|
 | Empty catch blocks | Silent failures | Log + rethrow |
 | `!` operator | Runtime crashes | Null check `if (x != null)` |
-| Service in Provider | Testing harder | Constructor injection |
-| `as any`, `@ts-ignore` | Type unsafety | Proper type handling |
+| Service in Provider | Hard to test | Constructor injection |
+| Release without `--no-tree-shake-icons` | Icons show as garbled | Use `build_release.sh` |
 
 ## KNOWN ISSUES
 
-- **bloc/ naming**: Directory named `bloc/` but uses Provider (ChangeNotifier), not BLoC
-- **No CI/CD**: Project lacks `.github/workflows` — manual testing required
+- **bloc/ naming**: Directory uses Provider (ChangeNotifier), not BLoC pattern
+- **No CI/CD**: Manual testing required
 - **No dependency injection**: Services instantiated inside providers
-- **Package naming inconsistency**: Two MainActivity.kt files with different package names
 
 ## CONFIGURATION FILES
 
 | File | Purpose |
-|------|----------|
+|------|---------|
 | `pubspec.yaml` | Dependencies, assets, fonts |
-| `analysis_options.yaml` | Linting rules (flutter_lints) |
-| `setup_mirrors.sh` | China mirror configuration script |
-| `android/build.gradle.kts` | Aliyun maven mirrors for Android |
+| `analysis_options.yaml` | Linting (flutter_lints) |
+| `build_release.sh` / `.bat` | Release build with icon fix |
+| `setup_mirrors.sh` | China mirror configuration |
