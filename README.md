@@ -225,6 +225,49 @@ pod repo update
 3. **代理设置**: 配置系统代理或VPN
 4. **清理缓存**: `flutter clean` 后重新下载
 
+## 开源致谢
+
+本项目使用了以下开源项目和资源，感谢它们的贡献：
+
+### 核心框架
+
+| 项目 | 许可证 | 链接 |
+|------|--------|------|
+| Flutter | BSD 3-Clause | https://flutter.dev |
+| Dart | BSD 3-Clause | https://dart.dev |
+
+### 第三方依赖
+
+| 包名 | 许可证 | 用途 |
+|------|--------|------|
+| provider | MIT | 状态管理 |
+| sqflite | BSD 2-Clause | SQLite 数据库 |
+| flutter_local_notifications | BSD 3-Clause | 本地通知 |
+| shared_preferences | BSD 3-Clause | 偏好设置存储 |
+| google_fonts | Apache 2.0 | Google 字体 |
+| intl | BSD 3-Clause | 国际化支持 |
+| uuid | MIT | UUID 生成 |
+| cached_network_image | MIT | 图片缓存 |
+| permission_handler | MIT | 权限管理 |
+| cupertino_icons | MIT | iOS 风格图标 |
+| flutter_launcher_icons | MIT | 应用图标生成 |
+
+### 字体资源
+
+| 字体 | 来源 | 许可证 |
+|------|------|--------|
+| [Orbitron](https://fonts.google.com/specimen/Orbitron) | Google Fonts | SIL Open Font License |
+| [Rajdhani](https://fonts.google.com/specimen/Rajdhani) | Google Fonts | SIL Open Font License |
+
+### 图标资源
+
+| 资源 | 许可证 |
+|------|--------|
+| Material Icons | Apache 2.0 |
+| Cupertino Icons | MIT |
+
+---
+
 ## 许可证
 
-本项目采用MIT许可证 - 查看 [LICENSE](LICENSE) 文件了解详情
+本项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情
