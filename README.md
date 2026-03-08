@@ -266,6 +266,13 @@ pod repo update
 | Material Icons | Apache 2.0 |
 | Cupertino Icons | MIT |
 
+### 健身数据与图片资源
+
+| 资源 | 来源 | 许可证 | 说明 |
+|------|------|--------|------|
+| 健身动作数据库 | [yuhonas/free-exercise-db](https://github.com/yuhonas/free-exercise-db) | Public Domain (CC0) | 800+ 健身动作数据 |
+| 健身动作图片 | [yuhonas/free-exercise-db](https://github.com/yuhonas/free-exercise-db) | Public Domain (CC0) | 动作示范图片 |
+| 人体肌肉图 | 项目原创 | MIT | SVG 格式前后视图 |
 ---
 
 ## 许可证
