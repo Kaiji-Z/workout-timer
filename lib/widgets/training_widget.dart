@@ -13,12 +13,15 @@ import 'duration_picker.dart';
 import 'glass_widgets.dart';
 import 'animated_timer_widget.dart';
 import 'plan_card.dart';
-/// 训练主界面 - Flat Vitality 设计
+
+/// 训练主界面 - 极简设计
 /// 
-/// 参考参考图布局:
-/// - 顶部标题
-/// - 中央大计时器
-/// - 底部状态徽章 + 控制按钮
+/// 布局：一屏显示，无需滚动
+/// - 顶部标题 + 计划图标入口
+/// - 极简进度行（计划模式）
+/// - 中央计时器
+/// - 状态徽章
+/// - 按钮区域（主按钮在右侧）
 class TrainingWidget extends StatefulWidget {
   const TrainingWidget({super.key});
 
@@ -44,7 +47,6 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    // Recalculate session duration when app resumes from background
     if (state == AppLifecycleState.resumed) {
       final training = context.read<TrainingProvider>();
       if (training.isExercising || training.isResting) {
@@ -73,66 +75,41 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
         
         return SafeArea(
           bottom: false,
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              return SingleChildScrollView(
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                  child: IntrinsicHeight(
-                    child: Column(
-                      children: [
-                        // 顶部标题 + 模式切换
-                        _buildHeader(theme, planProvider, progressProvider),
-                        
-                        // 计划进度卡片（计划模式下显示）
-                        if (_isPlanMode && _selectedPlan != null) ...[
-                          const SizedBox(height: 16),
-                          PlanProgressCard(
-                            plan: _selectedPlan!,
-                            currentExerciseIndex: progressProvider.currentExerciseIndex,
-                            completedSets: Map<String, int>.from(
-                              _selectedPlan!.exercises.fold({}, (map, e) {
-                                map[e.exerciseId] = progressProvider.getCompletedSets(e.exerciseId);
-                                return map;
-                              }),
-                            ),
-                            isExpanded: progressProvider.isExpanded,
-                            isResting: training.isResting,
-                            onToggle: progressProvider.toggleExpanded,
-                            onNextExercise: progressProvider.isCurrentExerciseComplete
-                              ? progressProvider.nextExercise
-                              : null,
-                          ),
-                          const SizedBox(height: 16),
-                        ],
-                        
-                        // 主内容区域 - 计时器
-                        Expanded(
-                          child: _buildMainContent(training, theme),
-                        ),
-                        
-                        // 底部区域：状态徽章 + 按钮
-                        const SizedBox(height: 16),
-                        _buildBottomSection(context, training, theme, progressProvider),
-                        // 底部导航栏空间
-                        const SizedBox(height: 80),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            },
+          child: Column(
+            children: [
+              // 顶部标题 + 计划图标
+              _buildHeader(theme, planProvider, progressProvider),
+              
+              // 极简进度行（计划模式下显示）
+              if (_isPlanMode && _selectedPlan != null)
+                _buildCompactProgress(progressProvider, theme),
+              
+              // 计时器 - 占用剩余空间
+              Expanded(
+                child: _buildMainContent(training, theme),
+              ),
+              
+              // 状态徽章
+              _buildStatusBadge(training, theme, progressProvider),
+              
+              // 按钮区域
+              _buildButtonArea(context, training, theme, progressProvider),
+              
+              // 底部导航栏空间
+              const SizedBox(height: 80),
+            ],
           ),
         );
       },
     );
   }
 
-  /// 顶部标题 + 模式切换
+  /// 顶部标题 + 计划图标入口
   Widget _buildHeader(AppThemeData theme, PlanProvider planProvider, TrainingProgressProvider progressProvider) {
     return Padding(
-      padding: const EdgeInsets.only(top: 12, bottom: 8, left: 20, right: 20),
-      child: Column(
+      padding: const EdgeInsets.only(top: 12, bottom: 12, left: 20, right: 16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           // 标题
           Text(
@@ -145,158 +122,41 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
               letterSpacing: 3,
             ),
           ),
-          const SizedBox(height: 12),
-          // 模式切换
-          _buildModeToggle(theme, planProvider, progressProvider),
-        ],
-      ),
-    );
-  }
-
-  /// 模式切换按钮
-  Widget _buildModeToggle(AppThemeData theme, PlanProvider planProvider, TrainingProgressProvider progressProvider) {
-    return Container(
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(25),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _buildModeButton(
-            '自由模式',
-            !_isPlanMode,
-            () => _switchToFreeMode(progressProvider),
-            theme,
-          ),
-          _buildModeButton(
-            '计划模式',
-            _isPlanMode,
-            () => _showPlanSelector(theme, planProvider, progressProvider),
-            theme,
+          // 计划图标入口
+          GestureDetector(
+            onTap: () => _showPlanSelector(theme, planProvider, progressProvider),
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: _isPlanMode 
+                    ? theme.accentColor.withValues(alpha: 0.1)
+                    : Colors.transparent,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                Icons.playlist_add_check,
+                size: 24,
+                color: _isPlanMode ? theme.accentColor : theme.secondaryTextColor,
+              ),
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildModeButton(String label, bool isSelected, VoidCallback onTap, AppThemeData theme) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        decoration: BoxDecoration(
-          color: isSelected ? theme.accentColor : Colors.transparent,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontFamily: '.SF Pro Text',
-            fontSize: 14,
-            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-            color: isSelected ? Colors.white : theme.textColor,
-          ),
-        ),
-      ),
-    );
-  }
+  /// 极简进度行
+  Widget _buildCompactProgress(TrainingProgressProvider progressProvider, AppThemeData theme) {
+    final currentExercise = progressProvider.currentExercise;
+    if (currentExercise == null) return const SizedBox.shrink();
 
-  void _switchToFreeMode(TrainingProgressProvider progressProvider) {
-    if (_isPlanMode) {
-      progressProvider.endPlan();
-    }
-  }
-
-  void _showPlanSelector(AppThemeData theme, PlanProvider planProvider, TrainingProgressProvider progressProvider) {
-    final plans = planProvider.plans;
-    
-    if (plans.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('还没有计划，请先创建计划'),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-      return;
-    }
-    
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              '选择训练计划',
-              style: TextStyle(
-                fontFamily: '.SF Pro Display',
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: theme.textColor,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Flexible(
-              child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: plans.length,
-                itemBuilder: (context, index) {
-                  final plan = plans[index];
-                  final isSelected = _selectedPlan?.id == plan.id;
-                  return ListTile(
-                    leading: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: isSelected ? theme.accentColor : theme.accentColor.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Icon(
-                        Icons.fitness_center,
-                        color: isSelected ? Colors.white : theme.accentColor,
-                      ),
-                    ),
-                    title: Text(plan.name),
-                    subtitle: Text(plan.targetMusclesText),
-                    trailing: Text('${plan.exerciseCount}动作 · ${plan.totalSets}组'),
-                    selected: isSelected,
-                    onTap: () {
-                      progressProvider.startPlan(plan);
-                      Navigator.pop(context);
-                    },
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: PlanProgressCompact(
+        exerciseName: currentExercise.name,
+        currentSet: progressProvider.currentSetInExercise + 1,
+        totalSets: currentExercise.effectiveSets,
+        totalProgress: progressProvider.progressPercentage,
       ),
     );
   }
@@ -343,7 +203,7 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
         seconds: training.sessionDuration,
         label: '运动中',
         theme: theme,
-        size: 320,
+        size: 280,
         isCountdown: false,
       );
     }
@@ -358,12 +218,12 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
       seconds: training.restDuration,
       label: '休息时长',
       theme: theme,
-      size: 320,
+      size: 280,
       isCountdown: false,
     );
   }
 
-  /// 完成状态显示 - 扁平设计
+  /// 完成状态显示
   Widget _buildCompletedDisplay(TrainingProvider training, AppThemeData theme) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -371,8 +231,8 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
         // 完成圆圈
         PulsingWidget(
           child: Container(
-            width: 200,
-            height: 200,
+            width: 180,
+            height: 180,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: Colors.white,
@@ -389,15 +249,15 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
               children: [
                 Icon(
                   Icons.check_circle_outline,
-                  size: 48,
+                  size: 44,
                   color: theme.progressRingColor,
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 8),
                 Text(
                   _formatTime(training.sessionDuration),
                   style: TextStyle(
                     fontFamily: '.SF Pro Display',
-                    fontSize: 40,
+                    fontSize: 36,
                     fontWeight: FontWeight.w300,
                     color: theme.textColor,
                     letterSpacing: -2,
@@ -408,7 +268,7 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
                   '总时长',
                   style: TextStyle(
                     fontFamily: '.SF Pro Text',
-                    fontSize: 14,
+                    fontSize: 13,
                     color: theme.secondaryTextColor,
                   ),
                 ),
@@ -416,7 +276,7 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
             ),
           ),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 16),
         // 统计徽章
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -438,24 +298,7 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
     );
   }
 
-  /// 底部区域
-  Widget _buildBottomSection(BuildContext context, TrainingProvider training, AppThemeData theme, TrainingProgressProvider progressProvider) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Column(
-        children: [
-          // 状态徽章
-          _buildStatusBadge(training, theme, progressProvider),
-          const SizedBox(height: 20),
-          // 按钮区域
-          _buildButtonArea(context, training, theme, progressProvider),
-          const SizedBox(height: 16),
-        ],
-      ),
-    );
-  }
-
-  /// 状态徽章 - 扁平设计
+  /// 状态徽章
   Widget _buildStatusBadge(TrainingProvider training, AppThemeData theme, TrainingProgressProvider progressProvider) {
     Color color;
     String text;
@@ -497,197 +340,255 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
       icon = Icons.play_circle_outline;
     }
 
-    return StatusBadge(
-      text: text,
-      color: color,
-      icon: icon,
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: StatusBadge(
+        text: text,
+        color: color,
+        icon: icon,
+      ),
     );
   }
 
-  /// 按钮区域 - 参考图风格
+  /// 按钮区域 - 主按钮在右侧
   Widget _buildButtonArea(BuildContext context, TrainingProvider training, AppThemeData theme, TrainingProgressProvider progressProvider) {
-    final buttons = _getButtonsForState(context, training, theme, progressProvider);
-    
-    if (buttons.isEmpty) return const SizedBox.shrink();
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: _buildButtonRow(buttons),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: _buildButtonsForState(context, training, theme, progressProvider),
     );
   }
 
-  /// 构建按钮行 - 参考图风格: 圆形按钮
-  List<Widget> _buildButtonRow(List<_ButtonInfo> buttons) {
-    if (buttons.length == 1) {
-      // 单个按钮 - 大胶囊按钮
-      return [
-        PrimaryActionButton(
-          label: buttons[0].label,
-          icon: buttons[0].icon,
-          backgroundColor: buttons[0].isDestructive ? Colors.red : null,
-          onPressed: buttons[0].onPressed,
-          isWide: true,
-        ),
-      ];
-    } else if (buttons.length == 2) {
-      // 两个按钮 - 左圆形 + 右胶囊
-      return [
-        CircularControlButton(
-          icon: buttons[0].icon,
-          iconColor: buttons[0].isDestructive ? Colors.red : null,
-          onPressed: buttons[0].onPressed,
-        ),
-        const SizedBox(width: 16),
-        PrimaryActionButton(
-          label: buttons[1].label,
-          icon: buttons[1].icon,
-          onPressed: buttons[1].onPressed,
-          isWide: true,
-        ),
-      ];
-    } else {
-      // 三个按钮 - 左圆 + 中圆 + 右胶囊
-      return [
-        CircularControlButton(
-          icon: buttons[0].icon,
-          onPressed: buttons[0].onPressed,
-        ),
-        const SizedBox(width: 12),
-        CircularControlButton(
-          icon: buttons[1].icon,
-          onPressed: buttons[1].onPressed,
-        ),
-        const SizedBox(width: 12),
-        PrimaryActionButton(
-          label: buttons[2].label,
-          icon: buttons[2].icon,
-          onPressed: buttons[2].onPressed,
-          isWide: true,
-        ),
-      ];
+  /// 根据状态构建按钮
+  Widget _buildButtonsForState(BuildContext context, TrainingProvider training, AppThemeData theme, TrainingProgressProvider progressProvider) {
+    // 空闲状态：设置按钮 | 开始(主按钮)
+    if (training.isIdle) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          _SecondaryButton(
+            icon: Icons.timer_outlined,
+            label: '设置',
+            onPressed: () => _showDurationPicker(context, training),
+            theme: theme,
+          ),
+          const SizedBox(width: 16),
+          PrimaryActionButton(
+            label: '开始运动',
+            icon: Icons.play_arrow_rounded,
+            onPressed: () {
+              training.startExercise();
+              if (_isPlanMode && _selectedPlan != null && progressProvider.startTime == null) {
+                progressProvider.startPlan(_selectedPlan!);
+              }
+            },
+          ),
+        ],
+      );
     }
+
+    // 运动中：暂停 + 结束 | 休息(主按钮)
+    if (training.isExercising) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          CircularControlButton(
+            icon: Icons.pause,
+            onPressed: training.pauseExercise,
+          ),
+          const SizedBox(width: 12),
+          CircularControlButton(
+            icon: Icons.stop,
+            iconColor: Colors.red,
+            onPressed: () {
+              if (_isPlanMode) {
+                progressProvider.completeSet();
+              }
+              training.endWorkout();
+            },
+          ),
+          const SizedBox(width: 16),
+          PrimaryActionButton(
+            label: '休息',
+            icon: Icons.self_improvement,
+            onPressed: () {
+              training.startRest();
+              if (_isPlanMode) {
+                progressProvider.completeSet();
+              }
+            },
+          ),
+        ],
+      );
+    }
+
+    // 暂停：结束 | 继续(主按钮)
+    if (training.isExercisePaused) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          CircularControlButton(
+            icon: Icons.stop,
+            iconColor: Colors.red,
+            onPressed: () {
+              if (_isPlanMode) {
+                progressProvider.completeSet();
+              }
+              training.endWorkout();
+            },
+          ),
+          const SizedBox(width: 16),
+          PrimaryActionButton(
+            label: '继续',
+            icon: Icons.play_arrow,
+            onPressed: training.resumeFromPause,
+          ),
+        ],
+      );
+    }
+
+    // 休息中：跳过休息(主按钮，居中)
+    if (training.isResting) {
+      return PrimaryActionButton(
+        label: '跳过休息',
+        icon: Icons.skip_next,
+        onPressed: training.skipRest,
+      );
+    }
+
+    // 完成状态：删除 + 继续 | 保存(主按钮)
+    if (training.isCompleted) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          CircularControlButton(
+            icon: Icons.delete_outline,
+            iconColor: Colors.red,
+            onPressed: () {
+              training.resetWorkout();
+              if (_isPlanMode) {
+                progressProvider.endPlan();
+              }
+            },
+          ),
+          const SizedBox(width: 12),
+          CircularControlButton(
+            icon: Icons.play_arrow,
+            onPressed: () {
+              training.resumeExercise();
+            },
+          ),
+          const SizedBox(width: 16),
+          PrimaryActionButton(
+            label: '保存',
+            icon: Icons.save,
+            onPressed: () => _saveWorkout(context, training, theme, progressProvider),
+          ),
+        ],
+      );
+    }
+
+    return const SizedBox.shrink();
   }
 
-  /// 获取当前状态的按钮配置
-  List<_ButtonInfo> _getButtonsForState(BuildContext context, TrainingProvider training, AppThemeData theme, TrainingProgressProvider progressProvider) {
-    // 空闲状态
-    if (training.isIdle) {
-      return [
-        _ButtonInfo(
-          label: '设置',
-          icon: Icons.timer_outlined,
-          onPressed: () => _showDurationPicker(context, training),
+  /// 显示计划选择器
+  void _showPlanSelector(AppThemeData theme, PlanProvider planProvider, TrainingProgressProvider progressProvider) {
+    final plans = planProvider.plans;
+    
+    if (plans.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('还没有计划，请先创建计划'),
+          behavior: SnackBarBehavior.floating,
         ),
-        _ButtonInfo(
-          label: '开始运动',
-          icon: Icons.play_arrow_rounded,
-          onPressed: () {
-            training.startExercise();
-            // 计划模式下，开始训练时记录进度
-            if (_isPlanMode && _selectedPlan != null && progressProvider.startTime == null) {
-              progressProvider.startPlan(_selectedPlan!);
-            }
-          },
-          isPrimary: true,
-        ),
-      ];
+      );
+      return;
     }
-
-    // 运动中
-    if (training.isExercising) {
-      return [
-        _ButtonInfo(
-          icon: Icons.pause,
-          onPressed: training.pauseExercise,
+    
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  '选择训练计划',
+                  style: TextStyle(
+                    fontFamily: '.SF Pro Display',
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: theme.textColor,
+                  ),
+                ),
+                if (_isPlanMode)
+                  TextButton(
+                    onPressed: () {
+                      progressProvider.endPlan();
+                      Navigator.pop(context);
+                    },
+                    child: Text(
+                      '取消计划',
+                      style: TextStyle(color: Colors.red),
+                    ),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Flexible(
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: plans.length,
+                itemBuilder: (context, index) {
+                  final plan = plans[index];
+                  final isSelected = _selectedPlan?.id == plan.id;
+                  return ListTile(
+                    leading: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: isSelected ? theme.accentColor : theme.accentColor.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        Icons.fitness_center,
+                        color: isSelected ? Colors.white : theme.accentColor,
+                      ),
+                    ),
+                    title: Text(plan.name),
+                    subtitle: Text(plan.targetMusclesText),
+                    trailing: Text('${plan.exerciseCount}动作 · ${plan.totalSets}组'),
+                    selected: isSelected,
+                    onTap: () {
+                      progressProvider.startPlan(plan);
+                      Navigator.pop(context);
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
         ),
-        _ButtonInfo(
-          icon: Icons.local_cafe,
-          onPressed: () {
-            training.startRest();
-            // 计划模式下，完成一组
-            if (_isPlanMode) {
-              progressProvider.completeSet();
-            }
-          },
-        ),
-        _ButtonInfo(
-          label: '结束',
-          icon: Icons.stop,
-          onPressed: () {
-            // 计划模式下，结束运动时计数当前组
-            if (_isPlanMode) {
-              progressProvider.completeSet();
-            }
-            training.endWorkout();
-          },
-        ),
-      ];
-    }
-
-    // 运动暂停
-    if (training.isExercisePaused) {
-      return [
-        _ButtonInfo(
-          icon: Icons.stop,
-          onPressed: () {
-            // 计划模式下，结束运动时计数当前组
-            if (_isPlanMode) {
-              progressProvider.completeSet();
-            }
-            training.endWorkout();
-          },
-          isDestructive: true,
-        ),
-        _ButtonInfo(
-          label: '继续',
-          icon: Icons.play_arrow,
-          onPressed: training.resumeFromPause,
-          isPrimary: true,
-        ),
-      ];
-    }
-
-    // 休息中
-    if (training.isResting) {
-      return [
-        _ButtonInfo(
-          label: '跳过休息',
-          icon: Icons.skip_next,
-          onPressed: training.skipRest,
-          isPrimary: true,
-        ),
-      ];
-    }
-
-// 完成状态
-if (training.isCompleted) {
-return [
-_ButtonInfo(
-icon: Icons.delete_outline,
-onPressed: () {
-training.resetWorkout();
-if (_isPlanMode) {
-progressProvider.endPlan();
-}
-},
-isDestructive: true,
-),
-        _ButtonInfo(
-          icon: Icons.play_arrow,
-          onPressed: () {
-            training.resumeExercise();
-          },
-        ),
-        _ButtonInfo(
-          label: '保存',
-          icon: Icons.save,
-          onPressed: () => _saveWorkout(context, training, theme, progressProvider),
-          isPrimary: true,
-        ),
-      ];
-    }
-
-    return [];
+      ),
+    );
   }
 
   /// 显示时长选择器
@@ -757,18 +658,56 @@ isDestructive: true,
   }
 }
 
-class _ButtonInfo {
-  final String label;
-  final IconData icon;
-  final VoidCallback? onPressed;
-  final bool isPrimary;
-  final bool isDestructive;
 
-  _ButtonInfo({
-    this.label = '',
+/// 次要按钮（灰色边框，非主按钮）
+class _SecondaryButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback? onPressed;
+  final AppThemeData theme;
+
+  const _SecondaryButton({
+    super.key,
     required this.icon,
+    required this.label,
     this.onPressed,
-    this.isPrimary = false,
-    this.isDestructive = false,
+    required this.theme,
   });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onPressed,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.06),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 20, color: theme.secondaryTextColor),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: TextStyle(
+                fontFamily: '.SF Pro Text',
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: theme.textColor,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
