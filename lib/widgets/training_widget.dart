@@ -365,13 +365,10 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
       return Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          _SecondaryButton(
+          CircularControlButton(
             icon: Icons.timer_outlined,
-            label: '设置',
             onPressed: () => _showDurationPicker(context, training),
-            theme: theme,
           ),
-          const SizedBox(width: 16),
           PrimaryActionButton(
             label: '开始运动',
             icon: Icons.play_arrow_rounded,
@@ -658,56 +655,3 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
   }
 }
 
-
-/// 次要按钮（灰色边框，非主按钮）
-class _SecondaryButton extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final VoidCallback? onPressed;
-  final AppThemeData theme;
-
-  const _SecondaryButton({
-    super.key,
-    required this.icon,
-    required this.label,
-    this.onPressed,
-    required this.theme,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onPressed,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.06),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 20, color: theme.secondaryTextColor),
-            const SizedBox(width: 6),
-            Text(
-              label,
-              style: TextStyle(
-                fontFamily: '.SF Pro Text',
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: theme.textColor,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
