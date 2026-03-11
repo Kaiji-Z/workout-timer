@@ -666,3 +666,74 @@ class EmptyPlanCard extends StatelessWidget {
     );
   }
 }
+
+
+/// 极简进度行 - 计划模式训练中显示
+/// 单行：动作名 + 当前组/总组 + 整体进度条
+class PlanProgressCompact extends StatelessWidget {
+  final String exerciseName;
+  final int currentSet;
+  final int totalSets;
+  final double totalProgress; // 0.0 - 1.0
+
+  const PlanProgressCompact({
+    super.key,
+    required this.exerciseName,
+    required this.currentSet,
+    required this.totalSets,
+    required this.totalProgress,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.watch<ThemeProvider>().currentTheme;
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          // 动作名 + 进度
+          Expanded(
+            child: Text(
+              '$exerciseName · $currentSet/$totalSets组',
+              style: TextStyle(
+                fontFamily: '.SF Pro Text',
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: theme.textColor,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          const SizedBox(width: 12),
+          // 进度条
+          SizedBox(
+            width: 80,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(2),
+              child: LinearProgressIndicator(
+                value: totalProgress,
+                backgroundColor: theme.accentColor.withValues(alpha: 0.15),
+                valueColor: AlwaysStoppedAnimation<Color>(theme.accentColor),
+                minHeight: 4,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
