@@ -106,11 +106,17 @@ class TrainingProgressProvider extends ChangeNotifier {
     _currentSetInExercise++;
     _completedSets[exercise.exerciseId] = _currentSetInExercise;
 
-    // 检查是否完成当前动作的所有组
+    // 检查是否完成当前动作的所有组，自动切换到下一个动作
     if (_currentSetInExercise >= exercise.effectiveSets) {
-      // 当前动作完成，准备切换到下一个
+      // 当前动作完成，自动切换到下一个动作
       if (_currentExerciseIndex < _currentPlan!.exercises.length - 1) {
-        // 还有下一个动作，但不自动切换，等待用户手动切换
+        _currentExerciseIndex++;
+        _currentSetInExercise = 0;
+        // 初始化下一个动作的完成组数（如果尚未初始化）
+        final nextExercise = currentExercise;
+        if (nextExercise != null && !_completedSets.containsKey(nextExercise.exerciseId)) {
+          _completedSets[nextExercise.exerciseId] = 0;
+        }
       }
     }
 
