@@ -369,6 +369,7 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
             icon: Icons.timer_outlined,
             onPressed: () => _showDurationPicker(context, training),
           ),
+          const SizedBox(width: 16),
           PrimaryActionButton(
             label: '开始运动',
             icon: Icons.play_arrow_rounded,
