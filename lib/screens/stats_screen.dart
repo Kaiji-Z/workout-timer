@@ -1479,13 +1479,18 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
                   margin: EdgeInsets.symmetric(horizontal: isWeekView ? 2 : 1),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.center,  // ADD THIS
                     children: [
                       // 时长和组数显示
                       if (duration > 0 || setCount > 0)
                         Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,  // ADD THIS
                           children: [
                             Text(
                               formatDuration(duration),
+                              textAlign: TextAlign.center,     // ADD THIS
+                              maxLines: 1,                      // ADD THIS
+                              overflow: TextOverflow.ellipsis,  // ADD THIS
                               style: TextStyle(
                                 fontFamily: '.SF Pro Text',
                                 fontSize: isWeekView ? 9 : 7,
@@ -1495,6 +1500,9 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
                             if (setCount > 0)
                               Text(
                                 '${setCount}组',
+                                textAlign: TextAlign.center,      // ADD THIS
+                                maxLines: 1,                       // ADD THIS
+                                overflow: TextOverflow.ellipsis,   // ADD THIS
                                 style: TextStyle(
                                   fontFamily: '.SF Pro Text',
                                   fontSize: isWeekView ? 8 : 6,
@@ -1525,6 +1533,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
                       // 日期标签
                       Text(
                         isWeekView ? ['一', '二', '三', '四', '五', '六', '日'][index] : '$key',
+                        textAlign: TextAlign.center,  // ADD THIS
                         style: TextStyle(
                           fontFamily: '.SF Pro Text',
                           fontSize: isWeekView ? 10 : 8,
