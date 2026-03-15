@@ -93,7 +93,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               height: 20,
               margin: const EdgeInsets.only(right: 12),
               decoration: BoxDecoration(
-                gradient: LinearGradient(colors: [theme.primaryColor, theme.primaryColor.withValues(alpha: 0.8)]),
+                gradient: LinearGradient(colors: theme.timerGradientColors),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),

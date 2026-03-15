@@ -110,7 +110,7 @@ final oldSessions = await _repository.getAllSessions();
               ),
             ),
             Text(
-              'WORKout History',
+              'HISTORY',
               style: TextStyle(
                 fontFamily: '.SF Pro Display',
                 fontSize: 18,
