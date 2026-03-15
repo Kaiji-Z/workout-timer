@@ -7,6 +7,7 @@ import '../models/workout_plan.dart';
 import '../widgets/calendar_widget.dart';
 import '../widgets/plan_card.dart';
 import 'plan_form_screen.dart';
+import 'ai_plan_wizard_screen.dart';
 import '../theme/app_theme.dart';
 
 /// 计划页面 - Flat Vitality 设计
@@ -75,22 +76,46 @@ class _PlanScreenState extends State<PlanScreen> {
               color: theme.textColor,
             ),
           ),
-          // 今天按钮
-          TextButton(
-            onPressed: () {
-              setState(() {
-                _selectedDate = DateTime.now();
-              });
-            },
-            child: Text(
-              '今天',
-              style: TextStyle(
-                fontFamily: '.SF Pro Text',
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: theme.accentColor,
+          Row(
+            children: [
+              // AI导入按钮
+              IconButton(
+                onPressed: () async {
+                  final result = await Navigator.push<bool>(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const AIPlanWizardScreen(),
+                    ),
+                  );
+                  if (result == true && mounted) {
+                    context.read<PlanProvider>().loadPlans();
+                  }
+                },
+                icon: Icon(
+                  Icons.auto_awesome,
+                  color: theme.accentColor,
+                  size: 24,
+                ),
+                tooltip: 'AI生成计划',
               ),
-            ),
+              // 今天按钮
+              TextButton(
+                onPressed: () {
+                  setState(() {
+                    _selectedDate = DateTime.now();
+                  });
+                },
+                child: Text(
+                  '今天',
+                  style: TextStyle(
+                    fontFamily: '.SF Pro Text',
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: theme.accentColor,
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),

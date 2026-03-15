@@ -1,6 +1,10 @@
 import 'package:flutter/foundation.dart';
+import 'package:uuid/uuid.dart';
 import '../models/workout_plan.dart';
 import '../models/exercise.dart';
+import '../models/muscle_group.dart';
+import '../models/weekly_plan_import.dart';
+import '../services/exercise_matcher_service.dart';
 
 import '../services/plan_repository.dart';
 
@@ -161,6 +165,98 @@ class PlanProvider extends ChangeNotifier {
     } catch (e) {
     debugPrint('Error removing plan from date: $e');
     rethrow;
+    }
+  }
+
+  /// 从AI生成的周计划导入训练计划
+  /// 返回创建的计划ID列表，匹配失败时抛出异常
+  Future<List<String>> importWeeklyPlan(
+    WeeklyPlanImport weeklyPlan,
+    DateTime startDate,
+  ) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final matcher = ExerciseMatcherService(exercises: _exercises);
+      final List<WorkoutPlan> plans = [];
+      final List<DateTime> dates = [];
+
+      for (final dayPlan in weeklyPlan.days) {
+        // 跳过休息日（没有动作的日期）
+        if (dayPlan.exercises.isEmpty) continue;
+
+        // 计算该天的日期
+        // dayOfWeek: 1=周一, 7=周日
+        final daysToAdd = dayPlan.dayOfWeek - 1;
+        final planDate = startDate.add(Duration(days: daysToAdd));
+
+        // 匹配所有动作
+        final List<PlanExercise> matchedExercises = [];
+        final List<String> unmatchedNames = [];
+
+        for (final exerciseEntry in dayPlan.exercises) {
+          final result = await matcher.matchExercise(exerciseEntry.exerciseName);
+
+          if (result.isSuccess && result.exercise != null) {
+            matchedExercises.add(PlanExercise(
+              exerciseId: result.exercise!.id,
+              exercise: result.exercise,
+              targetSets: exerciseEntry.targetSets,
+              order: matchedExercises.length,
+            ));
+          } else {
+            unmatchedNames.add(exerciseEntry.exerciseName);
+          }
+        }
+
+        // 如果有任何动作匹配失败，抛出异常并提供详情
+        if (unmatchedNames.isNotEmpty) {
+          throw Exception('未匹配的动作: ${unmatchedNames.join(", ")}');
+        }
+
+        // 创建WorkoutPlan
+        final planId = const Uuid().v4();
+        // 从动作中提取目标肌肉部位
+        final targetMuscles = matchedExercises
+            .map((e) => e.exercise?.primaryMuscle)
+            .whereType<PrimaryMuscleGroup>()
+            .toSet()
+            .toList();
+        final plan = WorkoutPlan(
+          id: planId,
+          name: '${weeklyPlan.name} - 第${dayPlan.dayOfWeek}天',
+          targetMuscles: targetMuscles,
+          exercises: matchedExercises,
+          createdAt: DateTime.now(),
+        );
+
+        plans.add(plan);
+        dates.add(planDate);
+      }
+
+      // 批量创建并分配到日历
+      final createdIds = await _repository.batchCreatePlansWithCalendar(plans, dates);
+
+      // 添加到本地状态
+      _plans.insertAll(0, plans);
+      for (int i = 0; i < plans.length; i++) {
+        final key = _dateToKey(dates[i]);
+        _calendarPlans.putIfAbsent(key, () => []).add(plans[i]);
+      }
+
+      _isLoading = false;
+      notifyListeners();
+
+      debugPrint('从周计划导入了 ${plans.length} 个计划');
+      return createdIds;
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      debugPrint('导入周计划失败: $e');
+      notifyListeners();
+      rethrow;
     }
   }
 
