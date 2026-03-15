@@ -6,7 +6,7 @@ import '../models/workout_session.dart';
 
 class DatabaseHelper {
   static const _databaseName = 'workout_timer.db';
-  static const _databaseVersion = 2; // 升级到v2
+  static const _databaseVersion = 3; // 升级到v3
 
   // 表名常量
   static const tableWorkoutSessions = 'workout_sessions';
@@ -150,6 +150,7 @@ class DatabaseHelper {
           exercise_id TEXT NOT NULL,
           completed_sets INTEGER NOT NULL,
           max_weight REAL,
+          per_set_data TEXT,
           FOREIGN KEY (record_id) REFERENCES $tableWorkoutRecords(id) ON DELETE CASCADE
         )
       ''');
@@ -247,6 +248,7 @@ class DatabaseHelper {
             exercise_id TEXT NOT NULL,
             completed_sets INTEGER NOT NULL,
             max_weight REAL,
+            per_set_data TEXT,
             FOREIGN KEY (record_id) REFERENCES $tableWorkoutRecords(id) ON DELETE CASCADE
           )
         ''');
@@ -260,6 +262,11 @@ class DatabaseHelper {
 
         // 注意：原有的 workout_sessions 表保持不变，用户数据不会丢失
       });
+    }
+
+    if (oldVersion < 3) {
+      // 从v2升级到v3：添加per_set_data列用于详细记录
+      await db.execute('ALTER TABLE $tableRecordExercises ADD COLUMN per_set_data TEXT');
     }
   }
 
