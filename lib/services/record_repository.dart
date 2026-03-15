@@ -342,4 +342,22 @@ class RecordRepository {
 
     return count ?? 0;
   }
+
+  /// Get total volume for a date range
+  /// Volume = sum of (weight × reps) for all exercises in all records
+  Future<double> getTotalVolume(DateTime from, DateTime to) async {
+    if (!_isDatabaseAvailable) {
+      return 0.0;
+    }
+    final records = await getRecordsByDateRange(from, to);
+    
+    double totalVolume = 0.0;
+    for (var record in records) {
+      for (var exercise in record.exercises) {
+        totalVolume += exercise.totalVolume;
+      }
+    }
+    
+    return totalVolume;
+  }
 }
