@@ -70,14 +70,28 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
           icon: Icon(Icons.close, color: theme.textColor),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text(
-          'AI训练计划生成器',
-          style: TextStyle(
-            fontFamily: '.SF Pro Display',
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-            color: theme.textColor,
-          ),
+        title: Row(
+          children: [
+            Container(
+              width: 4,
+              height: 20,
+              margin: const EdgeInsets.only(right: 12),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(colors: theme.timerGradientColors),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Text(
+              'AI PLAN GENERATOR',
+              style: TextStyle(
+                fontFamily: '.SF Pro Display',
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                letterSpacing: -0.5,
+                color: theme.textColor,
+              ),
+            ),
+          ],
         ),
         actions: [
           if (_currentStep > 0)
