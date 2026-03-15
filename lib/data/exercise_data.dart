@@ -699,7 +699,8 @@ class ExerciseData {
   ];
 
   /// 动作ID到free-exercise-db图片路径的映射
-  /// 图片来源: https://github.com/yuhonas/free-exercise-db (Unlicense)
+  /// 图片来源: https://gitee.com/kaiji1126/free-exercise-db (镜像)
+  /// 原始仓库: https://github.com/yuhonas/free-exercise-db (Unlicense)
   /// 注意: 路径必须与仓库中的实际目录名称完全匹配
   static const Map<String, String?> _exerciseImageMap = {
     // 胸部
@@ -780,7 +781,7 @@ class ExerciseData {
   static String? getExerciseImageUrl(String exerciseId) {
     final imagePath = _exerciseImageMap[exerciseId];
     if (imagePath == null) return null;
-    return 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/$imagePath/0.jpg';
+    return 'https://gitee.com/kaiji1126/free-exercise-db/raw/main/exercises/$imagePath/0.jpg';
   }
 
   /// 获取所有内置动作（转换为Exercise对象列表）

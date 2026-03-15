@@ -6,8 +6,9 @@ import '../models/muscle_group.dart';
 
 /// 动作数据服务 - 从 free-exercise-db 加载数据
 /// 
-/// 数据来源: https://github.com/yuhonas/free-exercise-db (Public Domain)
-/// 图片URL格式: https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/{imagePath}
+/// 数据来源: https://gitee.com/kaiji1126/free-exercise-db (镜像)
+/// 原始仓库: https://github.com/yuhonas/free-exercise-db (Public Domain)
+/// 图片URL格式: https://gitee.com/kaiji1126/free-exercise-db/raw/main/exercises/{imagePath}
 class ExerciseService {
   static const String _exerciseDbAsset = 'assets/data/exercises.json';
   static const String _translationsAsset = 'assets/data/exercise_translations.json';
