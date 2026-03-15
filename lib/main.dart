@@ -234,10 +234,11 @@ bottomNavigationBar: Stack(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _buildNavItem(0, Icons.fitness_center_outlined, Icons.fitness_center, '计划', appTheme),
-                  _buildNavItem(1, Icons.history_outlined, Icons.history, '历史', appTheme),
-                  _buildNavItem(3, Icons.bar_chart_outlined, Icons.bar_chart, '统计', appTheme),
-                  _buildNavItem(4, Icons.settings_outlined, Icons.settings, '设置', appTheme),
+                  _buildNavItem(0, Icons.fitness_center_outlined, Icons.fitness_center, appTheme),
+                  _buildNavItem(1, Icons.history_outlined, Icons.history, appTheme),
+                  _buildNavItem(2, Icons.sports_gymnastics_outlined, Icons.sports_gymnastics, appTheme),
+                  _buildNavItem(3, Icons.bar_chart_outlined, Icons.bar_chart, appTheme),
+                  _buildNavItem(4, Icons.settings_outlined, Icons.settings, appTheme),
                 ],
               ),
             ),
@@ -252,7 +253,7 @@ bottomNavigationBar: Stack(
     );
   }
 
-  Widget _buildNavItem(int index, IconData icon, IconData activeIcon, String label, AppThemeData appTheme) {
+  Widget _buildNavItem(int index, IconData icon, IconData activeIcon, AppThemeData appTheme) {
     // 使用 accentColor (深色) 确保可见性
     final activeColor = appTheme.accentColor;
     final inactiveColor = appTheme.textColor.withValues(alpha: 0.5);
@@ -264,37 +265,10 @@ bottomNavigationBar: Stack(
         behavior: HitTestBehavior.opaque,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                isSelected ? activeIcon : icon,
-                color: isSelected ? activeColor : inactiveColor,
-                size: 24,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                label,
-                style: TextStyle(
-                  fontFamily: '.SF Pro Text',
-                  fontSize: 10,
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                  color: isSelected ? activeColor : inactiveColor,
-                ),
-              ),
-              if (isSelected) ...[
-                const SizedBox(height: 4),
-                Container(
-                  width: 4,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: activeColor,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ],
-            ],
+          child: Icon(
+            isSelected ? activeIcon : icon,
+            color: isSelected ? activeColor : inactiveColor,
+            size: 24,
           ),
         ),
       ),

@@ -47,7 +47,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
     final markedDates = widget.markedDates ?? planProvider.datesWithPlans;
     
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -64,11 +64,11 @@ class _CalendarWidgetState extends State<CalendarWidget> {
         children: [
           // 月份导航
           _buildMonthNavigation(theme),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           
           // 星期标题
           _buildWeekdayHeaders(theme),
-          const SizedBox(height: 8),
+          const SizedBox(height: 4),
           
           // 日期网格
           _buildDateGrid(markedDates, theme),
@@ -185,8 +185,8 @@ class _CalendarWidgetState extends State<CalendarWidget> {
       crossAxisCount: 7,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      mainAxisSpacing: 8,
-      crossAxisSpacing: 4,
+      mainAxisSpacing: 4,
+      crossAxisSpacing: 2,
       children: cells,
     );
   }
@@ -225,8 +225,8 @@ class _DateCell extends StatelessWidget {
           // 选中或今天的背景
           if (isSelected || isToday)
             Container(
-              width: 36,
-              height: 36,
+              width: 28,
+              height: 28,
               decoration: BoxDecoration(
                 color: isSelected ? theme.accentColor : theme.accentColor.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
@@ -238,7 +238,7 @@ class _DateCell extends StatelessWidget {
             '$day',
             style: TextStyle(
               fontFamily: '.SF Pro Text',
-              fontSize: 15,
+              fontSize: 12,
               fontWeight: isSelected || isToday ? FontWeight.w600 : FontWeight.w400,
               color: isSelected 
                   ? Colors.white 

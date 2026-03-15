@@ -34,68 +34,33 @@ class _PlanScreenState extends State<PlanScreen> {
     
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: SafeArea(
-        bottom: false,
-        child: Column(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: Row(
           children: [
-            // 标题
-            _buildHeader(theme),
-            
-            // 日历
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: CompactCalendar(
-                selectedDate: _selectedDate,
-                onDateSelected: (date) {
-                  setState(() {
-                    _selectedDate = date;
-                  });
-                },
+            Container(
+              width: 4,
+              height: 20,
+              margin: const EdgeInsets.only(right: 12),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(colors: theme.timerGradientColors),
+                borderRadius: BorderRadius.circular(2),
               ),
             ),
-            const SizedBox(height: 16),
-            
-            // 当日计划列表 - 限制高度显示2-3个计划
-            SizedBox(
-              height: 200, // 固定高度，显示2-3个计划卡片
-              child: _buildPlanList(planProvider, theme),
+            Text(
+              'WORKOUT PLANS',
+              style: TextStyle(
+                fontFamily: '.SF Pro Display',
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                letterSpacing: -0.5,
+                color: theme.textColor,
+              ),
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildHeader(AppThemeData theme) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 20, bottom: 16, left: 20, right: 20),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 4,
-                height: 20,
-                margin: const EdgeInsets.only(right: 12),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(colors: theme.timerGradientColors),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              Text(
-                'WORKOUT PLANS',
-                style: TextStyle(
-                  fontFamily: '.SF Pro Display',
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: -0.5,
-                  color: theme.textColor,
-                ),
-              ),
-            ],
-          ),
-          // AI生成计划按钮
+        actions: [
           TextButton(
             onPressed: () async {
               final result = await Navigator.push<bool>(
@@ -131,8 +96,36 @@ class _PlanScreenState extends State<PlanScreen> {
           ),
         ],
       ),
+      body: SafeArea(
+        bottom: false,
+        child: Column(
+          children: [
+            // 日历
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: CalendarWidget(
+                selectedDate: _selectedDate,
+                onDateSelected: (date) {
+                  setState(() {
+                    _selectedDate = date;
+                  });
+                },
+              ),
+            ),
+            const SizedBox(height: 16),
+            
+            // 当日计划列表 - 限制高度显示2-3个计划
+            SizedBox(
+              height: 200, // 固定高度，显示2-3个计划卡片
+              child: _buildPlanList(planProvider, theme),
+            ),
+          ],
+        ),
+      ),
     );
   }
+
+  
 
   Widget _buildPlanList(PlanProvider planProvider, AppThemeData theme) {
     // 获取选中日期的计划
