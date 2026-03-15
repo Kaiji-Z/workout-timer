@@ -275,12 +275,11 @@ void main() {
         expect(result.isSuccess, isTrue);
       });
       
-      test('returns failure for single-word partial match below threshold', () async {
-        // "Bench" alone doesn't match any exercise with >0.7 similarity
+      test('returns candidates for single-word partial match', () async {
         final result = await matcher.matchExercise('Bench');
-        
-        // Single word "Bench" should fail - not similar enough to any exercise
-        expect(result.isFailure, isTrue);
+        expect(result.hasCandidates, isTrue);
+        // Should return at least one candidate with "Bench" in the name
+        expect(result.candidates.any((e) => e.nameEn.contains('Bench')), isTrue);
       });
       
       test('returns failure for unknown exercise', () async {
