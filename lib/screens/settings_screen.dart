@@ -20,6 +20,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   bool _soundEnabled = true;
   bool _vibrationEnabled = true;
+  bool _detailedRecordingEnabled = false;
   String _customMessage = '准备开始下一组！';
 
   @override
@@ -33,6 +34,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     setState(() {
       _soundEnabled = _prefs.getBool('sound_enabled') ?? true;
       _vibrationEnabled = _prefs.getBool('vibration_enabled') ?? true;
+      _detailedRecordingEnabled = _prefs.getBool('detailed_recording') ?? false;
       _customMessage = _prefs.getString('custom_message') ?? '准备开始下一组！';
     });
   }
@@ -40,6 +42,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _saveSettings() async {
     await _prefs.setBool('sound_enabled', _soundEnabled);
     await _prefs.setBool('vibration_enabled', _vibrationEnabled);
+    await _prefs.setBool('detailed_recording', _detailedRecordingEnabled);
     await _prefs.setString('custom_message', _customMessage);
   }
 
@@ -131,6 +134,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   _vibrationEnabled,
                   (value) {
                     setState(() => _vibrationEnabled = value);
+                    _saveSettings();
+                  },
+                  theme,
+                ),
+                Divider(color: theme.surfaceColor.withValues(alpha: 0.1), height: 1),
+                _buildGlassSwitch(
+                  '详细记录模式',
+                  _detailedRecordingEnabled,
+                  (value) {
+                    setState(() => _detailedRecordingEnabled = value);
                     _saveSettings();
                   },
                   theme,
