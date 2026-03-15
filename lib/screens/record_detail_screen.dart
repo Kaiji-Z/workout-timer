@@ -341,7 +341,7 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
     );
   }
 
-  Widget _buildExerciseItem(int index, RecordedExercise exercise, AppThemeData theme) {
+Widget _buildExerciseItem(int index, RecordedExercise exercise, AppThemeData theme) {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(16),
@@ -356,7 +356,8 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
           ),
         ],
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // 序号
           Container(
@@ -407,26 +408,78 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
             ),
           ),
           
-          // 完成组数
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: theme.accentColor.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(16),
+          // 显示组数据或 legacy 显示
+          if (exercise.setsData != null && exercise.setsData!.isNotEmpty) ...[
+            // 显示每组数据
+            Column(
+              children: [
+                ...exercise.setsData!.map((setData) => 
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(
+                      '第${setData.setNumber}组',
+                      style: TextStyle(
+                        fontFamily: '.SF Pro Text',
+                        fontSize: 14,
+                        color: theme.textColor,
+                      ),
+                    ),
+                    trailing: Text(
+                      setData.displayText,
+                      style: TextStyle(
+                        fontFamily: '.SF Pro Text',
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: theme.accentColor,
+                      ),
+                    ),
+                  ),
+                ),
+                const Divider(height: 1, color: Colors.grey),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(
+                    '总容量',
+                    style: TextStyle(
+                      fontFamily: '.SF Pro Text',
+                      fontSize: 14,
+                      color: theme.secondaryTextColor,
+                    ),
+                  ),
+                  trailing: Text(
+                    '${exercise.totalVolume.toStringAsFixed(1)} kg',
+                    style: TextStyle(
+                      fontFamily: '.SF Pro Text',
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: theme.accentColor,
+                    ),
+                  ),
+                ),
+              ],
             ),
-            child: Text(
-              '${exercise.completedSets}组',
-              style: TextStyle(
-                fontFamily: '.SF Pro Text',
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: theme.accentColor,
+          ] else ...[
+            // Legacy 显示：完成组数
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: theme.accentColor.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Text(
+                '${exercise.completedSets}组',
+                style: TextStyle(
+                  fontFamily: '.SF Pro Text',
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: theme.accentColor,
+                ),
               ),
             ),
-          ),
+          ],
           
-          // 最大重量（可编辑）
-          if (exercise.maxWeight != null && exercise.maxWeight! > 0) ...[
+          // 最大重量（可编辑）- 仅在 legacy 模式下显示
+          if (exercise.setsData == null || exercise.setsData!.isEmpty) ...[
             const SizedBox(width: 8),
             GestureDetector(
               onTap: () => _showWeightEditor(index, exercise, theme),
@@ -448,29 +501,7 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
                 ),
               ),
             ),
-          ] else
-            GestureDetector(
-              onTap: () => _showWeightEditor(index, exercise, theme),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: Colors.transparent,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: theme.textColor.withValues(alpha: 0.1),
-                    style: BorderStyle.solid,
-                  ),
-                ),
-                child: Text(
-                  '+重量',
-                  style: TextStyle(
-                    fontFamily: '.SF Pro Text',
-                    fontSize: 13,
-                    color: theme.secondaryTextColor,
-                  ),
-                ),
-              ),
-            ),
+          ],
         ],
       ),
     );
