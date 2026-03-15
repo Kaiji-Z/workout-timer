@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
+import '../models/set_data.dart';
 import '../models/workout_plan.dart';
 import '../models/workout_record.dart';
 
@@ -15,6 +16,7 @@ class TrainingProgressProvider extends ChangeNotifier {
   int _currentSetInExercise = 0;
   Map<String, int> _completedSets = {}; // exerciseId -> count
   Map<String, double?> _exerciseWeights = {}; // exerciseId -> max weight
+  final Map<String, List<SetData>> _exerciseSetsData = {}; // exerciseId -> per-set data
   bool _isExpanded = false; // UI expansion state
   DateTime? _startTime;
 
@@ -80,6 +82,36 @@ class TrainingProgressProvider extends ChangeNotifier {
     return _exerciseWeights[exerciseId];
   }
 
+  /// 获取某个动作的每组数据
+  Map<String, List<SetData>> get exerciseSetsData => _exerciseSetsData;
+
+  /// 获取某个动作的每组数据
+  List<SetData> getExerciseSetsData(String exerciseId) {
+    return _exerciseSetsData[exerciseId] ?? [];
+  }
+
+  /// 记录一组的数据
+  void addSetData(String exerciseId, SetData setData) {
+    if (!_exerciseSetsData.containsKey(exerciseId)) {
+      _exerciseSetsData[exerciseId] = [];
+    }
+    _exerciseSetsData[exerciseId]!.add(setData);
+    notifyListeners();
+  }
+
+  /// 获取某个动作的最大重量（从setsData计算）
+  double? getMaxWeight(String exerciseId) {
+    final sets = _exerciseSetsData[exerciseId];
+    if (sets == null || sets.isEmpty) return null;
+    return sets.map((s) => s.weight ?? 0).reduce((a, b) => a > b ? a : b);
+  }
+
+  /// 清除每组数据
+  void clearSetsData() {
+    _exerciseSetsData.clear();
+    notifyListeners();
+  }
+
   /// 开始计划训练
   void startPlan(WorkoutPlan plan) {
     _currentPlan = plan;
@@ -87,6 +119,7 @@ class TrainingProgressProvider extends ChangeNotifier {
     _currentSetInExercise = 0;
     _completedSets = {};
     _exerciseWeights = {};
+    _exerciseSetsData.clear();
     _isExpanded = false;
     _startTime = DateTime.now();
 
@@ -164,6 +197,7 @@ class TrainingProgressProvider extends ChangeNotifier {
     _currentSetInExercise = 0;
     _completedSets = {};
     _exerciseWeights = {};
+    _exerciseSetsData.clear();
     _isExpanded = false;
     _startTime = null;
     notifyListeners();
@@ -181,11 +215,16 @@ class TrainingProgressProvider extends ChangeNotifier {
     for (var planExercise in _currentPlan!.exercises) {
       final completedSets = _completedSets[planExercise.exerciseId] ?? 0;
       if (completedSets > 0) {
+        final setsData = _exerciseSetsData[planExercise.exerciseId];
+        final maxWeight = setsData != null && setsData.isNotEmpty
+            ? getMaxWeight(planExercise.exerciseId)
+            : _exerciseWeights[planExercise.exerciseId];
         recordedExercises.add(RecordedExercise(
           exerciseId: planExercise.exerciseId,
           exercise: planExercise.exercise,
           completedSets: completedSets,
-          maxWeight: _exerciseWeights[planExercise.exerciseId],
+          maxWeight: maxWeight,
+          setsData: setsData,
         ));
       }
     }
@@ -229,6 +268,7 @@ class TrainingProgressProvider extends ChangeNotifier {
     _currentPlan = null;
     _completedSets.clear();
     _exerciseWeights.clear();
+    _exerciseSetsData.clear();
     super.dispose();
   }
 }
