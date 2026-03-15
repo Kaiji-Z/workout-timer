@@ -194,12 +194,12 @@ class PlanProvider extends ChangeNotifier {
 
         // 匹配所有动作
         final List<PlanExercise> matchedExercises = [];
-        final List<String> unmatchedNames = [];
 
         for (final exerciseEntry in dayPlan.exercises) {
           final result = await matcher.matchExercise(exerciseEntry.exerciseName);
 
           if (result.isSuccess && result.exercise != null) {
+            // 匹配成功：创建带完整详情的PlanExercise
             matchedExercises.add(PlanExercise(
               exerciseId: result.exercise!.id,
               exercise: result.exercise,
@@ -207,13 +207,16 @@ class PlanProvider extends ChangeNotifier {
               order: matchedExercises.length,
             ));
           } else {
-            unmatchedNames.add(exerciseEntry.exerciseName);
+            // 匹配失败：创建"无详情"的PlanExercise，保留原始名称
+            matchedExercises.add(PlanExercise(
+              exerciseId: 'unmatched_${const Uuid().v4()}',
+              exercise: null,
+              unmatchedName: exerciseEntry.exerciseName,
+              targetSets: exerciseEntry.targetSets,
+              order: matchedExercises.length,
+            ));
+            debugPrint('未匹配动作已保留为"无详情": ${exerciseEntry.exerciseName}');
           }
-        }
-
-        // 如果有任何动作匹配失败，抛出异常并提供详情
-        if (unmatchedNames.isNotEmpty) {
-          throw Exception('未匹配的动作: ${unmatchedNames.join(", ")}');
         }
 
         // 创建WorkoutPlan

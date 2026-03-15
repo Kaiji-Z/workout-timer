@@ -6,7 +6,7 @@ import '../models/workout_session.dart';
 
 class DatabaseHelper {
   static const _databaseName = 'workout_timer.db';
-  static const _databaseVersion = 3; // 升级到v3
+  static const _databaseVersion = 4; // 升级到v4
 
   // 表名常量
   static const tableWorkoutSessions = 'workout_sessions';
@@ -111,6 +111,7 @@ class DatabaseHelper {
           target_sets INTEGER NOT NULL DEFAULT 3,
           custom_sets INTEGER,
           exercise_order INTEGER NOT NULL,
+          unmatched_name TEXT,
           FOREIGN KEY (plan_id) REFERENCES $tableWorkoutPlans(id) ON DELETE CASCADE
         )
       ''');
@@ -267,6 +268,11 @@ class DatabaseHelper {
     if (oldVersion < 3) {
       // 从v2升级到v3：添加per_set_data列用于详细记录
       await db.execute('ALTER TABLE $tableRecordExercises ADD COLUMN per_set_data TEXT');
+    }
+
+    if (oldVersion < 4) {
+      // 从v3升级到v4：添加unmatched_name列用于未匹配的自定义动作
+      await db.execute('ALTER TABLE $tablePlanExercises ADD COLUMN unmatched_name TEXT');
     }
   }
 

@@ -348,11 +348,14 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      exercise.name,
+                      exercise.hasDetails ? exercise.name : '${exercise.name} (无详情)',
                       style: TextStyle(
                         fontFamily: '.SF Pro Text',
                         fontSize: 13,
-                        color: theme.textColor,
+                        color: exercise.hasDetails
+                            ? theme.textColor
+                            : theme.secondaryTextColor.withValues(alpha: 0.7),
+                        fontStyle: exercise.hasDetails ? null : FontStyle.italic,
                       ),
                     ),
                     const SizedBox(width: 4),
@@ -703,12 +706,14 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  planExercise.name,
+                  planExercise.hasDetails ? planExercise.name : '${planExercise.name} (无详情)',
                   style: TextStyle(
                     fontFamily: '.SF Pro Text',
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    color: theme.textColor,
+                    color: planExercise.hasDetails
+                        ? theme.textColor
+                        : theme.secondaryTextColor.withValues(alpha: 0.7),
                   ),
                 ),
                 Text(

@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../theme/theme_provider.dart';
 import '../bloc/plan_provider.dart';
 import '../models/workout_plan.dart';
+import '../models/muscle_group.dart';
 import '../widgets/calendar_widget.dart';
 import '../widgets/plan_card.dart';
+import '../widgets/fullscreen_image_viewer.dart';
+import '../widgets/exercise_selector.dart';
 import 'plan_form_screen.dart';
 import 'ai_plan_wizard_screen.dart';
 import '../theme/app_theme.dart';
@@ -691,57 +695,156 @@ class _PlanDetailSheet extends StatelessWidget {
             const SizedBox(height: 12),
             ...plan.exercises.asMap().entries.map((entry) {
               final index = entry.key;
-              final exercise = entry.value;
-              return Container(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                decoration: BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(
-                      color: theme.textColor.withValues(alpha: 0.1),
+              final planExercise = entry.value;
+              final hasDetails = planExercise.hasDetails;
+              
+              return GestureDetector(
+                onTap: hasDetails && planExercise.exercise != null
+                    ? () => ExerciseDetailSheet.show(
+                        context,
+                        exercise: planExercise.exercise!,
+                        isSelected: false,
+                        onToggle: () => Navigator.pop(context),
+                      )
+                    : null,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  decoration: BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(
+                        color: theme.textColor.withValues(alpha: 0.1),
+                      ),
                     ),
                   ),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 28,
-                      height: 28,
-                      decoration: BoxDecoration(
-                        color: theme.accentColor.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Center(
-                        child: Text(
-                          '${index + 1}',
-                          style: TextStyle(
-                            fontFamily: '.SF Pro Text',
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: theme.accentColor,
+                  child: Row(
+                    children: [
+                      // 缩略图或序号
+                      GestureDetector(
+                        onTap: hasDetails && planExercise.exercise?.imageUrl != null
+                            ? () {
+                                if (planExercise.exercise!.images.isNotEmpty) {
+                                  FullscreenImageViewer.showCarousel(
+                                    context,
+                                    images: planExercise.exercise!.images,
+                                    initialIndex: 0,
+                                    title: planExercise.exercise!.name,
+                                  );
+                                } else if (planExercise.exercise!.imageUrl != null) {
+                                  FullscreenImageViewer.show(
+                                    context,
+                                    imageUrl: planExercise.exercise!.imageUrl!,
+                                    title: planExercise.exercise!.name,
+                                  );
+                                }
+                              }
+                            : null,
+                        child: Container(
+                          width: 44,
+                          height: 44,
+                          decoration: BoxDecoration(
+                            color: hasDetails
+                                ? theme.accentColor.withValues(alpha: 0.1)
+                                : theme.textColor.withValues(alpha: 0.05),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: hasDetails && planExercise.exercise?.imageUrl != null
+                                ? Hero(
+                                    tag: planExercise.exercise!.imageUrl!,
+                                    child: CachedNetworkImage(
+                                      imageUrl: planExercise.exercise!.imageUrl!,
+                                      fit: BoxFit.cover,
+                                      placeholder: (context, url) => Icon(
+                                        Icons.fitness_center,
+                                        color: theme.accentColor.withValues(alpha: 0.5),
+                                        size: 22,
+                                      ),
+                                      errorWidget: (context, url, error) => Icon(
+                                        Icons.fitness_center,
+                                        color: theme.accentColor.withValues(alpha: 0.5),
+                                        size: 22,
+                                      ),
+                                    ),
+                                  )
+                                : Center(
+                                    child: Text(
+                                      '${index + 1}',
+                                      style: TextStyle(
+                                        fontFamily: '.SF Pro Text',
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: hasDetails
+                                            ? theme.accentColor
+                                            : theme.secondaryTextColor.withValues(alpha: 0.5),
+                                      ),
+                                    ),
+                                  ),
                           ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        exercise.name,
-                        style: TextStyle(
-                          fontFamily: '.SF Pro Text',
-                          fontSize: 15,
-                          color: theme.textColor,
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // 动作名称
+                            Text(
+                              hasDetails ? planExercise.name : '${planExercise.name} (无详情)',
+                              style: TextStyle(
+                                fontFamily: '.SF Pro Text',
+                                fontSize: 15,
+                                color: hasDetails
+                                    ? theme.textColor
+                                    : theme.secondaryTextColor.withValues(alpha: 0.7),
+                                fontStyle: hasDetails ? null : FontStyle.italic,
+                              ),
+                            ),
+                            // 肌肉标签和器材信息
+                            if (hasDetails && planExercise.exercise != null) ...[
+                              const SizedBox(height: 4),
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: theme.accentColor.withValues(alpha: 0.1),
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: Text(
+                                      planExercise.exercise!.primaryMuscle.displayName,
+                                      style: TextStyle(
+                                        fontFamily: '.SF Pro Text',
+                                        fontSize: 11,
+                                        color: theme.accentColor,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    planExercise.exercise!.equipmentDisplayName,
+                                    style: TextStyle(
+                                      fontFamily: '.SF Pro Text',
+                                      fontSize: 12,
+                                      color: theme.secondaryTextColor,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ],
                         ),
                       ),
-                    ),
-                    Text(
-                      '${exercise.effectiveSets}组',
-                      style: TextStyle(
-                        fontFamily: '.SF Pro Text',
-                        fontSize: 14,
-                        color: theme.secondaryTextColor,
+                      Text(
+                        '${planExercise.effectiveSets}组',
+                        style: TextStyle(
+                          fontFamily: '.SF Pro Text',
+                          fontSize: 14,
+                          color: theme.secondaryTextColor,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               );
             }),
