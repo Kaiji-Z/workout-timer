@@ -67,46 +67,53 @@ class _PlanScreenState extends State<PlanScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            '训练计划',
-            style: TextStyle(
-              fontFamily: '.SF Pro Display',
-              fontSize: 28,
-              fontWeight: FontWeight.w700,
-              color: theme.textColor,
-            ),
-          ),
           Row(
             children: [
-              // AI导入按钮
-              IconButton(
-                onPressed: () async {
-                  final result = await Navigator.push<bool>(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const AIPlanWizardScreen(),
-                    ),
-                  );
-                  if (result == true && mounted) {
-                    context.read<PlanProvider>().loadPlans();
-                  }
-                },
-                icon: Icon(
-                  Icons.auto_awesome,
-                  color: theme.accentColor,
-                  size: 24,
+              Container(
+                width: 4,
+                height: 20,
+                margin: const EdgeInsets.only(right: 12),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(colors: theme.timerGradientColors),
+                  borderRadius: BorderRadius.circular(2),
                 ),
-                tooltip: 'AI生成计划',
               ),
-              // 今天按钮
-              TextButton(
-                onPressed: () {
-                  setState(() {
-                    _selectedDate = DateTime.now();
-                  });
-                },
-                child: Text(
-                  '今天',
+              Text(
+                'WORKOUT PLANS',
+                style: TextStyle(
+                  fontFamily: '.SF Pro Display',
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: -0.5,
+                  color: theme.textColor,
+                ),
+              ),
+            ],
+          ),
+          // AI生成计划按钮
+          TextButton(
+            onPressed: () async {
+              final result = await Navigator.push<bool>(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const AIPlanWizardScreen(),
+                ),
+              );
+              if (result == true && mounted) {
+                context.read<PlanProvider>().loadPlans();
+              }
+            },
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.auto_awesome,
+                  size: 18,
+                  color: theme.accentColor,
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  'AI训练计划',
                   style: TextStyle(
                     fontFamily: '.SF Pro Text',
                     fontSize: 14,
@@ -114,8 +121,8 @@ class _PlanScreenState extends State<PlanScreen> {
                     color: theme.accentColor,
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),
