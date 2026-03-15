@@ -8,6 +8,11 @@ import '../models/workout_record.dart';
 import '../models/muscle_group.dart';
 import '../services/workout_repository.dart';
 import '../bloc/record_provider.dart';
+import '../widgets/charts/weekly_volume_bar_chart.dart';
+import '../widgets/charts/muscle_distribution_pie_chart.dart';
+import '../widgets/charts/monthly_trend_line_chart.dart';
+import '../widgets/charts/activity_heatmap_calendar.dart';
+import '../services/stats_calculator_service.dart';
 
 class StatsScreen extends StatefulWidget {
   const StatsScreen({super.key});
@@ -1089,6 +1094,15 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
             _buildDailyDurationChart(dailyDurations, dailySets, theme, isWeekView: true, days: 7),
           ]),
           const SizedBox(height: 20),
+          
+          // 每周训练容量趋势
+          _buildSection('每周训练容量趋势', theme, [
+            WeeklyVolumeBarChart(
+              weeklyData: _getWeeklyVolumeData(),
+              theme: theme,
+            ),
+          ]),
+          const SizedBox(height: 20),
         ],
       ),
     );
@@ -1102,6 +1116,11 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
     final monthlyCounts = _getMonthlyCounts(_selectedYear);
     final dailyDurations = _getDailyDurations(records, false);
     final dailySets = _getDailySets(records, false);
+    
+    // Get data for new charts
+    final muscleDistribution = _getMuscleDistributionData();
+    final dailyVolumeData = _getDailyVolumeData();
+    final heatmapData = _getHeatmapData();
 
     return SingleChildScrollView(
       padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 100),
@@ -1136,6 +1155,37 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
               theme,
               isWeekView: false,
               days: DateTime(_selectedYear, _selectedMonth + 1, 0).day,
+            ),
+          ]),
+          const SizedBox(height: 20),
+          
+          // 肌肉部位容量分布
+          _buildSection('肌肉部位容量分布', theme, [
+            MuscleDistributionPieChart(
+              muscleData: muscleDistribution,
+              theme: theme,
+            ),
+          ]),
+          const SizedBox(height: 20),
+
+          // 月度训练容量趋势
+          _buildSection('月度训练容量趋势', theme, [
+            SizedBox(
+              height: 200,
+              child: MonthlyTrendLineChart(
+                dailyData: dailyVolumeData,
+                theme: theme,
+              ),
+            ),
+          ]),
+          const SizedBox(height: 20),
+
+          // 训练热力图
+          _buildSection('训练活动热力图', theme, [
+            ActivityHeatmapCalendar(
+              dailyData: heatmapData,
+              theme: theme,
+              weeksToShow: 4,
             ),
           ]),
         ],
@@ -1530,7 +1580,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
                         ),
                       ),
                       const SizedBox(height: 4),
-                      // 日期标签
+// 日期标签
                       Text(
                         isWeekView ? ['一', '二', '三', '四', '五', '六', '日'][index] : '$key',
                         textAlign: TextAlign.center,  // ADD THIS
@@ -1549,6 +1599,42 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
         ),
       ],
     );
-}
+  }
 
+/// 获取每周训练容量数据
+  Map<DateTime, double> _getWeeklyVolumeData() {
+    final statsService = StatsCalculatorService();
+    final weeklyRecords = _filterByWeek().whereType<WorkoutRecord>().toList();
+    return statsService.calculateWeeklyVolumeTrend(weeklyRecords, 1);
+  }
+
+  /// 获取肌肉部位容量分布数据
+  Map<PrimaryMuscleGroup, double> _getMuscleDistributionData() {
+    final statsService = StatsCalculatorService();
+    final monthRecords = _filterByMonth().whereType<WorkoutRecord>().toList();
+    return statsService.calculateMuscleVolumeDistribution(monthRecords);
+  }
+
+  /// 获取每日训练容量数据 (月视图)
+  Map<DateTime, double> _getDailyVolumeData() {
+    final statsService = StatsCalculatorService();
+    final monthRecords = _filterBySelectedMonth().whereType<WorkoutRecord>().toList();
+    return statsService.calculateDailyVolumeTrend(monthRecords);
+  }
+
+  /// 获取热力图数据 (最近4周)
+  Map<DateTime, double> _getHeatmapData() {
+    final statsService = StatsCalculatorService();
+    final now = DateTime.now();
+    final fourWeeksAgo = now.subtract(const Duration(days: 28));
+    
+    final recentRecords = <WorkoutRecord>[];
+    for (final record in _newRecords) {
+      if (record.date != null && record.date!.isAfter(fourWeeksAgo)) {
+        recentRecords.add(record);
+      }
+    }
+    
+    return statsService.calculateDailyVolumeTrend(recentRecords);
+  }
 }

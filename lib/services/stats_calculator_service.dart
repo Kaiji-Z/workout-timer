@@ -115,4 +115,27 @@ class StatsCalculatorService {
       Duration(days: weekday - 1),
     );
   }
+
+  /// Calculate daily volume trend
+  /// Returns map of date (normalized to midnight) to total volume
+  Map<DateTime, double> calculateDailyVolumeTrend(List<WorkoutRecord> records) {
+    final result = <DateTime, double>{};
+
+    for (final record in records) {
+      // Normalize date to midnight
+      final normalizedDate = DateTime(
+        record.date.year,
+        record.date.month,
+        record.date.day,
+      );
+
+      final recordVolume = record.exercises.fold<double>(
+        0.0,
+        (sum, e) => sum + e.totalVolume,
+      );
+      result[normalizedDate] = (result[normalizedDate] ?? 0) + recordVolume;
+    }
+
+    return result;
+  }
 }
