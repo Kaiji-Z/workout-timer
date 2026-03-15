@@ -96,32 +96,37 @@ class _PlanScreenState extends State<PlanScreen> {
           ),
         ],
       ),
-      body: SafeArea(
-        bottom: false,
-        child: Column(
-          children: [
-            // 日历
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: CalendarWidget(
-                selectedDate: _selectedDate,
-                onDateSelected: (date) {
-                  setState(() {
-                    _selectedDate = date;
-                  });
-                },
-              ),
+body: SafeArea(
+  bottom: false,
+  child: SingleChildScrollView(
+    child: Padding(
+      padding: const EdgeInsets.only(bottom: 100), // Add padding for floating nav bar
+      child: Column(
+        children: [
+          // 日历
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: CalendarWidget(
+              selectedDate: _selectedDate,
+              onDateSelected: (date) {
+                setState(() {
+                  _selectedDate = date;
+                });
+              },
             ),
-            const SizedBox(height: 16),
-            
-            // 当日计划列表 - 限制高度显示2-3个计划
-            SizedBox(
-              height: 200, // 固定高度，显示2-3个计划卡片
-              child: _buildPlanList(planProvider, theme),
-            ),
-          ],
-        ),
+          ),
+          const SizedBox(height: 16),
+          
+          // 当日计划列表 - 限制高度显示2-3个计划
+          SizedBox(
+            height: 200, // 固定高度，显示2-3个计划卡片
+            child: _buildPlanList(planProvider, theme),
+          ),
+        ],
       ),
+    ),
+  ),
+),
     );
   }
 
