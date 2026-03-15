@@ -40,8 +40,8 @@ class PlanProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      // 加载完整动作列表（优先使用ExerciseService的数据）
-      _exercises = ExerciseData.getFullExerciseList();
+      // 加载完整动作列表（异步加载ExerciseService的873个动作）
+      _exercises = await ExerciseData.loadAndGetFullExerciseList();
 
       // 加载计划
       _plans = await _repository.getAllPlans(exercises: _exercises);
