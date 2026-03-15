@@ -206,6 +206,69 @@ class PlanRepository {
     }
   }
 
+  /// 批量创建计划并分配到日历（用于AI周计划导入）
+  /// 返回创建的计划ID列表
+  Future<List<String>> batchCreatePlansWithCalendar(
+    List<WorkoutPlan> plans,
+    List<DateTime> dates,
+  ) async {
+    if (!_isDatabaseAvailable) {
+      debugPrint('Database not available on web - batchCreatePlansWithCalendar skipped');
+      return [];
+    }
+
+    if (plans.length != dates.length) {
+      throw ArgumentError('Plans and dates lists must have equal length');
+    }
+
+    if (plans.isEmpty) {
+      return [];
+    }
+
+    final database = await _db.database;
+    final List<String> createdIds = [];
+
+    await database.transaction((txn) async {
+      for (int i = 0; i < plans.length; i++) {
+        final plan = plans[i];
+        final date = dates[i];
+
+        // 插入计划
+        await txn.insert(
+          DatabaseHelper.tableWorkoutPlans,
+          plan.toMap(),
+        );
+
+        // 插入计划动作
+        for (var exercise in plan.exercises) {
+          await txn.insert(
+            DatabaseHelper.tablePlanExercises,
+            {
+              'id': _uuid.v4(),
+              ...exercise.toMap(plan.id),
+            },
+          );
+        }
+
+        // 分配到日历
+        await txn.insert(
+          DatabaseHelper.tableCalendarPlans,
+          {
+            'id': _uuid.v4(),
+            'date': date.toIso8601String(),
+            'plan_id': plan.id,
+            'created_at': DateTime.now().toIso8601String(),
+          },
+        );
+
+        createdIds.add(plan.id);
+      }
+    });
+
+    debugPrint('Batch created ${createdIds.length} plans with calendar assignments');
+    return createdIds;
+  }
+
   /// 从日期移除计划
   Future<void> removePlanFromDate(String planId, DateTime date) async {
     if (!_isDatabaseAvailable) {
