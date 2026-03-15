@@ -9,6 +9,7 @@ class PlanExercise {
   final int targetSets;
   final int? customSets;
   final int order;
+  final String? unmatchedName; // AI导入时未匹配到的动作名称
 
   const PlanExercise({
     required this.exerciseId,
@@ -16,13 +17,17 @@ class PlanExercise {
     required this.targetSets,
     this.customSets,
     required this.order,
+    this.unmatchedName,
   });
 
   /// 实际使用的组数（优先使用自定义值）
   int get effectiveSets => customSets ?? targetSets;
 
   /// 获取动作名称
-  String get name => exercise?.name ?? '';
+  String get name => exercise?.name ?? unmatchedName ?? '';
+
+  /// 是否有详细动作信息
+  bool get hasDetails => exercise != null;
 
   /// 获取动作英文名
   String get nameEn => exercise?.nameEn ?? '';
@@ -34,6 +39,7 @@ class PlanExercise {
       targetSets: json['targetSets'] as int? ?? json['target_sets'] as int? ?? 3,
       customSets: json['customSets'] as int? ?? json['custom_sets'] as int?,
       order: json['order'] as int? ?? json['exercise_order'] as int? ?? 0,
+      unmatchedName: json['unmatchedName'] as String?,
     );
   }
 
@@ -44,6 +50,7 @@ class PlanExercise {
       'targetSets': targetSets,
       'customSets': customSets,
       'order': order,
+      'unmatchedName': unmatchedName,
     };
   }
 
@@ -55,6 +62,7 @@ class PlanExercise {
       targetSets: map['target_sets'] as int? ?? 3,
       customSets: map['custom_sets'] as int?,
       order: map['exercise_order'] as int? ?? 0,
+      unmatchedName: map['unmatched_name'] as String?,
     );
   }
 
@@ -66,6 +74,7 @@ class PlanExercise {
       'target_sets': targetSets,
       'custom_sets': customSets,
       'exercise_order': order,
+      'unmatched_name': unmatchedName,
     };
   }
 
@@ -76,6 +85,7 @@ class PlanExercise {
     int? targetSets,
     int? customSets,
     int? order,
+    String? unmatchedName,
   }) {
     return PlanExercise(
       exerciseId: exerciseId ?? this.exerciseId,
@@ -83,6 +93,7 @@ class PlanExercise {
       targetSets: targetSets ?? this.targetSets,
       customSets: customSets ?? this.customSets,
       order: order ?? this.order,
+      unmatchedName: unmatchedName ?? this.unmatchedName,
     );
   }
 

@@ -487,13 +487,16 @@ class _PlanProgressCardState extends State<PlanProgressCard> with SingleTickerPr
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
-                                  exercise.name,
+                                  exercise.hasDetails ? exercise.name : '${exercise.name} (无详情)',
                                   style: TextStyle(
                                     fontFamily: '.SF Pro Text',
                                     fontSize: 14,
-                                    color: isCompleted || isCurrent
-                                        ? theme.textColor
-                                        : theme.secondaryTextColor,
+                                    color: exercise.hasDetails
+                                        ? (isCompleted || isCurrent
+                                            ? theme.textColor
+                                            : theme.secondaryTextColor)
+                                        : theme.secondaryTextColor.withValues(alpha: 0.7),
+                                    fontStyle: exercise.hasDetails ? null : FontStyle.italic,
                                     decoration: isCompleted
                                         ? TextDecoration.lineThrough
                                         : null,

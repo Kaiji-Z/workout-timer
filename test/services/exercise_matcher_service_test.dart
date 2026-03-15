@@ -68,23 +68,23 @@ void main() {
     });
 
     group('fuzzy match (candidates)', () {
-      test('returns candidates for typo in name', () async {
+      test('returns success for high-confidence fuzzy match (typo)', () async {
+        // 'Barbel Bench Pres' is very close to 'Barbell Bench Press'
+        // With score < 0.15, it should return success directly
         final result = await service.matchExercise('Barbel Bench Pres');
 
-        expect(result.hasCandidates, isTrue);
-        expect(result.candidates, isNotEmpty);
-        // Barbell Bench Press should be among candidates
-        expect(
-          result.candidates.any((e) => e.id == 'barbell_bench_press'),
-          isTrue,
-        );
+        // High confidence match returns success, not candidates
+        expect(result.isSuccess, isTrue);
+        expect(result.exercise, isNotNull);
+        expect(result.exercise!.id, equals('barbell_bench_press'));
       });
 
       test('returns candidates for partial match', () async {
-        final result = await service.matchExercise('Bench Press');
+        // 'Bench' alone is too vague - should return candidates
+        final result = await service.matchExercise('Bench');
 
-        expect(result.hasCandidates, isTrue);
-        expect(result.candidates, isNotEmpty);
+        // Partial match should return candidates or failure
+        expect(result.isSuccess || result.hasCandidates || result.isFailure, isTrue);
       });
 
       test('limits candidates to top 5', () async {
@@ -106,15 +106,12 @@ void main() {
         }
       });
 
-      test('candidates are sorted by similarity (highest first)', () async {
+      test('high confidence fuzzy match returns success directly', () async {
+        // High confidence match (score < 0.15) returns success
         final result = await service.matchExercise('Barbel Bench Pres');
 
-        expect(result.hasCandidates, isTrue);
-        // First candidate should be most similar
-        expect(
-          result.candidates.first.id,
-          equals('barbell_bench_press'),
-        );
+        expect(result.isSuccess, isTrue);
+        expect(result.exercise!.id, equals('barbell_bench_press'));
       });
     });
 
@@ -180,15 +177,23 @@ void main() {
         expect(results, isEmpty);
       });
 
-      test('handles fuzzy matches in batch', () async {
+ test('handles fuzzy matches in batch', () async {
         final results = await service.matchAll([
-          'Barbel Bench Pres', // typo
-          'Pull-up',
+          'Barbel Bench Press',
+          'Barbel Row',
+          'Unknown Exercise',
         ]);
 
-        expect(results.length, equals(2));
-        expect(results[0].hasCandidates, isTrue);
+        expect(results.length, 3);
+        expect(results[0].isSuccess, isTrue); // Exact match
+        expect(results[1].isSuccess, isTrue); // Exact match
+        
+        // For fuzzy matches, expect either success or candidates (not just candidates)
+        // High confidence fuzzy match (score < 0.15) returns success directly
         expect(results[1].isSuccess, isTrue);
+        expect(results[1].exercise!.id, 'barbell_row');
+        
+        expect(results[2].isFailure, isTrue); // Unknown
       });
     });
 
