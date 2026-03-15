@@ -185,34 +185,38 @@ class _MainNavigationState extends State<MainNavigation> {
           ),
           // Decorative circles
           DecorativeCircles(colors: appTheme.decorativeCircleColors),
-          // Content
+          // Content with bottom padding for navigation bar
           SafeArea(
             bottom: false,
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 300),
-              transitionBuilder: (child, animation) {
-                return FadeTransition(
-                  opacity: animation,
-                  child: SlideTransition(
-                    position: Tween<Offset>(
-                      begin: const Offset(0.0, 0.02),
-                      end: Offset.zero,
-                    ).animate(CurvedAnimation(
-                      parent: animation,
-                      curve: Curves.easeOut,
-                    )),
-                    child: child,
-                  ),
-                );
-              },
-              child: _screens[_currentIndex],
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 100), // Space for floating nav bar
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                transitionBuilder: (child, animation) {
+                  return FadeTransition(
+                    opacity: animation,
+                    child: SlideTransition(
+                      position: Tween<Offset>(
+                        begin: const Offset(0.0, 0.02),
+                        end: Offset.zero,
+                      ).animate(CurvedAnimation(
+                        parent: animation,
+                        curve: Curves.easeOut,
+                      )),
+                      child: child,
+                    ),
+                  );
+                },
+                child: _screens[_currentIndex],
+              ),
             ),
           ),
         ],
       ),
-      // iOS 26 风格悬浮导航栏 - 统一毛玻璃效果
+// iOS 26 风格悬浮导航栏 - 统一毛玻璃效果
       // 扁平导航栏 - Flat Vitality 风格
-bottomNavigationBar: Stack(
+      bottomNavigationBar: Stack(
+        clipBehavior: Clip.none, // Allow center button to overflow
         alignment: Alignment.center,
         children: [
           // Background nav bar
@@ -222,7 +226,7 @@ bottomNavigationBar: Stack(
               height: 70,
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(25),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)), // Top-only rounded corners
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.1),
@@ -245,7 +249,7 @@ bottomNavigationBar: Stack(
           ),
           // Center timer button (floats above nav bar)
           Positioned(
-            top: -25,
+            top: -35, // Half of button height (70px) for proper positioning
             child: _buildCenterTimerButton(appTheme),
           ),
         ],
