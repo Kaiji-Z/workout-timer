@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../bloc/training_provider.dart';
 import '../bloc/plan_provider.dart';
 import '../bloc/training_progress_provider.dart';
@@ -8,11 +9,13 @@ import '../theme/theme_provider.dart';
 import '../theme/app_theme.dart';
 import '../services/workout_repository.dart';
 import '../models/workout_plan.dart';
+import '../models/set_data.dart';
 
 import 'duration_picker.dart';
 import 'glass_widgets.dart';
 import 'animated_timer_widget.dart';
 import 'plan_card.dart';
+import 'weight_input_dialog.dart';
 
 /// 训练主界面 - 极简设计
 /// 
@@ -32,11 +35,20 @@ class TrainingWidget extends StatefulWidget {
 class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObserver {
   bool _isPlanMode = false;
   WorkoutPlan? _selectedPlan;
-  
+  bool _detailedRecordingEnabled = false;
+   
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _loadDetailedRecordingPref();
+  }
+
+  Future<void> _loadDetailedRecordingPref() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _detailedRecordingEnabled = prefs.getBool('detailed_recording') ?? false;
+    });
   }
 
   @override
@@ -397,9 +409,25 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
           CircularControlButton(
             icon: Icons.stop,
             iconColor: Colors.red,
-            onPressed: () {
+            onPressed: () async {
               if (_isPlanMode) {
                 progressProvider.completeSet();
+                if (_detailedRecordingEnabled) {
+                  final progressProvider = context.read<TrainingProgressProvider>();
+                  final currentExercise = progressProvider.currentExercise;
+                  if (currentExercise != null) {
+                    final setData = await showDialog<SetData?>(
+                      context: context,
+                      builder: (context) => WeightInputDialog(
+                        exerciseName: currentExercise.name,
+                        setNumber: progressProvider.currentSetInExercise,
+                      ),
+                    );
+                    if (setData != null) {
+                      progressProvider.addSetData(currentExercise.exerciseId, setData);
+                    }
+                  }
+                }
               }
               training.endWorkout();
             },
@@ -408,10 +436,26 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
           PrimaryActionButton(
             label: '休息',
             icon: Icons.self_improvement,
-            onPressed: () {
+            onPressed: () async {
               training.startRest();
               if (_isPlanMode) {
                 progressProvider.completeSet();
+                if (_detailedRecordingEnabled) {
+                  final progressProvider = context.read<TrainingProgressProvider>();
+                  final currentExercise = progressProvider.currentExercise;
+                  if (currentExercise != null) {
+                    final setData = await showDialog<SetData?>(
+                      context: context,
+                      builder: (context) => WeightInputDialog(
+                        exerciseName: currentExercise.name,
+                        setNumber: progressProvider.currentSetInExercise,
+                      ),
+                    );
+                    if (setData != null) {
+                      progressProvider.addSetData(currentExercise.exerciseId, setData);
+                    }
+                  }
+                }
               }
             },
           ),
