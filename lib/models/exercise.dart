@@ -148,7 +148,7 @@ class Exercise {
     final List<String> images = [];
     if (imagesList != null && imagesList.isNotEmpty) {
       for (String imagePath in imagesList) {
-        images.add('https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/$imagePath');
+        images.add('https://gitee.com/kaiji1126/free-exercise-db/raw/main/exercises/$imagePath');
       }
     }
 
