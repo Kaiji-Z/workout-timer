@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'exercise.dart';
 import 'muscle_group.dart';
+import 'set_data.dart';
 
 /// 记录中的动作详情
 class RecordedExercise {
@@ -8,12 +9,14 @@ class RecordedExercise {
   final Exercise? exercise; // 加载时填充
   final int completedSets;
   final double? maxWeight;
+  final List<SetData>? setsData;
 
   const RecordedExercise({
     required this.exerciseId,
     this.exercise,
     required this.completedSets,
     this.maxWeight,
+    this.setsData,
   });
 
   /// 获取动作名称
@@ -30,12 +33,22 @@ class RecordedExercise {
     return '${maxWeight!.toStringAsFixed(1)}kg';
   }
 
+  /// 计算总训练容量
+  double get totalVolume =>
+      setsData?.fold<double>(0.0, (sum, s) => sum + s.volume) ?? (completedSets * (maxWeight ?? 0));
+
   /// 从JSON解析
   factory RecordedExercise.fromJson(Map<String, dynamic> json) {
+    List<SetData>? setsData;
+    if (json['sets_data'] != null) {
+      final List<dynamic> setsList = jsonDecode(json['sets_data'] as String);
+      setsData = setsList.map((s) => SetData.fromMap(s as Map<String, dynamic>)).toList();
+    }
     return RecordedExercise(
       exerciseId: json['exerciseId'] as String? ?? json['exercise_id'] as String? ?? '',
       completedSets: json['completedSets'] as int? ?? json['completed_sets'] as int? ?? 0,
       maxWeight: json['maxWeight'] as double? ?? json['max_weight'] as double?,
+      setsData: setsData,
     );
   }
 
@@ -45,16 +58,23 @@ class RecordedExercise {
       'exerciseId': exerciseId,
       'completedSets': completedSets,
       'maxWeight': maxWeight,
+      'sets_data': setsData != null ? jsonEncode(setsData!.map((s) => s.toMap()).toList()) : null,
     };
   }
 
   /// 从数据库Map解析
   factory RecordedExercise.fromMap(Map<String, dynamic> map, {Exercise? exercise}) {
+    List<SetData>? setsData;
+    if (map['per_set_data'] != null) {
+      final List<dynamic> setsList = jsonDecode(map['per_set_data'] as String);
+      setsData = setsList.map((s) => SetData.fromMap(s as Map<String, dynamic>)).toList();
+    }
     return RecordedExercise(
       exerciseId: map['exercise_id'] as String,
       exercise: exercise,
       completedSets: map['completed_sets'] as int? ?? 0,
       maxWeight: map['max_weight'] as double?,
+      setsData: setsData,
     );
   }
 
@@ -65,6 +85,7 @@ class RecordedExercise {
       'exercise_id': exerciseId,
       'completed_sets': completedSets,
       'max_weight': maxWeight,
+      'per_set_data': setsData != null ? jsonEncode(setsData!.map((s) => s.toMap()).toList()) : null,
     };
   }
 
@@ -74,12 +95,14 @@ class RecordedExercise {
     Exercise? exercise,
     int? completedSets,
     double? maxWeight,
+    List<SetData>? setsData,
   }) {
     return RecordedExercise(
       exerciseId: exerciseId ?? this.exerciseId,
       exercise: exercise ?? this.exercise,
       completedSets: completedSets ?? this.completedSets,
       maxWeight: maxWeight ?? this.maxWeight,
+      setsData: setsData ?? this.setsData,
     );
   }
 
