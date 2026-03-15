@@ -44,7 +44,7 @@ class _PlanScreenState extends State<PlanScreen> {
             // 日历
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: CalendarWidget(
+              child: CompactCalendar(
                 selectedDate: _selectedDate,
                 onDateSelected: (date) {
                   setState(() {
@@ -55,8 +55,9 @@ class _PlanScreenState extends State<PlanScreen> {
             ),
             const SizedBox(height: 16),
             
-            // 当日计划列表
-            Expanded(
+            // 当日计划列表 - 限制高度显示2-3个计划
+            SizedBox(
+              height: 200, // 固定高度，显示2-3个计划卡片
               child: _buildPlanList(planProvider, theme),
             ),
           ],
@@ -143,75 +144,29 @@ class _PlanScreenState extends State<PlanScreen> {
     final dateStr = dateFormat.format(_selectedDate);
     final isToday = _isToday(_selectedDate);
     
-    return SingleChildScrollView(
-      padding: const EdgeInsets.only(bottom: 100),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 当日计划标题
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  isToday ? '今日计划' : '$dateStr 的计划',
-                  style: TextStyle(
-                    fontFamily: '.SF Pro Text',
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: theme.textColor,
-                  ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // 当日计划标题
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                isToday ? '今日计划' : '$dateStr 的计划',
+                style: TextStyle(
+                  fontFamily: '.SF Pro Text',
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: theme.textColor,
                 ),
-                if (plansForDate.isNotEmpty)
-                  TextButton(
-                    onPressed: () => _showAddPlanToDateSheet(planProvider),
-                    child: Text(
-                      '+ 添加',
-                      style: TextStyle(
-                        fontFamily: '.SF Pro Text',
-                        fontSize: 14,
-                        color: theme.accentColor,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 8),
-          
-          // 当日计划列表
-          if (plansForDate.isNotEmpty)
-            ...plansForDate.map((plan) => PlanCard(
-                  plan: plan,
-                  onStart: () => _startPlan(plan),
-                  onEdit: () => _navigateToEditPlan(plan),
-                  onDelete: () => _confirmDeletePlanFromDay(planProvider, plan),
-                ))
-          else
-            _buildEmptyDayPlan(theme),
-          
-          const SizedBox(height: 24),
-          
-          // 计划库标题
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  '📚 我的计划库',
-                  style: TextStyle(
-                    fontFamily: '.SF Pro Text',
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: theme.textColor,
-                  ),
-                ),
+              ),
+              if (plansForDate.isNotEmpty)
                 TextButton(
-                  onPressed: () => _navigateToCreatePlan(),
+                  onPressed: () => _showAddPlanToDateSheet(planProvider),
                   child: Text(
-                    '+ 新建',
+                    '+ 添加',
                     style: TextStyle(
                       fontFamily: '.SF Pro Text',
                       fontSize: 14,
@@ -219,70 +174,52 @@ class _PlanScreenState extends State<PlanScreen> {
                     ),
                   ),
                 ),
-              ],
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        
+        // 当日计划列表
+        if (plansForDate.isNotEmpty)
+          ...plansForDate.take(3).map((plan) => PlanCard(
+                plan: plan,
+                onStart: () => _startPlan(plan),
+                onEdit: () => _navigateToEditPlan(plan),
+                onDelete: () => _confirmDeletePlanFromDay(planProvider, plan),
+              ))
+        else
+          _buildEmptyDayPlan(theme),
+        
+        const SizedBox(height: 16),
+        
+        // 计划库按钮
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () => _showPlanLibraryModal(planProvider),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: theme.accentColor,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                elevation: 0,
+              ),
+              child: Text(
+                '📚 我的计划库',
+                style: TextStyle(
+                  fontFamily: '.SF Pro Text',
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+              ),
             ),
           ),
-          const SizedBox(height: 8),
-          
-          // 计划库列表
-          if (allPlans.isNotEmpty)
-            ...allPlans.map((plan) => Dismissible(
-                  key: Key(plan.id),
-                  direction: DismissDirection.endToStart,
-                  background: Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                    alignment: Alignment.centerRight,
-                    padding: const EdgeInsets.only(right: 20),
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(Icons.delete, color: Colors.white),
-                  ),
-                  confirmDismiss: (direction) async {
-                    return await showDialog<bool>(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        title: const Text('删除计划'),
-                        content: Text('确定要删除「${plan.name}」吗？此操作无法撤销。'),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(context, false),
-                            child: const Text('取消'),
-                          ),
-                          TextButton(
-                            onPressed: () => Navigator.pop(context, true),
-                            style: TextButton.styleFrom(foregroundColor: Colors.red),
-                            child: const Text('删除'),
-                          ),
-                        ],
-                      ),
-                    ) ?? false;
-                  },
-                  onDismissed: (direction) async {
-                    await context.read<PlanProvider>().deletePlan(plan.id);
-                    if (mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('已删除「${plan.name}」'),
-                          behavior: SnackBarBehavior.floating,
-                        ),
-                      );
-                    }
-                  },
-                  child: CompactPlanCard(
-                    plan: plan,
-                    onTap: () => _showPlanDetail(plan),
-                  ),
-                ))
-          else
-            EmptyPlanCard(
-              onTap: () => _navigateToCreatePlan(),
-              title: '还没有计划',
-              subtitle: '点击创建你的第一个训练计划',
-            ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -524,6 +461,110 @@ class _PlanScreenState extends State<PlanScreen> {
     );
   }
 
+  void _showPlanLibraryModal(PlanProvider planProvider) {
+    final allPlans = planProvider.plans;
+    
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.7,
+          minChildSize: 0.5,
+          maxChildSize: 0.9,
+          expand: false,
+          builder: (context, scrollController) {
+            return Container(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    '我的计划库',
+                    style: const TextStyle(
+                      fontFamily: '.SF Pro Display',
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Flexible(
+                    child: ListView.builder(
+                      controller: scrollController,
+                      shrinkWrap: true,
+                      itemCount: allPlans.length,
+                      itemBuilder: (context, index) {
+                        final plan = allPlans[index];
+                        return ListTile(
+                          leading: Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Icon(
+                              Icons.fitness_center,
+                              color: Theme.of(context).primaryColor,
+                            ),
+                          ),
+                          title: Text(plan.name),
+                          subtitle: Text(plan.targetMusclesText),
+                          trailing: IconButton(
+                            icon: Icon(Icons.delete_outline, color: Colors.red),
+                            onPressed: () => _confirmDeletePlan(planProvider, plan),
+                          ),
+                          onTap: () => _showPlanDetail(plan),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  // 创建新计划按钮
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        _navigateToCreatePlan();
+                      },
+                      icon: const Icon(Icons.add),
+                      label: const Text('创建新计划'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Theme.of(context).primaryColor,
+                        side: BorderSide(color: Theme.of(context).primaryColor),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   void _addPlanToDate(PlanProvider planProvider, WorkoutPlan plan) async {
     try {
       await planProvider.assignPlanToDate(plan.id, _selectedDate);
@@ -586,6 +627,50 @@ class _PlanScreenState extends State<PlanScreen> {
               }
             },
             child: const Text('移除', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmDeletePlan(PlanProvider planProvider, WorkoutPlan plan) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('删除计划'),
+        content: Text('确定要删除「${plan.name}」吗？此操作无法撤销。'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('取消'),
+          ),
+          TextButton(
+            onPressed: () async {
+              final messenger = ScaffoldMessenger.of(context);
+              Navigator.pop(context);
+              try {
+                await planProvider.deletePlan(plan.id);
+                if (mounted) {
+                  messenger.showSnackBar(
+                    SnackBar(
+                      content: Text('已删除「${plan.name}」'),
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                }
+              } catch (e) {
+                if (mounted) {
+                  messenger.showSnackBar(
+                    SnackBar(
+                      content: Text('删除失败: $e'),
+                      backgroundColor: Colors.red,
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                }
+              }
+            },
+            child: const Text('删除', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),

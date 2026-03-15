@@ -121,20 +121,37 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
     return Padding(
       padding: const EdgeInsets.only(top: 12, bottom: 12, left: 20, right: 16),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // 标题
-          Text(
-            'WORKOUT TIMER',
-            style: TextStyle(
-              fontFamily: '.SF Pro Display',
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: theme.textColor,
-              letterSpacing: 3,
+          // Left spacer to balance plan icon
+          const SizedBox(width: 40),
+          // Centered title with accent bar
+          Expanded(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 4,
+                  height: 20,
+                  margin: const EdgeInsets.only(right: 12),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(colors: theme.timerGradientColors),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                Text(
+                  'WORKOUT TIMER',
+                  style: TextStyle(
+                    fontFamily: '.SF Pro Display',
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.5,  // Match other pages
+                    color: theme.textColor,
+                  ),
+                ),
+              ],
             ),
           ),
-          // 计划图标入口
+          // Plan icon button
           GestureDetector(
             onTap: () => _showPlanSelector(theme, planProvider, progressProvider),
             child: Container(

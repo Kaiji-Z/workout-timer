@@ -150,12 +150,12 @@ class MainNavigation extends StatefulWidget {
 }
 
 class _MainNavigationState extends State<MainNavigation> {
-  int _currentIndex = 0;
+  int _currentIndex = 2;
   
   final List<Widget> _screens = const [
-    TimerScreen(),
     PlanScreen(),
     HistoryScreen(),
+    TimerScreen(),
     StatsScreen(),
     SettingsScreen(),
   ];
@@ -212,32 +212,42 @@ class _MainNavigationState extends State<MainNavigation> {
       ),
       // iOS 26 风格悬浮导航栏 - 统一毛玻璃效果
       // 扁平导航栏 - Flat Vitality 风格
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.only(bottom: 16, left: 20, right: 20),
-        child: Container(
-          height: 70,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(25),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.1),
-                blurRadius: 15,
-                offset: const Offset(0, 4),
+bottomNavigationBar: Stack(
+        alignment: Alignment.center,
+        children: [
+          // Background nav bar
+          Padding(
+            padding: const EdgeInsets.only(bottom: 16, left: 20, right: 20),
+            child: Container(
+              height: 70,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(25),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.1),
+                    blurRadius: 15,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
-            ],
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _buildNavItem(0, Icons.fitness_center_outlined, Icons.fitness_center, '计划', appTheme),
+                  _buildNavItem(1, Icons.history_outlined, Icons.history, '历史', appTheme),
+                  _buildNavItem(3, Icons.bar_chart_outlined, Icons.bar_chart, '统计', appTheme),
+                  _buildNavItem(4, Icons.settings_outlined, Icons.settings, '设置', appTheme),
+                ],
+              ),
+            ),
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildNavItem(0, Icons.timer_outlined, Icons.timer, '计时器', appTheme),
-              _buildNavItem(1, Icons.fitness_center_outlined, Icons.fitness_center, '计划', appTheme),
-              _buildNavItem(2, Icons.history_outlined, Icons.history, '历史', appTheme),
-              _buildNavItem(3, Icons.bar_chart_outlined, Icons.bar_chart, '统计', appTheme),
-              _buildNavItem(4, Icons.settings_outlined, Icons.settings, '设置', appTheme),
-            ],
-        ),
-      ),
+          // Center timer button (floats above nav bar)
+          Positioned(
+            top: -25,
+            child: _buildCenterTimerButton(appTheme),
+          ),
+        ],
       ),
     );
   }
@@ -285,6 +295,44 @@ class _MainNavigationState extends State<MainNavigation> {
                 ),
               ],
             ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCenterTimerButton(AppThemeData appTheme) {
+    final activeColor = appTheme.accentColor;
+
+    return GestureDetector(
+      onTap: () => setState(() => _currentIndex = 2),
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        width: 70,
+        height: 70,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: LinearGradient(
+            colors: [
+              activeColor,
+              activeColor.withValues(alpha: 0.7),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.2),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: Center(
+          child: Icon(
+            Icons.timer,
+            color: Colors.white,
+            size: 32,
           ),
         ),
       ),
