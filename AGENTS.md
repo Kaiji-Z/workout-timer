@@ -1,6 +1,6 @@
 # AGENTS.md - WorkoutTimer Flutter App
 
-**Updated:** 2026-03-14
+**Updated:** 2026-03-16
 **Branch:** master
 
 ## OVERVIEW
@@ -8,8 +8,10 @@
 Cross-platform Flutter workout rest timer with preset durations (30s/60s/90s/120s), multi-channel notifications, and SQLite-backed workout history. Supports Android, iOS, Web, and Desktop.
 
 **Architecture**: MVVM with Provider (ChangeNotifier), services layer, local SQLite.
-**Stack**: Flutter 3.10+ / Dart 3.10.7+ / sqflite / provider / flutter_local_notifications / uuid / intl.
+**Stack**: Flutter 3.10+ / Dart 3.10.7+ / sqflite / provider / flutter_local_notifications / uuid / intl / fuzzy.
 **Design System**: "Flat Vitality" — warm gradients, deep indigo accent (#1A237E), white circular buttons.
+
+---
 
 ## COMMANDS
 
@@ -23,45 +25,73 @@ flutter run -d windows             # Desktop
 # Build
 flutter build apk --debug          # Debug APK
 ./build_release.sh                 # Release APK (with --no-tree-shake-icons)
+flutter build apk --release --no-tree-shake-icons  # Direct release build
 flutter build web                  # Web build
 
 # Test
-flutter test                       # Run all unit tests
-flutter test test/widget_test.dart # Run single test file
-flutter test --name "testName"     # Run specific test by name pattern
-flutter test --reporter expanded   # Verbose output
-flutter test integration_test/     # Integration tests
+flutter test                                    # Run all unit tests
+flutter test test/widget_test.dart              # Run single test file
+flutter test test/services/exercise_matcher_service_test.dart  # Run specific service test
+flutter test --name "exact match"               # Run tests matching name pattern
+flutter test --reporter expanded                # Verbose output
+flutter test integration_test/                  # Integration tests
 
 # Analyze & Format
-flutter analyze                    # Static analysis
+flutter analyze                    # Static analysis (all files)
 flutter analyze lib/bloc/          # Analyze specific directory
+flutter analyze lib/main.dart      # Analyze single file
 dart format lib/ test/             # Format code
 dart fix --apply                   # Auto-fix issues
 
 # Clean
-flutter clean && flutter pub get
+flutter clean && flutter pub get   # Clean and reinstall
 ```
 
 > **CRITICAL**: Always use `--no-tree-shake-icons` for release builds to prevent Material Icons from displaying as garbled text.
+
+---
 
 ## STRUCTURE
 
 ```
 lib/
-├── main.dart                 # Entry point, MultiProvider, navigation
+├── main.dart                 # Entry point, MultiProvider, bottom nav
 ├── bloc/                     # State providers (ChangeNotifier, NOT BLoC)
 │   ├── timer_provider.dart   # Timer countdown, sets counter
 │   ├── training_provider.dart # Training mode state machine
 │   ├── plan_provider.dart    # Workout plan CRUD
-│   └── record_provider.dart  # History and stats
+│   ├── record_provider.dart  # History and stats
+│   └── training_progress_provider.dart # Real-time training tracking
 ├── models/                   # Data models with fromMap/toMap
-├── screens/                  # UI screens
+│   ├── workout_session.dart  # Simple session (sets, rest time)
+│   ├── workout_record.dart   # Detailed record (exercises, weights)
+│   ├── workout_plan.dart     # Plan template
+│   ├── exercise.dart         # Exercise definition
+│   └── muscle_group.dart     # Muscle group enums
+├── screens/                  # UI screens (full pages)
+│   ├── timer_screen.dart     # Timer wrapper
+│   ├── plan_screen.dart      # Workout plans + calendar
+│   ├── history_screen.dart   # Workout history list
+│   ├── stats_screen.dart     # Statistics dashboard
+│   └── settings_screen.dart  # User preferences
 ├── widgets/                  # Reusable UI components
+│   ├── training_widget.dart  # Main training UI
+│   ├── timer_widget.dart     # Timer display
+│   ├── calendar_widget.dart  # Month calendar
+│   └── charts/               # fl_chart visualizations
 ├── theme/                    # Flat Vitality theme (5 themes)
+│   ├── app_theme.dart        # Theme data models
+│   └── theme_provider.dart   # Theme state + persistence
 ├── services/                 # Database, notifications, repositories
+│   ├── database_helper.dart  # SQLite singleton
+│   ├── notification_service.dart # Local notifications
+│   ├── exercise_service.dart # Exercise data loading
+│   └── *_repository.dart     # Data access layers
 ├── utils/                    # Color utilities, vocabulary
 └── data/                     # Static exercise data (JSON)
 ```
+
+---
 
 ## CODE STYLE
 
@@ -82,7 +112,7 @@ import '../services/notification_service.dart';  // 4. Relative imports
 
 ### Null Safety
 ```dart
-// GOOD - null check
+// GOOD - null check before use
 if (session != null) {
   await _repository.saveSession(session);
 }
@@ -129,10 +159,13 @@ class WorkoutSession {
   
   factory WorkoutSession.fromMap(Map<String, dynamic> map) =>
       WorkoutSession(id: map['id'], sets: map['sets'], ...);
+  
+  WorkoutSession copyWith({String? id, int? sets, ...}) =>
+      WorkoutSession(id: id ?? this.id, sets: sets ?? this.sets, ...);
 }
 ```
 
-### Testing Pattern
+### Widget Testing Pattern
 ```dart
 await tester.pumpWidget(MultiProvider(
   providers: [
@@ -142,7 +175,56 @@ await tester.pumpWidget(MultiProvider(
   child: const MaterialApp(home: TrainingWidget()),
 ));
 await tester.pump(const Duration(seconds: 1));  // For animations
+expect(find.text('开始运动'), findsOneWidget);
 ```
+
+### Unit Testing Pattern
+```dart
+void main() {
+  late ExerciseMatcherService service;
+
+  setUp(() {
+    service = ExerciseMatcherService(exercises: sampleExercises);
+  });
+
+  group('ExerciseMatcherService', () {
+    test('returns success for exact match', () async {
+      final result = await service.matchExercise('Barbell Bench Press');
+      expect(result.isSuccess, isTrue);
+      expect(result.exercise, isNotNull);
+    });
+  });
+}
+```
+
+---
+
+## DESIGN SYSTEM (Flat Vitality)
+
+### Color Usage
+| Element | Color/Pattern |
+|---------|---------------|
+| Background | Warm gradient (primaryColor → secondaryColor) |
+| Accent/Interactive | Deep indigo (#1A237E) via `accentColor` |
+| Progress Ring | `accentColor`, 10px stroke |
+| Buttons | White circular with accent icons |
+| Cards/Surfaces | White (#FFFFFF) |
+| Text | #212121 primary, #757575 secondary |
+| Active indicators | `accentColor.withValues(alpha: 0.15)` |
+| Borders | `accentColor.withValues(alpha: 0.3-0.4)` |
+
+### Fonts
+- Display: `.SF Pro Display` (system font)
+- Body: `.SF Pro Text` (system font)
+- Timer: `Orbitron`, `Rajdhani` (custom fonts)
+
+### Navigation Bar
+- Floating design with `extendBody: true`
+- 5 buttons: Plan, History, Timer (center), Stats, Settings
+- Center timer button: 70x70 circle, gradient, aligned at bottom
+- Nav bar: 4-corner radius (25px), white background
+
+---
 
 ## KEY LOCATIONS
 
@@ -154,6 +236,9 @@ await tester.pump(const Duration(seconds: 1));  // For animations
 | Database schema | `services/database_helper.dart` (`_onCreate()`) |
 | Theme definitions | `theme/app_theme.dart` |
 | Exercise data | `services/exercise_service.dart` |
+| Bottom navigation | `main.dart` (`MainNavigation` widget) |
+
+---
 
 ## PLATFORM GUARDS
 
@@ -165,6 +250,10 @@ if (!kIsWeb) {
 }
 ```
 
+Web uses in-memory SQLite database; native uses persistent storage.
+
+---
+
 ## ANTI-PATTERNS (AVOID)
 
 | Pattern | Issue | Instead |
@@ -173,12 +262,19 @@ if (!kIsWeb) {
 | `!` operator | Runtime crashes | Null check `if (x != null)` |
 | Service in Provider | Hard to test | Constructor injection |
 | Release without `--no-tree-shake-icons` | Icons show as garbled | Use `build_release.sh` |
+| Direct color values | Breaks theming | Use `AppThemeData` fields |
+| Bottom padding in main content | Nav bar overlap | Use `extendBody: true`, add padding per-screen |
+
+---
 
 ## KNOWN ISSUES
 
 - **bloc/ naming**: Directory uses Provider (ChangeNotifier), not BLoC pattern
 - **No dependency injection**: Services instantiated inside providers
 - **Mixed comments**: Code uses both English and Chinese comments
+- **Unused variables**: Some `allPlans` variables flagged by analyzer
+
+---
 
 ## DATA SOURCES
 
@@ -186,3 +282,12 @@ if (!kIsWeb) {
 |----------|--------|---------|
 | Exercise database | [yuhonas/free-exercise-db](https://github.com/yuhonas/free-exercise-db) | CC0 Public Domain |
 | Fonts (Orbitron, Rajdhani) | Google Fonts | SIL Open Font License |
+
+---
+
+## IMAGE URLS
+
+Use Gitee mirror for exercise images in China:
+```
+https://gitee.com/kaiji-z/free-exercise-db/raw/main/exercises/{exercise_id}/images/{image_id}.jpg
+```

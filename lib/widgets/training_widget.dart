@@ -166,13 +166,40 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
     final currentExercise = progressProvider.currentExercise;
     if (currentExercise == null) return const SizedBox.shrink();
 
+    // 计算下一个动作提示
+    String? nextHint;
+    if (_isPlanMode && progressProvider.currentPlan != null) {
+      final nextExercise = progressProvider.getNextExercise();
+      if (nextExercise != null) {
+        nextHint = 'next: ${nextExercise.name}';
+      } else {
+        nextHint = 'next: 训练完成';
+      }
+    }
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: PlanProgressCompact(
-        exerciseName: currentExercise.name,
-        currentSet: progressProvider.currentSetInExercise + 1,
-        totalSets: currentExercise.effectiveSets,
-        totalProgress: progressProvider.progressPercentage,
+      child: Column(
+        children: [
+          PlanProgressCompact(
+            exerciseName: currentExercise.name,
+            currentSet: progressProvider.currentSetInExercise + 1,
+            totalSets: currentExercise.effectiveSets,
+            totalProgress: progressProvider.progressPercentage,
+          ),
+          if (nextHint != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text(
+                nextHint,
+                style: TextStyle(
+                  fontFamily: '.SF Pro Text',
+                  fontSize: 12,
+                  color: theme.secondaryTextColor,
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -421,16 +448,21 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
             },
           ),
           const SizedBox(width: 16),
-          PrimaryActionButton(
-            label: '休息',
-            icon: Icons.self_improvement,
-            onPressed: () {
-              training.startRest();
-              if (_isPlanMode) {
-                progressProvider.completeSet();
+        PrimaryActionButton(
+          label: '休息',
+          icon: Icons.self_improvement,
+          onPressed: () {
+            if (_isPlanMode) {
+              progressProvider.completeSet();
+              // 检查是否是最后一组最后一个动作，如果是则直接结束训练
+              if (progressProvider.isAllExercisesComplete) {
+                training.endWorkout();
+                return;
               }
-            },
-          ),
+            }
+            training.startRest();
+          },
+        ),
         ],
       );
     }
@@ -693,4 +725,3 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
     }
   }
 }
-

@@ -287,7 +287,7 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
             children: [
               // 组数标签
               SizedBox(
-                width: 60,
+                width: 50,
                 child: Text(
                   '第$setNumber组',
                   style: TextStyle(
@@ -326,7 +326,8 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
               const SizedBox(width: 8),
               
               // 重量输入
-              Expanded(
+              SizedBox(
+                width: 100,
                 child: TextField(
                   controller: weightController,
                   keyboardType: TextInputType.number,
@@ -366,69 +367,13 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
                     final weight = double.tryParse(value);
                     _updateWeight(exerciseId, setNumber, weight);
                   },
-                ),
-              ),
-            ],
-          ),
-          
-          // 标签行：次数 和 重量
-          const SizedBox(height: 4),
-          Row(
-            children: [
-              SizedBox(
-                width: 60,
-                child: Text(
-                  '次数',
-                  style: TextStyle(
-                    fontFamily: '.SF Pro Text',
-                    fontSize: 12,
-                    color: theme.secondaryTextColor,
-                  ),
-                ),
-              ),
-              
-              const SizedBox(width: 12),
-              
-              SizedBox(
-                width: 60,
-                child: Text(
-                  '重量',
-                  style: TextStyle(
-                    fontFamily: '.SF Pro Text',
-                    fontSize: 12,
-                    color: theme.secondaryTextColor,
-                  ),
-                ),
-              ),
-              
-              const SizedBox(width: 8),
-              
-              Text(
-                'kg',
-                style: TextStyle(
-                  fontFamily: '.SF Pro Text',
-                  fontSize: 12,
-                  color: theme.secondaryTextColor,
-                ),
-              ),
-              
-              const SizedBox(width: 8),
-              
-              Expanded(
-                child: Text(
-                  '(kg)',
-                  style: TextStyle(
-                    fontFamily: '.SF Pro Text',
-                    fontSize: 12,
-                    color: theme.secondaryTextColor,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
+                 ),
+               )
+             ],
+           ),
+         ],
+       ),
+     );
   }
   
   Widget _buildRepsSelector({

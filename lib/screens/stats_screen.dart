@@ -1595,8 +1595,11 @@ return Column(
                   final key = isWeekView ? index : index + 1;
                   return Expanded(
                     child: Text(
-                      isWeekView ? ['一', '二', '三', '四', '五', '六', '日'][index] : '$key',
+                      isWeekView 
+                          ? ['一', '二', '三', '四', '五', '六', '日'][index] 
+                          : '$key',
                       textAlign: TextAlign.center,
+                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontFamily: '.SF Pro Text',
                         fontSize: isWeekView ? 10 : 8,
