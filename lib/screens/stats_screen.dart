@@ -1531,45 +1531,13 @@ return Column(
                     return Expanded(
                       child: Container(
                         margin: EdgeInsets.symmetric(horizontal: isWeekView ? 2 : 1),
-                        child: Column(
-                          // 使用Spacer将内容推到底部，确保所有柱状条从同一基线开始
+                        child: Stack(
+                          alignment: Alignment.bottomCenter,
                           children: [
-                            Spacer(),
-                            // 时长和组数显示
-                            if (duration > 0 || setCount > 0)
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    formatDuration(duration),
-                                    textAlign: TextAlign.center,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      fontFamily: '.SF Pro Text',
-                                      fontSize: isWeekView ? 9 : 7,
-                                      color: theme.secondaryTextColor,
-                                    ),
-                                  ),
-                                  if (setCount > 0)
-                                    Text(
-                                      '${setCount}组',
-                                      textAlign: TextAlign.center,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        fontFamily: '.SF Pro Text',
-                                        fontSize: isWeekView ? 8 : 6,
-                                        color: theme.secondaryTextColor,
-                                      ),
-                                    ),
-                                ],
-                              ),
-                            const SizedBox(height: 4),
-                            // 柱状条 - 现在所有柱状条都从同一基线开始
+                            // 柱状条 - 固定在底部
                             Container(
-                              width: double.infinity,
                               height: barHeight,
+                              width: double.infinity,
                               decoration: BoxDecoration(
                                 gradient: duration > 0
                                     ? LinearGradient(
@@ -1580,6 +1548,39 @@ return Column(
                                     : null,
                                 color: duration > 0 ? null : theme.textColor.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(isWeekView ? 4 : 2),
+                              ),
+                            ),
+                            // 数字 - 在柱状条上方
+                            Positioned(
+                              bottom: barHeight + 4,
+                              child: Column(
+                                children: [
+                                  if (duration > 0 || setCount > 0)
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          formatDuration(duration),
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            fontFamily: '.SF Pro Text',
+                                            fontSize: isWeekView ? 11 : 9,
+                                            color: theme.secondaryTextColor,
+                                          ),
+                                        ),
+                                        if (setCount > 0)
+                                          Text(
+                                            '${setCount}组',
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              fontFamily: '.SF Pro Text',
+                                              fontSize: isWeekView ? 10 : 8,
+                                              color: theme.secondaryTextColor,
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                ],
                               ),
                             ),
                           ],
@@ -1612,7 +1613,7 @@ return Column(
             ],
           ),
         ),
-       ],
+      ],
     );
   }
 
