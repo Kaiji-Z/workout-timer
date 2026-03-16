@@ -41,6 +41,9 @@ class TrainingProgressProvider extends ChangeNotifier {
   int get totalCompletedSets {
     return _completedSets.values.fold(0, (sum, count) => sum + count);
   }
+  
+  /// 获取所有动作的完成组数映射
+  Map<String, int> get completedSets => Map.unmodifiable(_completedSets);
 
   /// 获取总目标组数
   int get totalTargetSets {

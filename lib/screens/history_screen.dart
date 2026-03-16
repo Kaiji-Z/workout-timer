@@ -342,22 +342,26 @@ class _RecordCard extends StatelessWidget {
                     Row(
                       children: [
                         if (record.isPlanMode) ...[
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: theme.accentColor.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Text(
-                              record.planName ?? '计划模式',
-                              style: TextStyle(
-                                fontFamily: '.SF Pro Text',
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                                color: theme.accentColor,
-                              ),
-                            ),
-                          ),
+                          Flexible(
+                             child: Container(
+                               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                               decoration: BoxDecoration(
+                                 color: theme.accentColor.withValues(alpha: 0.1),
+                                 borderRadius: BorderRadius.circular(4),
+                               ),
+                               child: Text(
+                                 record.planName ?? '计划模式',
+                                 overflow: TextOverflow.ellipsis,
+                                 maxLines: 1,
+                                 style: TextStyle(
+                                   fontFamily: '.SF Pro Text',
+                                   fontSize: 11,
+                                   fontWeight: FontWeight.w600,
+                                   color: theme.accentColor,
+                                 ),
+                               ),
+                             ),
+                           ),
                           const SizedBox(width: 8),
                         ],
                         Text(

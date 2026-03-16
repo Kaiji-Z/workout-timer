@@ -15,7 +15,7 @@ import 'duration_picker.dart';
 import 'glass_widgets.dart';
 import 'animated_timer_widget.dart';
 import 'plan_card.dart';
-import 'weight_input_dialog.dart';
+import 'bulk_exercise_data_dialog.dart';
 
 /// 训练主界面 - 极简设计
 /// 
@@ -413,25 +413,9 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
           CircularControlButton(
             icon: Icons.stop,
             iconColor: Colors.red,
-            onPressed: () async {
+            onPressed: () {
               if (_isPlanMode) {
                 progressProvider.completeSet();
-                if (_detailedRecordingEnabled) {
-                  final progressProvider = context.read<TrainingProgressProvider>();
-                  final currentExercise = progressProvider.currentExercise;
-                  if (currentExercise != null) {
-                    final setData = await showDialog<SetData?>(
-                      context: context,
-                      builder: (context) => WeightInputDialog(
-                        exerciseName: currentExercise.name,
-                        setNumber: progressProvider.currentSetInExercise,
-                      ),
-                    );
-                    if (setData != null) {
-                      progressProvider.addSetData(currentExercise.exerciseId, setData);
-                    }
-                  }
-                }
               }
               training.endWorkout();
             },
@@ -440,26 +424,10 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
           PrimaryActionButton(
             label: '休息',
             icon: Icons.self_improvement,
-            onPressed: () async {
+            onPressed: () {
               training.startRest();
               if (_isPlanMode) {
                 progressProvider.completeSet();
-                if (_detailedRecordingEnabled) {
-                  final progressProvider = context.read<TrainingProgressProvider>();
-                  final currentExercise = progressProvider.currentExercise;
-                  if (currentExercise != null) {
-                    final setData = await showDialog<SetData?>(
-                      context: context,
-                      builder: (context) => WeightInputDialog(
-                        exerciseName: currentExercise.name,
-                        setNumber: progressProvider.currentSetInExercise,
-                      ),
-                    );
-                    if (setData != null) {
-                      progressProvider.addSetData(currentExercise.exerciseId, setData);
-                    }
-                  }
-                }
               }
             },
           ),
@@ -652,7 +620,29 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
   Future<void> _saveWorkout(BuildContext context, TrainingProvider training, AppThemeData theme, TrainingProgressProvider progressProvider) async {
     try {
       if (_isPlanMode && _selectedPlan != null) {
-        // 计划模式：保存带详细动作的记录
+        // 计划模式：先显示批量数据输入对话框
+        if (_detailedRecordingEnabled) {
+          final exerciseData = await showDialog<Map<String, List<SetData>>?>(
+            context: context,
+            builder: (context) => BulkExerciseDataDialog(
+              exercises: _selectedPlan!.exercises,
+              completedSets: progressProvider.completedSets,
+            ),
+          );
+          
+          // 如果用户输入了数据，添加到 progressProvider
+          if (exerciseData != null) {
+            for (final entry in exerciseData.entries) {
+              final exerciseId = entry.key;
+              final setsData = entry.value;
+              for (final setData in setsData) {
+                progressProvider.addSetData(exerciseId, setData);
+              }
+            }
+          }
+        }
+        
+        // 保存带详细动作的记录
         final record = progressProvider.generateRecord();
         await context.read<RecordProvider>().saveRecord(record);
         
