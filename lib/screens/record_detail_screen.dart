@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../theme/theme_provider.dart';
 import '../bloc/record_provider.dart';
 import '../models/workout_record.dart';
+import '../models/set_data.dart';
 import '../models/muscle_group.dart';
 import '../widgets/muscle_selector.dart';
 import '../theme/app_theme.dart';
@@ -158,21 +159,25 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.playlist_add_check, size: 14, color: theme.accentColor),
-                          const SizedBox(width: 4),
-                          Text(
-                            widget.record.planName ?? '计划模式',
-                            style: TextStyle(
-                              fontFamily: '.SF Pro Text',
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              color: theme.accentColor,
-                            ),
-                          ),
-                        ],
-                      ),
+                         mainAxisSize: MainAxisSize.min,
+                         children: [
+                           Icon(Icons.playlist_add_check, size: 14, color: theme.accentColor),
+                           const SizedBox(width: 4),
+                           Flexible(
+                             child: Text(
+                               widget.record.planName ?? '计划模式',
+                               overflow: TextOverflow.ellipsis,
+                               maxLines: 1,
+                               style: TextStyle(
+                                 fontFamily: '.SF Pro Text',
+                                 fontSize: 12,
+                                 fontWeight: FontWeight.w500,
+                                 color: theme.accentColor,
+                               ),
+                             ),
+                           ),
+                         ],
+                       ),
                     ),
                   ],
                 ],
@@ -343,11 +348,11 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
 
 Widget _buildExerciseItem(int index, RecordedExercise exercise, AppThemeData theme) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 8),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.03),
@@ -359,109 +364,108 @@ Widget _buildExerciseItem(int index, RecordedExercise exercise, AppThemeData the
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 序号
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: theme.accentColor.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Center(
-              child: Text(
-                '${index + 1}',
-                style: TextStyle(
-                  fontFamily: '.SF Pro Text',
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: theme.accentColor,
+          // Header: Exercise number badge + name + muscle group
+          Row(
+            children: [
+              // Exercise number badge
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: theme.accentColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          
-          // 动作名称
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  exercise.name,
-                  style: TextStyle(
-                    fontFamily: '.SF Pro Text',
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
-                    color: theme.textColor,
-                  ),
-                ),
-                if (exercise.exercise?.primaryMuscle != null)
-                  Text(
-                    exercise.exercise!.primaryMuscle.displayName,
+                child: Center(
+                  child: Text(
+                    '${index + 1}',
                     style: TextStyle(
                       fontFamily: '.SF Pro Text',
-                      fontSize: 12,
-                      color: theme.secondaryTextColor,
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          
-          // 显示组数据或 legacy 显示
-          if (exercise.setsData != null && exercise.setsData!.isNotEmpty) ...[
-            // 显示每组数据
-            Column(
-              children: [
-                ...exercise.setsData!.map((setData) => 
-                  ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: Text(
-                      '第${setData.setNumber}组',
-                      style: TextStyle(
-                        fontFamily: '.SF Pro Text',
-                        fontSize: 14,
-                        color: theme.textColor,
-                      ),
-                    ),
-                    trailing: Text(
-                      setData.displayText,
-                      style: TextStyle(
-                        fontFamily: '.SF Pro Text',
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: theme.accentColor,
-                      ),
-                    ),
-                  ),
-                ),
-                const Divider(height: 1, color: Colors.grey),
-                ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(
-                    '总容量',
-                    style: TextStyle(
-                      fontFamily: '.SF Pro Text',
-                      fontSize: 14,
-                      color: theme.secondaryTextColor,
-                    ),
-                  ),
-                  trailing: Text(
-                    '${exercise.totalVolume.toStringAsFixed(1)} kg',
-                    style: TextStyle(
-                      fontFamily: '.SF Pro Text',
-                      fontSize: 14,
+                      fontSize: 16,
                       fontWeight: FontWeight.w600,
                       color: theme.accentColor,
                     ),
                   ),
                 ),
+              ),
+              const SizedBox(width: 12),
+              
+              // Exercise name and muscle group
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      exercise.name,
+                      style: TextStyle(
+                        fontFamily: '.SF Pro Display',
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: theme.textColor,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                    ),
+                    if (exercise.exercise?.primaryMuscle != null)
+                      Text(
+                        exercise.exercise!.primaryMuscle.displayName,
+                        style: TextStyle(
+                          fontFamily: '.SF Pro Text',
+                          fontSize: 12,
+                          color: theme.secondaryTextColor,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          
+          const SizedBox(height: 16),
+          
+          // Body: Set rows with editable fields
+          if (exercise.setsData != null && exercise.setsData!.isNotEmpty) ...[
+            Column(
+              children: [
+                ...exercise.setsData!.map((setData) => 
+                  _buildSetRow(setData, theme)
+                ),
+                const SizedBox(height: 12),
+                // Total volume footer
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: theme.accentColor.withValues(alpha: 0.05),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        '总容量',
+                        style: TextStyle(
+                          fontFamily: '.SF Pro Text',
+                          fontSize: 14,
+                          color: theme.secondaryTextColor,
+                        ),
+                      ),
+                      Text(
+                        '${exercise.totalVolume.toStringAsFixed(1)} kg',
+                        style: TextStyle(
+                          fontFamily: '.SF Pro Text',
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: theme.accentColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ] else ...[
-            // Legacy 显示：完成组数
+            // Legacy display with editable weight
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
                 color: theme.accentColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(16),
@@ -476,15 +480,11 @@ Widget _buildExerciseItem(int index, RecordedExercise exercise, AppThemeData the
                 ),
               ),
             ),
-          ],
-          
-          // 最大重量（可编辑）- 仅在 legacy 模式下显示
-          if (exercise.setsData == null || exercise.setsData!.isEmpty) ...[
-            const SizedBox(width: 8),
+            const SizedBox(height: 8),
             GestureDetector(
               onTap: () => _showWeightEditor(index, exercise, theme),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
@@ -503,6 +503,108 @@ Widget _buildExerciseItem(int index, RecordedExercise exercise, AppThemeData the
             ),
           ],
         ],
+      ),
+    );
+  }
+
+  Widget _buildSetRow(SetData setData, AppThemeData theme) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: theme.borderColor),
+      ),
+      child: Row(
+        children: [
+          // Set number label
+          SizedBox(
+            width: 60,
+            child: Text(
+              '第${setData.setNumber}组',
+              style: TextStyle(
+                fontFamily: '.SF Pro Text',
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: theme.textColor,
+              ),
+            ),
+          ),
+          
+          // Reps selector chips
+          Expanded(
+            child: _buildRepsSelector(setData.reps ?? 8, theme),
+          ),
+          
+          // Weight input
+          SizedBox(
+            width: 80,
+            child: TextField(
+              controller: TextEditingController(text: (setData.weight ?? 0).toStringAsFixed(1)),
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                hintText: '0',
+                suffixText: 'kg',
+                contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: theme.borderColor.withValues(alpha: 0.3)),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: theme.borderColor.withValues(alpha: 0.3)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: theme.accentColor),
+                ),
+              ),
+              style: TextStyle(
+                fontFamily: '.SF Pro Text',
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: theme.textColor,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRepsSelector(int currentReps, AppThemeData theme) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: List.generate(20, (index) {
+          final reps = index + 1;
+          final isSelected = reps == currentReps;
+          
+          return Container(
+            margin: const EdgeInsets.symmetric(horizontal: 4),
+            child: ChoiceChip(
+              label: Text(
+                reps.toString(),
+                style: TextStyle(
+                  fontFamily: '.SF Pro Text',
+                  fontSize: 14,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                  color: isSelected ? Colors.white : theme.textColor,
+                ),
+              ),
+              selected: isSelected,
+              onSelected: (selected) {},
+              backgroundColor: theme.surfaceColor,
+              selectedColor: theme.accentColor,
+              elevation: 0,
+              pressElevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+          );
+        }),
       ),
     );
   }

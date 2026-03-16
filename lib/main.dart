@@ -278,27 +278,30 @@ class _MainNavigationState extends State<MainNavigation> {
 
   Widget _buildCenterTimerButton(AppThemeData appTheme) {
     final activeColor = appTheme.accentColor;
+    final isSelected = _currentIndex == 2;
 
     return GestureDetector(
       onTap: () => setState(() => _currentIndex = 2),
       behavior: HitTestBehavior.opaque,
-      child: Container(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
         width: 70,
         height: 70,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           gradient: LinearGradient(
-            colors: [
-              activeColor,
-              activeColor.withValues(alpha: 0.7),
-            ],
+            colors: isSelected
+                ? [activeColor, activeColor.withValues(alpha: 0.7)]
+                : [activeColor.withValues(alpha: 0.5), activeColor.withValues(alpha: 0.35)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.2),
-              blurRadius: 20,
+              color: isSelected
+                  ? Colors.black.withValues(alpha: 0.2)
+                  : Colors.black.withValues(alpha: 0.1),
+              blurRadius: isSelected ? 20 : 10,
               offset: const Offset(0, 8),
             ),
           ],
