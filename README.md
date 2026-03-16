@@ -16,24 +16,32 @@
 - 前台服务保证提醒不遗漏
 
 ### 健身数据库
-- 800+ 健身动作库，涵盖所有肌群
+- 870+ 健身动作库，涵盖所有肌群
 - 肌肉部位筛选，快速找到目标动作
 - 动作详情与示范图片
-- 支持中英文双语
+- 支持中英文双语搜索
 
-### 训练计划
-- 创建个性化训练计划
+### AI 训练计划
+- 智能生成个性化训练计划
+- 根据目标肌群自动推荐动作
+- 支持计划导入与调整
 - 日历视图管理训练安排
-- 训练进度实时追踪
+
+### 训练记录
+- 详细记录每组重量、次数
+- 实时训练进度追踪
+- 训练历史回顾
 
 ### 数据统计
 - 训练历史记录
 - 周/月/年统计图表
+- 活动热力图日历
+- 肌群训练分布
 - 数据可视化分析
 
 ### 个性化
-- 5种精美主题配色
-- 深色/浅色模式
+- 5种精美主题配色（琥珀金、珊瑚橙、薄荷绿、玫瑰粉、天际蓝）
+- Flat Vitality 设计系统
 - Material Design 3 现代界面
 
 ## 快速开始
@@ -57,7 +65,7 @@ flutter run
 
 # 构建 Release APK
 ./build_release.sh        # Linux/macOS
-build_release.bat         # Windows
+flutter build apk --release --no-tree-shake-icons  # 直接构建
 ```
 
 ### 国内用户镜像配置
@@ -76,13 +84,37 @@ export FLUTTER_STORAGE_BASE_URL=https://mirrors.aliyun.com/flutter
 
 ```
 lib/
-├── main.dart              # 应用入口
-├── bloc/                  # 状态管理 (Provider)
+├── main.dart              # 应用入口，导航
+├── bloc/                  # 状态管理 (Provider/ChangeNotifier)
+│   ├── timer_provider.dart
+│   ├── training_provider.dart
+│   ├── plan_provider.dart
+│   ├── record_provider.dart
+│   └── training_progress_provider.dart
 ├── models/                # 数据模型
+│   ├── workout_session.dart
+│   ├── workout_record.dart
+│   ├── workout_plan.dart
+│   ├── exercise.dart
+│   └── muscle_group.dart
 ├── screens/               # 页面
+│   ├── timer_screen.dart
+│   ├── plan_screen.dart
+│   ├── history_screen.dart
+│   ├── stats_screen.dart
+│   └── settings_screen.dart
 ├── widgets/               # 组件
-├── theme/                 # 主题
+│   ├── training_widget.dart
+│   ├── timer_widget.dart
+│   ├── calendar_widget.dart
+│   └── charts/            # 图表组件
+├── theme/                 # 主题系统
+│   ├── app_theme.dart
+│   └── theme_provider.dart
 ├── services/              # 服务层
+│   ├── database_helper.dart
+│   ├── notification_service.dart
+│   └── *_repository.dart
 ├── utils/                 # 工具类
 └── data/                  # 静态数据
 ```
@@ -96,7 +128,26 @@ lib/
 | SQLite (sqflite) | 本地数据存储 |
 | flutter_local_notifications | 本地通知 |
 | cached_network_image | 图片缓存 |
-| google_fonts | 字体 |
+| fl_chart | 数据可视化图表 |
+| fuzzy | 模糊搜索匹配 |
+| intl | 国际化 |
+
+## 开发命令
+
+```bash
+# 运行测试
+flutter test                           # 运行所有测试
+flutter test test/widget_test.dart     # 运行单个测试文件
+flutter test --name "pattern"          # 按名称模式运行测试
+
+# 代码分析
+flutter analyze                        # 静态分析
+dart format lib/ test/                 # 格式化代码
+
+# 构建
+flutter build apk --release --no-tree-shake-icons  # Android APK
+flutter build web                      # Web 版本
+```
 
 ## 开源致谢
 
@@ -113,6 +164,8 @@ lib/
 | shared_preferences | BSD 3-Clause | 偏好设置 |
 | google_fonts | Apache 2.0 | Google 字体 |
 | cached_network_image | MIT | 图片缓存 |
+| fl_chart | MIT | 图表绘制 |
+| fuzzy | MIT | 模糊搜索 |
 | intl | BSD 3-Clause | 国际化 |
 | uuid | MIT | UUID 生成 |
 
@@ -140,4 +193,4 @@ lib/
 
 ---
 
-如果这个项目对你有帮助，请给一个 Star 支持一下！
+如果这个项目对你有帮助，请给一个 Star ⭐ 支持一下！

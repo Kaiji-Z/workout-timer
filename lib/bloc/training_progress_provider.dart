@@ -34,6 +34,13 @@ class TrainingProgressProvider extends ChangeNotifier {
     return _currentPlan!.exercises[_currentExerciseIndex];
   }
 
+  /// 获取下一个动作
+  PlanExercise? getNextExercise() {
+    if (_currentPlan == null || _currentPlan!.exercises.isEmpty) return null;
+    if (_currentExerciseIndex >= _currentPlan!.exercises.length - 1) return null;
+    return _currentPlan!.exercises[_currentExerciseIndex + 1];
+  }
+
   /// 获取当前动作在当前练习中的组数
   int get currentSetInExercise => _currentSetInExercise;
 

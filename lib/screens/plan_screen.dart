@@ -100,7 +100,7 @@ body: SafeArea(
   bottom: false,
   child: SingleChildScrollView(
     child: Padding(
-      padding: const EdgeInsets.only(bottom: 100), // Add padding for floating nav bar
+      padding: const EdgeInsets.only(bottom: 120), // Add padding for floating nav bar
       child: Column(
         children: [
           // 日历
