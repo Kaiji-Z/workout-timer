@@ -1487,7 +1487,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
       );
     }
 
-    return Column(
+return Column(
       children: [
         // 图例
         Row(
@@ -1513,91 +1513,103 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
           ],
         ),
         const SizedBox(height: 12),
-        // 图表 - 使用Row with Expanded自动填充宽度
+        // 图表 - 使用固定高度容器，确保所有柱状条从同一基线开始
         SizedBox(
           height: isWeekView ? 130 : 140,
-          child: Row(
-            children: List.generate(displayDays, (index) {
-              final key = isWeekView ? index : index + 1;
-              final duration = durations[key] ?? 0;
-              final setCount = sets[key] ?? 0;
-              final heightPercent = maxDuration > 0 ? duration / maxDuration : 0.0;
-              final barHeight = (heightPercent * 70).clamp(4.0, 70.0);
+          child: Column(
+            children: [
+              // 固定高度的图表区域
+              Expanded(
+                child: Row(
+                  children: List.generate(displayDays, (index) {
+                    final key = isWeekView ? index : index + 1;
+                    final duration = durations[key] ?? 0;
+                    final setCount = sets[key] ?? 0;
+                    final heightPercent = maxDuration > 0 ? duration / maxDuration : 0.0;
+                    final barHeight = (heightPercent * 70).clamp(4.0, 70.0);
 
-              return Expanded(
-                child: Container(
-                  margin: EdgeInsets.symmetric(horizontal: isWeekView ? 2 : 1),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    crossAxisAlignment: CrossAxisAlignment.center,  // ADD THIS
-                    children: [
-                      // 时长和组数显示
-                      if (duration > 0 || setCount > 0)
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,  // ADD THIS
+                    return Expanded(
+                      child: Container(
+                        margin: EdgeInsets.symmetric(horizontal: isWeekView ? 2 : 1),
+                        child: Column(
+                          // 使用Spacer将内容推到底部，确保所有柱状条从同一基线开始
                           children: [
-                            Text(
-                              formatDuration(duration),
-                              textAlign: TextAlign.center,     // ADD THIS
-                              maxLines: 1,                      // ADD THIS
-                              overflow: TextOverflow.ellipsis,  // ADD THIS
-                              style: TextStyle(
-                                fontFamily: '.SF Pro Text',
-                                fontSize: isWeekView ? 9 : 7,
-                                color: theme.secondaryTextColor,
+                            Spacer(),
+                            // 时长和组数显示
+                            if (duration > 0 || setCount > 0)
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    formatDuration(duration),
+                                    textAlign: TextAlign.center,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontFamily: '.SF Pro Text',
+                                      fontSize: isWeekView ? 9 : 7,
+                                      color: theme.secondaryTextColor,
+                                    ),
+                                  ),
+                                  if (setCount > 0)
+                                    Text(
+                                      '${setCount}组',
+                                      textAlign: TextAlign.center,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        fontFamily: '.SF Pro Text',
+                                        fontSize: isWeekView ? 8 : 6,
+                                        color: theme.secondaryTextColor,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            const SizedBox(height: 4),
+                            // 柱状条 - 现在所有柱状条都从同一基线开始
+                            Container(
+                              width: double.infinity,
+                              height: barHeight,
+                              decoration: BoxDecoration(
+                                gradient: duration > 0
+                                    ? LinearGradient(
+                                        begin: Alignment.bottomCenter,
+                                        end: Alignment.topCenter,
+                                        colors: [theme.primaryColor, theme.secondaryColor],
+                                      )
+                                    : null,
+                                color: duration > 0 ? null : theme.textColor.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(isWeekView ? 4 : 2),
                               ),
                             ),
-                            if (setCount > 0)
-                              Text(
-                                '${setCount}组',
-                                textAlign: TextAlign.center,      // ADD THIS
-                                maxLines: 1,                       // ADD THIS
-                                overflow: TextOverflow.ellipsis,   // ADD THIS
-                                style: TextStyle(
-                                  fontFamily: '.SF Pro Text',
-                                  fontSize: isWeekView ? 8 : 6,
-                                  color: theme.primaryColor,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
                           ],
                         ),
-                      const SizedBox(height: 4),
-                      // 柱状条
-                      Container(
-                        width: double.infinity,
-                        height: barHeight,
-                        decoration: BoxDecoration(
-                          gradient: duration > 0
-                              ? LinearGradient(
-                                  begin: Alignment.bottomCenter,
-                                  end: Alignment.topCenter,
-                                  colors: [theme.primaryColor, theme.secondaryColor],
-                                )
-                              : null,
-                          color: duration > 0 ? null : theme.textColor.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(isWeekView ? 4 : 2),
-                        ),
                       ),
-                      const SizedBox(height: 4),
-// 日期标签
-                      Text(
-                        isWeekView ? ['一', '二', '三', '四', '五', '六', '日'][index] : '$key',
-                        textAlign: TextAlign.center,  // ADD THIS
-                        style: TextStyle(
-                          fontFamily: '.SF Pro Text',
-                          fontSize: isWeekView ? 10 : 8,
-                          color: theme.secondaryTextColor,
-                        ),
-                      ),
-                    ],
-                  ),
+                    );
+                  }),
                 ),
-              );
-            }),
+              ),
+              // 日期标签 - 放在图表区域下方，不影响柱状条对齐
+              Row(
+                children: List.generate(displayDays, (index) {
+                  final key = isWeekView ? index : index + 1;
+                  return Expanded(
+                    child: Text(
+                      isWeekView ? ['一', '二', '三', '四', '五', '六', '日'][index] : '$key',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontFamily: '.SF Pro Text',
+                        fontSize: isWeekView ? 10 : 8,
+                        color: theme.secondaryTextColor,
+                      ),
+                    ),
+                  );
+                }),
+              ),
+            ],
           ),
         ),
-      ],
+       ],
     );
   }
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import '../models/set_data.dart';
 import '../models/workout_plan.dart';
@@ -48,7 +49,7 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
       for (int i = 1; i <= sets; i++) {
         _exerciseData[exerciseId]!.add(SetData(
           setNumber: i,
-          reps: 8, // 默认8次
+          reps: 12, // 默认12次
           weight: null,
         ));
         _weightControllers[exerciseId]!.add(TextEditingController());
@@ -120,7 +121,7 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
               '记录训练数据',
               style: TextStyle(
                 fontFamily: '.SF Pro Display',
-                fontSize: 20,
+                fontSize: 22,
                 fontWeight: FontWeight.w600,
                 color: theme.textColor,
               ),
@@ -128,7 +129,7 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
             const SizedBox(height: 8),
             // 副标题
             Text(
-              '填写每组次数和重量',
+              '滚动选择次数，输入重量',
               style: TextStyle(
                 fontFamily: '.SF Pro Text',
                 fontSize: 14,
@@ -278,78 +279,152 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
   }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 组数标签
-          SizedBox(
-            width: 60,
-            child: Text(
-              '第${setNumber}组',
-              style: TextStyle(
-                fontFamily: '.SF Pro Text',
-                fontSize: 14,
-                color: theme.secondaryTextColor,
+          // 主行：组数 + reps × weight
+          Row(
+            children: [
+              // 组数标签
+              SizedBox(
+                width: 60,
+                child: Text(
+                  '第$setNumber组',
+                  style: TextStyle(
+                    fontFamily: '.SF Pro Text',
+                    fontSize: 14,
+                    color: theme.secondaryTextColor,
+                  ),
+                ),
               ),
-            ),
+              
+              const SizedBox(width: 12),
+              
+              // 次数选择器
+              SizedBox(
+                width: 60,
+                child: _buildRepsSelector(
+                  currentReps: set.reps ?? 12,
+                  onChanged: (reps) => _updateReps(exerciseId, setNumber, reps),
+                  theme: theme,
+                ),
+              ),
+              
+              const SizedBox(width: 8),
+              
+              // 乘号
+              Text(
+                '×',
+                style: TextStyle(
+                  fontFamily: '.SF Pro Text',
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: theme.textColor,
+                ),
+              ),
+              
+              const SizedBox(width: 8),
+              
+              // 重量输入
+              Expanded(
+                child: TextField(
+                  controller: weightController,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    hintText: '0',
+                    hintStyle: TextStyle(
+                      fontFamily: '.SF Pro Text',
+                      fontSize: 14,
+                      color: theme.secondaryTextColor,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(
+                        color: theme.borderColor,
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(
+                        color: theme.accentColor,
+                        width: 2,
+                      ),
+                    ),
+                    suffixText: 'kg',
+                    suffixStyle: TextStyle(
+                      fontFamily: '.SF Pro Text',
+                      fontSize: 12,
+                      color: theme.secondaryTextColor,
+                    ),
+                  ),
+                  style: TextStyle(
+                    fontFamily: '.SF Pro Text',
+                    fontSize: 14,
+                    color: theme.textColor,
+                  ),
+                  onChanged: (value) {
+                    final weight = double.tryParse(value);
+                    _updateWeight(exerciseId, setNumber, weight);
+                  },
+                ),
+              ),
+            ],
           ),
           
-          const SizedBox(width: 12),
-          
-          // 次数选择器
-          Expanded(
-            flex: 2,
-            child: _buildRepsSelector(
-              currentReps: set.reps ?? 8,
-              onChanged: (reps) => _updateReps(exerciseId, setNumber, reps),
-              theme: theme,
-            ),
-          ),
-          
-          const SizedBox(width: 12),
-          
-          // 重量输入
-          Expanded(
-            flex: 3,
-            child: TextField(
-              controller: weightController,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                labelText: '重量(kg)',
-                labelStyle: TextStyle(
+          // 标签行：次数 和 重量
+          const SizedBox(height: 4),
+          Row(
+            children: [
+              SizedBox(
+                width: 60,
+                child: Text(
+                  '次数',
+                  style: TextStyle(
+                    fontFamily: '.SF Pro Text',
+                    fontSize: 12,
+                    color: theme.secondaryTextColor,
+                  ),
+                ),
+              ),
+              
+              const SizedBox(width: 12),
+              
+              SizedBox(
+                width: 60,
+                child: Text(
+                  '重量',
+                  style: TextStyle(
+                    fontFamily: '.SF Pro Text',
+                    fontSize: 12,
+                    color: theme.secondaryTextColor,
+                  ),
+                ),
+              ),
+              
+              const SizedBox(width: 8),
+              
+              Text(
+                'kg',
+                style: TextStyle(
                   fontFamily: '.SF Pro Text',
                   fontSize: 12,
                   color: theme.secondaryTextColor,
                 ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(
-                    color: theme.borderColor,
+              ),
+              
+              const SizedBox(width: 8),
+              
+              Expanded(
+                child: Text(
+                  '(kg)',
+                  style: TextStyle(
+                    fontFamily: '.SF Pro Text',
+                    fontSize: 12,
+                    color: theme.secondaryTextColor,
                   ),
                 ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(
-                    color: theme.accentColor,
-                    width: 2,
-                  ),
-                ),
-                suffixText: 'kg',
-                suffixStyle: TextStyle(
-                  fontFamily: '.SF Pro Text',
-                  fontSize: 12,
-                  color: theme.secondaryTextColor,
-                ),
               ),
-              style: TextStyle(
-                fontFamily: '.SF Pro Text',
-                fontSize: 14,
-                color: theme.textColor,
-              ),
-              onChanged: (value) {
-                final weight = double.tryParse(value);
-                _updateWeight(exerciseId, setNumber, weight);
-              },
-            ),
+            ],
           ),
         ],
       ),
@@ -362,37 +437,25 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
     required AppThemeData theme,
   }) {
     return SizedBox(
-      height: 40,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: 20, // 1-20 reps
-        itemBuilder: (context, index) {
-          final reps = index + 1;
-          final isSelected = currentReps == reps;
-          
-          return GestureDetector(
-            onTap: () => onChanged(reps),
-            child: Container(
-              width: 36,
-              margin: const EdgeInsets.symmetric(horizontal: 2),
-              decoration: BoxDecoration(
-                color: isSelected ? theme.accentColor : Colors.grey[200],
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Center(
-                child: Text(
-                  '$reps',
-                  style: TextStyle(
-                    color: isSelected ? Colors.white : theme.textColor,
-                    fontWeight: FontWeight.w600,
-                    fontFamily: '.SF Pro Text',
-                    fontSize: 14,
-                  ),
-                ),
+      height: 80, // Show 3-4 items
+      width: 60,  // Narrow width
+      child: CupertinoPicker(
+        itemExtent: 32,
+        scrollController: FixedExtentScrollController(initialItem: currentReps - 1),
+        onSelectedItemChanged: (index) => onChanged(index + 1),
+        children: List.generate(30, (index) => 
+          Center(
+            child: Text(
+              '${index + 1}',
+              style: TextStyle(
+                fontFamily: '.SF Pro Text',
+                fontSize: 14,
+                color: theme.textColor,
+                fontWeight: FontWeight.w600,
               ),
             ),
-          );
-        },
+          )
+        ),
       ),
     );
   }
