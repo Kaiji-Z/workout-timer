@@ -329,5 +329,158 @@ void main() {
         expect(restored.setsData!.length, original.setsData!.length);
       });
     });
+
+    group('migration', () {
+      test('needsMigration returns true for legacy record with null setsData', () {
+        final legacy = RecordedExercise(
+          exerciseId: 'test',
+          completedSets: 3,
+          maxWeight: 60.0,
+          setsData: null,
+        );
+        expect(legacy.needsMigration, isTrue);
+      });
+
+      test('needsMigration returns true for legacy record with empty setsData', () {
+        final legacy = RecordedExercise(
+          exerciseId: 'test',
+          completedSets: 3,
+          maxWeight: 60.0,
+          setsData: [],
+        );
+        expect(legacy.needsMigration, isTrue);
+      });
+
+      test('needsMigration returns false for modern record with setsData', () {
+        final modern = RecordedExercise(
+          exerciseId: 'test',
+          completedSets: 3,
+          setsData: [SetData(setNumber: 1, reps: 10, weight: 60.0)],
+        );
+        expect(modern.needsMigration, isFalse);
+      });
+
+      test('needsMigration returns false when completedSets is zero', () {
+        final empty = RecordedExercise(
+          exerciseId: 'test',
+          completedSets: 0,
+          setsData: null,
+        );
+        expect(empty.needsMigration, isFalse);
+      });
+
+      test('migrateToSetData creates correct number of sets', () {
+        final legacy = RecordedExercise(
+          exerciseId: 'test',
+          completedSets: 4,
+          maxWeight: 50.0,
+          setsData: null,
+        );
+        final migrated = legacy.migrateToSetData();
+        expect(migrated.setsData, isNotNull);
+        expect(migrated.setsData!.length, equals(4));
+      });
+
+      test('migrateToSetData preserves maxWeight in all sets', () {
+        final legacy = RecordedExercise(
+          exerciseId: 'test',
+          completedSets: 2,
+          maxWeight: 80.0,
+          setsData: null,
+        );
+        final migrated = legacy.migrateToSetData();
+        expect(migrated.setsData![0].weight, equals(80.0));
+        expect(migrated.setsData![1].weight, equals(80.0));
+      });
+
+      test('migrateToSetData sets correct set numbers', () {
+        final legacy = RecordedExercise(
+          exerciseId: 'test',
+          completedSets: 3,
+          maxWeight: 50.0,
+          setsData: null,
+        );
+        final migrated = legacy.migrateToSetData();
+        expect(migrated.setsData![0].setNumber, equals(1));
+        expect(migrated.setsData![1].setNumber, equals(2));
+        expect(migrated.setsData![2].setNumber, equals(3));
+      });
+
+      test('migrateToSetData sets reps to null for migrated sets', () {
+        final legacy = RecordedExercise(
+          exerciseId: 'test',
+          completedSets: 2,
+          maxWeight: 60.0,
+          setsData: null,
+        );
+        final migrated = legacy.migrateToSetData();
+        expect(migrated.setsData![0].reps, isNull);
+        expect(migrated.setsData![1].reps, isNull);
+      });
+
+      test('migrateToSetData preserves exerciseId', () {
+        final legacy = RecordedExercise(
+          exerciseId: 'barbell-bench-press',
+          completedSets: 3,
+          maxWeight: 100.0,
+          setsData: null,
+        );
+        final migrated = legacy.migrateToSetData();
+        expect(migrated.exerciseId, equals('barbell-bench-press'));
+      });
+
+      test('migrateToSetData preserves completedSets and maxWeight', () {
+        final legacy = RecordedExercise(
+          exerciseId: 'test',
+          completedSets: 5,
+          maxWeight: 75.5,
+          setsData: null,
+        );
+        final migrated = legacy.migrateToSetData();
+        expect(migrated.completedSets, equals(5));
+        expect(migrated.maxWeight, equals(75.5));
+      });
+
+      test('migrateToSetData returns self when migration not needed', () {
+        final modern = RecordedExercise(
+          exerciseId: 'test',
+          completedSets: 3,
+          setsData: [SetData(setNumber: 1, reps: 10, weight: 60.0)],
+        );
+        final result = modern.migrateToSetData();
+        // Should return same instance since no migration needed
+        expect(identical(result, modern), isTrue);
+      });
+
+      test('migrateToSetData handles null maxWeight', () {
+        final legacy = RecordedExercise(
+          exerciseId: 'test',
+          completedSets: 2,
+          maxWeight: null,
+          setsData: null,
+        );
+        final migrated = legacy.migrateToSetData();
+        expect(migrated.setsData!.length, equals(2));
+        expect(migrated.setsData![0].weight, isNull);
+        expect(migrated.setsData![1].weight, isNull);
+      });
+
+      test('migrated record can be serialized and deserialized', () {
+        final legacy = RecordedExercise(
+          exerciseId: 'test',
+          completedSets: 2,
+          maxWeight: 50.0,
+          setsData: null,
+        );
+        final migrated = legacy.migrateToSetData();
+        final json = migrated.toJson();
+        final restored = RecordedExercise.fromJson(json);
+
+        expect(restored.setsData, isNotNull);
+        expect(restored.setsData!.length, equals(2));
+        expect(restored.setsData![0].weight, equals(50.0));
+        expect(restored.needsMigration, isFalse);
+      });
+    });
   });
 }
