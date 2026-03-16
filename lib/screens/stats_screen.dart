@@ -1114,8 +1114,6 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
     final frequencyStats = _calculateFrequencyStats(records);
     final volumeStats = _calculateVolumeStats(records);
     final monthlyCounts = _getMonthlyCounts(_selectedYear);
-    final dailyDurations = _getDailyDurations(records, false);
-    final dailySets = _getDailySets(records, false);
     
     // Get data for new charts
     final muscleDistribution = _getMuscleDistributionData();
@@ -1144,18 +1142,6 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
           // 训练量统计
           _buildSection('训练量 ($_selectedMonth月)', theme, [
             _buildVolumeOverview(volumeStats, theme),
-          ]),
-          const SizedBox(height: 20),
-
-          // 每日训练时长图表
-          _buildSection('每日训练时长', theme, [
-            _buildDailyDurationChart(
-              dailyDurations,
-              dailySets,
-              theme,
-              isWeekView: false,
-              days: DateTime(_selectedYear, _selectedMonth + 1, 0).day,
-            ),
           ]),
           const SizedBox(height: 20),
           
