@@ -1529,61 +1529,66 @@ return Column(
                     final barHeight = (heightPercent * 70).clamp(4.0, 70.0);
 
                     return Expanded(
-                      child: Container(
-                        margin: EdgeInsets.symmetric(horizontal: isWeekView ? 2 : 1),
-                        child: Stack(
-                          alignment: Alignment.bottomCenter,
-                          children: [
-                            // 柱状条 - 固定在底部
-                            Container(
-                              height: barHeight,
-                              width: double.infinity,
-                              decoration: BoxDecoration(
-                                gradient: duration > 0
-                                    ? LinearGradient(
-                                        begin: Alignment.bottomCenter,
-                                        end: Alignment.topCenter,
-                                        colors: [theme.primaryColor, theme.secondaryColor],
-                                      )
-                                    : null,
-                                color: duration > 0 ? null : theme.textColor.withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(isWeekView ? 4 : 2),
+                      child: Align(
+                        alignment: Alignment.bottomCenter,
+                        child: Container(
+                          margin: EdgeInsets.symmetric(horizontal: isWeekView ? 2 : 1),
+                          height: barHeight + 40, // 柱状条高度 + 数字空间
+                          child: Stack(
+                            alignment: Alignment.bottomCenter,
+                            clipBehavior: Clip.none,
+                            children: [
+                              // 柱状条 - 固定在底部
+                              Container(
+                                height: barHeight,
+                                width: isWeekView ? 24 : 8,
+                                decoration: BoxDecoration(
+                                  gradient: duration > 0
+                                      ? LinearGradient(
+                                          begin: Alignment.bottomCenter,
+                                          end: Alignment.topCenter,
+                                          colors: [theme.primaryColor, theme.secondaryColor],
+                                        )
+                                      : null,
+                                  color: duration > 0 ? null : theme.textColor.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(isWeekView ? 4 : 2),
+                                ),
                               ),
-                            ),
-                            // 数字 - 在柱状条上方
-                            Positioned(
-                              bottom: barHeight + 4,
-                              child: Column(
-                                children: [
-                                  if (duration > 0 || setCount > 0)
-                                    Column(
-                                      crossAxisAlignment: CrossAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          formatDuration(duration),
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                            fontFamily: '.SF Pro Text',
-                                            fontSize: isWeekView ? 11 : 9,
-                                            color: theme.secondaryTextColor,
-                                          ),
-                                        ),
-                                        if (setCount > 0)
+                              // 数字 - 在柱状条上方
+                              Positioned(
+                                bottom: barHeight + 2,
+                                child: Column(
+                                  children: [
+                                    if (duration > 0 || setCount > 0)
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        children: [
                                           Text(
-                                            '${setCount}组',
+                                            formatDuration(duration),
                                             textAlign: TextAlign.center,
                                             style: TextStyle(
                                               fontFamily: '.SF Pro Text',
-                                              fontSize: isWeekView ? 10 : 8,
+                                              fontSize: isWeekView ? 11 : 9,
                                               color: theme.secondaryTextColor,
                                             ),
                                           ),
-                                      ],
-                                    ),
-                                ],
+                                          if (setCount > 0)
+                                            Text(
+                                              '${setCount}组',
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                fontFamily: '.SF Pro Text',
+                                                fontSize: isWeekView ? 10 : 8,
+                                                color: theme.secondaryTextColor,
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     );
