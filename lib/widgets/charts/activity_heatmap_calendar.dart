@@ -10,7 +10,7 @@ class ActivityHeatmapCalendar extends StatelessWidget {
     super.key,
     required this.dailyData,
     required this.theme,
-    this.weeksToShow = 4,
+    this.weeksToShow = 12,
   });
   
   @override
@@ -28,14 +28,14 @@ class ActivityHeatmapCalendar extends StatelessWidget {
       children: [
         // Month/Week labels
         _buildMonthLabels(),
-        const SizedBox(height: 8),
+        const SizedBox(height: 12),
         // Heatmap grid
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Day labels
             _buildDayLabels(),
-            const SizedBox(width: 8),
+            const SizedBox(width: 12),
             // Heatmap cells
             Expanded(
               child: SingleChildScrollView(
@@ -47,7 +47,7 @@ class ActivityHeatmapCalendar extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 20),
         // Legend
         _buildLegend(),
       ],
@@ -55,6 +55,16 @@ class ActivityHeatmapCalendar extends StatelessWidget {
   }
   
   Widget _buildMonthLabels() {
+    final now = DateTime.now();
+    final monthNames = <String>[];
+    
+    for (int i = 0; i < weeksToShow; i++) {
+      final weekStart = now.subtract(Duration(days: (weeksToShow - i - 1) * 7));
+      final month = weekStart.month;
+      final monthName = _getMonthName(month);
+      monthNames.add(monthName);
+    }
+    
     return Row(
       children: [
         Text(
@@ -65,20 +75,47 @@ class ActivityHeatmapCalendar extends StatelessWidget {
             color: theme.textColor,
           ),
         ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: monthNames.map((month) => 
+                Padding(
+                  padding: const EdgeInsets.only(right: 24),
+                  child: Text(
+                    month,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: theme.secondaryTextColor,
+                    ),
+                  ),
+                ),
+              ).toList(),
+            ),
+          ),
+        ),
       ],
     );
   }
+
+  String _getMonthName(int month) {
+    const months = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
+    return months[month - 1];
+  }
   
   Widget _buildDayLabels() {
-    const days = ['一', '', '三', '', '五', '', '日'];
+    const days = ['一', '三', '五'];
     return Column(
       children: days.map((day) => 
         SizedBox(
-          height: 14,
+          height: 18,
           child: Text(
             day,
             style: TextStyle(
-              fontSize: 10,
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
               color: theme.secondaryTextColor,
             ),
           ),
@@ -97,7 +134,7 @@ class ActivityHeatmapCalendar extends StatelessWidget {
       
       weeks.add(
         Padding(
-          padding: const EdgeInsets.only(right: 2),
+          padding: const EdgeInsets.only(right: 4),
           child: Column(
             children: List.generate(7, (dayIndex) {
               final date = monday.add(Duration(days: dayIndex));
@@ -105,7 +142,7 @@ class ActivityHeatmapCalendar extends StatelessWidget {
               final intensity = maxVolume > 0 ? volume / maxVolume : 0.0;
               
               return Padding(
-                padding: const EdgeInsets.only(bottom: 2),
+                padding: const EdgeInsets.only(bottom: 4),
                 child: _buildCell(date, intensity, volume),
               );
             }),
@@ -130,16 +167,20 @@ class ActivityHeatmapCalendar extends StatelessWidget {
     if (isFuture) {
       cellColor = Colors.transparent;
     } else if (intensity == 0) {
-      cellColor = theme.textColor.withValues(alpha: 0.05);
+      cellColor = theme.textColor.withValues(alpha: 10);
+    } else if (intensity < 0.33) {
+      cellColor = theme.accentColor.withValues(alpha: 0.3);
+    } else if (intensity < 0.66) {
+      cellColor = theme.accentColor.withValues(alpha: 0.6);
     } else {
-      cellColor = _getIntensityColor(intensity);
+      cellColor = theme.accentColor;
     }
     
     return Tooltip(
-      message: '${date.month}/${date.day}: ${volume.toStringAsFixed(0)} kg',
+      message: '${date.month}月${date.day}日: ${volume.toStringAsFixed(0)} kg',
       child: Container(
-        width: 14,
-        height: 14,
+        width: 18,
+        height: 18,
         decoration: BoxDecoration(
           color: cellColor,
           borderRadius: BorderRadius.circular(2),
@@ -152,13 +193,11 @@ class ActivityHeatmapCalendar extends StatelessWidget {
   }
   
   Color _getIntensityColor(double intensity) {
-    // Use theme colors for intensity scale
-    if (intensity < 0.25) {
+    // GitHub-style intensity scale
+    if (intensity < 0.33) {
       return theme.accentColor.withValues(alpha: 0.3);
-    } else if (intensity < 0.5) {
-      return theme.accentColor.withValues(alpha: 0.5);
-    } else if (intensity < 0.75) {
-      return theme.accentColor.withValues(alpha: 0.7);
+    } else if (intensity < 0.66) {
+      return theme.accentColor.withValues(alpha: 0.6);
     } else {
       return theme.accentColor;
     }
@@ -173,32 +212,32 @@ class ActivityHeatmapCalendar extends StatelessWidget {
   
   Widget _buildLegend() {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
           '少',
-          style: TextStyle(fontSize: 10, color: theme.secondaryTextColor),
+          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: theme.secondaryTextColor),
         ),
-        const SizedBox(width: 4),
-        ...[0.0, 0.25, 0.5, 0.75, 1.0].map((intensity) => 
+        const SizedBox(width: 8),
+        ...[0.0, 0.33, 0.66, 1.0].map((intensity) => 
           Padding(
-            padding: const EdgeInsets.only(right: 2),
+            padding: const EdgeInsets.only(right: 4),
             child: Container(
-              width: 12,
-              height: 12,
+              width: 16,
+              height: 16,
               decoration: BoxDecoration(
                 color: intensity == 0 
-                  ? theme.textColor.withValues(alpha: 0.05)
+                  ? theme.textColor.withValues(alpha: 10)
                   : _getIntensityColor(intensity),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
           ),
         ),
-        const SizedBox(width: 4),
+        const SizedBox(width: 8),
         Text(
           '多',
-          style: TextStyle(fontSize: 10, color: theme.secondaryTextColor),
+          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: theme.secondaryTextColor),
         ),
       ],
     );

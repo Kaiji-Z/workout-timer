@@ -232,7 +232,9 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
               ),
               Expanded(
                 child: _buildStatItem(
-                  '无',
+                  widget.record.trainedMuscles.isEmpty 
+                      ? '无' 
+                      : widget.record.trainedMuscles.map((m) => m.displayName).join('/'),
                   '训练部位',
                   Icons.accessibility_new,
                   theme,

@@ -18,81 +18,121 @@ class MonthlyTrendLineChart extends StatelessWidget {
       return _buildEmptyState();
     }
     
-    return AspectRatio(
-      aspectRatio: 1.5,
-      child: LineChart(
-        LineChartData(
-          gridData: FlGridData(
-            show: true,
-            drawVerticalLine: false,
-            getDrawingHorizontalLine: (value) => FlLine(
-              color: theme.textColor.withValues(alpha: 0.1),
-              strokeWidth: 1,
-            ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Title with unit
+        Text(
+          '日训练容量 (kg)',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: theme.textColor,
           ),
-          titlesData: FlTitlesData(
-            show: true,
-            bottomTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                reservedSize: 30,
-                interval: 7, // Show every 7 days
-                getTitlesWidget: _getBottomTitles,
-              ),
-            ),
-            leftTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                reservedSize: 40,
-                getTitlesWidget: _getLeftTitles,
-              ),
-            ),
-            topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          ),
-          borderData: FlBorderData(show: false),
-          minX: 0,
-          maxX: _getMaxX(),
-          minY: 0,
-          maxY: _calculateMaxY(),
-          lineBarsData: [
-            LineChartBarData(
-              spots: _buildSpots(),
-              isCurved: true,
-              color: theme.accentColor,
-              barWidth: 3,
-              isStrokeCapRound: true,
-              dotData: FlDotData(
+        ),
+        const SizedBox(height: 12),
+        AspectRatio(
+          aspectRatio: 1.5,
+          child: LineChart(
+            LineChartData(
+              gridData: FlGridData(
                 show: true,
-                getDotPainter: (spot, percent, barData, index) => 
-                  FlDotCirclePainter(
-                    radius: 4,
-                    color: theme.accentColor,
-                    strokeWidth: 2,
-                    strokeColor: Colors.white,
+                drawVerticalLine: true,
+                drawHorizontalLine: true,
+                getDrawingHorizontalLine: (value) => FlLine(
+                  color: theme.textColor.withValues(alpha: 0.08),
+                  strokeWidth: 1,
+                  dashArray: [3, 3],
+                ),
+                getDrawingVerticalLine: (value) => FlLine(
+                  color: theme.textColor.withValues(alpha: 0.08),
+                  strokeWidth: 1,
+                  dashArray: [3, 3],
+                ),
+              ),
+              titlesData: FlTitlesData(
+                show: true,
+                bottomTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    reservedSize: 35,
+                    interval: 1,
+                    getTitlesWidget: _getBottomTitles,
                   ),
+                ),
+                leftTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    reservedSize: 50,
+                    interval: 20,
+                    getTitlesWidget: _getLeftTitles,
+                  ),
+                ),
+                topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
               ),
-              belowBarData: BarAreaData(
-                show: true,
-                color: theme.accentColor.withValues(alpha: 0.1),
+              borderData: FlBorderData(show: false),
+              minX: 0,
+              maxX: _getMaxX(),
+              minY: 0,
+              maxY: _calculateMaxY(),
+              lineBarsData: [
+                LineChartBarData(
+                  spots: _buildSpots(),
+                  isCurved: true,
+                  color: theme.accentColor,
+                  barWidth: 3,
+                  isStrokeCapRound: true,
+                  dotData: FlDotData(
+                    show: true,
+                    getDotPainter: (spot, percent, barData, index) => 
+                      FlDotCirclePainter(
+                        radius: 4,
+                        color: theme.accentColor,
+                        strokeWidth: 2,
+                        strokeColor: Colors.white,
+                      ),
+                  ),
+                  belowBarData: BarAreaData(
+                    show: true,
+                    color: theme.accentColor.withValues(alpha: 0.15),
+                  ),
+                ),
+              ],
+              lineTouchData: LineTouchData(
+                enabled: true,
+                touchTooltipData: LineTouchTooltipData(
+                  getTooltipColor: (touchedSpot) => theme.accentColor,
+                  getTooltipItems: (touchedSpots) {
+                    return touchedSpots.map((spot) {
+                      final index = spot.x.toInt();
+                      final sortedEntries = dailyData.entries.toList()
+                        ..sort((a, b) => a.key.compareTo(b.key));
+                      
+                      if (index >= 0 && index < sortedEntries.length) {
+                        final date = sortedEntries[index].key;
+                        final volume = sortedEntries[index].value;
+                        return LineTooltipItem(
+                          '${date.month}/${date.day}\n${volume.toStringAsFixed(0)} kg',
+                          TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
+                        );
+                      }
+                      return LineTooltipItem(
+                        '${spot.y.toStringAsFixed(0)} kg',
+                        TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                      );
+                    }).toList();
+                  },
+                ),
               ),
-            ),
-          ],
-          lineTouchData: LineTouchData(
-            enabled: true,
-            touchTooltipData: LineTouchTooltipData(
-              getTooltipItems: (touchedSpots) {
-                return touchedSpots.map((spot) {
-                  return LineTooltipItem(
-                    '${spot.y.toStringAsFixed(0)} kg',
-                    TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                  );
-                }).toList();
-              },
             ),
           ),
         ),
-      ),
+      ],
     );
   }
   
@@ -128,21 +168,42 @@ List<FlSpot> _buildSpots() {
     }
     
     final date = sortedEntries[index].key;
-    return Padding(
-      padding: const EdgeInsets.only(top: 8),
-      child: Text(
-        '${date.day}',
-        style: TextStyle(
-          fontSize: 10,
-          color: theme.secondaryTextColor,
+    final day = date.day;
+    
+    // Show key dates: 1, 5, 10, 15, 20, 25, and月末
+    if (day == 1 || day == 5 || day == 10 || day == 15 || day == 20 || day == 25) {
+      return Padding(
+        padding: const EdgeInsets.only(top: 8),
+        child: Text(
+          '$day',
+          style: TextStyle(
+            fontSize: 10,
+            color: theme.secondaryTextColor,
+            fontWeight: FontWeight.w500,
+          ),
         ),
-      ),
-    );
+      );
+    } else if (day == sortedEntries.last.key.day) {
+      // Show "月末" for the last day
+      return Padding(
+        padding: const EdgeInsets.only(top: 8),
+        child: Text(
+          '月末',
+          style: TextStyle(
+            fontSize: 10,
+            color: theme.secondaryTextColor,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      );
+    }
+    
+    return const SizedBox();
   }
   
   Widget _getLeftTitles(double value, TitleMeta meta) {
     return Text(
-      '${value.toInt()}',
+      '${value.toInt()} kg',
       style: TextStyle(
         fontSize: 10,
         color: theme.secondaryTextColor,
