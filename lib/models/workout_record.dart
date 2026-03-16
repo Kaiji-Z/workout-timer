@@ -106,6 +106,32 @@ class RecordedExercise {
     );
   }
 
+  /// 检查是否需要迁移到每组格式
+  bool get needsMigration =>
+      (setsData == null || setsData!.isEmpty) && completedSets > 0;
+
+  /// 将旧版记录迁移到每组格式
+  RecordedExercise migrateToSetData() {
+    if (!needsMigration) return this;
+
+    final migratedSetsData = List.generate(
+      completedSets,
+      (index) => SetData(
+        setNumber: index + 1,
+        reps: null,
+        weight: maxWeight,
+      ),
+    );
+
+    return RecordedExercise(
+      exerciseId: exerciseId,
+      exercise: exercise,
+      completedSets: completedSets,
+      maxWeight: maxWeight,
+      setsData: migratedSetsData,
+    );
+  }
+
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
