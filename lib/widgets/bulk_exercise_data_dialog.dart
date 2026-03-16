@@ -178,7 +178,7 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
+const SizedBox(width: 8),
                 // 保存按钮
                 ElevatedButton(
                   onPressed: () {
@@ -287,7 +287,7 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
             children: [
               // 组数标签
               SizedBox(
-                width: 50,
+                width: 40,
                 child: Text(
                   '第$setNumber组',
                   style: TextStyle(
@@ -310,9 +310,9 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
                 ),
               ),
               
-              const SizedBox(width: 8),
+              const SizedBox(width: 4),
               
-              // 乘号
+// 乘号
               Text(
                 '×',
                 style: TextStyle(
@@ -323,11 +323,58 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
                 ),
               ),
               
+              const SizedBox(width: 4),
+              
+              // 重量输入
+              SizedBox(
+                width: 90,
+                child: TextField(
+                  controller: weightController,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    hintText: '0',
+                    hintStyle: TextStyle(
+                      fontFamily: '.SF Pro Text',
+                      fontSize: 14,
+                      color: theme.secondaryTextColor,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(
+                        color: theme.borderColor,
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(
+                        color: theme.accentColor,
+                        width: 2,
+                      ),
+                    ),
+                    suffixText: 'kg',
+                    suffixStyle: TextStyle(
+                      fontFamily: '.SF Pro Text',
+                      fontSize: 12,
+                      color: theme.secondaryTextColor,
+                    ),
+                  ),
+                  style: TextStyle(
+                    fontFamily: '.SF Pro Text',
+                    fontSize: 14,
+                    color: theme.textColor,
+                  ),
+                  onChanged: (value) {
+                    final weight = double.tryParse(value);
+                    _updateWeight(exerciseId, setNumber, weight);
+                  },
+                 ),
+              ),
+              
               const SizedBox(width: 8),
               
               // 重量输入
               SizedBox(
-                width: 100,
+                width: 90,
                 child: TextField(
                   controller: weightController,
                   keyboardType: TextInputType.number,

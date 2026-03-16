@@ -224,13 +224,13 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
             theme: theme,
             size: 70,
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
           // 主倒计时
           AnimatedTimerDisplay(
             seconds: training.restRemaining,
             label: '休息倒计时',
             theme: theme,
-            size: 280,
+            size: 240,
             isCountdown: true,
             progress: training.restDuration > 0 
                 ? training.restRemaining / training.restDuration 
@@ -494,10 +494,13 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
 
     // 休息中：跳过休息(主按钮，居中)
     if (training.isResting) {
-      return PrimaryActionButton(
-        label: '跳过休息',
-        icon: Icons.skip_next,
-        onPressed: training.skipRest,
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 16),
+        child: PrimaryActionButton(
+          label: '跳过休息',
+          icon: Icons.skip_next,
+          onPressed: training.skipRest,
+        ),
       );
     }
 
