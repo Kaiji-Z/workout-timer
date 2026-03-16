@@ -1594,16 +1594,27 @@ return Column(
               Row(
                 children: List.generate(displayDays, (index) {
                   final key = isWeekView ? index : index + 1;
+                  // 月视图只显示部分日期标签（1, 5, 10, 15, 20, 25, 月末）
+                  final daysInMonth = DateTime(_selectedYear, _selectedMonth + 1, 0).day;
+                  final bool showLabel = isWeekView || 
+                      key == 1 || 
+                      key == 5 || 
+                      key == 10 || 
+                      key == 15 || 
+                      key == 20 || 
+                      key == 25 || 
+                      key == daysInMonth;
+                  
                   return Expanded(
                     child: Text(
                       isWeekView 
                           ? ['一', '二', '三', '四', '五', '六', '日'][index] 
-                          : '$key',
+                          : (showLabel ? '$key' : ''),
                       textAlign: TextAlign.center,
-                      overflow: TextOverflow.ellipsis,
+                      overflow: TextOverflow.visible,
                       style: TextStyle(
                         fontFamily: '.SF Pro Text',
-                        fontSize: isWeekView ? 10 : 8,
+                        fontSize: isWeekView ? 10 : 9,
                         color: theme.secondaryTextColor,
                       ),
                     ),
