@@ -181,14 +181,31 @@ class _CalendarWidgetState extends State<CalendarWidget> {
       );
     }
     
-    return GridView.count(
-      crossAxisCount: 7,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      mainAxisSpacing: 4,
-      crossAxisSpacing: 2,
-      childAspectRatio: 1.0, // 确保单元格为正方形，避免多余空白行
-      children: cells,
+    // 计算精确的行数，避免 shrinkWrap 产生多余空白行
+    final totalCells = startWeekday + daysInMonth;
+    final rows = (totalCells + 6) ~/ 7; // 向上取整
+    
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // 计算单元格大小（正方形）
+        const crossAxisSpacing = 2.0;
+        const mainAxisSpacing = 4.0;
+        final cellWidth = (constraints.maxWidth - (6 * crossAxisSpacing)) / 7;
+        final gridHeight = rows * cellWidth + (rows - 1) * mainAxisSpacing;
+        
+        return SizedBox(
+          height: gridHeight,
+          child: GridView.count(
+            crossAxisCount: 7,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            mainAxisSpacing: mainAxisSpacing,
+            crossAxisSpacing: crossAxisSpacing,
+            childAspectRatio: 1.0,
+            children: cells,
+          ),
+        );
+      },
     );
   }
 
