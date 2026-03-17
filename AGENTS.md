@@ -1,6 +1,6 @@
 # AGENTS.md - WorkoutTimer Flutter App
 
-**Updated:** 2026-03-16
+**Updated:** 2026-03-17
 **Branch:** master
 
 ## OVERVIEW
@@ -8,7 +8,7 @@
 Cross-platform Flutter workout rest timer with preset durations (30s/60s/90s/120s), multi-channel notifications, and SQLite-backed workout history. Supports Android, iOS, Web, and Desktop.
 
 **Architecture**: MVVM with Provider (ChangeNotifier), services layer, local SQLite.
-**Stack**: Flutter 3.10+ / Dart 3.10.7+ / sqflite / provider / flutter_local_notifications / uuid / intl / fuzzy.
+**Stack**: Flutter 3.10+ / Dart 3.10.7+ / sqflite / provider / flutter_local_notifications / uuid / intl / fuzzy / fl_chart.
 **Design System**: "Flat Vitality" — warm gradients, deep indigo accent (#1A237E), white circular buttons.
 
 ---
@@ -31,8 +31,8 @@ flutter build web                  # Web build
 # Test
 flutter test                                    # Run all unit tests
 flutter test test/widget_test.dart              # Run single test file
-flutter test test/services/exercise_matcher_service_test.dart  # Run specific service test
-flutter test --name "exact match"               # Run tests matching name pattern
+flutter test test/services/exercise_matcher_service_test.dart  # Run specific test
+flutter test --name "exact match"               # Run tests matching name
 flutter test --reporter expanded                # Verbose output
 flutter test integration_test/                  # Integration tests
 
@@ -67,17 +67,19 @@ lib/
 │   ├── workout_record.dart   # Detailed record (exercises, weights)
 │   ├── workout_plan.dart     # Plan template
 │   ├── exercise.dart         # Exercise definition
+│   ├── recorded_exercise.dart # Exercise instance in a workout (uses exercise.name getter)
 │   └── muscle_group.dart     # Muscle group enums
 ├── screens/                  # UI screens (full pages)
 │   ├── timer_screen.dart     # Timer wrapper
 │   ├── plan_screen.dart      # Workout plans + calendar
+│   ├── ai_plan_wizard_screen.dart # AI-powered plan generation
 │   ├── history_screen.dart   # Workout history list
 │   ├── stats_screen.dart     # Statistics dashboard
 │   └── settings_screen.dart  # User preferences
 ├── widgets/                  # Reusable UI components
 │   ├── training_widget.dart  # Main training UI
 │   ├── timer_widget.dart     # Timer display
-│   ├── calendar_widget.dart  # Month calendar
+│   ├── calendar_widget.dart  # Month calendar (uses LayoutBuilder for exact height)
 │   └── charts/               # fl_chart visualizations
 ├── theme/                    # Flat Vitality theme (5 themes)
 │   ├── app_theme.dart        # Theme data models
@@ -165,6 +167,26 @@ class WorkoutSession {
 }
 ```
 
+### GridView Height Pattern (CRITICAL)
+When using GridView inside SingleChildScrollView, `shrinkWrap: true` miscalculates height. Use LayoutBuilder:
+```dart
+return LayoutBuilder(
+  builder: (context, constraints) {
+    final cellWidth = (constraints.maxWidth - spacing * (columns - 1)) / columns;
+    final gridHeight = rows * cellWidth + (rows - 1) * mainAxisSpacing;
+    
+    return SizedBox(
+      height: gridHeight,
+      child: GridView.count(
+        crossAxisCount: columns,
+        physics: const NeverScrollableScrollPhysics(),
+        children: cells,
+      ),
+    );
+  },
+);
+```
+
 ### Widget Testing Pattern
 ```dart
 await tester.pumpWidget(MultiProvider(
@@ -237,6 +259,8 @@ void main() {
 | Theme definitions | `theme/app_theme.dart` |
 | Exercise data | `services/exercise_service.dart` |
 | Bottom navigation | `main.dart` (`MainNavigation` widget) |
+| AI plan wizard | `screens/ai_plan_wizard_screen.dart` |
+| Calendar widget | `widgets/calendar_widget.dart` |
 
 ---
 
@@ -262,8 +286,10 @@ Web uses in-memory SQLite database; native uses persistent storage.
 | `!` operator | Runtime crashes | Null check `if (x != null)` |
 | Service in Provider | Hard to test | Constructor injection |
 | Release without `--no-tree-shake-icons` | Icons show as garbled | Use `build_release.sh` |
-| Direct color values | Breaks theming | Use `AppThemeData` fields |
+| Direct color values | Breaks thememing | Use `AppThemeData` fields |
 | Bottom padding in main content | Nav bar overlap | Use `extendBody: true`, add padding per-screen |
+| GridView with shrinkWrap in scrollable | Extra blank rows | Use LayoutBuilder + SizedBox with calculated height |
+| Fixed height SizedBox for variable content | Content clipped | Remove constraint, let content size naturally |
 
 ---
 
