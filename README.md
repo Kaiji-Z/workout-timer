@@ -200,6 +200,22 @@ lib/
 
 ---
 
+## 🤖 AI-Powered Development
+
+本项目由 **AI 辅助开发**，展示了人机协作编程的可能性。
+
+| 工具 | 说明 |
+|------|------|
+| [OpenCode](https://github.com/opencode-ai/opencode) | AI 代码助手，提供智能代码补全和重构建议 |
+| [Oh My OpenAgent](https://github.com/oh-my-openagent) | 强大的 AI Agent 插件，实现复杂任务的自动化开发 |
+
+通过 AI 的辅助，我们实现了：
+- 🚀 **快速迭代** - 从想法到实现，大幅缩短开发周期
+- 🔧 **代码质量** - AI 辅助 code review 和最佳实践建议
+- 📚 **知识整合** - AI 帮助整合健身领域知识和开发规范
+
+---
+
 ## 🙏 致谢
 
 | 资源 | 来源 |
