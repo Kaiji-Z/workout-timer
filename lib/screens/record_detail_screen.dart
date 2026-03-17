@@ -27,6 +27,25 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
   final Map<int, Map<int, TextEditingController>> _weightControllers = {};
 
   @override
+  void initState() {
+    super.initState();
+    _exercises = List.from(widget.record.exercises);
+    
+    // 初始化重量控制器
+    for (int i = 0; i < _exercises.length; i++) {
+      final exercise = _exercises[i];
+      if (exercise.setsData != null) {
+        _weightControllers[i] = {};
+        for (final setData in exercise.setsData!) {
+          _weightControllers[i]![setData.setNumber] = TextEditingController(
+            text: setData.weight?.toString() ?? '',
+          );
+        }
+      }
+    }
+  }
+
+  @override
   void dispose() {
     // 释放所有重量控制器
     for (final exerciseControllers in _weightControllers.values) {
