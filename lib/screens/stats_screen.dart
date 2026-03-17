@@ -902,82 +902,101 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
           ),
         ],
       ),
-      child: GridView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 4,
-          childAspectRatio: 1.0,
-          crossAxisSpacing: 8,
-          mainAxisSpacing: 8,
-        ),
-        itemCount: 12,
-        itemBuilder: (context, index) {
-          final month = index + 1;
-          final count = counts[month] ?? 0;
-          final isSelected = month == _selectedMonth;
-          final isFuture = _selectedYear == now.year && month > now.month;
-          final intensity = maxCount > 0 ? count / maxCount : 0.0;
-
-          return GestureDetector(
-            onTap: isFuture ? null : () => _selectMonth(month),
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: isSelected
-                    ? LinearGradient(
-                        colors: [theme.primaryColor, theme.secondaryColor],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      )
-                    : null,
-                color: isSelected
-                    ? null
-                    : isFuture
-                        ? theme.textColor.withValues(alpha: 0.05)
-                        : intensity > 0
-                            ? theme.primaryColor.withValues(alpha: 0.1 + intensity * 0.3)
-                            : theme.textColor.withValues(alpha: 0.05),
-                borderRadius: BorderRadius.circular(12),
-                border: isSelected
-                    ? null
-                    : Border.all(
-                        color: isSelected
-                            ? Colors.transparent
-                            : theme.textColor.withValues(alpha: 0.1),
-                      ),
+      // 使用 LayoutBuilder 计算精确高度，避免 shrinkWrap 产生多余空白行
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          // 12个月 = 4列 × 3行
+          const crossAxisSpacing = 8.0;
+          const mainAxisSpacing = 8.0;
+          const columns = 4;
+          const rows = 3;
+          
+          // 计算单元格大小（正方形）
+          final cellWidth = (constraints.maxWidth - (columns - 1) * crossAxisSpacing) / columns;
+          
+          // 计算网格总高度
+          final gridHeight = rows * cellWidth + (rows - 1) * mainAxisSpacing;
+          
+          return SizedBox(
+            height: gridHeight,
+            child: GridView.builder(
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: columns,
+                childAspectRatio: 1.0,
+                crossAxisSpacing: crossAxisSpacing,
+                mainAxisSpacing: mainAxisSpacing,
               ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    monthNames[index],
-                    style: TextStyle(
-                      fontFamily: '.SF Pro Text',
-                      fontSize: 12,
-                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+              itemCount: 12,
+              itemBuilder: (context, index) {
+                final month = index + 1;
+                final count = counts[month] ?? 0;
+                final isSelected = month == _selectedMonth;
+                final isFuture = _selectedYear == now.year && month > now.month;
+                final intensity = maxCount > 0 ? count / maxCount : 0.0;
+
+                return GestureDetector(
+                  onTap: isFuture ? null : () => _selectMonth(month),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: isSelected
+                          ? LinearGradient(
+                              colors: [theme.primaryColor, theme.secondaryColor],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            )
+                          : null,
                       color: isSelected
-                          ? Colors.white
+                          ? null
                           : isFuture
-                              ? theme.secondaryTextColor.withValues(alpha: 0.3)
-                              : theme.textColor,
+                              ? theme.textColor.withValues(alpha: 0.05)
+                              : intensity > 0
+                                  ? theme.primaryColor.withValues(alpha: 0.1 + intensity * 0.3)
+                                  : theme.textColor.withValues(alpha: 0.05),
+                      borderRadius: BorderRadius.circular(12),
+                      border: isSelected
+                          ? null
+                          : Border.all(
+                              color: isSelected
+                                  ? Colors.transparent
+                                  : theme.textColor.withValues(alpha: 0.1),
+                            ),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          monthNames[index],
+                          style: TextStyle(
+                            fontFamily: '.SF Pro Text',
+                            fontSize: 12,
+                            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                            color: isSelected
+                                ? Colors.white
+                                : isFuture
+                                    ? theme.secondaryTextColor.withValues(alpha: 0.3)
+                                    : theme.textColor,
+                          ),
+                        ),
+                        if (count > 0) ...[
+                          const SizedBox(height: 2),
+                          Text(
+                            '$count',
+                            style: TextStyle(
+                              fontFamily: '.SF Pro Display',
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: isSelected
+                                  ? Colors.white
+                                  : theme.primaryColor,
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
                   ),
-                  if (count > 0) ...[
-                    const SizedBox(height: 2),
-                    Text(
-                      '$count',
-                      style: TextStyle(
-                        fontFamily: '.SF Pro Display',
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        color: isSelected
-                            ? Colors.white
-                            : theme.primaryColor,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
+                );
+              },
             ),
           );
         },
