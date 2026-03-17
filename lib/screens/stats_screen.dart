@@ -8,11 +8,8 @@ import '../models/workout_record.dart';
 import '../models/muscle_group.dart';
 import '../services/workout_repository.dart';
 import '../bloc/record_provider.dart';
-import '../widgets/charts/weekly_volume_bar_chart.dart';
-import '../widgets/charts/muscle_distribution_pie_chart.dart';
-import '../widgets/charts/monthly_trend_line_chart.dart';
-import '../widgets/charts/activity_heatmap_calendar.dart';
 import '../services/stats_calculator_service.dart';
+import 'package:flutter/services.dart';
 
 class StatsScreen extends StatefulWidget {
   const StatsScreen({super.key});
@@ -505,6 +502,13 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
             ),
           ],
         ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.psychology, color: theme.accentColor),
+            tooltip: 'AI 分析',
+            onPressed: () => _showAIAnalysisDialog(theme),
+          ),
+        ],
         bottom: TabBar(
           controller: _tabController,
           indicatorColor: theme.primaryColor,
@@ -1094,15 +1098,6 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
             _buildDailyDurationChart(dailyDurations, dailySets, theme, isWeekView: true, days: 7),
           ]),
           const SizedBox(height: 20),
-          
-          // 每周训练容量趋势
-          _buildSection('每周训练容量趋势', theme, [
-            WeeklyVolumeBarChart(
-              weeklyData: _getWeeklyVolumeData(),
-              theme: theme,
-            ),
-          ]),
-          const SizedBox(height: 20),
         ],
       ),
     );
@@ -1114,11 +1109,6 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
     final frequencyStats = _calculateFrequencyStats(records);
     final volumeStats = _calculateVolumeStats(records);
     final monthlyCounts = _getMonthlyCounts(_selectedYear);
-    
-    // Get data for new charts
-    final muscleDistribution = _getMuscleDistributionData();
-    final dailyVolumeData = _getDailyVolumeData();
-    final heatmapData = _getHeatmapData();
 
     return SingleChildScrollView(
       padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 100),
@@ -1142,37 +1132,6 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
           // 训练量统计
           _buildSection('训练量 ($_selectedMonth月)', theme, [
             _buildVolumeOverview(volumeStats, theme),
-          ]),
-          const SizedBox(height: 20),
-          
-          // 肌肉部位容量分布
-          _buildSection('肌肉部位容量分布', theme, [
-            MuscleDistributionPieChart(
-              muscleData: muscleDistribution,
-              theme: theme,
-            ),
-          ]),
-          const SizedBox(height: 20),
-
-          // 月度训练容量趋势
-          _buildSection('月度训练容量趋势', theme, [
-            SizedBox(
-              height: 200,
-              child: MonthlyTrendLineChart(
-                dailyData: dailyVolumeData,
-                theme: theme,
-              ),
-            ),
-          ]),
-          const SizedBox(height: 20),
-
-          // 训练热力图
-          _buildSection('训练活动热力图', theme, [
-            ActivityHeatmapCalendar(
-              dailyData: heatmapData,
-              theme: theme,
-              weeksToShow: 4,
-            ),
           ]),
         ],
       ),
@@ -1654,5 +1613,372 @@ return Column(
     }
     
     return statsService.calculateDailyVolumeTrend(recentRecords);
+  }
+
+  // ==================== AI 分析功能 ====================
+
+  /// 显示 AI 分析弹窗
+  void _showAIAnalysisDialog(AppThemeData theme) {
+    // 根据当前选中的 tab 决定分析周期
+    final periodType = _tabController.index == 0 ? 'week' : 'month';
+    
+    // 获取当前周期的统计数据
+    final records = periodType == 'week' 
+        ? _filterBySelectedWeek() 
+        : _filterBySelectedMonth();
+    
+    // 计算日期范围
+    DateTime startDate;
+    DateTime endDate;
+    if (periodType == 'week') {
+      final weekStart = _getStartOfWeek(_selectedWeekStart);
+      startDate = DateTime(weekStart.year, weekStart.month, weekStart.day);
+      endDate = startDate.add(const Duration(days: 7));
+    } else {
+      startDate = DateTime(_selectedYear, _selectedMonth, 1);
+      endDate = DateTime(_selectedYear, _selectedMonth + 1, 0);
+    }
+    
+    // 计算统计数据
+    final frequencyStats = _calculateFrequencyStats(records);
+    final volumeStats = _calculateVolumeStats(records);
+
+    showDialog(
+      context: context,
+      builder: (context) => _AIAnalysisDialog(
+        theme: theme,
+        periodType: periodType,
+        startDate: startDate,
+        endDate: endDate,
+        frequencyStats: frequencyStats,
+        volumeStats: volumeStats,
+        records: records.whereType<WorkoutRecord>().toList(),
+      ),
+    );
+  }
+}
+
+/// AI 分析弹窗组件
+class _AIAnalysisDialog extends StatefulWidget {
+  final AppThemeData theme;
+  final String periodType;
+  final DateTime startDate;
+  final DateTime endDate;
+  final Map<String, dynamic> frequencyStats;
+  final Map<String, dynamic> volumeStats;
+  final List<WorkoutRecord> records;
+
+  const _AIAnalysisDialog({
+    required this.theme,
+    required this.periodType,
+    required this.startDate,
+    required this.endDate,
+    required this.frequencyStats,
+    required this.volumeStats,
+    required this.records,
+  });
+
+  @override
+  State<_AIAnalysisDialog> createState() => _AIAnalysisDialogState();
+}
+
+class _AIAnalysisDialogState extends State<_AIAnalysisDialog> {
+  String _selectedGoal = 'muscle_building';
+  final Set<String> _selectedFocusAreas = {};
+  late String _generatedPrompt;
+  bool _isPromptCopied = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _generatedPrompt = _generatePrompt();
+  }
+
+  String _generatePrompt() {
+    final periodLabel = widget.periodType == 'week' ? '本周' : '本月';
+    final dateFormat = '${widget.startDate.year}年${widget.startDate.month}月${widget.startDate.day}日';
+    
+    // 格式化训练目标
+    final goalLabels = {
+      'muscle_building': '增肌',
+      'fat_loss': '减脂',
+      'strength': '力量提升',
+      'endurance': '耐力增强',
+    };
+    
+    // 格式化重点部位
+    final muscleLabels = {
+      'chest': '胸部',
+      'back': '背部',
+      'shoulders': '肩部',
+      'arms': '手臂',
+      'legs': '腿部',
+      'core': '核心',
+    };
+
+    final buffer = StringBuffer();
+    buffer.writeln('你是一位专业的健身教练。根据我的训练数据，为我生成下个周期的训练计划。');
+    buffer.writeln();
+    buffer.writeln('## 训练周期');
+    buffer.writeln('- 类型: $periodLabel');
+    buffer.writeln('- 日期范围: $dateFormat');
+    buffer.writeln();
+    buffer.writeln('## 基础统计');
+    buffer.writeln('- 训练次数: ${widget.frequencyStats['sessionCount']} 次');
+    buffer.writeln('- 训练天数: ${widget.frequencyStats['workoutDays']} 天');
+    buffer.writeln('- 总组数: ${widget.volumeStats['totalSets']} 组');
+    buffer.writeln('- 总时长: ${(widget.volumeStats['totalDuration'] as int) ~/ 60} 分钟');
+    buffer.writeln();
+    buffer.writeln('## 用户目标');
+    buffer.writeln('- 主要目标: ${goalLabels[_selectedGoal] ?? _selectedGoal}');
+    if (_selectedFocusAreas.isNotEmpty) {
+      buffer.writeln('- 重点加强: ${_selectedFocusAreas.map((m) => muscleLabels[m] ?? m).join('、')}');
+    }
+    buffer.writeln();
+    buffer.writeln('## 输出格式');
+    buffer.writeln('Output ONLY valid JSON:');
+    buffer.writeln('```json');
+    buffer.writeln('{');
+    buffer.writeln('  "name": "计划名称",');
+    buffer.writeln('  "days": [');
+    buffer.writeln('    {');
+    buffer.writeln('      "dayOfWeek": 1,');
+    buffer.writeln('      "targetMuscles": ["chest", "shoulders"],');
+    buffer.writeln('      "exercises": [');
+    buffer.writeln('        {"exerciseName": "Barbell Bench Press", "targetSets": 4}');
+    buffer.writeln('      ]');
+    buffer.writeln('    }');
+    buffer.writeln('  ]');
+    buffer.writeln('}');
+    buffer.writeln('```');
+    buffer.writeln();
+    buffer.writeln('## 规则');
+    buffer.writeln('1. dayOfWeek: 1=周一 ... 7=周日');
+    buffer.writeln('2. targetMuscles: chest, back, shoulders, arms, legs, core');
+    buffer.writeln('3. targetSets: 3-5 每个动作');
+    buffer.writeln('4. 复合动作优先，孤立动作在后');
+    buffer.writeln('5. 根据训练频率安排休息日');
+    buffer.writeln();
+    buffer.writeln('生成我的训练计划。JSON only:');
+
+    return buffer.toString();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      backgroundColor: widget.theme.surfaceColor,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      title: Row(
+        children: [
+          Icon(Icons.psychology, color: widget.theme.accentColor),
+          const SizedBox(width: 8),
+          Text(
+            'AI 训练分析',
+            style: TextStyle(
+              fontFamily: '.SF Pro Display',
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+              color: widget.theme.textColor,
+            ),
+          ),
+        ],
+      ),
+      content: SingleChildScrollView(
+        child: SizedBox(
+          width: MediaQuery.of(context).size.width * 0.85,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 训练目标单选
+              Text(
+                '训练目标',
+                style: TextStyle(
+                  fontFamily: '.SF Pro Text',
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: widget.theme.textColor,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                children: [
+                  _buildGoalChip('增肌', 'muscle_building'),
+                  _buildGoalChip('减脂', 'fat_loss'),
+                  _buildGoalChip('力量', 'strength'),
+                  _buildGoalChip('耐力', 'endurance'),
+                ],
+              ),
+              const SizedBox(height: 16),
+              
+              // 重点加强部位多选
+              Text(
+                '重点加强部位 (可选)',
+                style: TextStyle(
+                  fontFamily: '.SF Pro Text',
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: widget.theme.textColor,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  _buildFocusChip('胸', 'chest'),
+                  _buildFocusChip('背', 'back'),
+                  _buildFocusChip('肩', 'shoulders'),
+                  _buildFocusChip('手臂', 'arms'),
+                  _buildFocusChip('腿', 'legs'),
+                  _buildFocusChip('核心', 'core'),
+                ],
+              ),
+              const SizedBox(height: 20),
+              
+              // Prompt 展示区域
+              Text(
+                '生成的 Prompt',
+                style: TextStyle(
+                  fontFamily: '.SF Pro Text',
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: widget.theme.secondaryTextColor,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Container(
+                constraints: const BoxConstraints(maxHeight: 200),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: widget.theme.textColor.withValues(alpha: 0.05),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: widget.theme.textColor.withValues(alpha: 0.1)),
+                ),
+                child: SingleChildScrollView(
+                  child: Text(
+                    _generatedPrompt,
+                    style: TextStyle(
+                      fontFamily: '.SF Pro Text',
+                      fontSize: 12,
+                      color: widget.theme.textColor,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text(
+            '取消',
+            style: TextStyle(color: widget.theme.secondaryTextColor),
+          ),
+        ),
+        ElevatedButton.icon(
+          onPressed: () {
+            Clipboard.setData(ClipboardData(text: _generatedPrompt));
+            setState(() => _isPromptCopied = true);
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Prompt 已复制到剪贴板')),
+            );
+          },
+          icon: Icon(Icons.copy, size: 18, color: _isPromptCopied ? widget.theme.accentColor : widget.theme.surfaceColor),
+          label: Text(_isPromptCopied ? '已复制' : '复制'),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: _isPromptCopied ? widget.theme.accentColor.withValues(alpha: 0.1) : widget.theme.cardColor,
+            foregroundColor: _isPromptCopied ? widget.theme.accentColor : widget.theme.accentColor,
+          ),
+        ),
+        ElevatedButton.icon(
+          onPressed: _isPromptCopied
+              ? () {
+                  Navigator.pop(context);
+                  // 跳转到 AI 计划向导页面
+                  Navigator.pushNamed(
+                    context,
+                    '/ai-plan-wizard',
+                    arguments: {
+                      'statsAnalysis': true,
+                      'generatedPrompt': _generatedPrompt,
+                    },
+                  );
+                }
+              : null,
+          icon: const Icon(Icons.arrow_forward, size: 18),
+          label: const Text('导入 AI 建议'),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: widget.theme.accentColor,
+            foregroundColor: widget.theme.surfaceColor,
+            disabledBackgroundColor: widget.theme.textColor.withValues(alpha: 0.1),
+            disabledForegroundColor: widget.theme.secondaryTextColor,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildGoalChip(String label, String value) {
+    final isSelected = _selectedGoal == value;
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedGoal = value;
+          _generatedPrompt = _generatePrompt();
+        });
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: isSelected ? widget.theme.accentColor : widget.theme.accentColor.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? widget.theme.accentColor : widget.theme.accentColor.withValues(alpha: 0.3),
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontFamily: '.SF Pro Text',
+            fontSize: 14,
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+            color: isSelected ? Colors.white : widget.theme.accentColor,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFocusChip(String label, String value) {
+    final isSelected = _selectedFocusAreas.contains(value);
+    return FilterChip(
+      label: Text(label),
+      selected: isSelected,
+      onSelected: (_) {
+        setState(() {
+          if (isSelected) {
+            _selectedFocusAreas.remove(value);
+          } else {
+            _selectedFocusAreas.add(value);
+          }
+          _generatedPrompt = _generatePrompt();
+        });
+      },
+      selectedColor: widget.theme.accentColor.withValues(alpha: 0.15),
+      checkmarkColor: widget.theme.accentColor,
+      backgroundColor: widget.theme.textColor.withValues(alpha: 0.05),
+      side: BorderSide(color: widget.theme.textColor.withValues(alpha: 0.1)),
+      labelStyle: TextStyle(
+        color: isSelected ? widget.theme.accentColor : widget.theme.textColor,
+        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+      ),
+    );
   }
 }
