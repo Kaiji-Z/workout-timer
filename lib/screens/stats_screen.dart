@@ -627,6 +627,28 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
             _buildDailyDurationChart(dailyDurations, dailySets, theme, isWeekView: true, days: 7),
           ]),
           const SizedBox(height: 20),
+
+          // 恢复状态
+          _buildSection('恢复状态', theme, [
+            _buildRecoveryStatusList(_calculateRecoveryData(records), theme),
+          ]),
+          const SizedBox(height: 20),
+
+          // 常用动作
+          _buildSection('常用动作', theme, [
+            _buildCommonExercisesChart(_calculateCommonExercises(records), theme),
+          ]),
+          const SizedBox(height: 20),
+
+          // 训练洞察
+          _buildSection('训练洞察', theme, [
+            _buildTrainingInsightsCard(
+              _calculateWeakMusclesData(records),
+              _calculateOvertrainedMusclesData(records),
+              theme,
+            ),
+          ]),
+          const SizedBox(height: 20),
         ],
       ),
     );
@@ -661,6 +683,28 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
           // 训练量统计
           _buildSection('训练量 ($_selectedMonth月)', theme, [
             _buildVolumeOverview(volumeStats, theme),
+          ]),
+          const SizedBox(height: 20),
+
+          // 恢复状态
+          _buildSection('恢复状态', theme, [
+            _buildRecoveryStatusList(_calculateRecoveryData(records), theme),
+          ]),
+          const SizedBox(height: 20),
+
+          // 常用动作
+          _buildSection('常用动作', theme, [
+            _buildCommonExercisesChart(_calculateCommonExercises(records), theme),
+          ]),
+          const SizedBox(height: 20),
+
+          // 训练洞察
+          _buildSection('训练洞察', theme, [
+            _buildTrainingInsightsCard(
+              _calculateWeakMusclesData(records),
+              _calculateOvertrainedMusclesData(records),
+              theme,
+            ),
           ]),
         ],
       ),
@@ -1103,6 +1147,426 @@ return Column(
             ],
           ),
         ),
+      ],
+    );
+  }
+
+  // ==================== 新增图表数据计算方法 ====================
+
+  /// 计算肌肉分布数据
+  Map<PrimaryMuscleGroup, int> _calculateMuscleDistribution(List<dynamic> records) {
+    final distribution = <PrimaryMuscleGroup, int>{};
+    
+    for (final record in records) {
+      if (record is WorkoutRecord && record.trainedMuscles.isNotEmpty) {
+        for (final muscle in record.trainedMuscles) {
+          distribution[muscle] = (distribution[muscle] ?? 0) + 1;
+        }
+      }
+    }
+    
+    return distribution;
+  }
+
+  /// 计算恢复状态数据（各肌肉群距上次训练天数）
+  Map<PrimaryMuscleGroup, int> _calculateRecoveryData(List<dynamic> records) {
+    final lastTrainingDates = <PrimaryMuscleGroup, DateTime>{};
+    final now = DateTime.now();
+    
+    for (final record in records) {
+      if (record is WorkoutRecord && record.trainedMuscles.isNotEmpty) {
+        for (final muscle in record.trainedMuscles) {
+          if (lastTrainingDates[muscle] == null || record.date.isAfter(lastTrainingDates[muscle]!)) {
+            lastTrainingDates[muscle] = record.date;
+          }
+        }
+      }
+    }
+    
+    final recoveryData = <PrimaryMuscleGroup, int>{};
+    for (final entry in lastTrainingDates.entries) {
+      recoveryData[entry.key] = now.difference(entry.value).inDays;
+    }
+    
+    return recoveryData;
+  }
+
+  /// 计算常用动作数据（TOP 10）
+  Map<String, int> _calculateCommonExercises(List<dynamic> records) {
+    final exerciseCounts = <String, int>{};
+    
+    for (final record in records) {
+      if (record is WorkoutRecord) {
+        for (final exercise in record.exercises) {
+          final name = exercise.name;
+          if (name.isNotEmpty) {
+            exerciseCounts[name] = (exerciseCounts[name] ?? 0) + 1;
+          }
+        }
+      }
+    }
+    
+    final sorted = exerciseCounts.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    
+    return Map.fromEntries(sorted.take(10));
+  }
+
+  /// 计算薄弱部位（训练次数最少或未训练的）
+  List<Map<String, dynamic>> _calculateWeakMusclesData(List<dynamic> records) {
+    final muscleDistribution = _calculateMuscleDistribution(records);
+    final allMuscles = PrimaryMuscleGroup.values;
+    final result = <Map<String, dynamic>>[];
+    
+    for (final muscle in allMuscles) {
+      if (!muscleDistribution.containsKey(muscle)) {
+        result.add({
+          'muscle': muscle,
+          'displayName': muscle.displayName,
+          'count': 0,
+          'status': 'untrained',
+        });
+      }
+    }
+    
+    if (muscleDistribution.isNotEmpty) {
+      final avgCount = muscleDistribution.values.fold<int>(0, (sum, v) => sum + v) / muscleDistribution.length;
+      for (final entry in muscleDistribution.entries) {
+        if (entry.value <= avgCount * 0.5) {
+          result.add({
+            'muscle': entry.key,
+            'displayName': entry.key.displayName,
+            'count': entry.value,
+            'status': 'weak',
+          });
+        }
+      }
+    }
+    
+    return result;
+  }
+
+  /// 计算过度训练风险部位（连续3天以上训练同一肌群）
+  List<Map<String, dynamic>> _calculateOvertrainedMusclesData(List<dynamic> records) {
+    if (records.length < 2) return [];
+    
+    final sortedRecords = List<WorkoutRecord>.from(records.whereType<WorkoutRecord>())
+      ..sort((a, b) => a.date.compareTo(b.date));
+    
+    final result = <Map<String, dynamic>>[];
+    
+    for (final muscle in PrimaryMuscleGroup.values) {
+      int maxConsecutive = 0;
+      int currentConsecutive = 0;
+      DateTime? lastDate;
+      
+      for (final record in sortedRecords) {
+        if (record.trainedMuscles.contains(muscle)) {
+          if (lastDate == null) {
+            currentConsecutive = 1;
+          } else {
+            final diff = record.date.difference(lastDate).inDays;
+            if (diff == 1) {
+              currentConsecutive++;
+            } else if (diff > 1) {
+              currentConsecutive = 1;
+            }
+          }
+          lastDate = record.date;
+          if (currentConsecutive > maxConsecutive) {
+            maxConsecutive = currentConsecutive;
+          }
+        }
+      }
+      
+      if (maxConsecutive >= 3) {
+        result.add({
+          'muscle': muscle,
+          'displayName': muscle.displayName,
+          'consecutiveDays': maxConsecutive,
+        });
+      }
+    }
+    
+    return result;
+  }
+
+  // ==================== 新增图表组件方法 ====================
+
+  /// 恢复状态列表
+  Widget _buildRecoveryStatusList(Map<PrimaryMuscleGroup, int> recoveryData, AppThemeData theme) {
+    if (recoveryData.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Text(
+            '暂无恢复数据',
+            style: TextStyle(
+              color: theme.secondaryTextColor,
+              fontFamily: '.SF Pro Text',
+            ),
+          ),
+        ),
+      );
+    }
+    
+    final sortedEntries = recoveryData.entries.toList()
+      ..sort((a, b) => a.value.compareTo(b.value));
+    
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: sortedEntries.map((entry) {
+        final days = entry.value;
+        Color chipColor;
+        IconData icon;
+        
+        if (days >= 3) {
+          chipColor = Colors.green;
+          icon = Icons.check_circle;
+        } else if (days >= 1) {
+          chipColor = Colors.orange;
+          icon = Icons.access_time;
+        } else {
+          chipColor = Colors.red;
+          icon = Icons.warning;
+        }
+        
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: chipColor.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: chipColor.withValues(alpha: 0.3)),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 14, color: chipColor),
+              const SizedBox(width: 6),
+              Text(
+                entry.key.displayName,
+                style: TextStyle(
+                  fontFamily: '.SF Pro Text',
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: chipColor,
+                ),
+              ),
+              const SizedBox(width: 4),
+              Text(
+                '$days天',
+                style: TextStyle(
+                  fontFamily: '.SF Pro Text',
+                  fontSize: 11,
+                  color: chipColor.withValues(alpha: 0.7),
+                ),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  /// 常用动作图表（水平条形图）
+  Widget _buildCommonExercisesChart(Map<String, int> exercises, AppThemeData theme) {
+    if (exercises.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Text(
+            '暂无动作数据',
+            style: TextStyle(
+              color: theme.secondaryTextColor,
+              fontFamily: '.SF Pro Text',
+            ),
+          ),
+        ),
+      );
+    }
+    
+    final maxCount = exercises.values.fold<int>(0, (max, e) => e > max ? e : max);
+    
+    return Column(
+      children: exercises.entries.map((entry) {
+        final percentage = maxCount > 0 ? entry.value / maxCount : 0.0;
+        final displayName = entry.key.length > 20 
+            ? '${entry.key.substring(0, 18)}...' 
+            : entry.key;
+        
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 10),
+          child: Row(
+            children: [
+              SizedBox(
+                width: 100,
+                child: Text(
+                  displayName,
+                  style: TextStyle(
+                    fontFamily: '.SF Pro Text',
+                    fontSize: 11,
+                    color: theme.textColor,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              Expanded(
+                child: Stack(
+                  children: [
+                    Container(
+                      height: 20,
+                      decoration: BoxDecoration(
+                        color: theme.textColor.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                    FractionallySizedBox(
+                      widthFactor: percentage.clamp(0.1, 1.0),
+                      child: Container(
+                        height: 20,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [theme.accentColor, theme.accentColor.withValues(alpha: 0.7)],
+                          ),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              SizedBox(
+                width: 30,
+                child: Text(
+                  '${entry.value}次',
+                  style: TextStyle(
+                    fontFamily: '.SF Pro Text',
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: theme.accentColor,
+                  ),
+                  textAlign: TextAlign.right,
+                ),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  /// 训练洞察卡片（薄弱部位 + 过度训练风险）
+  Widget _buildTrainingInsightsCard(
+    List<Map<String, dynamic>> weakMuscles,
+    List<Map<String, dynamic>> overtrainedMuscles,
+    AppThemeData theme,
+  ) {
+    if (weakMuscles.isEmpty && overtrainedMuscles.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Text(
+            '训练均衡，继续保持！',
+            style: TextStyle(
+              color: theme.secondaryTextColor,
+              fontFamily: '.SF Pro Text',
+            ),
+          ),
+        ),
+      );
+    }
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (weakMuscles.isNotEmpty) ...[
+          Row(
+            children: [
+              Icon(Icons.trending_down, size: 16, color: Colors.orange),
+              const SizedBox(width: 6),
+              Text(
+                '薄弱部位',
+                style: TextStyle(
+                  fontFamily: '.SF Pro Text',
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.orange,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 6,
+            children: weakMuscles.map((m) {
+              final status = m['status'] as String;
+              final label = status == 'untrained' 
+                  ? '${m['displayName']} (未训练)'
+                  : '${m['displayName']} (${m['count']}次)';
+              return Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
+                ),
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    fontFamily: '.SF Pro Text',
+                    fontSize: 11,
+                    color: Colors.orange,
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+          const SizedBox(height: 16),
+        ],
+        
+        if (overtrainedMuscles.isNotEmpty) ...[
+          Row(
+            children: [
+              Icon(Icons.warning, size: 16, color: Colors.red),
+              const SizedBox(width: 6),
+              Text(
+                '过度训练风险',
+                style: TextStyle(
+                  fontFamily: '.SF Pro Text',
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.red,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 6,
+            children: overtrainedMuscles.map((m) {
+              return Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.red.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
+                ),
+                child: Text(
+                  '${m['displayName']} (连续${m['consecutiveDays']}天)',
+                  style: TextStyle(
+                    fontFamily: '.SF Pro Text',
+                    fontSize: 11,
+                    color: Colors.red,
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ],
       ],
     );
   }
