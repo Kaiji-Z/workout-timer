@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🏋️ 撸铁计时器 | IronTimer
+# 🏋️ 撸铁计时器 | Workout Timer
 
 **专注训练，不再分心**
 
