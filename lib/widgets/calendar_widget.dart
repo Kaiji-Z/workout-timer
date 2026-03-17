@@ -187,6 +187,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
       physics: const NeverScrollableScrollPhysics(),
       mainAxisSpacing: 4,
       crossAxisSpacing: 2,
+      childAspectRatio: 1.0, // 确保单元格为正方形，避免多余空白行
       children: cells,
     );
   }
