@@ -162,7 +162,10 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
   void _updateReps(int exerciseIndex, int setNumber, int reps) {
     setState(() {
       final exercise = _exercises[exerciseIndex];
-      final updatedSetsData = exercise.setsData!.map((s) {
+      final setsData = exercise.setsData ?? [];
+      if (setsData.isEmpty) return;
+      
+      final updatedSetsData = setsData.map((s) {
         if (s.setNumber == setNumber) {
           return s.copyWith(reps: reps);
         }
@@ -180,10 +183,11 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
     });
   }
 
-  void _updateWeight(int exerciseIndex, int setNumber, double? weight) {
+ void _updateWeight(int exerciseIndex, int setNumber, double? weight) {
     setState(() {
       final exercise = _exercises[exerciseIndex];
-      final updatedSetsData = exercise.setsData!.map((s) {
+      final setsData = exercise.setsData ?? [];
+      final updatedSetsData = setsData.map((s) {
         if (s.setNumber == setNumber) {
           return s.copyWith(weight: weight);
         }
@@ -198,11 +202,6 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
       
       _exercises[exerciseIndex] = updatedExercise;
       _hasChanges = true;
-      
-      // 更新控制器
-      if (weight != null) {
-        _weightControllers[exerciseIndex]![setNumber]?.text = weight.toString();
-      }
     });
   }
 
@@ -655,9 +654,9 @@ Widget _buildExerciseItem(int index, RecordedExercise exercise, AppThemeData the
     
     try {
       await context.read<RecordProvider>().updateRecord(updatedRecord);
-setState(() {
-                _hasChanges = true;
-              });
+      setState(() {
+        _hasChanges = false;
+      });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
