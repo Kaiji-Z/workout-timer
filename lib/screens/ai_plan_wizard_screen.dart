@@ -11,7 +11,14 @@ import '../bloc/plan_provider.dart';
 import '../widgets/glass_widgets.dart';
 
 class AIPlanWizardScreen extends StatefulWidget {
-  const AIPlanWizardScreen({super.key});
+  final bool statsAnalysisMode;
+  final String? generatedPrompt;
+
+  const AIPlanWizardScreen({
+    super.key,
+    this.statsAnalysisMode = false,
+    this.generatedPrompt,
+  });
 
   @override
   State<AIPlanWizardScreen> createState() => _AIPlanWizardScreenState();
@@ -48,6 +55,19 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
     final now = DateTime.now();
     final daysUntilMonday = (DateTime.monday - now.weekday + 7) % 7;
     return DateTime(now.year, now.month, now.day).add(Duration(days: daysUntilMonday == 0 ? 7 : daysUntilMonday));
+  }
+  
+  @override
+  void initState() {
+    super.initState();
+    
+    // Stats analysis mode - start from step 2 (paste JSON)
+    if (widget.statsAnalysisMode) {
+      _currentStep = 2;
+      if (widget.generatedPrompt != null) {
+        _generatedPrompt = widget.generatedPrompt;
+      }
+    }
   }
   
   @override
