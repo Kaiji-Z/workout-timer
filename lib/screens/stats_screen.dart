@@ -289,7 +289,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
     return {
       'sessionCount': records.length,
       'workoutDays': uniqueDays.length,
-      'avgSessionsPerWeek': records.length / (uniqueDays.length > 0 ? uniqueDays.length / 7 : 1),
+        'avgSessionsPerWeek': records.length / (uniqueDays.isNotEmpty ? uniqueDays.length / 7 : 1),
       'muscleFrequency': muscleFrequency,
     };
   }
@@ -468,8 +468,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
         Expanded(
           child: _buildMetricCard(
             '周均训练',
-            '${(stats['avgSessionsPerWeek'] as double).toStringAsFixed(1)}',
-            '次',
+            '${(stats['avgSessionsPerWeek'] as double).toStringAsFixed(1)} 次',            '次',
             Icons.trending_up,
             theme.accentColor,
             theme,
@@ -1049,7 +1048,7 @@ return Column(
                                           ),
                                           if (setCount > 0)
                                             Text(
-                                              '${setCount}组',
+                                              '$setCount 组',
                                               textAlign: TextAlign.center,
                                               style: TextStyle(
                                                 fontFamily: '.SF Pro Text',
@@ -1187,10 +1186,177 @@ class _AIAnalysisDialogState extends State<_AIAnalysisDialog> {
     _generatedPrompt = _generatePrompt();
   }
 
+  /// 格式化肌肉分布数据
+  String _formatMuscleDistribution() {
+    final muscleFrequency = widget.frequencyStats['muscleFrequency'] as Map<PrimaryMuscleGroup, int>?;
+    if (muscleFrequency == null || muscleFrequency.isEmpty) {
+      return '- 暂无肌肉训练数据';
+    }
+
+    // 按训练次数排序
+    final sortedMuscles = muscleFrequency.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
+    final total = sortedMuscles.fold<int>(0, (sum, e) => sum + e.value);
+    final buffer = StringBuffer();
+
+    for (final entry in sortedMuscles) {
+      final percentage = total > 0 ? (entry.value / total * 100).toStringAsFixed(1) : '0.0';
+      buffer.writeln('  - ${entry.key.displayName}: ${entry.value}次 ($percentage%)');
+    }
+
+    return buffer.toString().trimRight();
+  }
+
+  /// 格式化恢复管理数据（计算每个肌肉的休息天数）
+  String _formatRecoveryManagement() {
+    if (widget.records.isEmpty) {
+      return '- 暂无恢复数据';
+    }
+
+    // 统计每个肌肉部位最后训练日期
+    final Map<PrimaryMuscleGroup, DateTime> lastTrainedDates = {};
+
+    for (final record in widget.records) {
+      for (final muscle in record.trainedMuscles) {
+        final existingDate = lastTrainedDates[muscle];
+        if (existingDate == null || record.date.isAfter(existingDate)) {
+          lastTrainedDates[muscle] = record.date;
+        }
+      }
+    }
+
+    if (lastTrainedDates.isEmpty) {
+      return '- 暂无肌肉恢复数据';
+    }
+
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final buffer = StringBuffer();
+
+    // 按休息天数排序（从长到短）
+    final sortedEntries = lastTrainedDates.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
+    for (final entry in sortedEntries) {
+      final lastDate = DateTime(entry.value.year, entry.value.month, entry.value.day);
+      final restDays = today.difference(lastDate).inDays;
+      buffer.writeln('  - ${entry.key.displayName}: 已休息$restDays 天');
+    }
+
+    return buffer.toString().trimRight();
+  }
+
+  /// 格式化常用动作数据
+  String _formatCommonExercises() {
+    if (widget.records.isEmpty) {
+      return '- 暂无动作数据';
+    }
+
+    // 统计每个动作的训练次数
+    final Map<String, int> exerciseCounts = {};
+
+    for (final record in widget.records) {
+      for (final exercise in record.exercises) {
+        final name = exercise.name.isNotEmpty ? exercise.name : exercise.exerciseId;
+        exerciseCounts[name] = (exerciseCounts[name] ?? 0) + 1;
+      }
+    }
+
+    if (exerciseCounts.isEmpty) {
+      return '- 暂无动作训练数据';
+    }
+
+    // 按次数排序，取前10个
+    final sortedExercises = exerciseCounts.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
+    final topExercises = sortedExercises.take(10);
+    final buffer = StringBuffer();
+
+    for (final entry in topExercises) {
+      buffer.writeln('  - ${entry.key}: ${entry.value} 次');
+    }
+
+    return buffer.toString().trimRight();
+  }
+
+  /// 获取薄弱部位（训练次数最少的）
+  List<String> _getWeakMuscles() {
+    final muscleFrequency = widget.frequencyStats['muscleFrequency'] as Map<PrimaryMuscleGroup, int>?;
+    if (muscleFrequency == null || muscleFrequency.isEmpty) {
+      return [];
+    }
+
+    // 所有主要肌肉部位
+    final allMuscles = PrimaryMuscleGroup.values;
+    final trainedMuscles = muscleFrequency.keys.toSet();
+
+    // 找出未训练的部位
+    final untrained = allMuscles.where((m) => !trainedMuscles.contains(m)).map((m) => m.displayName).toList();
+
+    // 找出训练次数最少的部位（<= 平均值的 50%）
+    final avgFrequency = muscleFrequency.values.fold<int>(0, (sum, v) => sum + v) / muscleFrequency.length;
+    final weakTrained = muscleFrequency.entries
+        .where((e) => e.value <= avgFrequency * 0.5)
+        .map((e) => e.key.displayName)
+        .toList();
+
+    return [...untrained, ...weakTrained];
+  }
+
+  /// 获取过度训练的部位（连续训练天数过多）
+  List<String> _getOvertrainedMuscles() {
+    if (widget.records.length < 2) {
+      return [];
+    }
+
+    // 按日期排序记录
+    final sortedRecords = List<WorkoutRecord>.from(widget.records)
+      ..sort((a, b) => a.date.compareTo(b.date));
+
+    final Map<PrimaryMuscleGroup, int> consecutiveDays = {};
+
+    // 检查每个肌肉部位的连续训练情况
+    for (final muscle in PrimaryMuscleGroup.values) {
+      int maxConsecutive = 0;
+      int currentConsecutive = 0;
+      DateTime? lastDate;
+
+      for (final record in sortedRecords) {
+        if (record.trainedMuscles.contains(muscle)) {
+          if (lastDate == null) {
+            currentConsecutive = 1;
+          } else {
+            final diff = record.date.difference(lastDate).inDays;
+            if (diff == 1) {
+              currentConsecutive++;
+            } else if (diff > 1) {
+              currentConsecutive = 1;
+            }
+          }
+          lastDate = record.date;
+          if (currentConsecutive > maxConsecutive) {
+            maxConsecutive = currentConsecutive;
+          }
+        }
+      }
+
+      if (maxConsecutive >= 3) {
+        consecutiveDays[muscle] = maxConsecutive;
+      }
+    }
+
+    return consecutiveDays.entries
+        .where((e) => e.value >= 3)
+        .map((e) => '${e.key.displayName}(连续${e.value}天)')
+        .toList();
+  }
+
   String _generatePrompt() {
     final periodLabel = widget.periodType == 'week' ? '本周' : '本月';
     final dateFormat = '${widget.startDate.year}年${widget.startDate.month}月${widget.startDate.day}日';
-    
+
     // 格式化训练目标
     final goalLabels = {
       'muscle_building': '增肌',
@@ -1198,7 +1364,7 @@ class _AIAnalysisDialogState extends State<_AIAnalysisDialog> {
       'strength': '力量提升',
       'endurance': '耐力增强',
     };
-    
+
     // 格式化重点部位
     final muscleLabels = {
       'chest': '胸部',
@@ -1208,6 +1374,10 @@ class _AIAnalysisDialogState extends State<_AIAnalysisDialog> {
       'legs': '腿部',
       'core': '核心',
     };
+
+    // 获取薄弱部位和过度训练部位
+    final weakMuscles = _getWeakMuscles();
+    final overtrainedMuscles = _getOvertrainedMuscles();
 
     final buffer = StringBuffer();
     buffer.writeln('你是一位专业的健身教练。根据我的训练数据，为我生成下个周期的训练计划。');
@@ -1222,10 +1392,25 @@ class _AIAnalysisDialogState extends State<_AIAnalysisDialog> {
     buffer.writeln('- 总组数: ${widget.volumeStats['totalSets']} 组');
     buffer.writeln('- 总时长: ${(widget.volumeStats['totalDuration'] as int) ~/ 60} 分钟');
     buffer.writeln();
+    buffer.writeln('## 肌肉分布');
+    buffer.writeln(_formatMuscleDistribution());
+    buffer.writeln();
+    buffer.writeln('## 恢复管理');
+    buffer.writeln(_formatRecoveryManagement());
+    buffer.writeln();
+    buffer.writeln('## 常用动作');
+    buffer.writeln(_formatCommonExercises());
+    buffer.writeln();
     buffer.writeln('## 用户目标');
     buffer.writeln('- 主要目标: ${goalLabels[_selectedGoal] ?? _selectedGoal}');
     if (_selectedFocusAreas.isNotEmpty) {
       buffer.writeln('- 重点加强: ${_selectedFocusAreas.map((m) => muscleLabels[m] ?? m).join('、')}');
+    }
+    if (weakMuscles.isNotEmpty) {
+      buffer.writeln('- 薄弱部位: ${weakMuscles.join('、')} (需要加强)');
+    }
+    if (overtrainedMuscles.isNotEmpty) {
+      buffer.writeln('- 过度训练风险: ${overtrainedMuscles.join('、')} (需要更多休息)');
     }
     buffer.writeln();
     buffer.writeln('## 输出格式');
@@ -1251,6 +1436,11 @@ class _AIAnalysisDialogState extends State<_AIAnalysisDialog> {
     buffer.writeln('3. targetSets: 3-5 每个动作');
     buffer.writeln('4. 复合动作优先，孤立动作在后');
     buffer.writeln('5. 根据训练频率安排休息日');
+    buffer.writeln('6. 针对薄弱部位增加训练量和动作选择');
+    buffer.writeln('7. 避免过度训练：同一肌群训练间隔至少48小时');
+    buffer.writeln('8. 大肌群(胸/背/腿)需要更长恢复时间(72小时)');
+    buffer.writeln('9. 同一肌群每周训练2-3次为宜');
+    buffer.writeln('10. 渐进式超负荷：逐渐增加重量或次数');
     buffer.writeln();
     buffer.writeln('生成我的训练计划。JSON only:');
 
