@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import '../theme/theme_provider.dart';
 import '../bloc/record_provider.dart';
@@ -23,14 +24,17 @@ class RecordDetailScreen extends StatefulWidget {
 class _RecordDetailScreenState extends State<RecordDetailScreen> {
   late List<RecordedExercise> _exercises;
   bool _hasChanges = false;
+  final Map<int, Map<int, TextEditingController>> _weightControllers = {};
 
   @override
-  void initState() {
-    super.initState();
-    // 自动迁移旧版记录到每组格式
-    _exercises = widget.record.exercises.map((e) => 
-      e.needsMigration ? e.migrateToSetData() : e
-    ).toList();
+  void dispose() {
+    // 释放所有重量控制器
+    for (final exerciseControllers in _weightControllers.values) {
+      for (final controller in exerciseControllers.values) {
+        controller.dispose();
+      }
+    }
+    super.dispose();
   }
 
   @override
@@ -105,6 +109,136 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
         ),
       ),
     );
+  }
+
+  Widget _buildRepsSelector({
+    required int currentReps,
+    required Function(int) onChanged,
+    required AppThemeData theme,
+  }) {
+    return SizedBox(
+      height: 80, // Show 3-4 items
+      width: 60,  // Narrow width
+      child: CupertinoPicker(
+        itemExtent: 32,
+        scrollController: FixedExtentScrollController(initialItem: currentReps - 1),
+        onSelectedItemChanged: (index) => onChanged(index + 1),
+        children: List.generate(30, (index) => 
+          Center(
+            child: Text(
+              '${index + 1}',
+              style: TextStyle(
+                fontFamily: '.SF Pro Text',
+                fontSize: 14,
+                color: theme.textColor,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          )
+        ),
+      ),
+    );
+  }
+
+  void _updateReps(int exerciseIndex, int setNumber, int reps) {
+    setState(() {
+      final exercise = _exercises[exerciseIndex];
+      final updatedSetsData = exercise.setsData!.map((s) {
+        if (s.setNumber == setNumber) {
+          return s.copyWith(reps: reps);
+        }
+        return s;
+      }).toList();
+      
+      final updatedExercise = exercise.copyWith(
+        setsData: updatedSetsData,
+        maxWeight: _calculateMaxWeight(updatedSetsData),
+        completedSets: updatedSetsData.length,
+      );
+      
+      _exercises[exerciseIndex] = updatedExercise;
+      _hasChanges = true;
+    });
+  }
+
+  void _updateWeight(int exerciseIndex, int setNumber, double? weight) {
+    setState(() {
+      final exercise = _exercises[exerciseIndex];
+      final updatedSetsData = exercise.setsData!.map((s) {
+        if (s.setNumber == setNumber) {
+          return s.copyWith(weight: weight);
+        }
+        return s;
+      }).toList();
+      
+      final updatedExercise = exercise.copyWith(
+        setsData: updatedSetsData,
+        maxWeight: _calculateMaxWeight(updatedSetsData),
+        completedSets: updatedSetsData.length,
+      );
+      
+      _exercises[exerciseIndex] = updatedExercise;
+      _hasChanges = true;
+      
+      // 更新控制器
+      if (weight != null) {
+        _weightControllers[exerciseIndex]![setNumber]?.text = weight.toString();
+      }
+    });
+  }
+
+  void _deleteSet(int exerciseIndex, int setNumber) {
+    setState(() {
+      final exercise = _exercises[exerciseIndex];
+      final updatedSetsData = exercise.setsData!.where((s) => s.setNumber != setNumber).toList();
+      
+      // 重新编号
+      final renumberedSets = updatedSetsData.asMap().entries.map((entry) {
+        final newIndex = entry.key + 1;
+        return entry.value.copyWith(setNumber: newIndex);
+      }).toList();
+      
+      final updatedExercise = exercise.copyWith(
+        setsData: renumberedSets,
+        maxWeight: _calculateMaxWeight(renumberedSets),
+        completedSets: renumberedSets.length,
+      );
+      
+      _exercises[exerciseIndex] = updatedExercise;
+      _hasChanges = true;
+      
+      // 释放被删除的控制器
+      _weightControllers[exerciseIndex]?.remove(setNumber)?.dispose();
+    });
+  }
+
+  void _addSet(int exerciseIndex, RecordedExercise exercise) {
+    setState(() {
+      final currentSets = exercise.setsData ?? [];
+      final newSetNumber = currentSets.isEmpty 
+          ? 1 
+          : currentSets.map((s) => s.setNumber).reduce((a, b) => a > b ? a : b) + 1;
+      
+      final newSet = SetData(
+        setNumber: newSetNumber,
+        reps: 12, // 默认12次
+        weight: null,
+      );
+      
+      final updatedSetsData = [...currentSets, newSet];
+      final updatedExercise = exercise.copyWith(
+        setsData: updatedSetsData,
+        maxWeight: _calculateMaxWeight(updatedSetsData),
+        completedSets: updatedSetsData.length,
+      );
+      
+      _exercises[exerciseIndex] = updatedExercise;
+      _hasChanges = true;
+      
+      // 添加新的控制器
+      _weightControllers[exerciseIndex] ??= {};
+      _weightControllers[exerciseIndex]![newSetNumber] = TextEditingController();
+    });
   }
 
   Widget _buildSummaryCard(AppThemeData theme) {
@@ -276,6 +410,7 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
 
 Widget _buildExerciseItem(int index, RecordedExercise exercise, AppThemeData theme) {
   final hasSetData = exercise.setsData != null && exercise.setsData!.isNotEmpty;
+  final exerciseControllers = _weightControllers[index] ?? {};
   
   return Container(
     margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -314,18 +449,125 @@ Widget _buildExerciseItem(int index, RecordedExercise exercise, AppThemeData the
           // 显示组数据
           ...exercise.setsData!.map((setData) => 
             Padding(
-              padding: const EdgeInsets.only(bottom: 4),
-              child: GestureDetector(
-                onTap: () => _showSetEditor(index, setData, exercise, theme),
-                child: Text(
-                  '第${setData.setNumber}组-${setData.reps ?? 0}×${(setData.weight ?? 0).toStringAsFixed(1)}kg',
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Row(
+                children: [
+                  // 组数标签
+                  SizedBox(
+                    width: 40,
+                    child: Text(
+                      '第${setData.setNumber}组',
+                      style: TextStyle(
+                        fontFamily: '.SF Pro Text',
+                        fontSize: 14,
+                        color: theme.secondaryTextColor,
+                      ),
+                    ),
+                  ),
+                  
+                  const SizedBox(width: 12),
+                  
+                  // 次数选择器
+                  SizedBox(
+                    width: 60,
+                    child: _buildRepsSelector(
+                      currentReps: setData.reps ?? 12,
+                      onChanged: (reps) => _updateReps(index, setData.setNumber, reps),
+                      theme: theme,
+                    ),
+                  ),
+                  
+                  const SizedBox(width: 4),
+                  
+                  // 乘号
+                  Text(
+                    '×',
+                    style: TextStyle(
+                      fontFamily: '.SF Pro Text',
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: theme.textColor,
+                    ),
+                  ),
+                  
+                  const SizedBox(width: 4),
+                  
+                  // 重量输入
+                  SizedBox(
+                    width: 70,
+                    child: TextField(
+                      controller: exerciseControllers[setData.setNumber],
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        hintText: '0',
+                        hintStyle: TextStyle(
+                          fontFamily: '.SF Pro Text',
+                          fontSize: 14,
+                          color: theme.secondaryTextColor,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(
+                            color: theme.borderColor,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(
+                            color: theme.accentColor,
+                            width: 2,
+                          ),
+                        ),
+                        suffixText: 'kg',
+                        suffixStyle: TextStyle(
+                          fontFamily: '.SF Pro Text',
+                          fontSize: 12,
+                          color: theme.secondaryTextColor,
+                        ),
+                      ),
+                      style: TextStyle(
+                        fontFamily: '.SF Pro Text',
+                        fontSize: 14,
+                        color: theme.textColor,
+                      ),
+                      onChanged: (value) {
+                        final weight = double.tryParse(value);
+                        _updateWeight(index, setData.setNumber, weight);
+                      },
+                    ),
+                  ),
+                  
+                  const SizedBox(width: 8),
+                  
+                  // 删除按钮
+                  IconButton(
+                    icon: Icon(Icons.delete, size: 20, color: theme.textColor.withValues(alpha: 0.7)),
+                    onPressed: () => _deleteSet(index, setData.setNumber),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          
+          const SizedBox(height: 8),
+          
+          // 添加组按钮
+          TextButton(
+            onPressed: () => _addSet(index, exercise),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.add, size: 16, color: theme.accentColor),
+                const SizedBox(width: 4),
+                Text(
+                  '添加组',
                   style: TextStyle(
                     fontFamily: '.SF Pro Text',
                     fontSize: 14,
-                    color: theme.textColor,
+                    color: theme.accentColor,
                   ),
                 ),
-              ),
+              ],
             ),
           ),
           
@@ -364,7 +606,7 @@ Widget _buildExerciseItem(int index, RecordedExercise exercise, AppThemeData the
         ] else ...[
           // 无数据：显示提示
           GestureDetector(
-            onTap: () => _showSetEditor(index, null, exercise, theme),
+            onTap: () => _addSet(index, exercise),
             child: Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
@@ -385,7 +627,7 @@ Widget _buildExerciseItem(int index, RecordedExercise exercise, AppThemeData the
       ],
     ),
   );
-  }
+}
 
   Future<void> _saveChanges() async {
     final updatedRecord = widget.record.copyWith(
@@ -455,125 +697,7 @@ setState(() {
     return muscle?.displayName ?? '未指定';
   }
 
-  void _showSetEditor(int exerciseIndex, SetData? setData, RecordedExercise exercise, AppThemeData theme) {
-    // Create controllers with initial values
-    final repsController = TextEditingController(
-      text: setData?.reps?.toString() ?? '',
-    );
-    final weightController = TextEditingController(
-      text: setData?.weight?.toString() ?? '',
-    );
-    
-    final isNewSet = setData == null;
-    final title = isNewSet 
-        ? '添加组数据 - ${exercise.name}'
-        : '编辑第${setData.setNumber}组 - ${exercise.name}';
-    
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(title),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              decoration: const InputDecoration(
-                labelText: '次数',
-                hintText: '输入次数',
-                border: OutlineInputBorder(),
-              ),
-              keyboardType: TextInputType.number,
-              controller: repsController,
-              autofocus: true,
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              decoration: const InputDecoration(
-                labelText: '重量 (kg)',
-                hintText: '输入重量',
-                border: OutlineInputBorder(),
-              ),
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              controller: weightController,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              repsController.dispose();
-              weightController.dispose();
-              Navigator.pop(context);
-            },
-            child: const Text('取消'),
-          ),
-          TextButton(
-            onPressed: () {
-              final repsValue = int.tryParse(repsController.text);
-              final weightValue = double.tryParse(weightController.text);
-              
-              // Validate input
-              if (repsValue == null && weightValue == null) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('请填写次数或重量'),
-                    behavior: SnackBarBehavior.floating,
-                  ),
-                );
-                return;
-              }
-              
-              setState(() {
-                List<SetData> updatedSetsData;
-                
-                if (isNewSet) {
-                  // Adding a new set
-                  final currentSets = exercise.setsData ?? [];
-                  final newSetNumber = currentSets.isEmpty 
-                      ? 1 
-                      : currentSets.map((s) => s.setNumber).reduce((a, b) => a > b ? a : b) + 1;
-                  
-                  final newSet = SetData(
-                    setNumber: newSetNumber,
-                    reps: repsValue,
-                    weight: weightValue,
-                  );
-                  
-                  updatedSetsData = [...currentSets, newSet];
-                } else {
-                  // Editing existing set
-                  updatedSetsData = exercise.setsData!.map((s) {
-                    if (s.setNumber == setData.setNumber) {
-                      return s.copyWith(
-                        reps: repsValue,
-                        weight: weightValue,
-                      );
-                    }
-                    return s;
-                  }).toList();
-                }
-                
-                // Update the exercise in _exercises list
-                final updatedExercise = exercise.copyWith(
-                  setsData: updatedSetsData,
-                  maxWeight: _calculateMaxWeight(updatedSetsData),
-                  completedSets: updatedSetsData.length,
-                );
-                
-                _exercises[exerciseIndex] = updatedExercise;
-                _hasChanges = true;
-              });
-              
-              repsController.dispose();
-              weightController.dispose();
-              Navigator.pop(context);
-            },
-            child: const Text('保存'),
-          ),
-        ],
-      ),
-    );
-  }
+  
   
   /// Calculate max weight from sets data
   double? _calculateMaxWeight(List<SetData> setsData) {
