@@ -45,6 +45,10 @@ class PlanProvider extends ChangeNotifier {
 
       // 加载计划
       _plans = await _repository.getAllPlans(exercises: _exercises);
+
+      // 加载当前月份的日历计划
+      await loadMonthPlans(DateTime.now());
+
       _isLoading = false;
       notifyListeners();
     } catch (e) {

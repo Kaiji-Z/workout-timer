@@ -178,6 +178,7 @@ body: SafeArea(
         if (plansForDate.isNotEmpty)
           ...plansForDate.take(3).map((plan) => PlanCard(
                 plan: plan,
+                onTap: () => _showPlanDetail(plan),
                 onStart: () => _startPlan(plan),
                 onEdit: () => _navigateToEditPlan(plan),
                 onDelete: () => _confirmDeletePlanFromDay(planProvider, plan),
@@ -457,8 +458,6 @@ body: SafeArea(
   }
 
   void _showPlanLibraryModal(PlanProvider planProvider) {
-    final allPlans = planProvider.plans;
-    
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -500,32 +499,37 @@ body: SafeArea(
                   ),
                   const SizedBox(height: 16),
                   Flexible(
-                    child: ListView.builder(
-                      controller: scrollController,
-                      shrinkWrap: true,
-                      itemCount: allPlans.length,
-                      itemBuilder: (context, index) {
-                        final plan = allPlans[index];
-                        return ListTile(
-                          leading: Container(
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Icon(
-                              Icons.fitness_center,
-                              color: Theme.of(context).primaryColor,
-                            ),
-                          ),
-                          title: Text(plan.name),
-                          subtitle: Text(plan.targetMusclesText),
-                          trailing: IconButton(
-                            icon: Icon(Icons.delete_outline, color: Colors.red),
-                            onPressed: () => _confirmDeletePlan(planProvider, plan),
-                          ),
-                          onTap: () => _showPlanDetail(plan),
+                    child: Consumer<PlanProvider>(
+                      builder: (context, provider, child) {
+                        final allPlans = provider.plans;
+                        return ListView.builder(
+                          controller: scrollController,
+                          shrinkWrap: true,
+                          itemCount: allPlans.length,
+                          itemBuilder: (context, index) {
+                            final plan = allPlans[index];
+                            return ListTile(
+                              leading: Container(
+                                width: 40,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Icon(
+                                  Icons.fitness_center,
+                                  color: Theme.of(context).primaryColor,
+                                ),
+                              ),
+                              title: Text(plan.name),
+                              subtitle: Text(plan.targetMusclesText),
+                              trailing: IconButton(
+                                icon: Icon(Icons.delete_outline, color: Colors.red),
+                                onPressed: () => _confirmDeletePlan(provider, plan),
+                              ),
+                              onTap: () => _showPlanDetail(plan),
+                            );
+                          },
                         );
                       },
                     ),
