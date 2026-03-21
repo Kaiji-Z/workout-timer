@@ -280,50 +280,52 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      widget.record.fullDateText,
-                      style: TextStyle(
-                        fontFamily: '.SF Pro Display',
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: theme.textColor,
-                      ),
-                    ),
-                    if (widget.record.isPlanMode) ...[
-                      const SizedBox(height: 4),
-                      Container(
-                        constraints: const BoxConstraints(maxWidth: 200),
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: theme.accentColor.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(8),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.record.fullDateText,
+                        style: TextStyle(
+                          fontFamily: '.SF Pro Display',
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: theme.textColor,
                         ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.playlist_add_check, size: 14, color: theme.accentColor),
-                            const SizedBox(width: 4),
-                            Flexible(
-                              child: Text(
-                                widget.record.planName ?? '计划模式',
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                                style: TextStyle(
-                                  fontFamily: '.SF Pro Text',
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                  color: theme.accentColor,
+                      ),
+                      if (widget.record.isPlanMode) ...[
+                        const SizedBox(height: 4),
+                        Container(
+                          constraints: const BoxConstraints(maxWidth: 200),
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: theme.accentColor.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.playlist_add_check, size: 14, color: theme.accentColor),
+                              const SizedBox(width: 4),
+                              Flexible(
+                                child: Text(
+                                  widget.record.planName ?? '计划模式',
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                  style: TextStyle(
+                                    fontFamily: '.SF Pro Text',
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                    color: theme.accentColor,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
                 // 训练时长
                 Container(
@@ -431,7 +433,7 @@ Widget _buildExerciseItem(int index, RecordedExercise exercise, AppThemeData the
   final exerciseControllers = _weightControllers[index] ?? {};
   
   return Container(
-    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    margin: const EdgeInsets.only(top: 8, bottom: 8),
     padding: const EdgeInsets.all(16),
     decoration: BoxDecoration(
       color: Colors.white,
@@ -447,17 +449,19 @@ Widget _buildExerciseItem(int index, RecordedExercise exercise, AppThemeData the
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // 标题行: 序号-动作名称/训练部位
-        Text(
-          '${index + 1}-${exercise.name}/${_getMuscleGroupName(exercise)}',
-          style: TextStyle(
-            fontFamily: '.SF Pro Display',
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: theme.textColor,
+         // 标题行: 序号-动作名称/训练部位
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.centerLeft,
+          child: Text(
+            '${index + 1}-${exercise.name}/${_getMuscleGroupName(exercise)}',
+            style: TextStyle(
+              fontFamily: '.SF Pro Display',
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: theme.textColor,
+            ),
           ),
-          overflow: TextOverflow.ellipsis,
-          maxLines: 1,
         ),
         
         const SizedBox(height: 12),
@@ -511,8 +515,7 @@ Widget _buildExerciseItem(int index, RecordedExercise exercise, AppThemeData the
                   const SizedBox(width: 4),
                   
                   // 重量输入
-                  SizedBox(
-                    width: 70,
+                  Expanded(
                     child: TextField(
                       controller: exerciseControllers[setData.setNumber],
                       keyboardType: TextInputType.number,
@@ -542,6 +545,8 @@ Widget _buildExerciseItem(int index, RecordedExercise exercise, AppThemeData the
                           fontSize: 12,
                           color: theme.secondaryTextColor,
                         ),
+                        isDense: true,
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                       ),
                       style: TextStyle(
                         fontFamily: '.SF Pro Text',
@@ -555,12 +560,19 @@ Widget _buildExerciseItem(int index, RecordedExercise exercise, AppThemeData the
                     ),
                   ),
                   
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 4),
                   
-                  // 删除按钮
-                  IconButton(
-                    icon: Icon(Icons.delete, size: 20, color: theme.textColor.withValues(alpha: 0.7)),
-                    onPressed: () => _deleteSet(index, setData.setNumber),
+                  // 删除按钮 (紧凑)
+                  GestureDetector(
+                    onTap: () => _deleteSet(index, setData.setNumber),
+                    child: Padding(
+                      padding: const EdgeInsets.all(4),
+                      child: Icon(
+                        Icons.delete_outline,
+                        size: 18,
+                        color: theme.textColor.withValues(alpha: 0.5),
+                      ),
+                    ),
                   ),
                 ],
               ),

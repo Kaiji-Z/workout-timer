@@ -132,7 +132,6 @@ body: SafeArea(
   Widget _buildPlanList(PlanProvider planProvider, AppThemeData theme) {
     // 获取选中日期的计划
     final plansForDate = planProvider.getPlansForDate(_selectedDate);
-    final allPlans = planProvider.plans;
     
     // 格式化日期显示
     final dateFormat = DateFormat('M月d日 E', 'zh_CN');
@@ -176,12 +175,52 @@ body: SafeArea(
         
         // 当日计划列表
         if (plansForDate.isNotEmpty)
-          ...plansForDate.take(3).map((plan) => PlanCard(
-                plan: plan,
-                onTap: () => _showPlanDetail(plan),
-                onStart: () => _startPlan(plan),
-                onEdit: () => _navigateToEditPlan(plan),
-                onDelete: () => _confirmDeletePlanFromDay(planProvider, plan),
+          ...plansForDate.take(3).map((plan) => Dismissible(
+                key: ValueKey(plan.id),
+                direction: DismissDirection.endToStart,
+                background: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                  alignment: Alignment.centerRight,
+                  padding: const EdgeInsets.only(right: 20),
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: const Icon(Icons.delete_outline, color: Colors.white, size: 24),
+                ),
+                confirmDismiss: (direction) async {
+                  return await showDialog<bool>(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('移除计划'),
+                      content: Text('确定要从 ${_selectedDate.month}月${_selectedDate.day}日 移除「${plan.name}」吗？'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: const Text('取消'),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          child: const Text('移除', style: TextStyle(color: Colors.red)),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+                onDismissed: (direction) {
+                  planProvider.removePlanFromDate(plan.id, _selectedDate);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('已从${_selectedDate.month}月${_selectedDate.day}日移除「${plan.name}」'),
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                },
+                child: PlanCard(
+                  plan: plan,
+                  onTap: () => _showPlanDetail(plan),
+                  showActions: false,
+                ),
               ))
         else
           _buildEmptyDayPlan(theme),
@@ -278,31 +317,6 @@ body: SafeArea(
     }
   }
 
-  void _navigateToEditPlan(WorkoutPlan plan) async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => PlanFormScreen(plan: plan),
-      ),
-    );
-    
-    if (result == true) {
-      if (mounted) {
-        context.read<PlanProvider>().loadPlans();
-      }
-    }
-  }
-
-  void _startPlan(WorkoutPlan plan) {
-    // TODO: Navigate to timer with plan mode
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('开始计划：${plan.name}'),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-  }
-
   void _showPlanDetail(WorkoutPlan plan) {
     showModalBottomSheet(
       context: context,
@@ -311,42 +325,9 @@ body: SafeArea(
       builder: (context) => _PlanDetailSheet(
         plan: plan,
         onAddToDate: () => _addPlanToDate(context.read<PlanProvider>(), plan),
-        onDelete: () => _deletePlan(plan),
+        onDelete: () => _confirmDeletePlan(context.read<PlanProvider>(), plan),
       ),
     );
-  }
-
-  void _deletePlan(WorkoutPlan plan) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('删除计划'),
-        content: Text('确定要删除「${plan.name}」吗？此操作无法撤销。 '),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('取消'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('删除'),
-          ),
-        ],
-      ),
-    );
-    
-    if (confirmed == true) {
-      await context.read<PlanProvider>().deletePlan(plan.id);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('已删除「${plan.name}」 '),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }
-    }
   }
 
   void _showAddPlanToDateSheet(PlanProvider planProvider) {
@@ -428,7 +409,6 @@ body: SafeArea(
                     ),
                   ),
                   const SizedBox(height: 16),
-                  // 创建新计划按钮
                   SizedBox(
                     width: double.infinity,
                     child: OutlinedButton.icon(
@@ -535,7 +515,6 @@ body: SafeArea(
                     ),
                   ),
                   const SizedBox(height: 16),
-                  // 创建新计划按钮
                   SizedBox(
                     width: double.infinity,
                     child: OutlinedButton.icon(
@@ -586,50 +565,6 @@ body: SafeArea(
         );
       }
     }
-  }
-
-  void _confirmDeletePlanFromDay(PlanProvider planProvider, WorkoutPlan plan) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('移除计划'),
-        content: Text('确定要从 ${_selectedDate.month}月${_selectedDate.day}日 移除「${plan.name}」吗？'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('取消'),
-          ),
-          TextButton(
-            onPressed: () async {
-              final messenger = ScaffoldMessenger.of(context);
-              Navigator.pop(context);
-              try {
-                await planProvider.removePlanFromDate(plan.id, _selectedDate);
-                if (mounted) {
-                  messenger.showSnackBar(
-                    const SnackBar(
-                      content: Text('已移除'),
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  );
-                }
-              } catch (e) {
-                if (mounted) {
-                  messenger.showSnackBar(
-                    SnackBar(
-                      content: Text('移除失败: $e'),
-                      backgroundColor: Colors.red,
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  );
-                }
-              }
-            },
-            child: const Text('移除', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
-    );
   }
 
   void _confirmDeletePlan(PlanProvider planProvider, WorkoutPlan plan) {
