@@ -234,16 +234,18 @@ const SizedBox(width: 8),
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // 动作名称
-            Text(
-              exercise.name,
-              style: TextStyle(
-                fontFamily: '.SF Pro Display',
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: theme.textColor,
-                overflow: TextOverflow.ellipsis,
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Text(
+                exercise.name,
+                style: TextStyle(
+                  fontFamily: '.SF Pro Display',
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: theme.textColor,
+                ),
               ),
-              maxLines: 1,
             ),
             const SizedBox(height: 16),
             

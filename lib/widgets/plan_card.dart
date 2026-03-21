@@ -403,27 +403,29 @@ class _PlanProgressCardState extends State<PlanProgressCard> with SingleTickerPr
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: currentExercise != null
-                        ? Text(
-                            '${widget.plan.name} · ${currentExercise.name} 第${_getCurrentSetNumber(currentExercise)}组',
-                            style: TextStyle(
-                              fontFamily: '.SF Pro Text',
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              color: theme.textColor,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: currentExercise != null
+                          ? Text(
+                              '${widget.plan.name} · ${currentExercise.name} 第${_getCurrentSetNumber(currentExercise)}组',
+                              style: TextStyle(
+                                fontFamily: '.SF Pro Text',
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: theme.textColor,
+                              ),
+                            )
+                          : Text(
+                              widget.plan.name,
+                              style: TextStyle(
+                                fontFamily: '.SF Pro Text',
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: theme.textColor,
+                              ),
                             ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          )
-                        : Text(
-                            widget.plan.name,
-                            style: TextStyle(
-                              fontFamily: '.SF Pro Text',
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              color: theme.textColor,
-                            ),
-                          ),
+                    ),
                   ),
                   Icon(
                     widget.isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
@@ -709,16 +711,18 @@ class PlanProgressCompact extends StatelessWidget {
         children: [
           // 动作名 + 进度
           Expanded(
-            child: Text(
-              '$exerciseName · $currentSet/$totalSets组',
-              style: TextStyle(
-                fontFamily: '.SF Pro Text',
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: theme.textColor,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Text(
+                '$exerciseName · $currentSet/$totalSets组',
+                style: TextStyle(
+                  fontFamily: '.SF Pro Text',
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: theme.textColor,
+                ),
               ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
             ),
           ),
           const SizedBox(width: 12),
