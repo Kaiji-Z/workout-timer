@@ -188,7 +188,12 @@ final oldSessions = await _repository.getAllSessions();
           } else {
             final records = snapshot.data!;
             return ListView.builder(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.only(
+                left: 16,
+                right: 16,
+                top: 16,
+                bottom: MediaQuery.of(context).padding.bottom + 86,
+              ),
               itemCount: records.length,
               itemBuilder: (context, index) {
                 final record = records[index];
