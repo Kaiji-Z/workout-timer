@@ -383,10 +383,18 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
           ],
         ),
         actions: [
-          IconButton(
-            icon: Icon(Icons.psychology, color: theme.accentColor),
-            tooltip: 'AI 分析',
+          TextButton.icon(
             onPressed: () => _navigateToAIAnalysis(theme),
+            icon: Icon(Icons.psychology, size: 20, color: theme.accentColor),
+            label: Text(
+              'AI 分析',
+              style: TextStyle(
+                fontFamily: '.SF Pro Text',
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: theme.accentColor,
+              ),
+            ),
           ),
         ],
         bottom: TabBar(
