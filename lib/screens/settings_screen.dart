@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../services/workout_repository.dart';
 import '../theme/theme_provider.dart';
 import '../theme/app_theme.dart';
+import 'user_preferences_screen.dart';
 
 
 class SettingsScreen extends StatefulWidget {
@@ -221,6 +222,39 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               trailing: Icon(Icons.delete_outline, color: theme.accentColor),
               onTap: () => _clearHistory(theme),
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          // AI Preferences
+          _buildSectionHeader('AI 训练偏好', theme),
+          _buildGlassCard(
+            theme: theme,
+            child: ListTile(
+              title: Text(
+                '训练偏好',
+                style: TextStyle(
+                  fontFamily: '.SF Pro Text',
+                  color: theme.textColor,
+                ),
+              ),
+              subtitle: Text(
+                '设置训练目标、经验水平等，AI功能将自动读取',
+                style: TextStyle(
+                  fontFamily: '.SF Pro Text',
+                  fontSize: 12,
+                  color: theme.secondaryTextColor,
+                ),
+              ),
+              trailing: Icon(Icons.chevron_right, color: theme.secondaryTextColor),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const UserPreferencesScreen(),
+                  ),
+                );
+              },
             ),
           ),
         ],
