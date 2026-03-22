@@ -7,9 +7,7 @@ import '../models/workout_record.dart';
 import '../models/muscle_group.dart';
 import '../services/workout_repository.dart';
 import '../bloc/record_provider.dart';
-
-import 'package:flutter/services.dart';
-import 'ai_plan_wizard_screen.dart';
+import 'ai_analysis_screen.dart';
 
 class StatsScreen extends StatefulWidget {
   const StatsScreen({super.key});
@@ -156,6 +154,26 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
     return _getAllRecords().where((record) {
       DateTime date = _getRecordDate(record);
       return date.year == _selectedYear && date.month == _selectedMonth;
+    }).toList();
+  }
+
+  /// 按指定周的周一筛选记录（参数化版本，用于获取上一周期数据）
+  List<dynamic> _filterByWeek(DateTime referenceDate) {
+    final weekStart = _getStartOfWeek(referenceDate);
+    final startOfWeek = DateTime(weekStart.year, weekStart.month, weekStart.day);
+    final endOfWeek = startOfWeek.add(const Duration(days: 7));
+    return _getAllRecords().where((record) {
+      DateTime date = _getRecordDate(record);
+      return date.isAfter(startOfWeek.subtract(const Duration(milliseconds: 1))) &&
+             date.isBefore(endOfWeek);
+    }).toList();
+  }
+
+  /// 按指定年月筛选记录（参数化版本，用于获取上一周期数据）
+  List<dynamic> _filterByMonth(int year, int month) {
+    return _getAllRecords().where((record) {
+      DateTime date = _getRecordDate(record);
+      return date.year == year && date.month == month;
     }).toList();
   }
 
@@ -368,7 +386,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
           IconButton(
             icon: Icon(Icons.psychology, color: theme.accentColor),
             tooltip: 'AI 分析',
-            onPressed: () => _showAIAnalysisDialog(theme),
+            onPressed: () => _navigateToAIAnalysis(theme),
           ),
         ],
         bottom: TabBar(
@@ -1592,559 +1610,50 @@ return Column(
 
   // ==================== AI 分析功能 ====================
 
-  /// 显示 AI 分析弹窗
-  void _showAIAnalysisDialog(AppThemeData theme) {
-    // 根据当前选中的 tab 决定分析周期
+  /// 导航到 AI 分析全屏页面
+  void _navigateToAIAnalysis(AppThemeData theme) {
     final periodType = _tabController.index == 0 ? 'week' : 'month';
-    
-    // 获取当前周期的统计数据
-    final records = periodType == 'week' 
-        ? _filterBySelectedWeek() 
+
+    final records = periodType == 'week'
+        ? _filterBySelectedWeek()
         : _filterBySelectedMonth();
-    
+
     // 计算日期范围
     DateTime startDate;
     DateTime endDate;
+    List<dynamic> previousRecords;
+
     if (periodType == 'week') {
       final weekStart = _getStartOfWeek(_selectedWeekStart);
       startDate = DateTime(weekStart.year, weekStart.month, weekStart.day);
       endDate = startDate.add(const Duration(days: 7));
+      previousRecords = _filterByWeek(startDate.subtract(const Duration(days: 7)));
     } else {
       startDate = DateTime(_selectedYear, _selectedMonth, 1);
       endDate = DateTime(_selectedYear, _selectedMonth + 1, 0);
-    }
-    
-    // 计算统计数据
-    final frequencyStats = _calculateFrequencyStats(records);
-    final volumeStats = _calculateVolumeStats(records);
-
-    showDialog(
-      context: context,
-      builder: (context) => _AIAnalysisDialog(
-        theme: theme,
-        periodType: periodType,
-        startDate: startDate,
-        endDate: endDate,
-        frequencyStats: frequencyStats,
-        volumeStats: volumeStats,
-        records: records.whereType<WorkoutRecord>().toList(),
-      ),
-    );
-  }
-}
-
-/// AI 分析弹窗组件
-class _AIAnalysisDialog extends StatefulWidget {
-  final AppThemeData theme;
-  final String periodType;
-  final DateTime startDate;
-  final DateTime endDate;
-  final Map<String, dynamic> frequencyStats;
-  final Map<String, dynamic> volumeStats;
-  final List<WorkoutRecord> records;
-
-  const _AIAnalysisDialog({
-    required this.theme,
-    required this.periodType,
-    required this.startDate,
-    required this.endDate,
-    required this.frequencyStats,
-    required this.volumeStats,
-    required this.records,
-  });
-
-  @override
-  State<_AIAnalysisDialog> createState() => _AIAnalysisDialogState();
-}
-
-class _AIAnalysisDialogState extends State<_AIAnalysisDialog> {
-  String _selectedGoal = 'muscle_building';
-  final Set<String> _selectedFocusAreas = {};
-  late String _generatedPrompt;
-  bool _isPromptCopied = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _generatedPrompt = _generatePrompt();
-  }
-
-  /// 格式化肌肉分布数据
-  String _formatMuscleDistribution() {
-    final muscleFrequency = widget.frequencyStats['muscleFrequency'] as Map<PrimaryMuscleGroup, int>?;
-    if (muscleFrequency == null || muscleFrequency.isEmpty) {
-      return '- 暂无肌肉训练数据';
-    }
-
-    // 按训练次数排序
-    final sortedMuscles = muscleFrequency.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
-
-    final total = sortedMuscles.fold<int>(0, (sum, e) => sum + e.value);
-    final buffer = StringBuffer();
-
-    for (final entry in sortedMuscles) {
-      final percentage = total > 0 ? (entry.value / total * 100).toStringAsFixed(1) : '0.0';
-      buffer.writeln('  - ${entry.key.displayName}: ${entry.value}次 ($percentage%)');
-    }
-
-    return buffer.toString().trimRight();
-  }
-
-  /// 格式化恢复管理数据（计算每个肌肉的休息天数）
-  String _formatRecoveryManagement() {
-    if (widget.records.isEmpty) {
-      return '- 暂无恢复数据';
-    }
-
-    // 统计每个肌肉部位最后训练日期
-    final Map<PrimaryMuscleGroup, DateTime> lastTrainedDates = {};
-
-    for (final record in widget.records) {
-      for (final muscle in record.trainedMuscles) {
-        final existingDate = lastTrainedDates[muscle];
-        if (existingDate == null || record.date.isAfter(existingDate)) {
-          lastTrainedDates[muscle] = record.date;
-        }
+      int prevMonth = _selectedMonth - 1;
+      int prevYear = _selectedYear;
+      if (prevMonth < 1) {
+        prevMonth = 12;
+        prevYear--;
       }
+      previousRecords = _filterByMonth(prevYear, prevMonth);
     }
 
-    if (lastTrainedDates.isEmpty) {
-      return '- 暂无肌肉恢复数据';
-    }
+    // 全部 WorkoutRecord
+    final allWorkoutRecords = _getAllRecords().whereType<WorkoutRecord>().toList();
 
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final buffer = StringBuffer();
-
-    // 按休息天数排序（从长到短）
-    final sortedEntries = lastTrainedDates.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
-
-    for (final entry in sortedEntries) {
-      final lastDate = DateTime(entry.value.year, entry.value.month, entry.value.day);
-      final restDays = today.difference(lastDate).inDays;
-      buffer.writeln('  - ${entry.key.displayName}: 已休息$restDays 天');
-    }
-
-    return buffer.toString().trimRight();
-  }
-
-  /// 格式化常用动作数据
-  String _formatCommonExercises() {
-    if (widget.records.isEmpty) {
-      return '- 暂无动作数据';
-    }
-
-    // 统计每个动作的训练次数
-    final Map<String, int> exerciseCounts = {};
-
-    for (final record in widget.records) {
-      for (final exercise in record.exercises) {
-        final name = exercise.name.isNotEmpty ? exercise.name : exercise.exerciseId;
-        exerciseCounts[name] = (exerciseCounts[name] ?? 0) + 1;
-      }
-    }
-
-    if (exerciseCounts.isEmpty) {
-      return '- 暂无动作训练数据';
-    }
-
-    // 按次数排序，取前10个
-    final sortedExercises = exerciseCounts.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
-
-    final topExercises = sortedExercises.take(10);
-    final buffer = StringBuffer();
-
-    for (final entry in topExercises) {
-      buffer.writeln('  - ${entry.key}: ${entry.value} 次');
-    }
-
-    return buffer.toString().trimRight();
-  }
-
-  /// 获取薄弱部位（训练次数最少的）
-  List<String> _getWeakMuscles() {
-    final muscleFrequency = widget.frequencyStats['muscleFrequency'] as Map<PrimaryMuscleGroup, int>?;
-    if (muscleFrequency == null || muscleFrequency.isEmpty) {
-      return [];
-    }
-
-    // 所有主要肌肉部位
-    final allMuscles = PrimaryMuscleGroup.values;
-    final trainedMuscles = muscleFrequency.keys.toSet();
-
-    // 找出未训练的部位
-    final untrained = allMuscles.where((m) => !trainedMuscles.contains(m)).map((m) => m.displayName).toList();
-
-    // 找出训练次数最少的部位（<= 平均值的 50%）
-    final avgFrequency = muscleFrequency.values.fold<int>(0, (sum, v) => sum + v) / muscleFrequency.length;
-    final weakTrained = muscleFrequency.entries
-        .where((e) => e.value <= avgFrequency * 0.5)
-        .map((e) => e.key.displayName)
-        .toList();
-
-    return [...untrained, ...weakTrained];
-  }
-
-  /// 获取过度训练的部位（连续训练天数过多）
-  List<String> _getOvertrainedMuscles() {
-    if (widget.records.length < 2) {
-      return [];
-    }
-
-    // 按日期排序记录
-    final sortedRecords = List<WorkoutRecord>.from(widget.records)
-      ..sort((a, b) => a.date.compareTo(b.date));
-
-    final Map<PrimaryMuscleGroup, int> consecutiveDays = {};
-
-    // 检查每个肌肉部位的连续训练情况
-    for (final muscle in PrimaryMuscleGroup.values) {
-      int maxConsecutive = 0;
-      int currentConsecutive = 0;
-      DateTime? lastDate;
-
-      for (final record in sortedRecords) {
-        if (record.trainedMuscles.contains(muscle)) {
-          if (lastDate == null) {
-            currentConsecutive = 1;
-          } else {
-            final diff = record.date.difference(lastDate).inDays;
-            if (diff == 1) {
-              currentConsecutive++;
-            } else if (diff > 1) {
-              currentConsecutive = 1;
-            }
-          }
-          lastDate = record.date;
-          if (currentConsecutive > maxConsecutive) {
-            maxConsecutive = currentConsecutive;
-          }
-        }
-      }
-
-      if (maxConsecutive >= 3) {
-        consecutiveDays[muscle] = maxConsecutive;
-      }
-    }
-
-    return consecutiveDays.entries
-        .where((e) => e.value >= 3)
-        .map((e) => '${e.key.displayName}(连续${e.value}天)')
-        .toList();
-  }
-
-  String _generatePrompt() {
-    final periodLabel = widget.periodType == 'week' ? '本周' : '本月';
-    final dateFormat = '${widget.startDate.year}年${widget.startDate.month}月${widget.startDate.day}日';
-
-    // 格式化训练目标
-    final goalLabels = {
-      'muscle_building': '增肌',
-      'fat_loss': '减脂',
-      'strength': '力量提升',
-      'endurance': '耐力增强',
-    };
-
-    // 格式化重点部位
-    final muscleLabels = {
-      'chest': '胸部',
-      'back': '背部',
-      'shoulders': '肩部',
-      'arms': '手臂',
-      'legs': '腿部',
-      'core': '核心',
-    };
-
-    // 获取薄弱部位和过度训练部位
-    final weakMuscles = _getWeakMuscles();
-    final overtrainedMuscles = _getOvertrainedMuscles();
-
-    final buffer = StringBuffer();
-    buffer.writeln('你是一位专业的健身教练。根据我的训练数据，为我生成下个周期的训练计划。');
-    buffer.writeln();
-    buffer.writeln('## 训练周期');
-    buffer.writeln('- 类型: $periodLabel');
-    buffer.writeln('- 日期范围: $dateFormat');
-    buffer.writeln();
-    buffer.writeln('## 基础统计');
-    buffer.writeln('- 训练次数: ${widget.frequencyStats['sessionCount']} 次');
-    buffer.writeln('- 训练天数: ${widget.frequencyStats['workoutDays']} 天');
-    buffer.writeln('- 总组数: ${widget.volumeStats['totalSets']} 组');
-    buffer.writeln('- 总时长: ${(widget.volumeStats['totalDuration'] as int) ~/ 60} 分钟');
-    buffer.writeln();
-    buffer.writeln('## 肌肉分布');
-    buffer.writeln(_formatMuscleDistribution());
-    buffer.writeln();
-    buffer.writeln('## 恢复管理');
-    buffer.writeln(_formatRecoveryManagement());
-    buffer.writeln();
-    buffer.writeln('## 常用动作');
-    buffer.writeln(_formatCommonExercises());
-    buffer.writeln();
-    buffer.writeln('## 用户目标');
-    buffer.writeln('- 主要目标: ${goalLabels[_selectedGoal] ?? _selectedGoal}');
-    if (_selectedFocusAreas.isNotEmpty) {
-      buffer.writeln('- 重点加强: ${_selectedFocusAreas.map((m) => muscleLabels[m] ?? m).join('、')}');
-    }
-    if (weakMuscles.isNotEmpty) {
-      buffer.writeln('- 薄弱部位: ${weakMuscles.join('、')} (需要加强)');
-    }
-    if (overtrainedMuscles.isNotEmpty) {
-      buffer.writeln('- 过度训练风险: ${overtrainedMuscles.join('、')} (需要更多休息)');
-    }
-    buffer.writeln();
-    buffer.writeln('## 输出格式');
-    buffer.writeln('Output ONLY valid JSON:');
-    buffer.writeln('```json');
-    buffer.writeln('{');
-    buffer.writeln('  "name": "计划名称",');
-    buffer.writeln('  "days": [');
-    buffer.writeln('    {');
-    buffer.writeln('      "dayOfWeek": 1,');
-    buffer.writeln('      "targetMuscles": ["chest", "shoulders"],');
-    buffer.writeln('      "exercises": [');
-    buffer.writeln('        {"exerciseName": "Barbell Bench Press", "targetSets": 4}');
-    buffer.writeln('      ]');
-    buffer.writeln('    }');
-    buffer.writeln('  ]');
-    buffer.writeln('}');
-    buffer.writeln('```');
-    buffer.writeln();
-    buffer.writeln('## 规则');
-    buffer.writeln('1. dayOfWeek: 1=周一 ... 7=周日');
-    buffer.writeln('2. targetMuscles: chest, back, shoulders, arms, legs, core');
-    buffer.writeln('3. targetSets: 3-5 每个动作');
-    buffer.writeln('4. 复合动作优先，孤立动作在后');
-    buffer.writeln('5. 根据训练频率安排休息日');
-    buffer.writeln('6. 针对薄弱部位增加训练量和动作选择');
-    buffer.writeln('7. 避免过度训练：同一肌群训练间隔至少48小时');
-    buffer.writeln('8. 大肌群(胸/背/腿)需要更长恢复时间(72小时)');
-    buffer.writeln('9. 同一肌群每周训练2-3次为宜');
-    buffer.writeln('10. 渐进式超负荷：逐渐增加重量或次数');
-    buffer.writeln();
-    buffer.writeln('生成我的训练计划。JSON only:');
-
-    return buffer.toString();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      backgroundColor: widget.theme.surfaceColor,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
-      title: Row(
-        children: [
-          Icon(Icons.psychology, color: widget.theme.accentColor),
-          const SizedBox(width: 8),
-          Text(
-            'AI 训练分析',
-            style: TextStyle(
-              fontFamily: '.SF Pro Display',
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: widget.theme.textColor,
-            ),
-          ),
-        ],
-      ),
-      content: SingleChildScrollView(
-        child: SizedBox(
-          width: MediaQuery.of(context).size.width * 0.85,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 训练目标单选
-              Text(
-                '训练目标',
-                style: TextStyle(
-                  fontFamily: '.SF Pro Text',
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: widget.theme.textColor,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                children: [
-                  _buildGoalChip('增肌', 'muscle_building'),
-                  _buildGoalChip('减脂', 'fat_loss'),
-                  _buildGoalChip('力量', 'strength'),
-                  _buildGoalChip('耐力', 'endurance'),
-                ],
-              ),
-              const SizedBox(height: 16),
-              
-              // 重点加强部位多选
-              Text(
-                '重点加强部位 (可选)',
-                style: TextStyle(
-                  fontFamily: '.SF Pro Text',
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: widget.theme.textColor,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  _buildFocusChip('胸', 'chest'),
-                  _buildFocusChip('背', 'back'),
-                  _buildFocusChip('肩', 'shoulders'),
-                  _buildFocusChip('手臂', 'arms'),
-                  _buildFocusChip('腿', 'legs'),
-                  _buildFocusChip('核心', 'core'),
-                ],
-              ),
-              const SizedBox(height: 20),
-              
-              // Prompt 展示区域
-              Text(
-                '生成的 Prompt',
-                style: TextStyle(
-                  fontFamily: '.SF Pro Text',
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: widget.theme.secondaryTextColor,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Container(
-                constraints: const BoxConstraints(maxHeight: 200),
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: widget.theme.textColor.withValues(alpha: 0.05),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: widget.theme.textColor.withValues(alpha: 0.1)),
-                ),
-                child: SingleChildScrollView(
-                  child: Text(
-                    _generatedPrompt,
-                    style: TextStyle(
-                      fontFamily: '.SF Pro Text',
-                      fontSize: 12,
-                      color: widget.theme.textColor,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AIAnalysisScreen(
+          periodType: periodType,
+          startDate: startDate,
+          endDate: endDate,
+          records: records.whereType<WorkoutRecord>().toList(),
+          previousRecords: previousRecords.whereType<WorkoutRecord>().toList(),
+          allRecords: allWorkoutRecords,
         ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text(
-            '取消',
-            style: TextStyle(color: widget.theme.secondaryTextColor),
-          ),
-        ),
-        ElevatedButton.icon(
-          onPressed: () {
-            Clipboard.setData(ClipboardData(text: _generatedPrompt));
-            setState(() => _isPromptCopied = true);
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Prompt 已复制到剪贴板')),
-            );
-          },
-          icon: Icon(Icons.copy, size: 18, color: _isPromptCopied ? widget.theme.accentColor : widget.theme.surfaceColor),
-          label: Text(_isPromptCopied ? '已复制' : '复制'),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: _isPromptCopied ? widget.theme.accentColor.withValues(alpha: 0.1) : widget.theme.cardColor,
-            foregroundColor: _isPromptCopied ? widget.theme.accentColor : widget.theme.accentColor,
-          ),
-        ),
-        ElevatedButton.icon(
-          onPressed: _isPromptCopied
-              ? () {
-                  Navigator.pop(context);
-                  // 跳转到 AI 计划向导页面
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => AIPlanWizardScreen(
-                        statsAnalysisMode: true,
-                        generatedPrompt: _generatedPrompt,
-                      ),
-                    ),
-                  );
-                }
-              : null,
-          icon: const Icon(Icons.arrow_forward, size: 18),
-          label: const Text('导入 AI 建议'),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: widget.theme.accentColor,
-            foregroundColor: widget.theme.surfaceColor,
-            disabledBackgroundColor: widget.theme.textColor.withValues(alpha: 0.1),
-            disabledForegroundColor: widget.theme.secondaryTextColor,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildGoalChip(String label, String value) {
-    final isSelected = _selectedGoal == value;
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedGoal = value;
-          _generatedPrompt = _generatePrompt();
-        });
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        decoration: BoxDecoration(
-          color: isSelected ? widget.theme.accentColor : widget.theme.accentColor.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isSelected ? widget.theme.accentColor : widget.theme.accentColor.withValues(alpha: 0.3),
-          ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontFamily: '.SF Pro Text',
-            fontSize: 14,
-            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-            color: isSelected ? Colors.white : widget.theme.accentColor,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFocusChip(String label, String value) {
-    final isSelected = _selectedFocusAreas.contains(value);
-    return FilterChip(
-      label: Text(label),
-      selected: isSelected,
-      onSelected: (_) {
-        setState(() {
-          if (isSelected) {
-            _selectedFocusAreas.remove(value);
-          } else {
-            _selectedFocusAreas.add(value);
-          }
-          _generatedPrompt = _generatePrompt();
-        });
-      },
-      selectedColor: widget.theme.accentColor.withValues(alpha: 0.15),
-      checkmarkColor: widget.theme.accentColor,
-      backgroundColor: widget.theme.textColor.withValues(alpha: 0.05),
-      side: BorderSide(color: widget.theme.textColor.withValues(alpha: 0.1)),
-      labelStyle: TextStyle(
-        color: isSelected ? widget.theme.accentColor : widget.theme.textColor,
-        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
       ),
     );
   }
