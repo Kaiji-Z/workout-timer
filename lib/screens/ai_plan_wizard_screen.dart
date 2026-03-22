@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -7,18 +8,12 @@ import '../theme/app_theme.dart';
 import '../models/user_profile.dart';
 import '../models/weekly_plan_import.dart';
 import '../services/ai_prompt_service.dart';
+import '../services/user_preferences_service.dart';
 import '../bloc/plan_provider.dart';
 import '../widgets/glass_widgets.dart';
 
 class AIPlanWizardScreen extends StatefulWidget {
-  final bool statsAnalysisMode;
-  final String? generatedPrompt;
-
-  const AIPlanWizardScreen({
-    super.key,
-    this.statsAnalysisMode = false,
-    this.generatedPrompt,
-  });
+  const AIPlanWizardScreen({super.key});
 
   @override
   State<AIPlanWizardScreen> createState() => _AIPlanWizardScreenState();
@@ -29,8 +24,9 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
   final TextEditingController _jsonController = TextEditingController();
   
   int _currentStep = 0;
+  int _activeTab = 0; // 0 = 新建计划, 1 = 导入分析
   
-  // Step 1 state
+  // Step 1 state (新建计划)
   String _goal = 'muscle_building';
   int _weeklyFrequency = 4;
   int _sessionDuration = 60;
@@ -42,14 +38,16 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
   DateTime _startDate = _nextMonday();
   String? _generatedPrompt;
   
-  // Step 3 state
+  // Step 3 state (import analysis)
   String? _parseError;
   bool _isParsing = false;
   
-  // Step 4 state
+  // Step 4 state (preview + import)
   WeeklyPlanImport? _parsedPlan;
   bool _isImporting = false;
   final Map<String, int> _editableSets = {};
+  
+  bool _preferencesLoaded = false;
   
   static DateTime _nextMonday() {
     final now = DateTime.now();
@@ -60,12 +58,28 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
   @override
   void initState() {
     super.initState();
-    
-    // Stats analysis mode - start from step 2 (paste JSON)
-    if (widget.statsAnalysisMode) {
-      _currentStep = 2;
-      if (widget.generatedPrompt != null) {
-        _generatedPrompt = widget.generatedPrompt;
+    _loadPreferences();
+  }
+  
+  Future<void> _loadPreferences() async {
+    try {
+      final service = UserPreferencesService();
+      final prefs = await service.loadPreferences()
+          .timeout(const Duration(seconds: 2));
+      if (mounted) {
+        setState(() {
+          _goal = prefs.goal;
+          _weeklyFrequency = prefs.frequency;
+          _experience = prefs.experience;
+          _equipment = prefs.equipment;
+          _focusAreas = prefs.focusAreasList;
+          _preferencesLoaded = true;
+        });
+      }
+    } catch (e) {
+      debugPrint('Failed to load preferences, using defaults: $e');
+      if (mounted) {
+        setState(() => _preferencesLoaded = true);
       }
     }
   }
@@ -134,12 +148,19 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
             child: PageView(
               controller: _pageController,
               physics: const NeverScrollableScrollPhysics(),
-              children: [
-                _buildStep1(theme),
-                _buildStep2(theme),
-                _buildStep3(theme),
-                _buildStep4(theme),
-              ],
+              children: _activeTab == 1
+                  ? [
+                      // Import analysis flow: 2 pages
+                      _buildStep1(theme), // Contains the tab with import form
+                      _buildStep4(theme), // Preview + import
+                    ]
+                  : [
+                      // New plan flow: 4 pages (existing)
+                      _buildStep1(theme), // Contains the tab with new plan form
+                      _buildStep2(theme),
+                      _buildStep3(theme),
+                      _buildStep4(theme),
+                    ],
             ),
           ),
           _buildBottomButton(theme),
@@ -149,17 +170,19 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
   }
   
   Widget _buildStepIndicator(AppThemeData theme) {
+    final isImport = _activeTab == 1;
+    final stepLabels = isImport
+        ? ['导入分析', '预览导入']
+        : ['个人资料', '生成提示词', '粘贴JSON', '预览导入'];
+    
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       child: Row(
         children: [
-          _buildStepItem(1, '个人资料', _currentStep >= 0, theme),
-          _buildStepLine(_currentStep >= 1, theme),
-          _buildStepItem(2, '生成提示词', _currentStep >= 1, theme),
-          _buildStepLine(_currentStep >= 2, theme),
-          _buildStepItem(3, '粘贴JSON', _currentStep >= 2, theme),
-          _buildStepLine(_currentStep >= 3, theme),
-          _buildStepItem(4, '预览导入', _currentStep >= 3, theme),
+          for (int i = 0; i < stepLabels.length; i++) ...[
+            if (i > 0) _buildStepLine(_currentStep >= i, theme),
+            _buildStepItem(i + 1, stepLabels[i], _currentStep >= i, theme),
+          ],
         ],
       ),
     );
@@ -212,8 +235,73 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
     );
   }
   
-  // ==================== 第1步：个人资料 ====================
+  // ==================== 第1步：Tab切换（新建计划 / 导入分析） ====================
   Widget _buildStep1(AppThemeData theme) {
+    return Column(
+      children: [
+        // Tab bar
+        Container(
+          margin: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: theme.textColor.withValues(alpha: 0.05),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            children: [
+              _buildTab('新建计划', 0, theme),
+              _buildTab('导入分析', 1, theme),
+            ],
+          ),
+        ),
+        // Tab content
+        Expanded(
+          child: _activeTab == 0
+              ? _buildNewPlanForm(theme)
+              : _buildImportAnalysisForm(theme),
+        ),
+      ],
+    );
+  }
+  
+  Widget _buildTab(String label, int index, AppThemeData theme) {
+    final isActive = _activeTab == index;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            _activeTab = index;
+            _currentStep = 0;
+            _pageController.jumpToPage(0);
+          });
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            color: isActive ? theme.accentColor : Colors.transparent,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Center(
+            child: Text(
+              label,
+              style: TextStyle(
+                fontFamily: '.SF Pro Text',
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: isActive ? Colors.white : theme.textColor,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+  
+  // ==================== 新建计划表单（原Step1内容） ====================
+  Widget _buildNewPlanForm(AppThemeData theme) {
+    if (!_preferencesLoaded) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -294,6 +382,121 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
         ],
       ),
     );
+  }
+  
+  // ==================== 导入分析表单（新增） ====================
+  Widget _buildImportAnalysisForm(AppThemeData theme) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '导入AI分析计划',
+            style: TextStyle(
+              fontFamily: '.SF Pro Display',
+              fontSize: 24,
+              fontWeight: FontWeight.w700,
+              color: theme.textColor,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '将AI返回的JSON计划粘贴到下方，预览后直接导入',
+            style: TextStyle(
+              fontFamily: '.SF Pro Text',
+              fontSize: 14,
+              color: theme.secondaryTextColor,
+            ),
+          ),
+          const SizedBox(height: 24),
+          TextField(
+            controller: _jsonController,
+            maxLines: 10,
+            minLines: 6,
+            decoration: InputDecoration(
+              labelText: 'JSON内容',
+              labelStyle: TextStyle(color: theme.textColor),
+              border: const OutlineInputBorder(),
+              errorText: _parseError,
+              helperText: '请粘贴AI生成的训练计划JSON',
+              helperMaxLines: 2,
+            ),
+            onChanged: (_) {
+              if (_parseError != null) {
+                setState(() => _parseError = null);
+              }
+            },
+          ),
+          const SizedBox(height: 16),
+          PrimaryActionButton(
+            label: _isParsing ? '解析中...' : '解析JSON',
+            onPressed: _isParsing ? null : _parseJsonForImport,
+            height: 56,
+          ),
+          if (_parseError != null) ...[
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF5E6E6),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: const Color(0xFFE53935)),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.error, color: Color(0xFFE53935), size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      _parseError!,
+                      style: const TextStyle(
+                        fontFamily: '.SF Pro Text',
+                        fontSize: 14,
+                        color: Color(0xFFE53935),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+  
+  /// Parse JSON for import analysis tab - goes directly to preview
+  void _parseJsonForImport() async {
+    if (_jsonController.text.isEmpty) {
+      setState(() => _parseError = '请输入JSON内容');
+      return;
+    }
+    
+    setState(() {
+      _isParsing = true;
+      _parseError = null;
+    });
+    
+    try {
+      final jsonMap = jsonDecode(_jsonController.text) as Map<String, dynamic>;
+      final parsedPlan = WeeklyPlanImport.fromJson(jsonMap);
+      setState(() {
+        _isParsing = false;
+        _parsedPlan = parsedPlan;
+        _currentStep = 1; // Go to preview step (step 2 in import mode)
+        _pageController.animateToPage(
+          1,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+      });
+    } catch (e) {
+      setState(() {
+        _isParsing = false;
+        _parseError = 'JSON解析失败: ${e.toString()}';
+      });
+    }
   }
   
   Widget _buildSingleSelectQuestion(
@@ -981,31 +1184,55 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
     bool isEnabled;
     VoidCallback? onPressed;
     
-    switch (_currentStep) {
-      case 0:
-        buttonText = '下一步：生成提示词';
-        isEnabled = true;
-        onPressed = _nextStep;
-        break;
-      case 1:
-        buttonText = '下一步：粘贴JSON';
-        isEnabled = _generatedPrompt != null;
-        onPressed = isEnabled ? _nextStep : null;
-        break;
-      case 2:
-        buttonText = '下一步：预览导入';
-        isEnabled = _parsedPlan != null;
-        onPressed = isEnabled ? _nextStep : null;
-        break;
-      case 3:
-        buttonText = '完成';
-        isEnabled = _parsedPlan != null && !_isImporting;
-        onPressed = isEnabled ? _importPlan : null;
-        break;
-      default:
-        buttonText = '';
-        isEnabled = false;
-        onPressed = null;
+    if (_activeTab == 1) {
+      // Import analysis flow
+      switch (_currentStep) {
+        case 0:
+          buttonText = '下一步：预览导入';
+          isEnabled = _parsedPlan != null;
+          onPressed = isEnabled ? () {
+            setState(() => _currentStep = 1);
+            _pageController.animateToPage(1, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+          } : null;
+          break;
+        case 1:
+          buttonText = '完成';
+          isEnabled = _parsedPlan != null && !_isImporting;
+          onPressed = isEnabled ? _importPlan : null;
+          break;
+        default:
+          buttonText = '';
+          isEnabled = false;
+          onPressed = null;
+      }
+    } else {
+      // New plan flow (existing logic)
+      switch (_currentStep) {
+        case 0:
+          buttonText = '下一步：生成提示词';
+          isEnabled = true;
+          onPressed = _nextStep;
+          break;
+        case 1:
+          buttonText = '下一步：粘贴JSON';
+          isEnabled = _generatedPrompt != null;
+          onPressed = isEnabled ? _nextStep : null;
+          break;
+        case 2:
+          buttonText = '下一步：预览导入';
+          isEnabled = _parsedPlan != null;
+          onPressed = isEnabled ? _nextStep : null;
+          break;
+        case 3:
+          buttonText = '完成';
+          isEnabled = _parsedPlan != null && !_isImporting;
+          onPressed = isEnabled ? _importPlan : null;
+          break;
+        default:
+          buttonText = '';
+          isEnabled = false;
+          onPressed = null;
+      }
     }
     
     return Container(
@@ -1040,7 +1267,8 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
   }
   
   void _nextStep() {
-    if (_currentStep < 3) {
+    final maxStep = _activeTab == 1 ? 1 : 3;
+    if (_currentStep < maxStep) {
       setState(() => _currentStep++);
       _pageController.nextPage(
         duration: const Duration(milliseconds: 300),
