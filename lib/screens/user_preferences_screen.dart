@@ -123,9 +123,10 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
     final theme = themeProvider.currentTheme;
 
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: theme.primaryColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
+        elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.close, color: theme.textColor),
           onPressed: () => Navigator.pop(context),
