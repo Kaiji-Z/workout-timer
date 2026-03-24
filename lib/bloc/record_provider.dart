@@ -3,12 +3,11 @@ import '../models/workout_record.dart';
 
 import '../models/muscle_group.dart';
 import '../services/record_repository.dart';
-import '../services/exercise_repository.dart';
+import '../data/exercise_data.dart';
 
 /// 训练记录状态管理
 class RecordProvider extends ChangeNotifier {
   final RecordRepository _repository = RecordRepository();
-  final ExerciseRepository _exerciseRepository = ExerciseRepository();
 
   List<WorkoutRecord> _records = [];
   bool _isLoading = false;
@@ -27,8 +26,8 @@ class RecordProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      // 先加载所有动作
-      final exercises = await _exerciseRepository.getAllExercises();
+      // 加载完整动作列表（873个，与计划创建时使用同一份数据）
+      final exercises = await ExerciseData.loadAndGetFullExerciseList();
 
       // 加载记录
       _records = await _repository.getAllRecords(
