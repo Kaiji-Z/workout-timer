@@ -488,32 +488,108 @@ body: SafeArea(
                           itemCount: allPlans.length,
                           itemBuilder: (context, index) {
                             final plan = allPlans[index];
-                            return ListTile(
-                              leading: Container(
-                                width: 40,
-                                height: 40,
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
+                            return Column(
+                              children: [
+                                InkWell(
+                                  onTap: () => _showPlanDetail(plan),
                                   borderRadius: BorderRadius.circular(8),
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                    child: Row(
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      children: [
+                                        Container(
+                                          width: 40,
+                                          height: 40,
+                                          decoration: BoxDecoration(
+                                            color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
+                                            borderRadius: BorderRadius.circular(8),
+                                          ),
+                                          child: Icon(
+                                            Icons.fitness_center,
+                                            color: Theme.of(context).primaryColor,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        // 计划名称 + 描述占满剩余宽度
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                plan.name,
+                                                style: TextStyle(
+                                                  fontFamily: '.SF Pro Text',
+                                                  fontSize: 15,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                              const SizedBox(height: 2),
+                                              Text(
+                                                plan.targetMusclesText,
+                                                style: TextStyle(
+                                                  fontFamily: '.SF Pro Text',
+                                                  fontSize: 13,
+                                                  color: Theme.of(context).primaryColor.withValues(alpha: 0.6),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                                 ),
-                                child: Icon(
-                                  Icons.fitness_center,
-                                  color: Theme.of(context).primaryColor,
+                                // 编辑/删除按钮在列表项下方
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 68, bottom: 4),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      TextButton.icon(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                          Navigator.push<bool>(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => PlanFormScreen(plan: plan),
+                                            ),
+                                          ).then((result) {
+                                            if (result == true && mounted) {
+                                              provider.loadPlans();
+                                            }
+                                          });
+                                        },
+                                        icon: Icon(Icons.edit_outlined, size: 16),
+                                        label: Text('编辑'),
+                                        style: TextButton.styleFrom(
+                                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                                          minimumSize: Size.zero,
+                                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                        ),
+                                      ),
+                                      TextButton.icon(
+                                        onPressed: () => _confirmDeletePlan(provider, plan),
+                                        icon: Icon(Icons.delete_outline, size: 16, color: Colors.red),
+                                        label: Text('删除', style: TextStyle(color: Colors.red)),
+                                        style: TextButton.styleFrom(
+                                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                                          minimumSize: Size.zero,
+                                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              title: Text(plan.name),
-                              subtitle: Text(plan.targetMusclesText),
-                              trailing: IconButton(
-                                icon: Icon(Icons.delete_outline, color: Colors.red),
-                                onPressed: () => _confirmDeletePlan(provider, plan),
-                              ),
-                              onTap: () => _showPlanDetail(plan),
+                              ],
                             );
-                          },
-                        );
-                      },
-                    ),
-                  ),
+                           },
+                         );
+                       },
+                     ),
+                   ),
                   const SizedBox(height: 16),
                   SizedBox(
                     width: double.infinity,
