@@ -477,12 +477,16 @@ Widget _buildExerciseItem(int index, RecordedExercise exercise, AppThemeData the
                   // 组数标签
                   SizedBox(
                     width: 40,
-                    child: Text(
-                      '第${setData.setNumber}组',
-                      style: TextStyle(
-                        fontFamily: '.SF Pro Text',
-                        fontSize: 14,
-                        color: theme.secondaryTextColor,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        '第${setData.setNumber}组',
+                        style: TextStyle(
+                          fontFamily: '.SF Pro Text',
+                          fontSize: 14,
+                          color: theme.secondaryTextColor,
+                        ),
                       ),
                     ),
                   ),

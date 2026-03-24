@@ -16,6 +16,7 @@ import 'glass_widgets.dart';
 import 'animated_timer_widget.dart';
 import 'plan_card.dart';
 import 'bulk_exercise_data_dialog.dart';
+import 'set_record_dialog.dart';
 
 /// 训练主界面 - 极简设计
 /// 
@@ -461,6 +462,10 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
               }
             }
             training.startRest();
+            // 计划模式：休息开始时弹出记录对话框
+            if (_isPlanMode && progressProvider.currentExercise != null) {
+              _showSetRecordDialog(context, training, progressProvider);
+            }
           },
         ),
         ],
@@ -640,6 +645,41 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
     );
   }
 
+  /// 显示单组数据记录对话框（休息开始时弹出，休息期间记录）
+  Future<void> _showSetRecordDialog(
+    BuildContext context,
+    TrainingProvider training,
+    TrainingProgressProvider progressProvider,
+  ) async {
+    final exercise = progressProvider.currentExercise;
+    if (exercise == null) return;
+    
+    // 计算当前组号（刚刚完成的组）
+    final completedSets = progressProvider.getCompletedSets(exercise.exerciseId);
+    final setNumber = completedSets; // completeSet 已经被调用，所以 completedSets 就是刚完成的组号
+    
+    // 获取之前保存的数据（如果有）
+    final existingData = progressProvider.getExerciseSetsData(exercise.exerciseId);
+    SetData? lastSetData;
+    if (existingData.isNotEmpty) {
+      lastSetData = existingData.last;
+    }
+    
+    if (!context.mounted) return;
+    
+    final setData = await SetRecordDialog.show(
+      context,
+      exerciseName: exercise.name,
+      setNumber: setNumber,
+      initialReps: lastSetData?.reps,
+      initialWeight: lastSetData?.weight,
+    );
+    
+    if (setData != null && context.mounted) {
+      progressProvider.addSetData(exercise.exerciseId, setData);
+    }
+  }
+
   /// 显示时长选择器
   void _showDurationPicker(BuildContext context, TrainingProvider training) {
     DurationPicker.show(
@@ -662,6 +702,9 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
             builder: (context) => BulkExerciseDataDialog(
               exercises: _selectedPlan!.exercises,
               completedSets: progressProvider.completedSets,
+              prePopulatedData: progressProvider.exerciseSetsData.isNotEmpty
+                  ? progressProvider.exerciseSetsData
+                  : null,
             ),
           );
           

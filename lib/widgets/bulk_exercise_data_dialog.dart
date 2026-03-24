@@ -17,11 +17,13 @@ import '../theme/app_theme.dart';
 class BulkExerciseDataDialog extends StatefulWidget {
   final List<PlanExercise> exercises;
   final Map<String, int> completedSets;
+  final Map<String, List<SetData>>? prePopulatedData;
   
   const BulkExerciseDataDialog({
     super.key,
     required this.exercises,
     required this.completedSets,
+    this.prePopulatedData,
   });
   
   @override
@@ -43,16 +45,29 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
       final exerciseId = exercise.exerciseId;
       final sets = widget.completedSets[exerciseId] ?? exercise.effectiveSets;
       
+      // 获取预填充数据
+      final preData = widget.prePopulatedData?[exerciseId];
+      
       _exerciseData[exerciseId] = [];
       _weightControllers[exerciseId] = [];
       
       for (int i = 1; i <= sets; i++) {
-        _exerciseData[exerciseId]!.add(SetData(
-          setNumber: i,
-          reps: 12, // 默认12次
-          weight: null,
-        ));
-        _weightControllers[exerciseId]!.add(TextEditingController());
+        // 检查是否有预填充数据
+        SetData setData;
+        if (preData != null && i <= preData.length) {
+          setData = preData[i - 1];
+          _weightControllers[exerciseId]!.add(
+            TextEditingController(text: setData.weight?.toString() ?? ''),
+          );
+        } else {
+          setData = SetData(
+            setNumber: i,
+            reps: 12, // 默认12次
+            weight: null,
+          );
+          _weightControllers[exerciseId]!.add(TextEditingController());
+        }
+        _exerciseData[exerciseId]!.add(setData);
       }
     }
   }
@@ -289,13 +304,17 @@ const SizedBox(width: 8),
             children: [
               // 组数标签
               SizedBox(
-                width: 40,
-                child: Text(
-                  '第$setNumber组',
-                  style: TextStyle(
-                    fontFamily: '.SF Pro Text',
-                    fontSize: 14,
-                    color: theme.secondaryTextColor,
+                width: 30,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    '第$setNumber组',
+                    style: TextStyle(
+                      fontFamily: '.SF Pro Text',
+                      fontSize: 14,
+                      color: theme.secondaryTextColor,
+                    ),
                   ),
                 ),
               ),
@@ -329,7 +348,7 @@ const SizedBox(width: 8),
               
                // 重量输入
                SizedBox(
-                 width: 70,
+                 width: 90,
                  child: TextField(
                    controller: weightController,
                    keyboardType: TextInputType.number,
