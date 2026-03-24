@@ -284,13 +284,17 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        widget.record.fullDateText,
-                        style: TextStyle(
-                          fontFamily: '.SF Pro Display',
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: theme.textColor,
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          widget.record.fullDateText,
+                          style: TextStyle(
+                            fontFamily: '.SF Pro Display',
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: theme.textColor,
+                          ),
                         ),
                       ),
                       if (widget.record.isPlanMode) ...[
@@ -404,22 +408,28 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
   Widget _buildStatItem(String value, String label, IconData icon, AppThemeData theme) {
     return Column(
       children: [
-        Text(
-          value,
-          style: TextStyle(
-            fontFamily: '.SF Pro Display',
-            fontSize: 22,
-            fontWeight: FontWeight.w700,
-            color: theme.textColor,
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            value,
+            style: TextStyle(
+              fontFamily: '.SF Pro Display',
+              fontSize: 22,
+              fontWeight: FontWeight.w700,
+              color: theme.textColor,
+            ),
           ),
         ),
         const SizedBox(height: 4),
-        Text(
-          label,
-          style: TextStyle(
-            fontFamily: '.SF Pro Text',
-            fontSize: 12,
-            color: theme.secondaryTextColor,
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            label,
+            style: TextStyle(
+              fontFamily: '.SF Pro Text',
+              fontSize: 12,
+              color: theme.secondaryTextColor,
+            ),
           ),
         ),
       ],
@@ -450,11 +460,11 @@ Widget _buildExerciseItem(int index, RecordedExercise exercise, AppThemeData the
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
          // 标题行: 序号-动作名称/训练部位
-        FittedBox(
-          fit: BoxFit.scaleDown,
-          alignment: Alignment.centerLeft,
-          child: Text(
-            '${index + 1}-${exercise.name}/${_getMuscleGroupName(exercise)}',
+         FittedBox(
+           fit: BoxFit.scaleDown,
+           alignment: Alignment.centerLeft,
+           child: Text(
+             _getExerciseDisplayName(index, exercise),
             style: TextStyle(
               fontFamily: '.SF Pro Display',
               fontSize: 16,
@@ -724,6 +734,14 @@ Widget _buildExerciseItem(int index, RecordedExercise exercise, AppThemeData the
     if (mounted) {
       Navigator.pop(context);
     }
+  }
+
+  String _getExerciseDisplayName(int index, RecordedExercise exercise) {
+    if (exercise.exercise != null) {
+      return '${index + 1}-${exercise.name}/${_getMuscleGroupName(exercise)}';
+    }
+    // 旧记录可能没有关联的动作数据，显示未知动作
+    return '${index + 1}-未知动作';
   }
 
   String _getMuscleGroupName(RecordedExercise exercise) {
