@@ -454,17 +454,32 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
           icon: Icons.self_improvement,
           onPressed: () {
             if (_isPlanMode) {
+              // 在 completeSet 之前捕获当前动作和组号（刚完成的）
+              final completedExercise = progressProvider.currentExercise;
+              final completedSetNumber = progressProvider.currentSetInExercise + 1;
+              
               progressProvider.completeSet();
-              // 检查是否是最后一组最后一个动作，如果是则直接结束训练
+              
               if (progressProvider.isAllExercisesComplete) {
-                training.endWorkout();
+                // 最后一组：先弹出记录对话框，再结束训练
+                training.startRest();
+                if (completedExercise != null) {
+                  _showSetRecordDialogAndEndWorkout(
+                    context, training, progressProvider, 
+                    completedExercise, completedSetNumber,
+                  );
+                } else {
+                  training.endWorkout();
+                }
                 return;
               }
-            }
-            training.startRest();
-            // 计划模式：休息开始时弹出记录对话框
-            if (_isPlanMode && progressProvider.currentExercise != null) {
-              _showSetRecordDialog(context, training, progressProvider);
+              training.startRest();
+              // 计划模式：休息开始时弹出记录对话框（传入刚完成的动作信息）
+              if (completedExercise != null) {
+                _showSetRecordDialog(context, training, progressProvider, completedExercise, completedSetNumber);
+              }
+            } else {
+              training.startRest();
             }
           },
         ),
@@ -650,16 +665,11 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
     BuildContext context,
     TrainingProvider training,
     TrainingProgressProvider progressProvider,
+    PlanExercise completedExercise,
+    int completedSetNumber,
   ) async {
-    final exercise = progressProvider.currentExercise;
-    if (exercise == null) return;
-    
-    // 计算当前组号（刚刚完成的组）
-    final completedSets = progressProvider.getCompletedSets(exercise.exerciseId);
-    final setNumber = completedSets; // completeSet 已经被调用，所以 completedSets 就是刚完成的组号
-    
     // 获取之前保存的数据（如果有）
-    final existingData = progressProvider.getExerciseSetsData(exercise.exerciseId);
+    final existingData = progressProvider.getExerciseSetsData(completedExercise.exerciseId);
     SetData? lastSetData;
     if (existingData.isNotEmpty) {
       lastSetData = existingData.last;
@@ -669,14 +679,48 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
     
     final setData = await SetRecordDialog.show(
       context,
-      exerciseName: exercise.name,
-      setNumber: setNumber,
+      exerciseName: completedExercise.name,
+      setNumber: completedSetNumber,
       initialReps: lastSetData?.reps,
       initialWeight: lastSetData?.weight,
     );
     
     if (setData != null && context.mounted) {
-      progressProvider.addSetData(exercise.exerciseId, setData);
+      progressProvider.addSetData(completedExercise.exerciseId, setData);
+    }
+  }
+
+  /// 显示最后一组的记录对话框，关闭后结束训练
+  Future<void> _showSetRecordDialogAndEndWorkout(
+    BuildContext context,
+    TrainingProvider training,
+    TrainingProgressProvider progressProvider,
+    PlanExercise completedExercise,
+    int completedSetNumber,
+  ) async {
+    final existingData = progressProvider.getExerciseSetsData(completedExercise.exerciseId);
+    SetData? lastSetData;
+    if (existingData.isNotEmpty) {
+      lastSetData = existingData.last;
+    }
+    
+    if (!context.mounted) return;
+    
+    final setData = await SetRecordDialog.show(
+      context,
+      exerciseName: completedExercise.name,
+      setNumber: completedSetNumber,
+      initialReps: lastSetData?.reps,
+      initialWeight: lastSetData?.weight,
+    );
+    
+    if (setData != null && context.mounted) {
+      progressProvider.addSetData(completedExercise.exerciseId, setData);
+    }
+    
+    // 对话框关闭后结束训练
+    if (context.mounted) {
+      training.endWorkout();
     }
   }
 
@@ -708,14 +752,10 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
             ),
           );
           
-          // 如果用户输入了数据，添加到 progressProvider
+          // 如果用户输入了数据，替换 progressProvider 中的数据（而非追加，避免重复）
           if (exerciseData != null) {
             for (final entry in exerciseData.entries) {
-              final exerciseId = entry.key;
-              final setsData = entry.value;
-              for (final setData in setsData) {
-                progressProvider.addSetData(exerciseId, setData);
-              }
+              progressProvider.replaceSetsData(entry.key, entry.value);
             }
           }
         }
