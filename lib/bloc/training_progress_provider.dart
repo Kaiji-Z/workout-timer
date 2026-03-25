@@ -109,6 +109,12 @@ class TrainingProgressProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// 替换某个动作的所有组数据（用于最终保存时覆盖休息时记录的数据）
+  void replaceSetsData(String exerciseId, List<SetData> setsData) {
+    _exerciseSetsData[exerciseId] = setsData;
+    notifyListeners();
+  }
+
   /// 获取某个动作的最大重量（从setsData计算）
   double? getMaxWeight(String exerciseId) {
     final sets = _exerciseSetsData[exerciseId];
