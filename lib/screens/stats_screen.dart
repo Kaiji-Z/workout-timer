@@ -41,12 +41,16 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
 
   Future<void> _loadData() async {
     try {
+      final recordProvider = context.read<RecordProvider>();
+      // 确保记录已加载（首次进入时可能还未加载）
+      if (recordProvider.recordCount == 0) {
+        await recordProvider.loadRecords();
+      }
       final sessions = await _repository.getAllSessions();
       if (!mounted) return;
-      final records = context.read<RecordProvider>().records;
       setState(() {
         _oldSessions = sessions;
-        _newRecords = records;
+        _newRecords = recordProvider.records;
         _isLoading = false;
       });
     } catch (e) {
@@ -60,12 +64,13 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
     return [..._oldSessions, ..._newRecords];
   }
 
-  /// 获取记录日期
+  /// 获取记录日期（剥离时间部分，只保留日期）
   DateTime _getRecordDate(dynamic record) {
     if (record is WorkoutSession) {
-      return DateTime.parse(record.createdAt);
+      final parsed = DateTime.parse(record.createdAt);
+      return DateTime(parsed.year, parsed.month, parsed.day);
     } else if (record is WorkoutRecord) {
-      return record.date;
+      return DateTime(record.date.year, record.date.month, record.date.day);
     }
     return DateTime.now();
   }
@@ -90,9 +95,10 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
     return 0;
   }
 
-  /// 获取一周的开始日期（周一）
+  /// 获取一周的开始日期（周一），剥离时间部分
   DateTime _getStartOfWeek(DateTime date) {
-    return date.subtract(Duration(days: date.weekday - 1));
+    final normalized = DateTime(date.year, date.month, date.day);
+    return normalized.subtract(Duration(days: date.weekday - 1));
   }
 
   /// 获取一周的7天列表
