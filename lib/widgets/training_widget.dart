@@ -442,10 +442,20 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
             icon: Icons.stop,
             iconColor: Colors.red,
             onPressed: () {
-              if (_isPlanMode) {
+              if (_isPlanMode && progressProvider.currentExercise != null) {
+                final completedExercise = progressProvider.currentExercise!;
+                final completedSetNumber = progressProvider.currentSetInExercise + 1;
                 progressProvider.completeSet();
+                _showSetRecordDialogAndEndWorkout(
+                  context, training, progressProvider,
+                  completedExercise, completedSetNumber,
+                );
+              } else {
+                if (_isPlanMode) {
+                  progressProvider.completeSet();
+                }
+                training.endWorkout();
               }
-              training.endWorkout();
             },
           ),
           const SizedBox(width: 16),
@@ -461,8 +471,7 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
               progressProvider.completeSet();
               
               if (progressProvider.isAllExercisesComplete) {
-                // 最后一组：先弹出记录对话框，再结束训练
-                training.startRest();
+                // 最后一组：弹出记录对话框后结束训练（不开始休息，保持 exercising 状态）
                 if (completedExercise != null) {
                   _showSetRecordDialogAndEndWorkout(
                     context, training, progressProvider, 
@@ -496,10 +505,20 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
             icon: Icons.stop,
             iconColor: Colors.red,
             onPressed: () {
-              if (_isPlanMode) {
+              if (_isPlanMode && progressProvider.currentExercise != null) {
+                final completedExercise = progressProvider.currentExercise!;
+                final completedSetNumber = progressProvider.currentSetInExercise + 1;
                 progressProvider.completeSet();
+                _showSetRecordDialogAndEndWorkout(
+                  context, training, progressProvider,
+                  completedExercise, completedSetNumber,
+                );
+              } else {
+                if (_isPlanMode) {
+                  progressProvider.completeSet();
+                }
+                training.endWorkout();
               }
-              training.endWorkout();
             },
           ),
           const SizedBox(width: 16),
