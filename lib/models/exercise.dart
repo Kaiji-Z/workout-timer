@@ -50,7 +50,8 @@ class ExerciseRecommendation {
   }
 
   @override
-  String toString() => 'ExerciseRecommendation(sets: $recommendedSets, reps: $minReps-$maxReps, rest: ${restSeconds}s)';
+  String toString() =>
+      'ExerciseRecommendation(sets: $recommendedSets, reps: $minReps-$maxReps, rest: ${restSeconds}s)';
 }
 
 /// 动作模型
@@ -85,21 +86,23 @@ class Exercise {
     required this.recommendation,
   });
 
-
   /// 从JSON解析（用于导入yuhonas/free-exercise-db数据）
   factory Exercise.fromJson(Map<String, dynamic> json) {
     // 解析主要肌肉部位
     final primaryMusclesList = json['primaryMuscles'] as List<dynamic>?;
     PrimaryMuscleGroup primaryMuscle = PrimaryMuscleGroup.chest;
     if (primaryMusclesList != null && primaryMusclesList.isNotEmpty) {
-      final parsed = PrimaryMuscleGroupExtension.fromString(primaryMusclesList[0] as String);
+      final parsed = PrimaryMuscleGroupExtension.fromString(
+        primaryMusclesList[0] as String,
+      );
       if (parsed != null) {
         primaryMuscle = parsed;
       }
     }
 
     // 解析次要肌肉部位
-    final secondaryMusclesList = json['secondaryMuscles'] as List<dynamic>? ?? [];
+    final secondaryMusclesList =
+        json['secondaryMuscles'] as List<dynamic>? ?? [];
     final secondaryMuscles = secondaryMusclesList
         .map((s) => _parseSecondaryMuscle(s as String))
         .whereType<SecondaryMuscleGroup>()
@@ -148,7 +151,9 @@ class Exercise {
     final List<String> images = [];
     if (imagesList != null && imagesList.isNotEmpty) {
       for (String imagePath in imagesList) {
-        images.add('https://gitee.com/kaiji1126/free-exercise-db/raw/main/exercises/$imagePath');
+        images.add(
+          'https://gitee.com/kaiji1126/free-exercise-db/raw/main/exercises/$imagePath',
+        );
       }
     }
 
@@ -186,6 +191,7 @@ class Exercise {
       recommendation: recommendation,
     );
   }
+
   /// 标准化器械名称
   static String _normalizeEquipment(String? equipment) {
     if (equipment == null) return 'body only';
@@ -243,7 +249,11 @@ class Exercise {
       name: map['name'] as String,
       nameEn: map['name_en'] as String? ?? '',
       nameZh: map['name_zh'] as String?,
-      primaryMuscle: PrimaryMuscleGroupExtension.fromString(map['primary_muscle'] as String) ?? PrimaryMuscleGroup.chest,
+      primaryMuscle:
+          PrimaryMuscleGroupExtension.fromString(
+            map['primary_muscle'] as String,
+          ) ??
+          PrimaryMuscleGroup.chest,
       secondaryMuscles: secondaryMuscles,
       equipment: map['equipment'] as String? ?? '',
       level: map['level'] as String? ?? 'beginner',
@@ -261,7 +271,9 @@ class Exercise {
       'name_en': nameEn,
       'name_zh': nameZh,
       'primary_muscle': primaryMuscle.name,
-      'secondary_muscles': jsonEncode(secondaryMuscles.map((e) => e.name).toList()),
+      'secondary_muscles': jsonEncode(
+        secondaryMuscles.map((e) => e.name).toList(),
+      ),
       'equipment': equipment,
       'level': level,
       'image_url': imageUrl,
@@ -286,6 +298,15 @@ class Exercise {
       default:
         return '中级';
     }
+  }
+
+  /// 是否是徒手动作
+  bool get isBodyweight {
+    final eq = equipment.toLowerCase();
+    return eq == 'body only' ||
+        eq == 'bodyweight' ||
+        eq == 'none' ||
+        eq.isEmpty;
   }
 
   /// 器械显示名称
@@ -359,7 +380,8 @@ class Exercise {
   int get hashCode => id.hashCode;
 
   @override
-  String toString() => 'Exercise(id: $id, name: $name, muscle: ${primaryMuscle.displayName})';
+  String toString() =>
+      'Exercise(id: $id, name: $name, muscle: ${primaryMuscle.displayName})';
 }
 
 /// 解析次要肌肉部位（从外部数据源）

@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../services/user_preferences_service.dart';
 import '../theme/theme_provider.dart';
@@ -14,9 +15,10 @@ class UserPreferencesScreen extends StatefulWidget {
 
 class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
   final UserPreferencesService _preferencesService = UserPreferencesService();
-  
+
   UserPreferences _preferences = const UserPreferences();
   bool _isLoading = true;
+  final TextEditingController _bodyWeightController = TextEditingController();
 
   // Options for each section
   static const List<Map<String, String>> _goalOptions = [
@@ -66,6 +68,9 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
       setState(() {
         _preferences = prefs;
         _isLoading = false;
+        if (prefs.bodyWeight > 0) {
+          _bodyWeightController.text = prefs.bodyWeight.toStringAsFixed(1);
+        }
       });
     }
   }
@@ -74,10 +79,7 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
     await _preferencesService.savePreferences(_preferences);
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('偏好已保存'),
-          duration: Duration(seconds: 1),
-        ),
+        const SnackBar(content: Text('偏好已保存'), duration: Duration(seconds: 1)),
       );
     }
   }
@@ -115,6 +117,19 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
       _preferences = _preferences.copyWith(focusAreas: focusAreas.join(','));
     });
     _savePreferences();
+  }
+
+  void _updateBodyWeight(double weight) {
+    setState(() {
+      _preferences = _preferences.copyWith(bodyWeight: weight);
+    });
+    _savePreferences();
+  }
+
+  @override
+  void dispose() {
+    _bodyWeightController.dispose();
+    super.dispose();
   }
 
   @override
@@ -162,6 +177,95 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Section: Body Weight
+                  _buildSectionHeader('体重', theme),
+                  _buildGlassCard(
+                    theme: theme,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '用于计算徒手动作的训练容量（如引体向上、俯卧撑等）',
+                            style: TextStyle(
+                              fontFamily: '.SF Pro Text',
+                              fontSize: 12,
+                              color: theme.secondaryTextColor,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: TextField(
+                                  controller: _bodyWeightController,
+                                  keyboardType:
+                                      const TextInputType.numberWithOptions(
+                                        decimal: true,
+                                      ),
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.allow(
+                                      RegExp(r'^\d*\.?\d{0,1}'),
+                                    ),
+                                  ],
+                                  decoration: InputDecoration(
+                                    hintText: '例如 70',
+                                    hintStyle: TextStyle(
+                                      fontFamily: '.SF Pro Text',
+                                      fontSize: 14,
+                                      color: theme.secondaryTextColor
+                                          .withValues(alpha: 0.5),
+                                    ),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: BorderSide(
+                                        color: theme.borderColor,
+                                      ),
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: BorderSide(
+                                        color: theme.borderColor,
+                                      ),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: BorderSide(
+                                        color: theme.accentColor,
+                                        width: 2,
+                                      ),
+                                    ),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 14,
+                                    ),
+                                    suffixText: 'kg',
+                                    suffixStyle: TextStyle(
+                                      fontFamily: '.SF Pro Text',
+                                      fontSize: 14,
+                                      color: theme.secondaryTextColor,
+                                    ),
+                                  ),
+                                  style: TextStyle(
+                                    fontFamily: '.SF Pro Text',
+                                    fontSize: 16,
+                                    color: theme.textColor,
+                                  ),
+                                  onChanged: (value) {
+                                    final weight = double.tryParse(value);
+                                    _updateBodyWeight(weight ?? 0.0);
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
                   // Section 1: Training Goal
                   _buildSectionHeader('训练目标', theme),
                   _buildGlassCard(
@@ -172,7 +276,8 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
                         spacing: 8,
                         runSpacing: 8,
                         children: _goalOptions.map((option) {
-                          final isSelected = _preferences.goal == option['value'];
+                          final isSelected =
+                              _preferences.goal == option['value'];
                           return _buildSelectionChip(
                             label: option['label'] ?? '',
                             isSelected: isSelected,
@@ -195,11 +300,13 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
                         spacing: 8,
                         runSpacing: 8,
                         children: _experienceOptions.map((option) {
-                          final isSelected = _preferences.experience == option['value'];
+                          final isSelected =
+                              _preferences.experience == option['value'];
                           return _buildSelectionChip(
                             label: option['label'] ?? '',
                             isSelected: isSelected,
-                            onTap: () => _updateExperience(option['value'] ?? ''),
+                            onTap: () =>
+                                _updateExperience(option['value'] ?? ''),
                             theme: theme,
                           );
                         }).toList(),
@@ -218,11 +325,13 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
                         spacing: 8,
                         runSpacing: 8,
                         children: _equipmentOptions.map((option) {
-                          final isSelected = _preferences.equipment == option['value'];
+                          final isSelected =
+                              _preferences.equipment == option['value'];
                           return _buildSelectionChip(
                             label: option['label'] ?? '',
                             isSelected: isSelected,
-                            onTap: () => _updateEquipment(option['value'] ?? ''),
+                            onTap: () =>
+                                _updateEquipment(option['value'] ?? ''),
                             theme: theme,
                           );
                         }).toList(),
@@ -241,11 +350,13 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
                         spacing: 8,
                         runSpacing: 8,
                         children: _frequencyOptions.map((option) {
-                          final isSelected = _preferences.frequency == option['value'];
+                          final isSelected =
+                              _preferences.frequency == option['value'];
                           return _buildSelectionChip(
                             label: option['label'] ?? '',
                             isSelected: isSelected,
-                            onTap: () => _updateFrequency(option['value'] as int),
+                            onTap: () =>
+                                _updateFrequency(option['value'] as int),
                             theme: theme,
                           );
                         }).toList(),
@@ -265,12 +376,14 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
                         runSpacing: 8,
                         children: _focusAreaOptions.map((option) {
                           final value = option['value'] ?? '';
-                          final isSelected = _preferences.focusAreasList.contains(value);
+                          final isSelected = _preferences.focusAreasList
+                              .contains(value);
                           return _buildFilterChip(
                             label: option['label'] ?? '',
                             isSelected: isSelected,
                             onTap: () {
-                              final currentAreas = _preferences.focusAreasList.toList();
+                              final currentAreas = _preferences.focusAreasList
+                                  .toList();
                               if (isSelected) {
                                 currentAreas.remove(value);
                               } else {
@@ -393,11 +506,7 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             if (isSelected) ...[
-              Icon(
-                Icons.check,
-                size: 16,
-                color: theme.accentColor,
-              ),
+              Icon(Icons.check, size: 16, color: theme.accentColor),
               const SizedBox(width: 6),
             ],
             Text(
