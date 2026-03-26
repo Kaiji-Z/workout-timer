@@ -22,29 +22,23 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   Future<List<dynamic>> _loadAllRecords() async {
     // 加载旧记录
-final oldSessions = await _repository.getAllSessions();
-    
+    final oldSessions = await _repository.getAllSessions();
+
     if (!mounted) return [];
-    
+
     // 获取新记录（从Provider中直接获取，需要先加载）
     final recordProvider = context.read<RecordProvider>();
-    if (recordProvider.recordCount == 0) {
-      await recordProvider.loadRecords();
-    }
+    await recordProvider.loadRecords();
     final newRecords = recordProvider.records;
-    
+
     // 按日期排序
     final allRecords = <dynamic>[...oldSessions, ...newRecords];
     allRecords.sort((a, b) {
-      final dateA = a is WorkoutSession 
-          ? DateTime.parse(a.createdAt) 
-          : a.date;
-      final dateB = b is WorkoutSession 
-          ? DateTime.parse(b.createdAt) 
-          : b.date;
+      final dateA = a is WorkoutSession ? DateTime.parse(a.createdAt) : a.date;
+      final dateB = b is WorkoutSession ? DateTime.parse(b.createdAt) : b.date;
       return dateB.compareTo(dateA);
     });
-    
+
     return allRecords;
   }
 
@@ -103,9 +97,7 @@ final oldSessions = await _repository.getAllSessions();
               height: 20,
               margin: const EdgeInsets.only(right: 12),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: theme.timerGradientColors,
-                ),
+                gradient: LinearGradient(colors: theme.timerGradientColors),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -197,7 +189,7 @@ final oldSessions = await _repository.getAllSessions();
               itemCount: records.length,
               itemBuilder: (context, index) {
                 final record = records[index];
-return ListAnimation(
+                return ListAnimation(
                   index: index,
                   child: record is WorkoutRecord
                       ? _RecordCard(
@@ -245,13 +237,17 @@ return ListAnimation(
     );
   }
 
-  void _navigateToDetail(WorkoutRecord record) {
-    Navigator.push(
+  void _navigateToDetail(WorkoutRecord record) async {
+    await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => RecordDetailScreen(record: record),
       ),
     );
+    // 返回后刷新列表以反映编辑后的数据
+    if (mounted) {
+      setState(() {});
+    }
   }
 }
 
@@ -316,7 +312,10 @@ class _RecordCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   gradient: record.isPlanMode
                       ? LinearGradient(
-                          colors: [theme.accentColor, theme.accentColor.withValues(alpha: 0.8)],
+                          colors: [
+                            theme.accentColor,
+                            theme.accentColor.withValues(alpha: 0.8),
+                          ],
                         )
                       : LinearGradient(
                           colors: [theme.primaryColor, theme.secondaryColor],
@@ -325,7 +324,11 @@ class _RecordCard extends StatelessWidget {
                 ),
                 child: Center(
                   child: record.isPlanMode
-                      ? const Icon(Icons.playlist_add_check, color: Colors.white, size: 24)
+                      ? const Icon(
+                          Icons.playlist_add_check,
+                          color: Colors.white,
+                          size: 24,
+                        )
                       : Text(
                           '${record.totalSets}',
                           style: const TextStyle(
@@ -348,25 +351,28 @@ class _RecordCard extends StatelessWidget {
                       children: [
                         if (record.isPlanMode) ...[
                           Flexible(
-                             child: Container(
-                               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                               decoration: BoxDecoration(
-                                 color: theme.accentColor.withValues(alpha: 0.1),
-                                 borderRadius: BorderRadius.circular(4),
-                               ),
-                               child: Text(
-                                 record.planName ?? '计划模式',
-                                 overflow: TextOverflow.ellipsis,
-                                 maxLines: 1,
-                                 style: TextStyle(
-                                   fontFamily: '.SF Pro Text',
-                                   fontSize: 11,
-                                   fontWeight: FontWeight.w600,
-                                   color: theme.accentColor,
-                                 ),
-                               ),
-                             ),
-                           ),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: theme.accentColor.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                record.planName ?? '计划模式',
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                style: TextStyle(
+                                  fontFamily: '.SF Pro Text',
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                  color: theme.accentColor,
+                                ),
+                              ),
+                            ),
+                          ),
                           const SizedBox(width: 8),
                         ],
                         Text(
@@ -405,7 +411,11 @@ class _RecordCard extends StatelessWidget {
                     // 统计信息
                     Row(
                       children: [
-                        Icon(Icons.timer_outlined, size: 14, color: theme.secondaryTextColor),
+                        Icon(
+                          Icons.timer_outlined,
+                          size: 14,
+                          color: theme.secondaryTextColor,
+                        ),
                         const SizedBox(width: 4),
                         Text(
                           record.durationText,
@@ -416,7 +426,11 @@ class _RecordCard extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 12),
-                        Icon(Icons.repeat, size: 14, color: theme.secondaryTextColor),
+                        Icon(
+                          Icons.repeat,
+                          size: 14,
+                          color: theme.secondaryTextColor,
+                        ),
                         const SizedBox(width: 4),
                         Text(
                           '${record.totalSets}组',
@@ -428,7 +442,11 @@ class _RecordCard extends StatelessWidget {
                         ),
                         if (record.exerciseCount > 0) ...[
                           const SizedBox(width: 12),
-                          Icon(Icons.fitness_center, size: 14, color: theme.secondaryTextColor),
+                          Icon(
+                            Icons.fitness_center,
+                            size: 14,
+                            color: theme.secondaryTextColor,
+                          ),
                           const SizedBox(width: 4),
                           Text(
                             '${record.exerciseCount}动作',
@@ -568,10 +586,7 @@ class _SessionCard extends StatelessWidget {
                 color: theme.borderColor.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Icon(
-                Icons.chevron_right,
-                color: theme.secondaryTextColor,
-              ),
+              child: Icon(Icons.chevron_right, color: theme.secondaryTextColor),
             ),
           ],
         ),
