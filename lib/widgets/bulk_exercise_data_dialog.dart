@@ -152,13 +152,14 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().currentTheme;
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
     return Dialog(
       backgroundColor: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Container(
-        constraints: const BoxConstraints(maxHeight: 600),
-        padding: const EdgeInsets.all(24),
+        constraints: BoxConstraints(maxHeight: 600 - bottomInset),
+        padding: EdgeInsets.fromLTRB(24, 24, 24, 24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
