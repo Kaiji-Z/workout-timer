@@ -8,6 +8,7 @@ class UserPreferences {
   final String equipment;
   final int frequency;
   final String focusAreas;
+  final double bodyWeight;
 
   const UserPreferences({
     this.goal = 'muscle_building',
@@ -15,6 +16,7 @@ class UserPreferences {
     this.equipment = 'gym',
     this.frequency = 4,
     this.focusAreas = '',
+    this.bodyWeight = 0.0,
   });
 
   /// Splits comma-separated focus areas into a list
@@ -29,6 +31,7 @@ class UserPreferences {
     String? equipment,
     int? frequency,
     String? focusAreas,
+    double? bodyWeight,
   }) {
     return UserPreferences(
       goal: goal ?? this.goal,
@@ -36,12 +39,13 @@ class UserPreferences {
       equipment: equipment ?? this.equipment,
       frequency: frequency ?? this.frequency,
       focusAreas: focusAreas ?? this.focusAreas,
+      bodyWeight: bodyWeight ?? this.bodyWeight,
     );
   }
 
   @override
   String toString() {
-    return 'UserPreferences(goal: $goal, experience: $experience, equipment: $equipment, frequency: $frequency, focusAreas: $focusAreas)';
+    return 'UserPreferences(goal: $goal, experience: $experience, equipment: $equipment, frequency: $frequency, focusAreas: $focusAreas, bodyWeight: $bodyWeight)';
   }
 }
 
@@ -52,6 +56,7 @@ class UserPreferencesService {
   static const String _keyEquipment = 'pref_equipment';
   static const String _keyFrequency = 'pref_frequency';
   static const String _keyFocusAreas = 'pref_focus_areas';
+  static const String _keyBodyWeight = 'pref_body_weight';
 
   /// Load user preferences from SharedPreferences
   /// Returns a UserPreferences object with defaults if not set
@@ -64,6 +69,7 @@ class UserPreferencesService {
         equipment: prefs.getString(_keyEquipment) ?? 'gym',
         frequency: prefs.getInt(_keyFrequency) ?? 4,
         focusAreas: prefs.getString(_keyFocusAreas) ?? '',
+        bodyWeight: prefs.getDouble(_keyBodyWeight) ?? 0.0,
       );
     } catch (e) {
       debugPrint('Error loading user preferences: $e');
@@ -80,6 +86,9 @@ class UserPreferencesService {
       await sharedPreferences.setString(_keyEquipment, prefs.equipment);
       await sharedPreferences.setInt(_keyFrequency, prefs.frequency);
       await sharedPreferences.setString(_keyFocusAreas, prefs.focusAreas);
+      if (prefs.bodyWeight > 0) {
+        await sharedPreferences.setDouble(_keyBodyWeight, prefs.bodyWeight);
+      }
     } catch (e) {
       debugPrint('Error saving user preferences: $e');
     }

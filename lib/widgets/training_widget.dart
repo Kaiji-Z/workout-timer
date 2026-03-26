@@ -19,7 +19,7 @@ import 'bulk_exercise_data_dialog.dart';
 import 'set_record_dialog.dart';
 
 /// 训练主界面 - 极简设计
-/// 
+///
 /// 布局：一屏显示，无需滚动
 /// - 顶部标题 + 计划图标入口
 /// - 极简进度行（计划模式）
@@ -33,11 +33,12 @@ class TrainingWidget extends StatefulWidget {
   State<TrainingWidget> createState() => _TrainingWidgetState();
 }
 
-class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObserver {
+class _TrainingWidgetState extends State<TrainingWidget>
+    with WidgetsBindingObserver {
   bool _isPlanMode = false;
   WorkoutPlan? _selectedPlan;
   bool _detailedRecordingEnabled = false;
-   
+
   @override
   void initState() {
     super.initState();
@@ -67,7 +68,7 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
       }
     }
   }
-  
+
   String _formatTime(int seconds) {
     final minutes = seconds ~/ 60;
     final remainingSeconds = seconds % 60;
@@ -85,29 +86,27 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
         // 同步计划模式状态
         _isPlanMode = progressProvider.isPlanMode;
         _selectedPlan = progressProvider.currentPlan;
-        
+
         return SafeArea(
           bottom: false,
           child: Column(
             children: [
               // 顶部标题 + 计划图标
               _buildHeader(theme, planProvider, progressProvider),
-              
+
               // 极简进度行（计划模式下显示）
               if (_isPlanMode && _selectedPlan != null)
                 _buildCompactProgress(progressProvider, theme),
-              
+
               // 计时器 - 占用剩余空间
-              Expanded(
-                child: _buildMainContent(training, theme),
-              ),
-              
+              Expanded(child: _buildMainContent(training, theme)),
+
               // 状态徽章
               _buildStatusBadge(training, theme, progressProvider),
-              
+
               // 按钮区域
               _buildButtonArea(context, training, theme, progressProvider),
-              
+
               // 底部导航栏空间
               const SizedBox(height: 80),
             ],
@@ -118,7 +117,11 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
   }
 
   /// 顶部标题 + 计划图标入口
-  Widget _buildHeader(AppThemeData theme, PlanProvider planProvider, TrainingProgressProvider progressProvider) {
+  Widget _buildHeader(
+    AppThemeData theme,
+    PlanProvider planProvider,
+    TrainingProgressProvider progressProvider,
+  ) {
     return Padding(
       padding: const EdgeInsets.only(top: 12, bottom: 12, left: 20, right: 16),
       child: Row(
@@ -133,7 +136,7 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
                 fontFamily: '.SF Pro Display',
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
-                letterSpacing: -0.5,  // Match other pages
+                letterSpacing: -0.5, // Match other pages
                 color: theme.textColor,
               ),
               textAlign: TextAlign.center,
@@ -141,11 +144,12 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
           ),
           // Plan icon button
           GestureDetector(
-            onTap: () => _showPlanSelector(theme, planProvider, progressProvider),
+            onTap: () =>
+                _showPlanSelector(theme, planProvider, progressProvider),
             child: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: _isPlanMode 
+                color: _isPlanMode
                     ? theme.accentColor.withValues(alpha: 0.1)
                     : Colors.transparent,
                 borderRadius: BorderRadius.circular(8),
@@ -153,7 +157,9 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
               child: Icon(
                 Icons.playlist_add_check,
                 size: 24,
-                color: _isPlanMode ? theme.accentColor : theme.secondaryTextColor,
+                color: _isPlanMode
+                    ? theme.accentColor
+                    : theme.secondaryTextColor,
               ),
             ),
           ),
@@ -163,7 +169,10 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
   }
 
   /// 极简进度行
-  Widget _buildCompactProgress(TrainingProgressProvider progressProvider, AppThemeData theme) {
+  Widget _buildCompactProgress(
+    TrainingProgressProvider progressProvider,
+    AppThemeData theme,
+  ) {
     final currentExercise = progressProvider.currentExercise;
     if (currentExercise == null) return const SizedBox.shrink();
 
@@ -207,9 +216,7 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
 
   /// 主内容区域 - 计时器
   Widget _buildMainContent(TrainingProvider training, AppThemeData theme) {
-    return Center(
-      child: _buildTimerDisplay(training, theme),
-    );
+    return Center(child: _buildTimerDisplay(training, theme));
   }
 
   /// 计时器显示
@@ -233,8 +240,8 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
             theme: theme,
             size: 240,
             isCountdown: true,
-            progress: training.restDuration > 0 
-                ? training.restRemaining / training.restDuration 
+            progress: training.restDuration > 0
+                ? training.restRemaining / training.restDuration
                 : 0,
           ),
         ],
@@ -343,7 +350,11 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
   }
 
   /// 状态徽章
-  Widget _buildStatusBadge(TrainingProvider training, AppThemeData theme, TrainingProgressProvider progressProvider) {
+  Widget _buildStatusBadge(
+    TrainingProvider training,
+    AppThemeData theme,
+    TrainingProgressProvider progressProvider,
+  ) {
     Color color;
     String text;
     IconData icon;
@@ -352,7 +363,8 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
       color = theme.progressRingColor;
       if (_isPlanMode && progressProvider.currentExercise != null) {
         final exercise = progressProvider.currentExercise!;
-        text = '${exercise.name} · 第${progressProvider.currentSetInExercise + 1}组 · 运动中';
+        text =
+            '${exercise.name} · 第${progressProvider.currentSetInExercise + 1}组 · 运动中';
       } else {
         text = '第 ${training.currentSet} 组 · 运动中';
       }
@@ -361,7 +373,8 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
       color = theme.progressRingColor;
       if (_isPlanMode && progressProvider.currentExercise != null) {
         final exercise = progressProvider.currentExercise!;
-        text = '${exercise.name} · 已完成${progressProvider.currentSetInExercise}组 · 休息中';
+        text =
+            '${exercise.name} · 已完成${progressProvider.currentSetInExercise}组 · 休息中';
       } else {
         text = '第 ${training.currentSet} 组 · 休息中';
       }
@@ -386,16 +399,17 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
-      child: StatusBadge(
-        text: text,
-        color: color,
-        icon: icon,
-      ),
+      child: StatusBadge(text: text, color: color, icon: icon),
     );
   }
 
   /// 按钮区域 - 主按钮在右侧
-  Widget _buildButtonArea(BuildContext context, TrainingProvider training, AppThemeData theme, TrainingProgressProvider progressProvider) {
+  Widget _buildButtonArea(
+    BuildContext context,
+    TrainingProvider training,
+    AppThemeData theme,
+    TrainingProgressProvider progressProvider,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: _buildButtonsForState(context, training, theme, progressProvider),
@@ -403,7 +417,12 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
   }
 
   /// 根据状态构建按钮
-  Widget _buildButtonsForState(BuildContext context, TrainingProvider training, AppThemeData theme, TrainingProgressProvider progressProvider) {
+  Widget _buildButtonsForState(
+    BuildContext context,
+    TrainingProvider training,
+    AppThemeData theme,
+    TrainingProgressProvider progressProvider,
+  ) {
     // 空闲状态：设置按钮 | 开始(主按钮)
     if (training.isIdle) {
       return Row(
@@ -419,7 +438,9 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
             icon: Icons.play_arrow_rounded,
             onPressed: () {
               training.startExercise();
-              if (_isPlanMode && _selectedPlan != null && progressProvider.startTime == null) {
+              if (_isPlanMode &&
+                  _selectedPlan != null &&
+                  progressProvider.startTime == null) {
                 progressProvider.startPlan(_selectedPlan!);
               }
             },
@@ -444,11 +465,15 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
             onPressed: () {
               if (_isPlanMode && progressProvider.currentExercise != null) {
                 final completedExercise = progressProvider.currentExercise!;
-                final completedSetNumber = progressProvider.currentSetInExercise + 1;
+                final completedSetNumber =
+                    progressProvider.currentSetInExercise + 1;
                 progressProvider.completeSet();
                 _showSetRecordDialogAndEndWorkout(
-                  context, training, progressProvider,
-                  completedExercise, completedSetNumber,
+                  context,
+                  training,
+                  progressProvider,
+                  completedExercise,
+                  completedSetNumber,
                 );
               } else {
                 if (_isPlanMode) {
@@ -459,39 +484,49 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
             },
           ),
           const SizedBox(width: 16),
-        PrimaryActionButton(
-          label: '休息',
-          icon: Icons.self_improvement,
-          onPressed: () {
-            if (_isPlanMode) {
-              // 在 completeSet 之前捕获当前动作和组号（刚完成的）
-              final completedExercise = progressProvider.currentExercise;
-              final completedSetNumber = progressProvider.currentSetInExercise + 1;
-              
-              progressProvider.completeSet();
-              
-              if (progressProvider.isAllExercisesComplete) {
-                // 最后一组：弹出记录对话框后结束训练（不开始休息，保持 exercising 状态）
-                if (completedExercise != null) {
-                  _showSetRecordDialogAndEndWorkout(
-                    context, training, progressProvider, 
-                    completedExercise, completedSetNumber,
-                  );
-                } else {
-                  training.endWorkout();
+          PrimaryActionButton(
+            label: '休息',
+            icon: Icons.self_improvement,
+            onPressed: () {
+              if (_isPlanMode) {
+                // 在 completeSet 之前捕获当前动作和组号（刚完成的）
+                final completedExercise = progressProvider.currentExercise;
+                final completedSetNumber =
+                    progressProvider.currentSetInExercise + 1;
+
+                progressProvider.completeSet();
+
+                if (progressProvider.isAllExercisesComplete) {
+                  // 最后一组：弹出记录对话框后结束训练（不开始休息，保持 exercising 状态）
+                  if (completedExercise != null) {
+                    _showSetRecordDialogAndEndWorkout(
+                      context,
+                      training,
+                      progressProvider,
+                      completedExercise,
+                      completedSetNumber,
+                    );
+                  } else {
+                    training.endWorkout();
+                  }
+                  return;
                 }
-                return;
+                training.startRest();
+                // 计划模式：休息开始时弹出记录对话框（传入刚完成的动作信息）
+                if (completedExercise != null) {
+                  _showSetRecordDialog(
+                    context,
+                    training,
+                    progressProvider,
+                    completedExercise,
+                    completedSetNumber,
+                  );
+                }
+              } else {
+                training.startRest();
               }
-              training.startRest();
-              // 计划模式：休息开始时弹出记录对话框（传入刚完成的动作信息）
-              if (completedExercise != null) {
-                _showSetRecordDialog(context, training, progressProvider, completedExercise, completedSetNumber);
-              }
-            } else {
-              training.startRest();
-            }
-          },
-        ),
+            },
+          ),
         ],
       );
     }
@@ -507,11 +542,15 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
             onPressed: () {
               if (_isPlanMode && progressProvider.currentExercise != null) {
                 final completedExercise = progressProvider.currentExercise!;
-                final completedSetNumber = progressProvider.currentSetInExercise + 1;
+                final completedSetNumber =
+                    progressProvider.currentSetInExercise + 1;
                 progressProvider.completeSet();
                 _showSetRecordDialogAndEndWorkout(
-                  context, training, progressProvider,
-                  completedExercise, completedSetNumber,
+                  context,
+                  training,
+                  progressProvider,
+                  completedExercise,
+                  completedSetNumber,
                 );
               } else {
                 if (_isPlanMode) {
@@ -569,7 +608,8 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
           PrimaryActionButton(
             label: '保存',
             icon: Icons.save,
-            onPressed: () => _saveWorkout(context, training, theme, progressProvider),
+            onPressed: () =>
+                _saveWorkout(context, training, theme, progressProvider),
           ),
         ],
       );
@@ -579,9 +619,13 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
   }
 
   /// 显示计划选择器
-  void _showPlanSelector(AppThemeData theme, PlanProvider planProvider, TrainingProgressProvider progressProvider) {
+  void _showPlanSelector(
+    AppThemeData theme,
+    PlanProvider planProvider,
+    TrainingProgressProvider progressProvider,
+  ) {
     final plans = planProvider.plans;
-    
+
     if (plans.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -591,7 +635,7 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
       );
       return;
     }
-    
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,
@@ -633,10 +677,7 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
                       progressProvider.endPlan();
                       Navigator.pop(context);
                     },
-                    child: Text(
-                      '取消计划',
-                      style: TextStyle(color: Colors.red),
-                    ),
+                    child: Text('取消计划', style: TextStyle(color: Colors.red)),
                   ),
               ],
             ),
@@ -653,7 +694,9 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: isSelected ? theme.accentColor : theme.accentColor.withValues(alpha: 0.1),
+                        color: isSelected
+                            ? theme.accentColor
+                            : theme.accentColor.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Icon(
@@ -663,7 +706,9 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
                     ),
                     title: Text(plan.name),
                     subtitle: Text(plan.targetMusclesText),
-                    trailing: Text('${plan.exerciseCount}动作 · ${plan.totalSets}组'),
+                    trailing: Text(
+                      '${plan.exerciseCount}动作 · ${plan.totalSets}组',
+                    ),
                     selected: isSelected,
                     onTap: () {
                       progressProvider.startPlan(plan);
@@ -688,22 +733,25 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
     int completedSetNumber,
   ) async {
     // 获取之前保存的数据（如果有）
-    final existingData = progressProvider.getExerciseSetsData(completedExercise.exerciseId);
+    final existingData = progressProvider.getExerciseSetsData(
+      completedExercise.exerciseId,
+    );
     SetData? lastSetData;
     if (existingData.isNotEmpty) {
       lastSetData = existingData.last;
     }
-    
+
     if (!context.mounted) return;
-    
+
     final setData = await SetRecordDialog.show(
       context,
       exerciseName: completedExercise.name,
       setNumber: completedSetNumber,
       initialReps: lastSetData?.reps,
       initialWeight: lastSetData?.weight,
+      exercise: completedExercise.exercise,
     );
-    
+
     if (setData != null && context.mounted) {
       progressProvider.addSetData(completedExercise.exerciseId, setData);
     }
@@ -717,26 +765,29 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
     PlanExercise completedExercise,
     int completedSetNumber,
   ) async {
-    final existingData = progressProvider.getExerciseSetsData(completedExercise.exerciseId);
+    final existingData = progressProvider.getExerciseSetsData(
+      completedExercise.exerciseId,
+    );
     SetData? lastSetData;
     if (existingData.isNotEmpty) {
       lastSetData = existingData.last;
     }
-    
+
     if (!context.mounted) return;
-    
+
     final setData = await SetRecordDialog.show(
       context,
       exerciseName: completedExercise.name,
       setNumber: completedSetNumber,
       initialReps: lastSetData?.reps,
       initialWeight: lastSetData?.weight,
+      exercise: completedExercise.exercise,
     );
-    
+
     if (setData != null && context.mounted) {
       progressProvider.addSetData(completedExercise.exerciseId, setData);
     }
-    
+
     // 对话框关闭后结束训练
     if (context.mounted) {
       training.endWorkout();
@@ -755,7 +806,12 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
   }
 
   /// 保存训练记录
-  Future<void> _saveWorkout(BuildContext context, TrainingProvider training, AppThemeData theme, TrainingProgressProvider progressProvider) async {
+  Future<void> _saveWorkout(
+    BuildContext context,
+    TrainingProvider training,
+    AppThemeData theme,
+    TrainingProgressProvider progressProvider,
+  ) async {
     try {
       if (_isPlanMode && _selectedPlan != null) {
         // 计划模式：先显示批量数据输入对话框
@@ -770,7 +826,7 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
                   : null,
             ),
           );
-          
+
           // 如果用户输入了数据，替换 progressProvider 中的数据（而非追加，避免重复）
           if (exerciseData != null) {
             for (final entry in exerciseData.entries) {
@@ -778,18 +834,20 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
             }
           }
         }
-        
+
         // 保存带详细动作的记录
         final record = progressProvider.generateRecord();
         await context.read<RecordProvider>().saveRecord(record);
-        
+
         training.resetWorkout();
         progressProvider.endPlan();
-        
+
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('训练已保存：${record.totalSets}组，总时长 ${record.durationText}'),
+              content: Text(
+                '训练已保存：${record.totalSets}组，总时长 ${record.durationText}',
+              ),
               backgroundColor: theme.progressRingColor,
               behavior: SnackBarBehavior.floating,
             ),
@@ -810,7 +868,9 @@ class _TrainingWidgetState extends State<TrainingWidget> with WidgetsBindingObse
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('训练已保存：完成${data['totalSets']}组，总时长 ${training.sessionDurationFormatted}'),
+              content: Text(
+                '训练已保存：完成${data['totalSets']}组，总时长 ${training.sessionDurationFormatted}',
+              ),
               backgroundColor: theme.progressRingColor,
               behavior: SnackBarBehavior.floating,
             ),
