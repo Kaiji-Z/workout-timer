@@ -6,6 +6,7 @@ import '../models/workout_session.dart';
 import '../models/workout_record.dart';
 import '../models/muscle_group.dart';
 import '../services/workout_repository.dart';
+import '../services/stats_calculator_service.dart';
 import '../bloc/record_provider.dart';
 import 'ai_analysis_screen.dart';
 
@@ -16,9 +17,11 @@ class StatsScreen extends StatefulWidget {
   State<StatsScreen> createState() => _StatsScreenState();
 }
 
-class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStateMixin {
+class _StatsScreenState extends State<StatsScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final WorkoutRepository _repository = WorkoutRepository();
+  final StatsCalculatorService _statsCalc = StatsCalculatorService();
   List<WorkoutSession> _oldSessions = [];
   List<WorkoutRecord> _newRecords = [];
   bool _isLoading = true;
@@ -109,7 +112,9 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
   /// 导航周（-1上一周，1下一周）
   void _navigateWeek(int direction) {
     setState(() {
-      _selectedWeekStart = _selectedWeekStart.add(Duration(days: 7 * direction));
+      _selectedWeekStart = _selectedWeekStart.add(
+        Duration(days: 7 * direction),
+      );
       // 不允许导航到未来的周
       final now = DateTime.now();
       final thisWeekStart = _getStartOfWeek(now);
@@ -145,13 +150,19 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
   /// 按选中的周筛选记录
   List<dynamic> _filterBySelectedWeek() {
     final weekStart = _getStartOfWeek(_selectedWeekStart);
-    final startOfWeek = DateTime(weekStart.year, weekStart.month, weekStart.day);
+    final startOfWeek = DateTime(
+      weekStart.year,
+      weekStart.month,
+      weekStart.day,
+    );
     final endOfWeek = startOfWeek.add(const Duration(days: 7));
 
     return _getAllRecords().where((record) {
       DateTime date = _getRecordDate(record);
-      return date.isAfter(startOfWeek.subtract(const Duration(milliseconds: 1))) &&
-             date.isBefore(endOfWeek);
+      return date.isAfter(
+            startOfWeek.subtract(const Duration(milliseconds: 1)),
+          ) &&
+          date.isBefore(endOfWeek);
     }).toList();
   }
 
@@ -166,12 +177,18 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
   /// 按指定周的周一筛选记录（参数化版本，用于获取上一周期数据）
   List<dynamic> _filterByWeek(DateTime referenceDate) {
     final weekStart = _getStartOfWeek(referenceDate);
-    final startOfWeek = DateTime(weekStart.year, weekStart.month, weekStart.day);
+    final startOfWeek = DateTime(
+      weekStart.year,
+      weekStart.month,
+      weekStart.day,
+    );
     final endOfWeek = startOfWeek.add(const Duration(days: 7));
     return _getAllRecords().where((record) {
       DateTime date = _getRecordDate(record);
-      return date.isAfter(startOfWeek.subtract(const Duration(milliseconds: 1))) &&
-             date.isBefore(endOfWeek);
+      return date.isAfter(
+            startOfWeek.subtract(const Duration(milliseconds: 1)),
+          ) &&
+          date.isBefore(endOfWeek);
     }).toList();
   }
 
@@ -231,7 +248,8 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
         final date = _getRecordDate(record);
         final dayIndex = date.difference(weekStart).inDays;
         if (dayIndex >= 0 && dayIndex < 7) {
-          durations[dayIndex] = (durations[dayIndex] ?? 0) + _getRecordDuration(record);
+          durations[dayIndex] =
+              (durations[dayIndex] ?? 0) + _getRecordDuration(record);
         }
       }
     } else {
@@ -243,7 +261,8 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
       for (final record in records) {
         final date = _getRecordDate(record);
         if (date.year == _selectedYear && date.month == _selectedMonth) {
-          durations[date.day] = (durations[date.day] ?? 0) + _getRecordDuration(record);
+          durations[date.day] =
+              (durations[date.day] ?? 0) + _getRecordDuration(record);
         }
       }
     }
@@ -302,7 +321,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
     for (final record in records) {
       final date = _getRecordDate(record);
       uniqueDays.add('${date.year}-${date.month}-${date.day}');
-      
+
       if (record is WorkoutRecord && record.trainedMuscles.isNotEmpty) {
         for (final muscle in record.trainedMuscles) {
           muscleFrequency[muscle] = (muscleFrequency[muscle] ?? 0) + 1;
@@ -313,7 +332,8 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
     return {
       'sessionCount': records.length,
       'workoutDays': uniqueDays.length,
-        'avgSessionsPerWeek': records.length / (uniqueDays.isNotEmpty ? uniqueDays.length / 7 : 1),
+      'avgSessionsPerWeek':
+          records.length / (uniqueDays.isNotEmpty ? uniqueDays.length / 7 : 1),
       'muscleFrequency': muscleFrequency,
     };
   }
@@ -348,7 +368,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
   String formatDuration(int seconds) {
     final hours = seconds ~/ 3600;
     final minutes = (seconds % 3600) ~/ 60;
-    
+
     if (hours > 0) {
       return '${hours}h ${minutes}m';
     } else {
@@ -424,17 +444,16 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
           ? Center(child: CircularProgressIndicator(color: theme.primaryColor))
           : TabBarView(
               controller: _tabController,
-              children: [
-                _buildWeekView(theme),
-                _buildMonthView(theme),
-              ],
+              children: [_buildWeekView(theme), _buildMonthView(theme)],
             ),
     );
   }
 
-
-
-  Widget _buildSection(String title, AppThemeData theme, List<Widget> children) {
+  Widget _buildSection(
+    String title,
+    AppThemeData theme,
+    List<Widget> children,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -472,7 +491,10 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
   }
 
   /// 训练频率概览
-  Widget _buildFrequencyOverview(Map<String, dynamic> stats, AppThemeData theme) {
+  Widget _buildFrequencyOverview(
+    Map<String, dynamic> stats,
+    AppThemeData theme,
+  ) {
     return Row(
       children: [
         Expanded(
@@ -500,7 +522,8 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
         Expanded(
           child: _buildMetricCard(
             '周均训练',
-            '${(stats['avgSessionsPerWeek'] as double).toStringAsFixed(1)} 次',            '次',
+            '${(stats['avgSessionsPerWeek'] as double).toStringAsFixed(1)} 次',
+            '次',
             Icons.trending_up,
             theme.accentColor,
             theme,
@@ -549,9 +572,21 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildSubMetric('平均组数/次', '${(stats['avgSetsPerSession'] as double).toStringAsFixed(1)} 组', theme),
-              Container(width: 1, height: 30, color: theme.textColor.withValues(alpha: 0.1)),
-              _buildSubMetric('平均时长/次', formatDuration(stats['avgDurationPerSession'] as int), theme),
+              _buildSubMetric(
+                '平均组数/次',
+                '${(stats['avgSetsPerSession'] as double).toStringAsFixed(1)} 组',
+                theme,
+              ),
+              Container(
+                width: 1,
+                height: 30,
+                color: theme.textColor.withValues(alpha: 0.1),
+              ),
+              _buildSubMetric(
+                '平均时长/次',
+                formatDuration(stats['avgDurationPerSession'] as int),
+                theme,
+              ),
             ],
           ),
         ),
@@ -559,7 +594,14 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
     );
   }
 
-  Widget _buildMetricCard(String label, String value, String unit, IconData icon, Color color, AppThemeData theme) {
+  Widget _buildMetricCard(
+    String label,
+    String value,
+    String unit,
+    IconData icon,
+    Color color,
+    AppThemeData theme,
+  ) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
       decoration: BoxDecoration(
@@ -628,6 +670,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
   /// 周视图
   Widget _buildWeekView(AppThemeData theme) {
     final records = _filterBySelectedWeek();
+    final workoutRecords = records.whereType<WorkoutRecord>().toList();
     final frequencyStats = _calculateFrequencyStats(records);
     final volumeStats = _calculateVolumeStats(records);
     final dailyDurations = _getDailyDurations(records, true);
@@ -656,19 +699,43 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
 
           // 每日训练时长图表
           _buildSection('每日训练时长', theme, [
-            _buildDailyDurationChart(dailyDurations, dailySets, theme, isWeekView: true, days: 7),
+            _buildDailyDurationChart(
+              dailyDurations,
+              dailySets,
+              theme,
+              isWeekView: true,
+              days: 7,
+            ),
           ]),
           const SizedBox(height: 20),
 
-          // 恢复状态
+          // 力量进步
+          _buildSection('力量进步', theme, [
+            _buildStrengthProgressSection(workoutRecords, theme),
+          ]),
+          const SizedBox(height: 20),
+
+          // 肌群容量分布
+          _buildSection('肌群容量分布', theme, [
+            _buildMuscleVolumeChart(workoutRecords, theme),
+          ]),
+          const SizedBox(height: 20),
+
+          // 恢复状态 (refactored with secondary muscles)
           _buildSection('恢复状态', theme, [
-            _buildRecoveryStatusList(_calculateRecoveryData(records), theme),
+            _buildSecondaryRecoveryStatusList(
+              _calculateSecondaryRecoveryData(workoutRecords),
+              theme,
+            ),
           ]),
           const SizedBox(height: 20),
 
           // 常用动作
           _buildSection('常用动作', theme, [
-            _buildCommonExercisesChart(_calculateCommonExercises(records), theme),
+            _buildCommonExercisesChart(
+              _calculateCommonExercises(records),
+              theme,
+            ),
           ]),
           const SizedBox(height: 20),
 
@@ -689,6 +756,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
   /// 月视图
   Widget _buildMonthView(AppThemeData theme) {
     final records = _filterBySelectedMonth();
+    final workoutRecords = records.whereType<WorkoutRecord>().toList();
     final frequencyStats = _calculateFrequencyStats(records);
     final volumeStats = _calculateVolumeStats(records);
     final monthlyCounts = _getMonthlyCounts(_selectedYear);
@@ -718,15 +786,33 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
           ]),
           const SizedBox(height: 20),
 
-          // 恢复状态
+          // 力量进步
+          _buildSection('力量进步', theme, [
+            _buildStrengthProgressSection(workoutRecords, theme),
+          ]),
+          const SizedBox(height: 20),
+
+          // 肌群容量分布
+          _buildSection('肌群容量分布', theme, [
+            _buildMuscleVolumeChart(workoutRecords, theme),
+          ]),
+          const SizedBox(height: 20),
+
+          // 恢复状态 (refactored with secondary muscles)
           _buildSection('恢复状态', theme, [
-            _buildRecoveryStatusList(_calculateRecoveryData(records), theme),
+            _buildSecondaryRecoveryStatusList(
+              _calculateSecondaryRecoveryData(workoutRecords),
+              theme,
+            ),
           ]),
           const SizedBox(height: 20),
 
           // 常用动作
           _buildSection('常用动作', theme, [
-            _buildCommonExercisesChart(_calculateCommonExercises(records), theme),
+            _buildCommonExercisesChart(
+              _calculateCommonExercises(records),
+              theme,
+            ),
           ]),
           const SizedBox(height: 20),
 
@@ -749,7 +835,15 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
     final weekDays = _getWeekDays(weekStart);
     final today = DateTime.now();
     final workoutDays = _getWorkoutDaysInWeek();
-    final canGoNext = weekStart.add(const Duration(days: 7)).isBefore(DateTime(today.year, today.month, today.day).add(const Duration(days: 1)));
+    final canGoNext = weekStart
+        .add(const Duration(days: 7))
+        .isBefore(
+          DateTime(
+            today.year,
+            today.month,
+            today.day,
+          ).add(const Duration(days: 1)),
+        );
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -797,7 +891,12 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
               ),
               IconButton(
                 onPressed: canGoNext ? () => _navigateWeek(1) : null,
-                icon: Icon(Icons.chevron_right, color: canGoNext ? theme.textColor : theme.secondaryTextColor.withValues(alpha: 0.3)),
+                icon: Icon(
+                  Icons.chevron_right,
+                  color: canGoNext
+                      ? theme.textColor
+                      : theme.secondaryTextColor.withValues(alpha: 0.3),
+                ),
               ),
             ],
           ),
@@ -807,9 +906,10 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: List.generate(7, (index) {
               final day = weekDays[index];
-              final isToday = day.year == today.year &&
-                              day.month == today.month &&
-                              day.day == today.day;
+              final isToday =
+                  day.year == today.year &&
+                  day.month == today.month &&
+                  day.day == today.day;
               final hasWorkout = workoutDays.contains(index);
               final dayNames = ['一', '二', '三', '四', '五', '六', '日'];
 
@@ -832,8 +932,8 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
                         color: isToday
                             ? const Color(0xFF1A237E)
                             : hasWorkout
-                                ? theme.primaryColor.withValues(alpha: 0.2)
-                                : Colors.transparent,
+                            ? theme.primaryColor.withValues(alpha: 0.2)
+                            : Colors.transparent,
                         borderRadius: BorderRadius.circular(18),
                         border: isToday
                             ? null
@@ -850,12 +950,14 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
                           style: TextStyle(
                             fontFamily: '.SF Pro Display',
                             fontSize: 14,
-                            fontWeight: isToday ? FontWeight.w700 : FontWeight.w500,
+                            fontWeight: isToday
+                                ? FontWeight.w700
+                                : FontWeight.w500,
                             color: isToday
                                 ? Colors.white
                                 : hasWorkout
-                                    ? theme.primaryColor
-                                    : theme.textColor,
+                                ? theme.primaryColor
+                                : theme.textColor,
                           ),
                         ),
                       ),
@@ -902,7 +1004,9 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
             ),
           ),
           IconButton(
-            onPressed: _selectedYear < DateTime.now().year ? () => _navigateYear(1) : null,
+            onPressed: _selectedYear < DateTime.now().year
+                ? () => _navigateYear(1)
+                : null,
             icon: Icon(
               Icons.chevron_right,
               color: _selectedYear < DateTime.now().year
@@ -917,7 +1021,20 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
 
   /// 月份网格
   Widget _buildMonthGrid(Map<int, int> counts, AppThemeData theme) {
-    final monthNames = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
+    final monthNames = [
+      '1月',
+      '2月',
+      '3月',
+      '4月',
+      '5月',
+      '6月',
+      '7月',
+      '8月',
+      '9月',
+      '10月',
+      '11月',
+      '12月',
+    ];
     final now = DateTime.now();
     final maxCount = counts.values.fold(0, (max, e) => e > max ? e : max);
 
@@ -942,13 +1059,15 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
           const mainAxisSpacing = 8.0;
           const columns = 4;
           const rows = 3;
-          
+
           // 计算单元格大小（正方形）
-          final cellWidth = (constraints.maxWidth - (columns - 1) * crossAxisSpacing) / columns;
-          
+          final cellWidth =
+              (constraints.maxWidth - (columns - 1) * crossAxisSpacing) /
+              columns;
+
           // 计算网格总高度
           final gridHeight = rows * cellWidth + (rows - 1) * mainAxisSpacing;
-          
+
           return SizedBox(
             height: gridHeight,
             child: GridView.builder(
@@ -973,7 +1092,10 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
                     decoration: BoxDecoration(
                       gradient: isSelected
                           ? LinearGradient(
-                              colors: [theme.primaryColor, theme.secondaryColor],
+                              colors: [
+                                theme.primaryColor,
+                                theme.secondaryColor,
+                              ],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                             )
@@ -981,10 +1103,12 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
                       color: isSelected
                           ? null
                           : isFuture
-                              ? theme.textColor.withValues(alpha: 0.05)
-                              : intensity > 0
-                                  ? theme.primaryColor.withValues(alpha: 0.1 + intensity * 0.3)
-                                  : theme.textColor.withValues(alpha: 0.05),
+                          ? theme.textColor.withValues(alpha: 0.05)
+                          : intensity > 0
+                          ? theme.primaryColor.withValues(
+                              alpha: 0.1 + intensity * 0.3,
+                            )
+                          : theme.textColor.withValues(alpha: 0.05),
                       borderRadius: BorderRadius.circular(12),
                       border: isSelected
                           ? null
@@ -1002,12 +1126,16 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
                           style: TextStyle(
                             fontFamily: '.SF Pro Text',
                             fontSize: 12,
-                            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                            fontWeight: isSelected
+                                ? FontWeight.w600
+                                : FontWeight.w500,
                             color: isSelected
                                 ? Colors.white
                                 : isFuture
-                                    ? theme.secondaryTextColor.withValues(alpha: 0.3)
-                                    : theme.textColor,
+                                ? theme.secondaryTextColor.withValues(
+                                    alpha: 0.3,
+                                  )
+                                : theme.textColor,
                           ),
                         ),
                         if (count > 0) ...[
@@ -1037,7 +1165,13 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
   }
 
   /// 每日训练时长图表
-  Widget _buildDailyDurationChart(Map<int, int> durations, Map<int, int> sets, AppThemeData theme, {required bool isWeekView, int? days}) {
+  Widget _buildDailyDurationChart(
+    Map<int, int> durations,
+    Map<int, int> sets,
+    AppThemeData theme, {
+    required bool isWeekView,
+    int? days,
+  }) {
     final maxDuration = durations.values.fold(0, (max, e) => e > max ? e : max);
     final displayDays = days ?? (isWeekView ? 7 : 31);
 
@@ -1056,7 +1190,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
       );
     }
 
-return Column(
+    return Column(
       children: [
         // 图例
         Row(
@@ -1066,7 +1200,9 @@ return Column(
               width: 12,
               height: 12,
               decoration: BoxDecoration(
-                gradient: LinearGradient(colors: [theme.primaryColor, theme.secondaryColor]),
+                gradient: LinearGradient(
+                  colors: [theme.primaryColor, theme.secondaryColor],
+                ),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -1094,14 +1230,18 @@ return Column(
                     final key = isWeekView ? index : index + 1;
                     final duration = durations[key] ?? 0;
                     final setCount = sets[key] ?? 0;
-                    final heightPercent = maxDuration > 0 ? duration / maxDuration : 0.0;
+                    final heightPercent = maxDuration > 0
+                        ? duration / maxDuration
+                        : 0.0;
                     final barHeight = (heightPercent * 70).clamp(4.0, 70.0);
 
                     return Expanded(
                       child: Align(
                         alignment: Alignment.bottomCenter,
                         child: Container(
-                          margin: EdgeInsets.symmetric(horizontal: isWeekView ? 2 : 1),
+                          margin: EdgeInsets.symmetric(
+                            horizontal: isWeekView ? 2 : 1,
+                          ),
                           height: barHeight + 40, // 柱状条高度 + 数字空间
                           child: Stack(
                             alignment: Alignment.bottomCenter,
@@ -1116,11 +1256,18 @@ return Column(
                                       ? LinearGradient(
                                           begin: Alignment.bottomCenter,
                                           end: Alignment.topCenter,
-                                          colors: [theme.primaryColor, theme.secondaryColor],
+                                          colors: [
+                                            theme.primaryColor,
+                                            theme.secondaryColor,
+                                          ],
                                         )
                                       : null,
-                                  color: duration > 0 ? null : theme.textColor.withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(isWeekView ? 4 : 2),
+                                  color: duration > 0
+                                      ? null
+                                      : theme.textColor.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(
+                                    isWeekView ? 4 : 2,
+                                  ),
                                 ),
                               ),
                               // 数字 - 在柱状条上方
@@ -1130,7 +1277,8 @@ return Column(
                                   children: [
                                     if (duration > 0 || setCount > 0)
                                       Column(
-                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
                                         children: [
                                           Text(
                                             formatDuration(duration),
@@ -1169,20 +1317,25 @@ return Column(
                 children: List.generate(displayDays, (index) {
                   final key = isWeekView ? index : index + 1;
                   // 月视图只显示部分日期标签（1, 5, 10, 15, 20, 25, 月末）
-                  final daysInMonth = DateTime(_selectedYear, _selectedMonth + 1, 0).day;
-                  final bool showLabel = isWeekView || 
-                      key == 1 || 
-                      key == 5 || 
-                      key == 10 || 
-                      key == 15 || 
-                      key == 20 || 
-                      key == 25 || 
+                  final daysInMonth = DateTime(
+                    _selectedYear,
+                    _selectedMonth + 1,
+                    0,
+                  ).day;
+                  final bool showLabel =
+                      isWeekView ||
+                      key == 1 ||
+                      key == 5 ||
+                      key == 10 ||
+                      key == 15 ||
+                      key == 20 ||
+                      key == 25 ||
                       key == daysInMonth;
-                  
+
                   return Expanded(
                     child: Text(
-                      isWeekView 
-                          ? ['一', '二', '三', '四', '五', '六', '日'][index] 
+                      isWeekView
+                          ? ['一', '二', '三', '四', '五', '六', '日'][index]
                           : (showLabel ? '$key' : ''),
                       textAlign: TextAlign.center,
                       overflow: TextOverflow.visible,
@@ -1205,9 +1358,11 @@ return Column(
   // ==================== 新增图表数据计算方法 ====================
 
   /// 计算肌肉分布数据
-  Map<PrimaryMuscleGroup, int> _calculateMuscleDistribution(List<dynamic> records) {
+  Map<PrimaryMuscleGroup, int> _calculateMuscleDistribution(
+    List<dynamic> records,
+  ) {
     final distribution = <PrimaryMuscleGroup, int>{};
-    
+
     for (final record in records) {
       if (record is WorkoutRecord && record.trainedMuscles.isNotEmpty) {
         for (final muscle in record.trainedMuscles) {
@@ -1215,37 +1370,14 @@ return Column(
         }
       }
     }
-    
-    return distribution;
-  }
 
-  /// 计算恢复状态数据（各肌肉群距上次训练天数）
-  Map<PrimaryMuscleGroup, int> _calculateRecoveryData(List<dynamic> records) {
-    final lastTrainingDates = <PrimaryMuscleGroup, DateTime>{};
-    final now = DateTime.now();
-    
-    for (final record in records) {
-      if (record is WorkoutRecord && record.trainedMuscles.isNotEmpty) {
-        for (final muscle in record.trainedMuscles) {
-          if (lastTrainingDates[muscle] == null || record.date.isAfter(lastTrainingDates[muscle]!)) {
-            lastTrainingDates[muscle] = record.date;
-          }
-        }
-      }
-    }
-    
-    final recoveryData = <PrimaryMuscleGroup, int>{};
-    for (final entry in lastTrainingDates.entries) {
-      recoveryData[entry.key] = now.difference(entry.value).inDays;
-    }
-    
-    return recoveryData;
+    return distribution;
   }
 
   /// 计算常用动作数据（TOP 10）
   Map<String, int> _calculateCommonExercises(List<dynamic> records) {
     final exerciseCounts = <String, int>{};
-    
+
     for (final record in records) {
       if (record is WorkoutRecord) {
         for (final exercise in record.exercises) {
@@ -1256,10 +1388,10 @@ return Column(
         }
       }
     }
-    
+
     final sorted = exerciseCounts.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
-    
+
     return Map.fromEntries(sorted.take(10));
   }
 
@@ -1268,7 +1400,7 @@ return Column(
     final muscleDistribution = _calculateMuscleDistribution(records);
     final allMuscles = PrimaryMuscleGroup.values;
     final result = <Map<String, dynamic>>[];
-    
+
     for (final muscle in allMuscles) {
       if (!muscleDistribution.containsKey(muscle)) {
         result.add({
@@ -1279,9 +1411,11 @@ return Column(
         });
       }
     }
-    
+
     if (muscleDistribution.isNotEmpty) {
-      final avgCount = muscleDistribution.values.fold<int>(0, (sum, v) => sum + v) / muscleDistribution.length;
+      final avgCount =
+          muscleDistribution.values.fold<int>(0, (sum, v) => sum + v) /
+          muscleDistribution.length;
       for (final entry in muscleDistribution.entries) {
         if (entry.value <= avgCount * 0.5) {
           result.add({
@@ -1293,24 +1427,27 @@ return Column(
         }
       }
     }
-    
+
     return result;
   }
 
   /// 计算过度训练风险部位（连续3天以上训练同一肌群）
-  List<Map<String, dynamic>> _calculateOvertrainedMusclesData(List<dynamic> records) {
+  List<Map<String, dynamic>> _calculateOvertrainedMusclesData(
+    List<dynamic> records,
+  ) {
     if (records.length < 2) return [];
-    
-    final sortedRecords = List<WorkoutRecord>.from(records.whereType<WorkoutRecord>())
-      ..sort((a, b) => a.date.compareTo(b.date));
-    
+
+    final sortedRecords = List<WorkoutRecord>.from(
+      records.whereType<WorkoutRecord>(),
+    )..sort((a, b) => a.date.compareTo(b.date));
+
     final result = <Map<String, dynamic>>[];
-    
+
     for (final muscle in PrimaryMuscleGroup.values) {
       int maxConsecutive = 0;
       int currentConsecutive = 0;
       DateTime? lastDate;
-      
+
       for (final record in sortedRecords) {
         if (record.trainedMuscles.contains(muscle)) {
           if (lastDate == null) {
@@ -1329,7 +1466,7 @@ return Column(
           }
         }
       }
-      
+
       if (maxConsecutive >= 3) {
         result.add({
           'muscle': muscle,
@@ -1338,90 +1475,17 @@ return Column(
         });
       }
     }
-    
+
     return result;
   }
 
   // ==================== 新增图表组件方法 ====================
 
-  /// 恢复状态列表
-  Widget _buildRecoveryStatusList(Map<PrimaryMuscleGroup, int> recoveryData, AppThemeData theme) {
-    if (recoveryData.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Text(
-            '暂无恢复数据',
-            style: TextStyle(
-              color: theme.secondaryTextColor,
-              fontFamily: '.SF Pro Text',
-            ),
-          ),
-        ),
-      );
-    }
-    
-    final sortedEntries = recoveryData.entries.toList()
-      ..sort((a, b) => a.value.compareTo(b.value));
-    
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: sortedEntries.map((entry) {
-        final days = entry.value;
-        Color chipColor;
-        IconData icon;
-        
-        if (days >= 3) {
-          chipColor = Colors.green;
-          icon = Icons.check_circle;
-        } else if (days >= 1) {
-          chipColor = Colors.orange;
-          icon = Icons.access_time;
-        } else {
-          chipColor = Colors.red;
-          icon = Icons.warning;
-        }
-        
-        return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: BoxDecoration(
-            color: chipColor.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: chipColor.withValues(alpha: 0.3)),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, size: 14, color: chipColor),
-              const SizedBox(width: 6),
-              Text(
-                entry.key.displayName,
-                style: TextStyle(
-                  fontFamily: '.SF Pro Text',
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: chipColor,
-                ),
-              ),
-              const SizedBox(width: 4),
-              Text(
-                '$days天',
-                style: TextStyle(
-                  fontFamily: '.SF Pro Text',
-                  fontSize: 11,
-                  color: chipColor.withValues(alpha: 0.7),
-                ),
-              ),
-            ],
-          ),
-        );
-      }).toList(),
-    );
-  }
-
   /// 常用动作图表（水平条形图）
-  Widget _buildCommonExercisesChart(Map<String, int> exercises, AppThemeData theme) {
+  Widget _buildCommonExercisesChart(
+    Map<String, int> exercises,
+    AppThemeData theme,
+  ) {
     if (exercises.isEmpty) {
       return Center(
         child: Padding(
@@ -1436,16 +1500,19 @@ return Column(
         ),
       );
     }
-    
-    final maxCount = exercises.values.fold<int>(0, (max, e) => e > max ? e : max);
-    
+
+    final maxCount = exercises.values.fold<int>(
+      0,
+      (max, e) => e > max ? e : max,
+    );
+
     return Column(
       children: exercises.entries.map((entry) {
         final percentage = maxCount > 0 ? entry.value / maxCount : 0.0;
-        final displayName = entry.key.length > 20 
-            ? '${entry.key.substring(0, 18)}...' 
+        final displayName = entry.key.length > 20
+            ? '${entry.key.substring(0, 18)}...'
             : entry.key;
-        
+
         return Padding(
           padding: const EdgeInsets.only(bottom: 10),
           child: Row(
@@ -1478,7 +1545,10 @@ return Column(
                         height: 20,
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
-                            colors: [theme.accentColor, theme.accentColor.withValues(alpha: 0.7)],
+                            colors: [
+                              theme.accentColor,
+                              theme.accentColor.withValues(alpha: 0.7),
+                            ],
                           ),
                           borderRadius: BorderRadius.circular(4),
                         ),
@@ -1528,7 +1598,7 @@ return Column(
         ),
       );
     }
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1554,15 +1624,20 @@ return Column(
             runSpacing: 6,
             children: weakMuscles.map((m) {
               final status = m['status'] as String;
-              final label = status == 'untrained' 
+              final label = status == 'untrained'
                   ? '${m['displayName']} (未训练)'
                   : '${m['displayName']} (${m['count']}次)';
               return Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.orange.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
+                  border: Border.all(
+                    color: Colors.orange.withValues(alpha: 0.3),
+                  ),
                 ),
                 child: Text(
                   label,
@@ -1577,7 +1652,7 @@ return Column(
           ),
           const SizedBox(height: 16),
         ],
-        
+
         if (overtrainedMuscles.isNotEmpty) ...[
           Row(
             children: [
@@ -1600,7 +1675,10 @@ return Column(
             runSpacing: 6,
             children: overtrainedMuscles.map((m) {
               return Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.red.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
@@ -1619,6 +1697,444 @@ return Column(
           ),
         ],
       ],
+    );
+  }
+
+  // ==================== 新增统计组件 ====================
+
+  /// 力量进步 section - PR榜单 + 预估1RM
+  Widget _buildStrengthProgressSection(
+    List<WorkoutRecord> records,
+    AppThemeData theme,
+  ) {
+    final maxWeights = _statsCalc.calculateMaxWeightsByExercise(records);
+    final estimated1RMs = _statsCalc.calculateEstimated1RM(records);
+
+    if (maxWeights.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Text(
+            '暂无力量数据',
+            style: TextStyle(
+              color: theme.secondaryTextColor,
+              fontFamily: '.SF Pro Text',
+            ),
+          ),
+        ),
+      );
+    }
+
+    // Sort by weight descending, take top 8
+    final sortedPRs = maxWeights.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    final top8PRs = sortedPRs.take(8).toList();
+
+    // Sort by 1RM descending, take top 5
+    final sorted1RMs = estimated1RMs.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    final top5_1RMs = sorted1RMs.take(5).toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // PR榜单标题
+        Row(
+          children: [
+            Icon(Icons.emoji_events, size: 16, color: theme.accentColor),
+            const SizedBox(width: 6),
+            Text(
+              'PR 榜单',
+              style: TextStyle(
+                fontFamily: '.SF Pro Text',
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: theme.textColor,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        // PR列表
+        ...top8PRs.asMap().entries.map((entry) {
+          final index = entry.key;
+          final pr = entry.value;
+          final rank = index + 1;
+          final exerciseName = pr.key.length > 15
+              ? '${pr.key.substring(0, 13)}...'
+              : pr.key;
+          final isTop = rank == 1;
+
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Row(
+              children: [
+                // 排名
+                Container(
+                  width: 24,
+                  height: 24,
+                  decoration: BoxDecoration(
+                    color: isTop
+                        ? const Color(0xFFFFD700).withValues(alpha: 0.2)
+                        : theme.textColor.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: isTop
+                        ? Border.all(color: const Color(0xFFFFD700))
+                        : null,
+                  ),
+                  child: Center(
+                    child: isTop
+                        ? const Text('🏆', style: TextStyle(fontSize: 12))
+                        : Text(
+                            '$rank',
+                            style: TextStyle(
+                              fontFamily: '.SF Pro Text',
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: theme.secondaryTextColor,
+                            ),
+                          ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                // 动作名称
+                Expanded(
+                  child: Text(
+                    exerciseName,
+                    style: TextStyle(
+                      fontFamily: '.SF Pro Text',
+                      fontSize: 12,
+                      color: theme.textColor,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                // 重量
+                Text(
+                  '${pr.value.toStringAsFixed(1)} kg',
+                  style: TextStyle(
+                    fontFamily: '.SF Pro Display',
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: isTop ? theme.accentColor : theme.textColor,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }),
+        const SizedBox(height: 16),
+        // 分隔线
+        Divider(color: theme.textColor.withValues(alpha: 0.1)),
+        const SizedBox(height: 16),
+        // 预估1RM
+        Row(
+          children: [
+            Icon(Icons.fitness_center, size: 16, color: theme.secondaryColor),
+            const SizedBox(width: 6),
+            Text(
+              '预估极限重量 (1RM)',
+              style: TextStyle(
+                fontFamily: '.SF Pro Text',
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: theme.textColor,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 12,
+          runSpacing: 8,
+          children: top5_1RMs.map((e1rm) {
+            final name = e1rm.key.length > 10
+                ? '${e1rm.key.substring(0, 8)}...'
+                : e1rm.key;
+            return Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: theme.accentColor.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: theme.accentColor.withValues(alpha: 0.2),
+                ),
+              ),
+              child: Text(
+                '$name: ${e1rm.value.toStringAsFixed(1)}kg',
+                style: TextStyle(
+                  fontFamily: '.SF Pro Text',
+                  fontSize: 11,
+                  color: theme.accentColor,
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+
+  /// 肌群容量分布 - 甜甜圈图
+  Widget _buildMuscleVolumeChart(
+    List<WorkoutRecord> records,
+    AppThemeData theme,
+  ) {
+    final distribution = _statsCalc.calculateMuscleVolumeDistribution(records);
+
+    if (distribution.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Text(
+            '暂无训练数据',
+            style: TextStyle(
+              color: theme.secondaryTextColor,
+              fontFamily: '.SF Pro Text',
+            ),
+          ),
+        ),
+      );
+    }
+
+    // Calculate total volume
+    final totalVolume = distribution.values.fold<double>(
+      0,
+      (sum, v) => sum + v,
+    );
+
+    // Color mapping for each PrimaryMuscleGroup
+    final muscleColors = <PrimaryMuscleGroup, Color>{
+      PrimaryMuscleGroup.chest: const Color(0xFFE53935), // Red
+      PrimaryMuscleGroup.back: const Color(0xFF1E88E5), // Blue
+      PrimaryMuscleGroup.shoulders: const Color(0xFFFB8C00), // Orange
+      PrimaryMuscleGroup.arms: const Color(0xFF8E24AA), // Purple
+      PrimaryMuscleGroup.legs: const Color(0xFF43A047), // Green
+      PrimaryMuscleGroup.core: const Color(0xFF00ACC1), // Cyan
+    };
+
+    // Sort entries by volume for consistent display
+    final sortedEntries = distribution.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
+    return Column(
+      children: [
+        // Donut chart
+        SizedBox(
+          width: 150,
+          height: 150,
+          child: CustomPaint(
+            painter: _DonutChartPainter(
+              data: sortedEntries,
+              colors: muscleColors,
+              totalVolume: totalVolume,
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        // Center text showing total volume
+        Text(
+          _formatVolume(totalVolume),
+          style: TextStyle(
+            fontFamily: '.SF Pro Display',
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+            color: theme.textColor,
+          ),
+        ),
+        Text(
+          '总容量',
+          style: TextStyle(
+            fontFamily: '.SF Pro Text',
+            fontSize: 11,
+            color: theme.secondaryTextColor,
+          ),
+        ),
+        const SizedBox(height: 20),
+        // Legend
+        Wrap(
+          spacing: 12,
+          runSpacing: 8,
+          children: sortedEntries.map((entry) {
+            final percentage = totalVolume > 0
+                ? (entry.value / totalVolume * 100).toStringAsFixed(1)
+                : '0.0';
+            return Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 12,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: muscleColors[entry.key],
+                    borderRadius: BorderRadius.circular(3),
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  '${entry.key.displayName} $percentage%',
+                  style: TextStyle(
+                    fontFamily: '.SF Pro Text',
+                    fontSize: 11,
+                    color: theme.textColor,
+                  ),
+                ),
+              ],
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+
+  /// Format volume with thousand separators
+  String _formatVolume(double volume) {
+    if (volume >= 1000) {
+      return '${(volume / 1000).toStringAsFixed(1)}k kg';
+    }
+    return '${volume.toStringAsFixed(0)} kg';
+  }
+
+  /// Calculate secondary muscle recovery data grouped by primary muscle
+  Map<PrimaryMuscleGroup, List<Map<String, dynamic>>>
+  _calculateSecondaryRecoveryData(List<WorkoutRecord> records) {
+    final secondaryRecovery = _statsCalc.calculateSecondaryMuscleRecovery(
+      records,
+    );
+    final grouped = <PrimaryMuscleGroup, List<Map<String, dynamic>>>{};
+
+    for (final entry in secondaryRecovery.entries) {
+      final primary = entry.key.primaryMuscle;
+      grouped.putIfAbsent(primary, () => []);
+      grouped[primary]!.add({
+        'muscle': entry.key,
+        'displayName': entry.key.displayName,
+        'days': entry.value,
+      });
+    }
+
+    // Sort sub-muscles by days within each group
+    for (final group in grouped.values) {
+      group.sort((a, b) => (a['days'] as int).compareTo(b['days'] as int));
+    }
+
+    return grouped;
+  }
+
+  /// Recovery status list with secondary muscles (refactored)
+  Widget _buildSecondaryRecoveryStatusList(
+    Map<PrimaryMuscleGroup, List<Map<String, dynamic>>> groupedData,
+    AppThemeData theme,
+  ) {
+    if (groupedData.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Text(
+            '暂无恢复数据',
+            style: TextStyle(
+              color: theme.secondaryTextColor,
+              fontFamily: '.SF Pro Text',
+            ),
+          ),
+        ),
+      );
+    }
+
+    // Sort primary muscle groups by their min recovery days
+    final sortedGroups = groupedData.entries.toList()
+      ..sort((a, b) {
+        final minDaysA = a.value.fold<int>(
+          999,
+          (min, e) => (e['days'] as int) < min ? e['days'] as int : min,
+        );
+        final minDaysB = b.value.fold<int>(
+          999,
+          (min, e) => (e['days'] as int) < min ? e['days'] as int : min,
+        );
+        return minDaysA.compareTo(minDaysB);
+      });
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: sortedGroups.map((groupEntry) {
+        final primaryMuscle = groupEntry.key;
+        final subMuscles = groupEntry.value;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Primary muscle group header
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: theme.accentColor.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Text(
+                primaryMuscle.displayName,
+                style: TextStyle(
+                  fontFamily: '.SF Pro Text',
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: theme.accentColor,
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            // Sub-muscle chips
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: subMuscles.map((subData) {
+                final days = subData['days'] as int;
+                Color chipColor;
+                IconData icon;
+
+                if (days >= 3) {
+                  chipColor = Colors.green;
+                  icon = Icons.check_circle;
+                } else if (days >= 1) {
+                  chipColor = Colors.orange;
+                  icon = Icons.access_time;
+                } else {
+                  chipColor = Colors.red;
+                  icon = Icons.warning;
+                }
+
+                return Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: chipColor.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: chipColor.withValues(alpha: 0.3)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(icon, size: 12, color: chipColor),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${subData['displayName']} $days天',
+                        style: TextStyle(
+                          fontFamily: '.SF Pro Text',
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                          color: chipColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 12),
+          ],
+        );
+      }).toList(),
     );
   }
 
@@ -1641,7 +2157,9 @@ return Column(
       final weekStart = _getStartOfWeek(_selectedWeekStart);
       startDate = DateTime(weekStart.year, weekStart.month, weekStart.day);
       endDate = startDate.add(const Duration(days: 7));
-      previousRecords = _filterByWeek(startDate.subtract(const Duration(days: 7)));
+      previousRecords = _filterByWeek(
+        startDate.subtract(const Duration(days: 7)),
+      );
     } else {
       startDate = DateTime(_selectedYear, _selectedMonth, 1);
       endDate = DateTime(_selectedYear, _selectedMonth + 1, 0);
@@ -1655,7 +2173,9 @@ return Column(
     }
 
     // 全部 WorkoutRecord
-    final allWorkoutRecords = _getAllRecords().whereType<WorkoutRecord>().toList();
+    final allWorkoutRecords = _getAllRecords()
+        .whereType<WorkoutRecord>()
+        .toList();
 
     Navigator.push(
       context,
@@ -1670,5 +2190,65 @@ return Column(
         ),
       ),
     );
+  }
+}
+
+/// Custom painter for donut chart
+class _DonutChartPainter extends CustomPainter {
+  final List<MapEntry<PrimaryMuscleGroup, double>> data;
+  final Map<PrimaryMuscleGroup, Color> colors;
+  final double totalVolume;
+
+  _DonutChartPainter({
+    required this.data,
+    required this.colors,
+    required this.totalVolume,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (data.isEmpty || totalVolume == 0) return;
+
+    final center = Offset(size.width / 2, size.height / 2);
+    final outerRadius = size.width / 2 - 10;
+    final ringWidth = 24.0;
+    final innerRadius = outerRadius - ringWidth;
+
+    double startAngle = -90 * (3.14159265359 / 180); // Start from top
+    const gapDegrees = 2.0;
+    const gapRadians = gapDegrees * (3.14159265359 / 180);
+
+    for (final entry in data) {
+      final muscle = entry.key;
+      final volume = entry.value;
+      final percentage = volume / totalVolume;
+      final sweepAngle = percentage * 2 * 3.14159265359 - gapRadians;
+
+      final paint = Paint()
+        ..color = colors[muscle] ?? Colors.grey
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = ringWidth
+        ..strokeCap = StrokeCap.round;
+
+      canvas.drawArc(
+        Rect.fromCircle(
+          center: center,
+          radius: (outerRadius + innerRadius) / 2,
+        ),
+        startAngle,
+        sweepAngle,
+        false,
+        paint,
+      );
+
+      startAngle += sweepAngle + gapRadians;
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _DonutChartPainter oldDelegate) {
+    return oldDelegate.data != data ||
+        oldDelegate.colors != colors ||
+        oldDelegate.totalVolume != totalVolume;
   }
 }
