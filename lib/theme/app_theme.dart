@@ -1,17 +1,11 @@
 import 'package:flutter/material.dart';
 
 /// 主题类型枚举 - Flat Vitality 设计系统
-enum AppThemeType {
-  amberGold,
-  coralOrange,
-  mintGreen,
-  rosePink,
-  skyBlue,
-}
+enum AppThemeType { amberGold, coralOrange, mintGreen, rosePink, skyBlue }
 
 /// 主题数据模型
 /// Flat Vitality 设计系统 - 完全基于参考图
-/// 
+///
 /// 设计原则:
 /// - 温暖纯色/渐变背景 (琥珀/橙色系)
 /// - 深蓝色强调色 (#1A237E) - 粗进度环
@@ -23,27 +17,33 @@ class AppThemeData {
   final String nameZh;
   final String description;
   final IconData icon;
-  
+
   // 核心颜色
-  final Color primaryColor;      // 背景色
-  final Color secondaryColor;    // 渐变结束色
-  final Color accentColor;       // 深蓝色强调色 (进度环、图标)
-  
+  final Color primaryColor; // 背景色
+  final Color secondaryColor; // 渐变结束色
+  final Color accentColor; // 深蓝色强调色 (进度环、图标)
+
   // 表面
-  final Color surfaceColor;      // 卡片背景 (白色)
-  final Color cardColor;         // 按钮背景 (白色)
-  
+  final Color surfaceColor; // 卡片背景 (白色)
+  final Color cardColor; // 按钮背景 (白色)
+
   // 文字
   final Color textColor;
   final Color secondaryTextColor;
-  
+
   // 进度环
   final Color progressRingColor; // 进度环颜色 (深蓝)
-  final Color progressBgColor;   // 进度环背景 (浅色)
+  final Color progressBgColor; // 进度环背景 (浅色)
   final double progressStrokeWidth; // 进度环线条粗细
-  
+
   // 装饰
   final List<Color> decorativeCircleColors;
+
+  // 语义色
+  final Color errorColor; // 错误/危险
+  final Color successColor; // 成功
+  final Color errorBackgroundColor; // 错误背景
+  final Color dividerColor; // 分割线
 
   const AppThemeData({
     required this.name,
@@ -61,13 +61,20 @@ class AppThemeData {
     required this.progressBgColor,
     this.progressStrokeWidth = 10.0,
     required this.decorativeCircleColors,
+    this.errorColor = const Color(0xFFE53935),
+    this.successColor = const Color(0xFF4CAF50),
+    this.errorBackgroundColor = const Color(0xFFF5E6E6),
+    this.dividerColor = const Color(0xFFE0E0E0),
   });
 
   // 兼容性 getter
   Color get backgroundColor => primaryColor;
   Color get backgroundGradientEnd => secondaryColor;
   Color get borderColor => progressRingColor.withValues(alpha: 0.3);
-  List<Color> get timerGradientColors => [progressRingColor, progressRingColor.withValues(alpha: 0.7)];
+  List<Color> get timerGradientColors => [
+    progressRingColor,
+    progressRingColor.withValues(alpha: 0.7),
+  ];
 
   /// 转换为 Flutter ThemeData
   ThemeData toThemeData() {
@@ -80,7 +87,7 @@ class AppThemeData {
         primary: primaryColor,
         secondary: accentColor,
         surface: surfaceColor,
-        error: const Color(0xFFE53935),
+        error: errorColor,
         onPrimary: textColor,
         onSecondary: Colors.white,
         onSurface: textColor,
@@ -94,9 +101,7 @@ class AppThemeData {
       cardTheme: CardThemeData(
         color: surfaceColor,
         elevation: 2,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -121,9 +126,7 @@ class AppThemeData {
           return null;
         }),
       ),
-      iconTheme: IconThemeData(
-        color: accentColor,
-      ),
+      iconTheme: IconThemeData(color: accentColor),
       textTheme: TextTheme(
         displayLarge: TextStyle(
           fontFamily: '.SF Pro Display',
@@ -195,7 +198,7 @@ class AppThemeData {
 
 // ============================================================================
 // Flat Vitality Theme Series - 参考图精确风格
-// 
+//
 // 核心设计规范:
 // - 背景: 温暖渐变 (琥珀/橙色系)
 // - 进度环: 深靛蓝 #1A237E, 10px粗线条
@@ -375,7 +378,7 @@ AppThemeData getThemeData(AppThemeType type) {
 
 /// 所有主题列表
 const allThemes = [
-  amberGoldTheme,  // Default - 参考图风格
+  amberGoldTheme, // Default - 参考图风格
   coralOrangeTheme,
   mintGreenTheme,
   rosePinkTheme,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import '../main.dart';
 import '../models/workout_session.dart';
 import '../models/workout_record.dart';
 import '../services/workout_repository.dart';
@@ -102,7 +103,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
               ),
             ),
             Text(
-              'HISTORY',
+              '历史记录',
               style: TextStyle(
                 fontFamily: '.SF Pro Display',
                 fontSize: 18,
@@ -117,7 +118,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
           TextButton(
             onPressed: () => _showClearConfirmDialog(),
             child: Text(
-              'Clear',
+              '清除',
               style: TextStyle(
                 fontFamily: '.SF Pro Text',
                 color: theme.accentColor,
@@ -136,7 +137,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
           } else if (snapshot.hasError) {
             return Center(
               child: Text(
-                'LOAD FAILED',
+                '加载失败',
                 style: TextStyle(
                   fontFamily: '.SF Pro Text',
                   color: theme.accentColor,
@@ -150,28 +151,61 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(
-                    Icons.fitness_center,
+                    Icons.fitness_center_rounded,
                     size: 64,
-                    color: theme.secondaryTextColor.withValues(alpha: 0.3),
+                    color: theme.secondaryTextColor.withValues(alpha: 0.4),
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'No record yet',
+                    '暂无记录',
                     style: TextStyle(
                       fontFamily: '.SF Pro Display',
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: theme.secondaryTextColor,
+                      color: theme.textColor,
                       letterSpacing: 1,
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'complete a workout to see results',
+                    '完成一次训练后查看结果',
                     style: TextStyle(
                       fontFamily: '.SF Pro Text',
                       fontSize: 14,
-                      color: theme.secondaryTextColor.withValues(alpha: 0.4),
+                      color: theme.secondaryTextColor.withValues(alpha: 0.6),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  OutlinedButton.icon(
+                    onPressed: () {
+                      // Navigate to timer tab (index 2)
+                      MainNavigation.switchToTab(2);
+                    },
+                    icon: Icon(
+                      Icons.play_arrow_rounded,
+                      size: 18,
+                      color: theme.accentColor,
+                    ),
+                    label: Text(
+                      '开始训练',
+                      style: TextStyle(
+                        fontFamily: '.SF Pro Text',
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: theme.accentColor,
+                      ),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(
+                        color: theme.accentColor.withValues(alpha: 0.5),
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 12,
+                      ),
                     ),
                   ),
                 ],
@@ -218,19 +252,19 @@ class _HistoryScreenState extends State<HistoryScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Clear History'),
-        content: const Text('Are you sure you want to clear all history?'),
+        title: const Text('清除历史'),
+        content: const Text('确定要清除所有历史记录吗？'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: const Text('取消'),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(context);
               _clearHistory();
             },
-            child: const Text('Clear', style: TextStyle(color: Colors.red)),
+            child: const Text('清除', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -559,7 +593,7 @@ class _SessionCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'SETS COMPLETED',
+                    '已完成组数',
                     style: TextStyle(
                       fontFamily: '.SF Pro Text',
                       fontSize: 14,

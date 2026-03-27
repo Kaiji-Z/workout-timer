@@ -1,5 +1,83 @@
 import 'package:flutter/material.dart';
 
+// ============================================================================
+// PRESSABLE MIXIN - 按压动画混入
+// ============================================================================
+
+/// 按压缩放动画混入
+///
+/// 为按钮提供统一的按压缩放动画效果。
+/// 使用方式：
+/// ```dart
+/// class _MyButtonState extends State<MyButton>
+///     with SingleTickerProviderStateMixin, PressableMixin {
+///   @override
+///   double get pressedScale => 0.92; // 可选，默认 0.95
+///
+///   @override
+///   void initState() {
+///     super.initState();
+///     initPressAnimation();
+///   }
+///
+///   @override
+///   void dispose() {
+///     disposePressAnimation();
+///     super.dispose();
+///   }
+///
+///   @override
+///   Widget build(BuildContext context) {
+///     return buildPressable(
+///       onPressed: widget.onPressed,
+///       child: Container(...),
+///     );
+///   }
+/// }
+/// ```
+mixin PressableMixin<T extends StatefulWidget> on State<T>, TickerProvider {
+  late AnimationController _pressController;
+  late Animation<double> _pressScaleAnimation;
+
+  /// 按压时的缩放比例，子类可覆盖
+  double get pressedScale => 0.95;
+
+  void initPressAnimation() {
+    _pressController = AnimationController(
+      duration: const Duration(milliseconds: 100),
+      vsync: this,
+    );
+    _pressScaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: pressedScale,
+    ).animate(CurvedAnimation(parent: _pressController, curve: Curves.easeOut));
+  }
+
+  void disposePressAnimation() {
+    _pressController.dispose();
+  }
+
+  Widget buildPressable({
+    required VoidCallback? onPressed,
+    required Widget child,
+  }) {
+    return GestureDetector(
+      onTapDown: onPressed != null ? (_) => _pressController.forward() : null,
+      onTapUp: onPressed != null
+          ? (_) {
+              _pressController.reverse();
+              onPressed.call();
+            }
+          : null,
+      onTapCancel: onPressed != null ? () => _pressController.reverse() : null,
+      child: AnimatedBuilder(
+        animation: _pressScaleAnimation,
+        builder: (context, _) =>
+            Transform.scale(scale: _pressScaleAnimation.value, child: child),
+      ),
+    );
+  }
+}
 
 /// ═══════════════════════════════════════════════════════════════════════════
 /// Flat Vitality 设计系统 - 参考图风格
@@ -17,7 +95,7 @@ import 'package:flutter/material.dart';
 // ============================================================================
 
 /// 圆形控制按钮 - 参考图风格
-/// 
+///
 /// 特点:
 /// - 纯白色背景
 /// - 深色图标
@@ -44,64 +122,45 @@ class CircularControlButton extends StatefulWidget {
 }
 
 class _CircularControlButtonState extends State<CircularControlButton>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _scaleAnimation;
+    with SingleTickerProviderStateMixin, PressableMixin {
+  @override
+  double get pressedScale => 0.92;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 100),
-      vsync: this,
-    );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.92).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-    );
+    initPressAnimation();
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    disposePressAnimation();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: widget.onPressed != null ? (_) => _controller.forward() : null,
-      onTapUp: widget.onPressed != null ? (_) {
-        _controller.reverse();
-        widget.onPressed?.call();
-      } : null,
-      onTapCancel: widget.onPressed != null ? () => _controller.reverse() : null,
-      child: AnimatedBuilder(
-        animation: _scaleAnimation,
-        builder: (context, child) {
-          return Transform.scale(
-            scale: _scaleAnimation.value,
-            child: Container(
-              width: widget.size,
-              height: widget.size,
-              decoration: BoxDecoration(
-                color: widget.backgroundColor ?? Colors.white,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.12),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Icon(
-                widget.icon,
-                color: widget.iconColor ?? const Color(0xFF212121),
-                size: widget.size * 0.45,
-              ),
+    return buildPressable(
+      onPressed: widget.onPressed,
+      child: Container(
+        width: widget.size,
+        height: widget.size,
+        decoration: BoxDecoration(
+          color: widget.backgroundColor ?? Colors.white,
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.12),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
             ),
-          );
-        },
+          ],
+        ),
+        child: Icon(
+          widget.icon,
+          color: widget.iconColor ?? const Color(0xFF212121),
+          size: widget.size * 0.45,
+        ),
       ),
     );
   }
@@ -112,7 +171,7 @@ class _CircularControlButtonState extends State<CircularControlButton>
 // ============================================================================
 
 /// 主操作按钮 - 胶囊形状
-/// 
+///
 /// 特点:
 /// - 深蓝色背景
 /// - 白色文字/图标
@@ -144,86 +203,60 @@ class PrimaryActionButton extends StatefulWidget {
 }
 
 class _PrimaryActionButtonState extends State<PrimaryActionButton>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _scaleAnimation;
-
+    with SingleTickerProviderStateMixin, PressableMixin {
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 100),
-      vsync: this,
-    );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-    );
+    initPressAnimation();
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    disposePressAnimation();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: widget.onPressed != null ? (_) => _controller.forward() : null,
-      onTapUp: widget.onPressed != null ? (_) {
-        _controller.reverse();
-        widget.onPressed?.call();
-      } : null,
-      onTapCancel: widget.onPressed != null ? () => _controller.reverse() : null,
-      child: AnimatedBuilder(
-        animation: _scaleAnimation,
-        builder: (context, child) {
-          return Transform.scale(
-            scale: _scaleAnimation.value,
-            child: Container(
-              height: widget.height,
-              decoration: BoxDecoration(
-                color: widget.backgroundColor ?? const Color(0xFF1A237E),
-                borderRadius: BorderRadius.circular(widget.height / 2),
-                boxShadow: [
-                  BoxShadow(
-                    color: (widget.backgroundColor ?? const Color(0xFF1A237E))
-                        .withValues(alpha: 0.3),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    if (widget.icon != null) ...[
-                      Icon(
-                        widget.icon,
-                        color: Colors.white,
-                        size: 22,
-                      ),
-                      const SizedBox(width: 8),
-                    ],
-                    Text(
-                      widget.label,
-                      style: const TextStyle(
-                        fontFamily: '.SF Pro Text',
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                  ],
+    return buildPressable(
+      onPressed: widget.onPressed,
+      child: Container(
+        height: widget.height,
+        decoration: BoxDecoration(
+          color: widget.backgroundColor ?? const Color(0xFF1A237E),
+          borderRadius: BorderRadius.circular(widget.height / 2),
+          boxShadow: [
+            BoxShadow(
+              color: (widget.backgroundColor ?? const Color(0xFF1A237E))
+                  .withValues(alpha: 0.3),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (widget.icon != null) ...[
+                Icon(widget.icon, color: Colors.white, size: 22),
+                const SizedBox(width: 8),
+              ],
+              Text(
+                widget.label,
+                style: const TextStyle(
+                  fontFamily: '.SF Pro Text',
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                  letterSpacing: 0.5,
                 ),
               ),
-            ),
-          );
-        },
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -300,11 +333,7 @@ class FlatBadge extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (icon != null) ...[
-            Icon(
-              icon,
-              color: textColor ?? Colors.white,
-              size: 14,
-            ),
+            Icon(icon, color: textColor ?? Colors.white, size: 14),
             const SizedBox(width: 6),
           ],
           Text(
@@ -347,10 +376,7 @@ class StatusBadge extends StatelessWidget {
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: color.withValues(alpha: 0.3),
-          width: 1,
-        ),
+        border: Border.all(color: color.withValues(alpha: 0.3), width: 1),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -470,81 +496,55 @@ class _SecondaryButton extends StatefulWidget {
 }
 
 class _SecondaryButtonState extends State<_SecondaryButton>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _scaleAnimation;
-
+    with SingleTickerProviderStateMixin, PressableMixin {
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 100),
-      vsync: this,
-    );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-    );
+    initPressAnimation();
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    disposePressAnimation();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: widget.onPressed != null ? (_) => _controller.forward() : null,
-      onTapUp: widget.onPressed != null ? (_) {
-        _controller.reverse();
-        widget.onPressed?.call();
-      } : null,
-      onTapCancel: widget.onPressed != null ? () => _controller.reverse() : null,
-      child: AnimatedBuilder(
-        animation: _scaleAnimation,
-        builder: (context, child) {
-          return Transform.scale(
-            scale: _scaleAnimation.value,
-            child: Container(
-              height: widget.height,
-              decoration: BoxDecoration(
-                color: Colors.transparent,
-                borderRadius: BorderRadius.circular(widget.height / 2),
-                border: Border.all(
-                  color: widget.color.withValues(alpha: 0.5),
-                  width: 2,
+    return buildPressable(
+      onPressed: widget.onPressed,
+      child: Container(
+        height: widget.height,
+        decoration: BoxDecoration(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(widget.height / 2),
+          border: Border.all(
+            color: widget.color.withValues(alpha: 0.5),
+            width: 2,
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (widget.icon != null) ...[
+                Icon(widget.icon, color: widget.color, size: 20),
+                const SizedBox(width: 8),
+              ],
+              Text(
+                widget.label,
+                style: TextStyle(
+                  fontFamily: '.SF Pro Text',
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: widget.color,
                 ),
               ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    if (widget.icon != null) ...[
-                      Icon(
-                        widget.icon,
-                        color: widget.color,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 8),
-                    ],
-                    Text(
-                      widget.label,
-                      style: TextStyle(
-                        fontFamily: '.SF Pro Text',
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        color: widget.color,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          );
-        },
+            ],
+          ),
+        ),
       ),
     );
   }

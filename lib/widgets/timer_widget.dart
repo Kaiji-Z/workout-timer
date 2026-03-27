@@ -3,9 +3,10 @@ import 'package:provider/provider.dart';
 import '../bloc/timer_provider.dart';
 import '../theme/theme_provider.dart';
 import '../theme/app_theme.dart';
+import '../utils/dimensions.dart';
 
 /// Warm Vitality 风格计时器组件
-/// 
+///
 /// 设计特点:
 /// - 粗线条进度环 (10px) - 深蓝色
 /// - 白色背景按钮 + 深色图标/文字
@@ -55,7 +56,7 @@ class TimerWidget extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          'WORKOUT TIMER',
+          '训练计时器',
           style: TextStyle(
             fontFamily: '.SF Pro Display',
             fontSize: 20,
@@ -68,17 +69,22 @@ class TimerWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildTimerDisplay(TimerProvider timer, BuildContext context, AppThemeData theme) {
+  Widget _buildTimerDisplay(
+    TimerProvider timer,
+    BuildContext context,
+    AppThemeData theme,
+  ) {
+    final timerSize = AppDimensions.timerSize(context);
     return SizedBox(
-      width: 240,
-      height: 240,
+      width: timerSize,
+      height: timerSize,
       child: Stack(
         alignment: Alignment.center,
         children: [
           // 进度环
           SizedBox(
-            width: 240,
-            height: 240,
+            width: timerSize,
+            height: timerSize,
             child: CustomPaint(
               painter: _CircularProgressPainter(
                 progress: timer.progress,
@@ -112,14 +118,14 @@ class TimerWidget extends StatelessWidget {
 
   Widget _buildStatusBadge(TimerProvider timer, AppThemeData theme) {
     final isRunning = timer.isRunning;
-    final bgColor = isRunning 
+    final bgColor = isRunning
         ? theme.accentColor.withValues(alpha: 0.15)
         : theme.textColor.withValues(alpha: 0.08);
-    final borderColor = isRunning 
+    final borderColor = isRunning
         ? theme.accentColor.withValues(alpha: 0.4)
         : theme.textColor.withValues(alpha: 0.2);
     final textColor = isRunning ? theme.accentColor : theme.textColor;
-    final text = isRunning ? 'ACTIVE' : 'READY';
+    final text = isRunning ? '进行中' : '准备就绪';
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
@@ -149,7 +155,8 @@ class TimerWidget extends StatelessWidget {
       children: presets.asMap().entries.map((entry) {
         final seconds = entry.value;
         final index = entry.key;
-        final isSelected = timer.selectedPresetIndex == index && !timer.isRunning;
+        final isSelected =
+            timer.selectedPresetIndex == index && !timer.isRunning;
 
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 6),
@@ -221,8 +228,10 @@ class TimerWidget extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: _PrimaryControlButton(
-              label: timer.isRunning ? 'PAUSE' : 'START',
-              icon: timer.isRunning ? Icons.pause_rounded : Icons.play_arrow_rounded,
+              label: timer.isRunning ? '暂停' : '开始',
+              icon: timer.isRunning
+                  ? Icons.pause_rounded
+                  : Icons.play_arrow_rounded,
               onPressed: timer.isRunning ? timer.pauseTimer : timer.startTimer,
               theme: theme,
             ),
@@ -315,8 +324,8 @@ class _PresetChip extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected 
-              ? theme.accentColor 
+          color: isSelected
+              ? theme.accentColor
               : Colors.white.withValues(alpha: 0.9),
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
@@ -371,11 +380,7 @@ class _CircleControlButton extends StatelessWidget {
             ),
           ],
         ),
-        child: Icon(
-          icon,
-          color: theme.accentColor,
-          size: 24,
-        ),
+        child: Icon(icon, color: theme.accentColor, size: 24),
       ),
     );
   }
@@ -415,11 +420,7 @@ class _PrimaryControlButton extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              icon,
-              color: Colors.white,
-              size: 24,
-            ),
+            Icon(icon, color: Colors.white, size: 24),
             const SizedBox(width: 8),
             Text(
               label,

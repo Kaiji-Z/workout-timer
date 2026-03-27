@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../theme/theme_provider.dart';
+import '../utils/dimensions.dart';
 import '../bloc/plan_provider.dart';
 import '../models/workout_plan.dart';
 import '../models/muscle_group.dart';
@@ -15,7 +16,7 @@ import 'ai_plan_wizard_screen.dart';
 import '../theme/app_theme.dart';
 
 /// 计划页面 - Flat Vitality 设计
-/// 
+///
 /// 布局：上半部分日历 + 下半部分计划列表
 class PlanScreen extends StatefulWidget {
   const PlanScreen({super.key});
@@ -26,12 +27,12 @@ class PlanScreen extends StatefulWidget {
 
 class _PlanScreenState extends State<PlanScreen> {
   DateTime _selectedDate = DateTime.now();
-  
+
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().currentTheme;
     final planProvider = context.watch<PlanProvider>();
-    
+
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppBar(
@@ -49,7 +50,7 @@ class _PlanScreenState extends State<PlanScreen> {
               ),
             ),
             Text(
-              'WORKOUT PLANS',
+              '训练计划',
               style: TextStyle(
                 fontFamily: '.SF Pro Display',
                 fontSize: 18,
@@ -76,11 +77,7 @@ class _PlanScreenState extends State<PlanScreen> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  Icons.auto_awesome,
-                  size: 18,
-                  color: theme.accentColor,
-                ),
+                Icon(Icons.auto_awesome, size: 18, color: theme.accentColor),
                 const SizedBox(width: 4),
                 Text(
                   'AI训练计划',
@@ -96,48 +93,48 @@ class _PlanScreenState extends State<PlanScreen> {
           ),
         ],
       ),
-body: SafeArea(
-  bottom: false,
-  child: SingleChildScrollView(
-    child: Padding(
-      padding: const EdgeInsets.only(bottom: 120), // Add padding for floating nav bar
-      child: Column(
-        children: [
-          // 日历
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: CalendarWidget(
-              selectedDate: _selectedDate,
-              onDateSelected: (date) {
-                setState(() {
-                  _selectedDate = date;
-                });
-              },
+      body: SafeArea(
+        bottom: false,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.only(
+              bottom: AppDimensions.bottomPadding(context),
+            ),
+            child: Column(
+              children: [
+                // 日历
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: CalendarWidget(
+                    selectedDate: _selectedDate,
+                    onDateSelected: (date) {
+                      setState(() {
+                        _selectedDate = date;
+                      });
+                    },
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // 当日计划列表 - 移除固定高度约束，让内容自适应
+                _buildPlanList(planProvider, theme),
+              ],
             ),
           ),
-          const SizedBox(height: 16),
-          
-          // 当日计划列表 - 移除固定高度约束，让内容自适应
-          _buildPlanList(planProvider, theme),
-        ],
+        ),
       ),
-    ),
-  ),
-),
     );
   }
-
-  
 
   Widget _buildPlanList(PlanProvider planProvider, AppThemeData theme) {
     // 获取选中日期的计划
     final plansForDate = planProvider.getPlansForDate(_selectedDate);
-    
+
     // 格式化日期显示
     final dateFormat = DateFormat('M月d日 E', 'zh_CN');
     final dateStr = dateFormat.format(_selectedDate);
     final isToday = _isToday(_selectedDate);
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -172,61 +169,79 @@ body: SafeArea(
           ),
         ),
         const SizedBox(height: 8),
-        
+
         // 当日计划列表
         if (plansForDate.isNotEmpty)
-          ...plansForDate.take(3).map((plan) => Dismissible(
-                key: ValueKey(plan.id),
-                direction: DismissDirection.endToStart,
-                background: Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                  alignment: Alignment.centerRight,
-                  padding: const EdgeInsets.only(right: 20),
-                  decoration: BoxDecoration(
-                    color: Colors.red,
-                    borderRadius: BorderRadius.circular(16),
+          ...plansForDate
+              .take(3)
+              .map(
+                (plan) => Dismissible(
+                  key: ValueKey(plan.id),
+                  direction: DismissDirection.endToStart,
+                  background: Container(
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 6,
+                    ),
+                    alignment: Alignment.centerRight,
+                    padding: const EdgeInsets.only(right: 20),
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: const Icon(
+                      Icons.delete_outline,
+                      color: Colors.white,
+                      size: 24,
+                    ),
                   ),
-                  child: const Icon(Icons.delete_outline, color: Colors.white, size: 24),
-                ),
-                confirmDismiss: (direction) async {
-                  return await showDialog<bool>(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: const Text('移除计划'),
-                      content: Text('确定要从 ${_selectedDate.month}月${_selectedDate.day}日 移除「${plan.name}」吗？'),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context, false),
-                          child: const Text('取消'),
+                  confirmDismiss: (direction) async {
+                    return await showDialog<bool>(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text('移除计划'),
+                        content: Text(
+                          '确定要从 ${_selectedDate.month}月${_selectedDate.day}日 移除「${plan.name}」吗？',
                         ),
-                        TextButton(
-                          onPressed: () => Navigator.pop(context, true),
-                          child: const Text('移除', style: TextStyle(color: Colors.red)),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, false),
+                            child: const Text('取消'),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, true),
+                            child: const Text(
+                              '移除',
+                              style: TextStyle(color: Colors.red),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                  onDismissed: (direction) {
+                    planProvider.removePlanFromDate(plan.id, _selectedDate);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          '已从${_selectedDate.month}月${_selectedDate.day}日移除「${plan.name}」',
                         ),
-                      ],
-                    ),
-                  );
-                },
-                onDismissed: (direction) {
-                  planProvider.removePlanFromDate(plan.id, _selectedDate);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('已从${_selectedDate.month}月${_selectedDate.day}日移除「${plan.name}」'),
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  );
-                },
-                child: PlanCard(
-                  plan: plan,
-                  onTap: () => _showPlanDetail(plan),
-                  showActions: false,
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  },
+                  child: PlanCard(
+                    plan: plan,
+                    onTap: () => _showPlanDetail(plan),
+                    showActions: false,
+                  ),
                 ),
-              ))
+              )
         else
           _buildEmptyDayPlan(theme),
-        
+
         const SizedBox(height: 16),
-        
+
         // 计划库按钮
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -298,17 +313,17 @@ body: SafeArea(
 
   bool _isToday(DateTime date) {
     final today = DateTime.now();
-    return date.year == today.year && date.month == today.month && date.day == today.day;
+    return date.year == today.year &&
+        date.month == today.month &&
+        date.day == today.day;
   }
 
   void _navigateToCreatePlan() async {
     final result = await Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => const PlanFormScreen(),
-      ),
+      MaterialPageRoute(builder: (context) => const PlanFormScreen()),
     );
-    
+
     if (result == true) {
       // 刷新计划列表
       if (mounted) {
@@ -332,12 +347,12 @@ body: SafeArea(
 
   void _showAddPlanToDateSheet(PlanProvider planProvider) {
     final allPlans = planProvider.plans;
-    
+
     if (allPlans.isEmpty) {
       _navigateToCreatePlan();
       return;
     }
-    
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -390,7 +405,9 @@ body: SafeArea(
                             width: 40,
                             height: 40,
                             decoration: BoxDecoration(
-                              color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
+                              color: Theme.of(
+                                context,
+                              ).primaryColor.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Icon(
@@ -494,27 +511,38 @@ body: SafeArea(
                                   onTap: () => _showPlanDetail(plan),
                                   borderRadius: BorderRadius.circular(8),
                                   child: Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 8,
+                                    ),
                                     child: Row(
-                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
                                       children: [
                                         Container(
                                           width: 40,
                                           height: 40,
                                           decoration: BoxDecoration(
-                                            color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
-                                            borderRadius: BorderRadius.circular(8),
+                                            color: Theme.of(context)
+                                                .primaryColor
+                                                .withValues(alpha: 0.1),
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
                                           ),
                                           child: Icon(
                                             Icons.fitness_center,
-                                            color: Theme.of(context).primaryColor,
+                                            color: Theme.of(
+                                              context,
+                                            ).primaryColor,
                                           ),
                                         ),
                                         const SizedBox(width: 12),
                                         // 计划名称 + 描述占满剩余宽度
                                         Expanded(
                                           child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             children: [
                                               Text(
                                                 plan.name,
@@ -532,7 +560,9 @@ body: SafeArea(
                                                 style: TextStyle(
                                                   fontFamily: '.SF Pro Text',
                                                   fontSize: 13,
-                                                  color: Theme.of(context).primaryColor.withValues(alpha: 0.6),
+                                                  color: Theme.of(context)
+                                                      .primaryColor
+                                                      .withValues(alpha: 0.6),
                                                 ),
                                               ),
                                             ],
@@ -544,7 +574,10 @@ body: SafeArea(
                                 ),
                                 // 编辑/删除按钮在列表项下方
                                 Padding(
-                                  padding: const EdgeInsets.only(left: 68, bottom: 4),
+                                  padding: const EdgeInsets.only(
+                                    left: 68,
+                                    bottom: 4,
+                                  ),
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
@@ -554,7 +587,8 @@ body: SafeArea(
                                           Navigator.push<bool>(
                                             context,
                                             MaterialPageRoute(
-                                              builder: (context) => PlanFormScreen(plan: plan),
+                                              builder: (context) =>
+                                                  PlanFormScreen(plan: plan),
                                             ),
                                           ).then((result) {
                                             if (result == true && mounted) {
@@ -562,22 +596,39 @@ body: SafeArea(
                                             }
                                           });
                                         },
-                                        icon: Icon(Icons.edit_outlined, size: 16),
+                                        icon: Icon(
+                                          Icons.edit_outlined,
+                                          size: 16,
+                                        ),
                                         label: Text('编辑'),
                                         style: TextButton.styleFrom(
-                                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                          ),
                                           minimumSize: Size.zero,
-                                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                          tapTargetSize:
+                                              MaterialTapTargetSize.shrinkWrap,
                                         ),
                                       ),
                                       TextButton.icon(
-                                        onPressed: () => _confirmDeletePlan(provider, plan),
-                                        icon: Icon(Icons.delete_outline, size: 16, color: Colors.red),
-                                        label: Text('删除', style: TextStyle(color: Colors.red)),
+                                        onPressed: () =>
+                                            _confirmDeletePlan(provider, plan),
+                                        icon: Icon(
+                                          Icons.delete_outline,
+                                          size: 16,
+                                          color: Colors.red,
+                                        ),
+                                        label: Text(
+                                          '删除',
+                                          style: TextStyle(color: Colors.red),
+                                        ),
                                         style: TextButton.styleFrom(
-                                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                          ),
                                           minimumSize: Size.zero,
-                                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                          tapTargetSize:
+                                              MaterialTapTargetSize.shrinkWrap,
                                         ),
                                       ),
                                     ],
@@ -585,11 +636,11 @@ body: SafeArea(
                                 ),
                               ],
                             );
-                           },
-                         );
-                       },
-                     ),
-                   ),
+                          },
+                        );
+                      },
+                    ),
+                  ),
                   const SizedBox(height: 16),
                   SizedBox(
                     width: double.infinity,
@@ -625,7 +676,9 @@ body: SafeArea(
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('已将「${plan.name}」添加到 ${_selectedDate.month}月${_selectedDate.day}日'),
+            content: Text(
+              '已将「${plan.name}」添加到 ${_selectedDate.month}月${_selectedDate.day}日',
+            ),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -703,7 +756,7 @@ class _PlanDetailSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().currentTheme;
-    
+
     return Container(
       decoration: const BoxDecoration(
         color: Colors.white,
@@ -727,7 +780,7 @@ class _PlanDetailSheet extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
-            
+
             // 计划名称
             Text(
               plan.name,
@@ -753,7 +806,7 @@ class _PlanDetailSheet extends StatelessWidget {
                 ),
               ),
             const SizedBox(height: 8),
-            
+
             // 目标部位
             Text(
               '目标部位：${plan.targetMusclesText}',
@@ -764,7 +817,7 @@ class _PlanDetailSheet extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            
+
             // 统计
             Row(
               children: [
@@ -776,7 +829,7 @@ class _PlanDetailSheet extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 24),
-            
+
             // 动作列表
             Text(
               '动作列表',
@@ -792,7 +845,7 @@ class _PlanDetailSheet extends StatelessWidget {
               final index = entry.key;
               final planExercise = entry.value;
               final hasDetails = planExercise.hasDetails;
-              
+
               return GestureDetector(
                 onTap: hasDetails && planExercise.exercise != null
                     ? () => ExerciseDetailSheet.show(
@@ -815,7 +868,9 @@ class _PlanDetailSheet extends StatelessWidget {
                     children: [
                       // 缩略图或序号
                       GestureDetector(
-                        onTap: hasDetails && planExercise.exercise?.imageUrl != null
+                        onTap:
+                            hasDetails &&
+                                planExercise.exercise?.imageUrl != null
                             ? () {
                                 if (planExercise.exercise!.images.isNotEmpty) {
                                   FullscreenImageViewer.showCarousel(
@@ -824,7 +879,8 @@ class _PlanDetailSheet extends StatelessWidget {
                                     initialIndex: 0,
                                     title: planExercise.exercise!.name,
                                   );
-                                } else if (planExercise.exercise!.imageUrl != null) {
+                                } else if (planExercise.exercise!.imageUrl !=
+                                    null) {
                                   FullscreenImageViewer.show(
                                     context,
                                     imageUrl: planExercise.exercise!.imageUrl!,
@@ -844,22 +900,30 @@ class _PlanDetailSheet extends StatelessWidget {
                           ),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(10),
-                            child: hasDetails && planExercise.exercise?.imageUrl != null
+                            child:
+                                hasDetails &&
+                                    planExercise.exercise?.imageUrl != null
                                 ? Hero(
                                     tag: planExercise.exercise!.imageUrl!,
                                     child: CachedNetworkImage(
-                                      imageUrl: planExercise.exercise!.imageUrl!,
+                                      imageUrl:
+                                          planExercise.exercise!.imageUrl!,
                                       fit: BoxFit.cover,
                                       placeholder: (context, url) => Icon(
                                         Icons.fitness_center,
-                                        color: theme.accentColor.withValues(alpha: 0.5),
+                                        color: theme.accentColor.withValues(
+                                          alpha: 0.5,
+                                        ),
                                         size: 22,
                                       ),
-                                      errorWidget: (context, url, error) => Icon(
-                                        Icons.fitness_center,
-                                        color: theme.accentColor.withValues(alpha: 0.5),
-                                        size: 22,
-                                      ),
+                                      errorWidget: (context, url, error) =>
+                                          Icon(
+                                            Icons.fitness_center,
+                                            color: theme.accentColor.withValues(
+                                              alpha: 0.5,
+                                            ),
+                                            size: 22,
+                                          ),
                                     ),
                                   )
                                 : Center(
@@ -871,7 +935,8 @@ class _PlanDetailSheet extends StatelessWidget {
                                         fontWeight: FontWeight.w600,
                                         color: hasDetails
                                             ? theme.accentColor
-                                            : theme.secondaryTextColor.withValues(alpha: 0.5),
+                                            : theme.secondaryTextColor
+                                                  .withValues(alpha: 0.5),
                                       ),
                                     ),
                                   ),
@@ -885,29 +950,42 @@ class _PlanDetailSheet extends StatelessWidget {
                           children: [
                             // 动作名称
                             Text(
-                              hasDetails ? planExercise.name : '${planExercise.name} (无详情)',
+                              hasDetails
+                                  ? planExercise.name
+                                  : '${planExercise.name} (无详情)',
                               style: TextStyle(
                                 fontFamily: '.SF Pro Text',
                                 fontSize: 15,
                                 color: hasDetails
                                     ? theme.textColor
-                                    : theme.secondaryTextColor.withValues(alpha: 0.7),
+                                    : theme.secondaryTextColor.withValues(
+                                        alpha: 0.7,
+                                      ),
                                 fontStyle: hasDetails ? null : FontStyle.italic,
                               ),
                             ),
                             // 肌肉标签和器材信息
-                            if (hasDetails && planExercise.exercise != null) ...[
+                            if (hasDetails &&
+                                planExercise.exercise != null) ...[
                               const SizedBox(height: 4),
                               Row(
                                 children: [
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 6,
+                                      vertical: 2,
+                                    ),
                                     decoration: BoxDecoration(
-                                      color: theme.accentColor.withValues(alpha: 0.1),
+                                      color: theme.accentColor.withValues(
+                                        alpha: 0.1,
+                                      ),
                                       borderRadius: BorderRadius.circular(4),
                                     ),
                                     child: Text(
-                                      planExercise.exercise!.primaryMuscle.displayName,
+                                      planExercise
+                                          .exercise!
+                                          .primaryMuscle
+                                          .displayName,
                                       style: TextStyle(
                                         fontFamily: '.SF Pro Text',
                                         fontSize: 11,
@@ -944,7 +1022,7 @@ class _PlanDetailSheet extends StatelessWidget {
               );
             }),
             const SizedBox(height: 24),
-            
+
             // 操作按钮
             Row(
               children: [

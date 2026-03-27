@@ -104,7 +104,7 @@ class _SetRecordDialogState extends State<SetRecordDialog> {
     final theme = context.watch<ThemeProvider>().currentTheme;
 
     return Dialog(
-      backgroundColor: Colors.white,
+      backgroundColor: theme.surfaceColor,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(24),

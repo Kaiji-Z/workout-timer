@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -6,7 +5,6 @@ import '../services/workout_repository.dart';
 import '../theme/theme_provider.dart';
 import '../theme/app_theme.dart';
 import 'user_preferences_screen.dart';
-
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -53,7 +51,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
       builder: (context) => AlertDialog(
         backgroundColor: theme.surfaceColor.withValues(alpha: 0.95),
         title: Text('确认清除', style: TextStyle(color: theme.textColor)),
-        content: Text('确定要清除所有历史记录吗？此操作不可撤销。', style: TextStyle(color: theme.textColor)),
+        content: Text(
+          '确定要清除所有历史记录吗？此操作不可撤销。',
+          style: TextStyle(color: theme.textColor),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -71,9 +72,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (confirmed == true) {
       await _repository.clearAllSessions();
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('历史记录已清除')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('历史记录已清除')));
       }
     }
   }
@@ -82,7 +83,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     final themeProvider = context.watch<ThemeProvider>();
     final theme = themeProvider.currentTheme;
-    
+
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppBar(
@@ -99,7 +100,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
             Text(
-              'SETTINGS',
+              '设置',
               style: TextStyle(
                 fontFamily: '.SF Pro Display',
                 fontSize: 18,
@@ -121,39 +122,32 @@ class _SettingsScreenState extends State<SettingsScreen> {
         children: [
           // Notification Settings
           _buildSectionHeader('通知设置', theme),
-          _buildGlassCard(
+          _buildSettingsCard(
             theme: theme,
             child: Column(
               children: [
-                _buildGlassSwitch(
-                  '启用声音',
-                  _soundEnabled,
-                  (value) {
-                    setState(() => _soundEnabled = value);
-                    _saveSettings();
-                  },
-                  theme,
+                _buildSettingsSwitch('启用声音', _soundEnabled, (value) {
+                  setState(() => _soundEnabled = value);
+                  _saveSettings();
+                }, theme),
+                Divider(
+                  color: theme.surfaceColor.withValues(alpha: 0.1),
+                  height: 1,
                 ),
-                Divider(color: theme.surfaceColor.withValues(alpha: 0.1), height: 1),
-                _buildGlassSwitch(
-                  '启用振动',
-                  _vibrationEnabled,
-                  (value) {
-                    setState(() => _vibrationEnabled = value);
-                    _saveSettings();
-                  },
-                  theme,
+                _buildSettingsSwitch('启用振动', _vibrationEnabled, (value) {
+                  setState(() => _vibrationEnabled = value);
+                  _saveSettings();
+                }, theme),
+                Divider(
+                  color: theme.surfaceColor.withValues(alpha: 0.1),
+                  height: 1,
                 ),
-                Divider(color: theme.surfaceColor.withValues(alpha: 0.1), height: 1),
-                _buildGlassSwitch(
-                  '详细记录模式',
-                  _detailedRecordingEnabled,
-                  (value) {
-                    setState(() => _detailedRecordingEnabled = value);
-                    _saveSettings();
-                  },
-                  theme,
-                ),
+                _buildSettingsSwitch('详细记录模式', _detailedRecordingEnabled, (
+                  value,
+                ) {
+                  setState(() => _detailedRecordingEnabled = value);
+                  _saveSettings();
+                }, theme),
               ],
             ),
           ),
@@ -161,7 +155,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
           // Appearance Settings
           _buildSectionHeader('外观设置', theme),
-          _buildGlassCard(
+          _buildSettingsCard(
             theme: theme,
             child: ListTile(
               title: Text(
@@ -178,7 +172,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   color: theme.secondaryTextColor,
                 ),
               ),
-              trailing: Icon(Icons.chevron_right, color: theme.secondaryTextColor),
+              trailing: Icon(
+                Icons.chevron_right,
+                color: theme.secondaryTextColor,
+              ),
               onTap: () => _showThemeSelector(context, themeProvider),
             ),
           ),
@@ -186,7 +183,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
           // Custom Message
           _buildSectionHeader('自定义提醒消息', theme),
-          _buildGlassCard(
+          _buildSettingsCard(
             theme: theme,
             padding: const EdgeInsets.all(16),
             child: TextField(
@@ -218,7 +215,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
           // Data Management
           _buildSectionHeader('数据管理', theme),
-          _buildGlassCard(
+          _buildSettingsCard(
             theme: theme,
             child: ListTile(
               title: Text(
@@ -233,7 +230,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
           // AI Preferences
           _buildSectionHeader('AI 训练偏好', theme),
-          _buildGlassCard(
+          _buildSettingsCard(
             theme: theme,
             child: ListTile(
               title: Text(
@@ -251,7 +248,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   color: theme.secondaryTextColor,
                 ),
               ),
-              trailing: Icon(Icons.chevron_right, color: theme.secondaryTextColor),
+              trailing: Icon(
+                Icons.chevron_right,
+                color: theme.secondaryTextColor,
+              ),
               onTap: () {
                 Navigator.push(
                   context,
@@ -283,37 +283,38 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildGlassCard({required AppThemeData theme, required Widget child, EdgeInsetsGeometry? padding}) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-        child: Container(
-          padding: padding ?? const EdgeInsets.symmetric(vertical: 4),
-          decoration: BoxDecoration(
-            // 统一玻璃效果：white 12%
-            color: Colors.white.withValues(alpha: 0.12),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              // 统一边框：white 30%
-              color: Colors.white.withValues(alpha: 0.30),
-              width: 1,
-            ),
+  Widget _buildSettingsCard({
+    required AppThemeData theme,
+    required Widget child,
+    EdgeInsetsGeometry? padding,
+  }) {
+    return Container(
+      padding: padding ?? const EdgeInsets.symmetric(vertical: 4),
+      decoration: BoxDecoration(
+        color: theme.surfaceColor,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
-          child: child,
-        ),
+        ],
       ),
+      child: child,
     );
   }
 
-  Widget _buildGlassSwitch(String title, bool value, ValueChanged<bool> onChanged, AppThemeData theme) {
+  Widget _buildSettingsSwitch(
+    String title,
+    bool value,
+    ValueChanged<bool> onChanged,
+    AppThemeData theme,
+  ) {
     return SwitchListTile(
       title: Text(
         title,
-        style: TextStyle(
-          fontFamily: '.SF Pro Text',
-          color: theme.textColor,
-        ),
+        style: TextStyle(fontFamily: '.SF Pro Text', color: theme.textColor),
       ),
       value: value,
       onChanged: onChanged,
@@ -346,7 +347,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
       builder: (context) => Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: themeProvider.currentTheme.surfaceColor.withValues(alpha: 0.95),
+          color: themeProvider.currentTheme.surfaceColor.withValues(
+            alpha: 0.95,
+          ),
           borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: Column(
@@ -366,7 +369,47 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ...allThemes.map((theme) {
               final isSelected = themeProvider.currentTheme.name == theme.name;
               return ListTile(
-                leading: Icon(theme.icon, color: theme.primaryColor),
+                leading: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Gradient color swatch preview
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        gradient: LinearGradient(
+                          colors: [theme.primaryColor, theme.secondaryColor],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        border: isSelected
+                            ? Border.all(color: theme.accentColor, width: 2.5)
+                            : null,
+                        boxShadow: isSelected
+                            ? [
+                                BoxShadow(
+                                  color: theme.accentColor.withValues(
+                                    alpha: 0.3,
+                                  ),
+                                  blurRadius: 8,
+                                ),
+                              ]
+                            : null,
+                      ),
+                      child: isSelected
+                          ? const Icon(
+                              Icons.check,
+                              color: Colors.white,
+                              size: 20,
+                            )
+                          : null,
+                    ),
+                    const SizedBox(width: 12),
+                    // Theme icon
+                    Icon(theme.icon, color: theme.primaryColor),
+                  ],
+                ),
                 title: Text(
                   theme.nameZh,
                   style: TextStyle(
@@ -383,9 +426,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     color: themeProvider.currentTheme.secondaryTextColor,
                   ),
                 ),
-                trailing: isSelected
-                    ? Icon(Icons.check, color: themeProvider.currentTheme.primaryColor)
-                    : null,
+
                 onTap: () {
                   final themeType = AppThemeType.values.firstWhere(
                     (t) => getThemeData(t).name == theme.name,
