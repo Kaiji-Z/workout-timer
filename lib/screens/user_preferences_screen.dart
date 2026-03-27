@@ -425,6 +425,11 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
     required Widget child,
     EdgeInsetsGeometry? padding,
   }) {
+    // 深色模式下使用更低的透明度
+    final isDark = theme.surfaceColor == const Color(0xFF1E1E2E);
+    final bgAlpha = isDark ? 0.08 : 0.12;
+    final borderAlpha = isDark ? 0.20 : 0.30;
+
     return ClipRRect(
       borderRadius: BorderRadius.circular(16),
       child: BackdropFilter(
@@ -432,10 +437,10 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
         child: Container(
           padding: padding ?? const EdgeInsets.symmetric(vertical: 4),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.12),
+            color: Colors.white.withValues(alpha: bgAlpha),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: Colors.white.withValues(alpha: 0.30),
+              color: Colors.white.withValues(alpha: borderAlpha),
               width: 1,
             ),
           ),

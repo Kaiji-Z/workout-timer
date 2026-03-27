@@ -352,7 +352,7 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
               margin: const EdgeInsets.only(bottom: 6),
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: Colors.blue.withValues(alpha: 0.08),
+                color: theme.accentColor.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
@@ -360,7 +360,7 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
                 style: TextStyle(
                   fontFamily: '.SF Pro Text',
                   fontSize: 10,
-                  color: Colors.blue,
+                  color: theme.accentColor,
                 ),
               ),
             ),

@@ -17,7 +17,8 @@ class AIAnalysisScreen extends StatefulWidget {
   final DateTime startDate;
   final DateTime endDate;
   final List<WorkoutRecord> records; // current period
-  final List<WorkoutRecord> previousRecords; // previous period for trend comparison
+  final List<WorkoutRecord>
+  previousRecords; // previous period for trend comparison
   final List<WorkoutRecord> allRecords; // all records for PR calculation
 
   const AIAnalysisScreen({
@@ -39,7 +40,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
   bool _isPromptCopied = false;
 
   final StatsCalculatorService _statsCalc = StatsCalculatorService();
-  
+
   // User preferences loaded asynchronously
   String _selectedGoal = 'muscle_building';
   String _selectedExperience = 'intermediate';
@@ -55,8 +56,9 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
 
   Future<void> _loadUserPreferences() async {
     try {
-      final prefs = await UserPreferencesService().loadPreferences()
-          .timeout(const Duration(seconds: 2));
+      final prefs = await UserPreferencesService().loadPreferences().timeout(
+        const Duration(seconds: 2),
+      );
       setState(() {
         _selectedGoal = prefs.goal;
         _selectedExperience = prefs.experience;
@@ -99,11 +101,15 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
     final buffer = StringBuffer();
     for (int i = 0; i < sorted.length; i++) {
       final entry = sorted[i];
-      final pct = total > 0 ? (entry.value / total * 100).toStringAsFixed(1) : '0.0';
+      final pct = total > 0
+          ? (entry.value / total * 100).toStringAsFixed(1)
+          : '0.0';
       final volumeStr = entry.value >= 1000
           ? '${(entry.value / 1000).toStringAsFixed(1)}k'
           : entry.value.toStringAsFixed(0);
-      buffer.writeln('  ${i + 1}. ${entry.key.displayName}: $volumeStr kg ($pct%)');
+      buffer.writeln(
+        '  ${i + 1}. ${entry.key.displayName}: $volumeStr kg ($pct%)',
+      );
     }
     return buffer.toString().trimRight();
   }
@@ -111,7 +117,9 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
   /// Format volume trend (current vs previous period)
   String _formatVolumeTrend() {
     final currentVolume = _statsCalc.calculateTotalVolume(widget.records);
-    final previousVolume = _statsCalc.calculateTotalVolume(widget.previousRecords);
+    final previousVolume = _statsCalc.calculateTotalVolume(
+      widget.previousRecords,
+    );
 
     if (currentVolume == 0 && previousVolume == 0) return '- 暂无趋势数据';
 
@@ -122,9 +130,16 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
 
     // Total volume trend
     if (previousVolume > 0) {
-      final change = ((currentVolume - previousVolume) / previousVolume * 100).round();
-      final arrow = change > 0 ? '↑' : change < 0 ? '↓' : '→';
-      buffer.writeln('  - 总训练量: ${fmtVol(currentVolume)} (${change > 0 ? '+' : ''}$change% $arrow)');
+      final change = ((currentVolume - previousVolume) / previousVolume * 100)
+          .round();
+      final arrow = change > 0
+          ? '↑'
+          : change < 0
+          ? '↓'
+          : '→';
+      buffer.writeln(
+        '  - 总训练量: ${fmtVol(currentVolume)} (${change > 0 ? '+' : ''}$change% $arrow)',
+      );
     } else {
       buffer.writeln('  - 总训练量: ${fmtVol(currentVolume)} (新周期)');
     }
@@ -134,15 +149,21 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
     final previousDays = _countUniqueDays(widget.previousRecords);
     if (previousDays > 0) {
       final diff = currentDays - previousDays;
-      final arrow = diff > 0 ? '↑' : diff < 0 ? '↓' : '→';
+      final arrow = diff > 0
+          ? '↑'
+          : diff < 0
+          ? '↓'
+          : '→';
       buffer.writeln('  - 训练频率: $currentDays 天 ($diff$arrow)');
     }
 
     // Per-muscle volume trend
     final currentMuscleVol = _calcMuscleVolume(widget.records);
     final previousMuscleVol = _calcMuscleVolume(widget.previousRecords);
-    final allMuscles = {...currentMuscleVol.keys, ...previousMuscleVol.keys}.toList()
-      ..sort((a, b) => a.displayName.compareTo(b.displayName));
+    final allMuscles = {
+      ...currentMuscleVol.keys,
+      ...previousMuscleVol.keys,
+    }.toList()..sort((a, b) => a.displayName.compareTo(b.displayName));
 
     for (final muscle in allMuscles) {
       final curr = currentMuscleVol[muscle] ?? 0;
@@ -151,7 +172,9 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
         final change = ((curr - prev) / prev * 100).round();
         if (change.abs() >= 10) {
           final arrow = change > 0 ? '↑' : '↓';
-          buffer.writeln('  - ${muscle.displayName}: ${change > 0 ? '+' : ''}$change% $arrow');
+          buffer.writeln(
+            '  - ${muscle.displayName}: ${change > 0 ? '+' : ''}$change% $arrow',
+          );
         }
       }
     }
@@ -169,7 +192,9 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
   }
 
   /// Calculate per-muscle training volume
-  Map<PrimaryMuscleGroup, double> _calcMuscleVolume(List<WorkoutRecord> records) {
+  Map<PrimaryMuscleGroup, double> _calcMuscleVolume(
+    List<WorkoutRecord> records,
+  ) {
     final dist = <PrimaryMuscleGroup, double>{};
     for (final record in records) {
       final recordVolume = _statsCalc.calculateTotalVolume([record]);
@@ -201,7 +226,9 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
   /// Format recovery management data (calculate rest days per muscle)
   String _formatRecoveryManagement() {
     // Use allRecords for the most comprehensive recovery data
-    final records = widget.allRecords.isNotEmpty ? widget.allRecords : widget.records;
+    final records = widget.allRecords.isNotEmpty
+        ? widget.allRecords
+        : widget.records;
     if (records.isEmpty) return '- 暂无恢复数据';
 
     final Map<PrimaryMuscleGroup, DateTime> lastTrainedDates = {};
@@ -224,7 +251,11 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
       ..sort((a, b) => a.value.compareTo(b.value));
 
     for (final entry in sortedEntries) {
-      final lastDate = DateTime(entry.value.year, entry.value.month, entry.value.day);
+      final lastDate = DateTime(
+        entry.value.year,
+        entry.value.month,
+        entry.value.day,
+      );
       final restDays = today.difference(lastDate).inDays;
       String status;
       if (restDays >= 3) {
@@ -247,7 +278,9 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
     final Map<String, int> exerciseCounts = {};
     for (final record in widget.records) {
       for (final exercise in record.exercises) {
-        final name = exercise.name.isNotEmpty ? exercise.name : exercise.exerciseId;
+        final name = exercise.name.isNotEmpty
+            ? exercise.name
+            : exercise.exerciseId;
         if (name.isNotEmpty) {
           exerciseCounts[name] = (exerciseCounts[name] ?? 0) + 1;
         }
@@ -281,10 +314,14 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
         .toList();
 
     // Muscles with volume below 50% of average
-    final avgVol = muscleVol.values.fold<double>(0, (sum, v) => sum + v) / muscleVol.length;
+    final avgVol =
+        muscleVol.values.fold<double>(0, (sum, v) => sum + v) /
+        muscleVol.length;
     final weakTrained = muscleVol.entries
         .where((e) => e.value <= avgVol * 0.5)
-        .map((e) => '${e.key.displayName}(${(e.value / avgVol * 100).round()}%)')
+        .map(
+          (e) => '${e.key.displayName}(${(e.value / avgVol * 100).round()}%)',
+        )
         .toList();
 
     return [...untrained, ...weakTrained];
@@ -378,7 +415,8 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
 
   String _generatePrompt() {
     final periodLabel = widget.periodType == 'week' ? '本周' : '本月';
-    final dateRange = '${widget.startDate.month}月${widget.startDate.day}日 - ${widget.endDate.month}月${widget.endDate.day}日';
+    final dateRange =
+        '${widget.startDate.month}月${widget.startDate.day}日 - ${widget.endDate.month}月${widget.endDate.day}日';
 
     final goalLabels = {
       'muscle_building': '增肌',
@@ -411,14 +449,18 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
     // Basic statistics
     final totalVolume = _statsCalc.calculateTotalVolume(widget.records);
     final density = _statsCalc.calculateDensity(widget.records);
-    final totalDurationMin = widget.records.fold<int>(0, (sum, r) => sum + r.durationSeconds) ~/ 60;
+    final totalDurationMin =
+        widget.records.fold<int>(0, (sum, r) => sum + r.durationSeconds) ~/ 60;
     final sessionCount = widget.records.length;
     final workoutDays = _countUniqueDays(widget.records);
-    final avgPerSession = sessionCount > 0 ? totalDurationMin ~/ sessionCount : 0;
-    final avgVolumePerSession = sessionCount > 0 ? totalVolume / sessionCount : 0.0;
-    final fmtVol = (double v) => v >= 1000
-        ? '${(v / 1000).toStringAsFixed(1)}k'
-        : v.toStringAsFixed(0);
+    final avgPerSession = sessionCount > 0
+        ? totalDurationMin ~/ sessionCount
+        : 0;
+    final avgVolumePerSession = sessionCount > 0
+        ? totalVolume / sessionCount
+        : 0.0;
+    final fmtVol = (double v) =>
+        v >= 1000 ? '${(v / 1000).toStringAsFixed(1)}k' : v.toStringAsFixed(0);
 
     final buffer = StringBuffer();
 
@@ -437,7 +479,9 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
     buffer.writeln('- 总训练量: ${fmtVol(totalVolume)} kg (组×次×重量)');
     buffer.writeln('- 训练密度: ${density.toStringAsFixed(1)} 组/分钟');
     if (sessionCount > 0) {
-      buffer.writeln('- 平均每次: ${fmtVol(avgVolumePerSession)} kg / $avgPerSession 分钟');
+      buffer.writeln(
+        '- 平均每次: ${fmtVol(avgVolumePerSession)} kg / $avgPerSession 分钟',
+      );
     }
     buffer.writeln();
 
@@ -482,11 +526,17 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
     // User profile
     buffer.writeln('## 用户画像');
     buffer.writeln('- 训练目标: ${goalLabels[_selectedGoal] ?? _selectedGoal}');
-    buffer.writeln('- 经验水平: ${experienceLabels[_selectedExperience] ?? _selectedExperience}');
+    buffer.writeln(
+      '- 经验水平: ${experienceLabels[_selectedExperience] ?? _selectedExperience}',
+    );
     buffer.writeln('- 每周频率: $_selectedFrequency 天');
-    buffer.writeln('- 可用设备: ${equipmentLabels[_selectedEquipment] ?? _selectedEquipment}');
+    buffer.writeln(
+      '- 可用设备: ${equipmentLabels[_selectedEquipment] ?? _selectedEquipment}',
+    );
     if (_selectedFocusAreas.isNotEmpty) {
-      buffer.writeln('- 重点加强: ${_selectedFocusAreas.map((m) => muscleLabels[m] ?? m).join('、')}');
+      buffer.writeln(
+        '- 重点加强: ${_selectedFocusAreas.map((m) => muscleLabels[m] ?? m).join('、')}',
+      );
     }
     buffer.writeln();
 
@@ -507,7 +557,9 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
     buffer.writeln('      "dayOfWeek": 1,');
     buffer.writeln('      "targetMuscles": ["chest", "shoulders"],');
     buffer.writeln('      "exercises": [');
-    buffer.writeln('        {"exerciseName": "Barbell Bench Press", "targetSets": 4}');
+    buffer.writeln(
+      '        {"exerciseName": "Barbell Bench Press", "targetSets": 4}',
+    );
     buffer.writeln('      ]');
     buffer.writeln('    }');
     buffer.writeln('  ]');
@@ -516,8 +568,12 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
     buffer.writeln();
     buffer.writeln('## 动作命名规范');
     buffer.writeln('使用标准英文动作名：');
-    buffer.writeln('- 杠铃: Barbell Bench Press, Barbell Squat, Deadlift, Overhead Press, Barbell Row');
-    buffer.writeln('- 哑铃: Incline Dumbbell Press, Dumbbell Fly, Dumbbell Curl, Lateral Raise');
+    buffer.writeln(
+      '- 杠铃: Barbell Bench Press, Barbell Squat, Deadlift, Overhead Press, Barbell Row',
+    );
+    buffer.writeln(
+      '- 哑铃: Incline Dumbbell Press, Dumbbell Fly, Dumbbell Curl, Lateral Raise',
+    );
     buffer.writeln('- 器械: Cable Fly, Cable Crossover, Lat Pulldown, Leg Press');
     buffer.writeln('- 徒手: Pull-up, Dip, Push-up, Bodyweight Squat');
     buffer.writeln('如果不确定确切名称，使用标准术语即可。');
@@ -549,19 +605,13 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
             // Section 2: Training Data Report
             _buildSectionHeader('训练数据报告', theme),
             const SizedBox(height: 12),
-            
+
             // a) Basic Info
-            _buildGlassCard(
-              theme: theme,
-              child: _buildBasicInfoSection(theme),
-            ),
+            _buildGlassCard(theme: theme, child: _buildBasicInfoSection(theme)),
             const SizedBox(height: 12),
 
             // b) Trend Changes
-            _buildGlassCard(
-              theme: theme,
-              child: _buildTrendSection(theme),
-            ),
+            _buildGlassCard(theme: theme, child: _buildTrendSection(theme)),
             const SizedBox(height: 12),
 
             // c) Muscle Volume Distribution
@@ -572,17 +622,11 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
             const SizedBox(height: 12),
 
             // d) Personal Records
-            _buildGlassCard(
-              theme: theme,
-              child: _buildPRSection(theme),
-            ),
+            _buildGlassCard(theme: theme, child: _buildPRSection(theme)),
             const SizedBox(height: 12),
 
             // e) Recovery Status
-            _buildGlassCard(
-              theme: theme,
-              child: _buildRecoverySection(theme),
-            ),
+            _buildGlassCard(theme: theme, child: _buildRecoverySection(theme)),
             const SizedBox(height: 12),
 
             // f) Common Exercises
@@ -593,10 +637,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
             const SizedBox(height: 12),
 
             // g) Training Insights
-            _buildGlassCard(
-              theme: theme,
-              child: _buildInsightsSection(theme),
-            ),
+            _buildGlassCard(theme: theme, child: _buildInsightsSection(theme)),
             const SizedBox(height: 24),
 
             // Section 3: Generated Prompt
@@ -730,6 +771,11 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
   }
 
   Widget _buildGlassCard({required AppThemeData theme, required Widget child}) {
+    // 深色模式下使用更低的透明度
+    final isDark = theme.surfaceColor == const Color(0xFF1E1E2E);
+    final bgAlpha = isDark ? 0.08 : 0.12;
+    final borderAlpha = isDark ? 0.20 : 0.30;
+
     return ClipRRect(
       borderRadius: BorderRadius.circular(16),
       child: BackdropFilter(
@@ -737,10 +783,10 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.12),
+            color: Colors.white.withValues(alpha: bgAlpha),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: Colors.white.withValues(alpha: 0.30),
+              color: Colors.white.withValues(alpha: borderAlpha),
               width: 1,
             ),
           ),
@@ -753,14 +799,18 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
   Widget _buildBasicInfoSection(AppThemeData theme) {
     final totalVolume = _statsCalc.calculateTotalVolume(widget.records);
     final density = _statsCalc.calculateDensity(widget.records);
-    final totalDurationMin = widget.records.fold<int>(0, (sum, r) => sum + r.durationSeconds) ~/ 60;
+    final totalDurationMin =
+        widget.records.fold<int>(0, (sum, r) => sum + r.durationSeconds) ~/ 60;
     final sessionCount = widget.records.length;
     final workoutDays = _countUniqueDays(widget.records);
-    final avgPerSession = sessionCount > 0 ? totalDurationMin ~/ sessionCount : 0;
-    final avgVolumePerSession = sessionCount > 0 ? totalVolume / sessionCount : 0.0;
-    final fmtVol = (double v) => v >= 1000
-        ? '${(v / 1000).toStringAsFixed(1)}k'
-        : v.toStringAsFixed(0);
+    final avgPerSession = sessionCount > 0
+        ? totalDurationMin ~/ sessionCount
+        : 0;
+    final avgVolumePerSession = sessionCount > 0
+        ? totalVolume / sessionCount
+        : 0.0;
+    final fmtVol = (double v) =>
+        v >= 1000 ? '${(v / 1000).toStringAsFixed(1)}k' : v.toStringAsFixed(0);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -770,7 +820,11 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
         _buildDataRow('总训练量', '${fmtVol(totalVolume)} kg', theme),
         _buildDataRow('训练密度', '${density.toStringAsFixed(1)} 组/分钟', theme),
         if (sessionCount > 0)
-          _buildDataRow('平均每次', '${fmtVol(avgVolumePerSession)} kg / $avgPerSession 分钟', theme),
+          _buildDataRow(
+            '平均每次',
+            '${fmtVol(avgVolumePerSession)} kg / $avgPerSession 分钟',
+            theme,
+          ),
       ],
     );
   }
@@ -779,7 +833,10 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSubsectionHeader('趋势变化 (vs 上${widget.periodType == 'week' ? '周' : '月'})', theme),
+        _buildSubsectionHeader(
+          '趋势变化 (vs 上${widget.periodType == 'week' ? '周' : '月'})',
+          theme,
+        ),
         Text(
           _formatVolumeTrend(),
           style: TextStyle(
@@ -953,9 +1010,9 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
         onPressed: () {
           Clipboard.setData(ClipboardData(text: _generatedPrompt));
           setState(() => _isPromptCopied = true);
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('提示词已复制到剪贴板')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('提示词已复制到剪贴板')));
         },
         icon: Icon(
           _isPromptCopied ? Icons.check : Icons.copy,

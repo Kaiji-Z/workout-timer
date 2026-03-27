@@ -76,14 +76,59 @@ class AppThemeData {
     progressRingColor.withValues(alpha: 0.7),
   ];
 
+  /// 生成深色模式变体
+  /// 保持原有色调，调整亮度和对比度以适应深色背景
+  AppThemeData get dark {
+    // 从主色提取色相，保持主题特色
+    final hsl = HSLColor.fromColor(primaryColor);
+    final hue = hsl.hue;
+
+    // 深色背景：保持色相，大幅降低亮度，适当降低饱和度
+    final darkPrimary = HSLColor.fromAHSL(1.0, hue, 0.25, 0.12).toColor();
+    final darkSecondary = HSLColor.fromAHSL(1.0, hue, 0.30, 0.15).toColor();
+
+    return AppThemeData(
+      name: name,
+      nameZh: nameZh,
+      description: description,
+      icon: icon,
+      // 深色背景 - 保持原有色调
+      primaryColor: darkPrimary,
+      secondaryColor: darkSecondary,
+      // 强调色保持不变（深靛蓝在深色背景上效果良好）
+      accentColor: accentColor,
+      // 表面颜色 - 中性深色（不使用主题色调，保持卡片可读性）
+      surfaceColor: const Color(0xFF1E1E2E),
+      cardColor: const Color(0xFF2A2A3C),
+      // 文字颜色 - 浅色
+      textColor: const Color(0xFFE8E8E8),
+      secondaryTextColor: const Color(0xFF9E9E9E),
+      // 进度环 - 保持原有强调色
+      progressRingColor: progressRingColor,
+      progressBgColor: const Color(0x40FFFFFF),
+      progressStrokeWidth: progressStrokeWidth,
+      // 装饰圆圈 - 保持白色半透明
+      decorativeCircleColors: decorativeCircleColors,
+      // 语义色 - 深色背景下使用更亮的颜色
+      errorColor: const Color(0xFFEF5350),
+      successColor: const Color(0xFF66BB6A),
+      errorBackgroundColor: const Color(0xFF3E2723),
+      dividerColor: const Color(0xFF3A3A4A),
+    );
+  }
+
   /// 转换为 Flutter ThemeData
   ThemeData toThemeData() {
+    // 通过 surfaceColor 判断是否为深色模式
+    final bool isDark = surfaceColor == const Color(0xFF1E1E2E);
+    final brightness = isDark ? Brightness.dark : Brightness.light;
+
     return ThemeData(
       useMaterial3: true,
-      brightness: Brightness.light,
+      brightness: brightness,
       scaffoldBackgroundColor: primaryColor,
       colorScheme: ColorScheme(
-        brightness: Brightness.light,
+        brightness: brightness,
         primary: primaryColor,
         secondary: accentColor,
         surface: surfaceColor,
