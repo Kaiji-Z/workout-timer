@@ -157,26 +157,39 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _buildSectionHeader('外观设置', theme),
           _buildSettingsCard(
             theme: theme,
-            child: ListTile(
-              title: Text(
-                '主题',
-                style: TextStyle(
-                  fontFamily: '.SF Pro Text',
-                  color: theme.textColor,
+            child: Column(
+              children: [
+                Consumer<ThemeProvider>(
+                  builder: (context, tp, _) => _buildSettingsSwitch(
+                    '深色模式',
+                    tp.isDarkMode,
+                    (value) => tp.setDarkMode(value),
+                    theme,
+                  ),
                 ),
-              ),
-              subtitle: Text(
-                theme.nameZh,
-                style: TextStyle(
-                  fontFamily: '.SF Pro Text',
-                  color: theme.secondaryTextColor,
+                Divider(color: theme.dividerColor, height: 1),
+                ListTile(
+                  title: Text(
+                    '主题',
+                    style: TextStyle(
+                      fontFamily: '.SF Pro Text',
+                      color: theme.textColor,
+                    ),
+                  ),
+                  subtitle: Text(
+                    theme.nameZh,
+                    style: TextStyle(
+                      fontFamily: '.SF Pro Text',
+                      color: theme.secondaryTextColor,
+                    ),
+                  ),
+                  trailing: Icon(
+                    Icons.chevron_right,
+                    color: theme.secondaryTextColor,
+                  ),
+                  onTap: () => _showThemeSelector(context, themeProvider),
                 ),
-              ),
-              trailing: Icon(
-                Icons.chevron_right,
-                color: theme.secondaryTextColor,
-              ),
-              onTap: () => _showThemeSelector(context, themeProvider),
+              ],
             ),
           ),
           const SizedBox(height: 24),
@@ -311,6 +324,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
     ValueChanged<bool> onChanged,
     AppThemeData theme,
   ) {
+    // 根据深色/浅色模式确定关闭态颜色
+    final bool isDark = theme.surfaceColor == const Color(0xFF1E1E2E);
+    final Color inactiveTrack = isDark
+        ? Colors.white.withValues(alpha: 0.15)
+        : const Color(0xFFE0E0E0);
+    final Color inactiveThumb = isDark
+        ? Colors.white.withValues(alpha: 0.8)
+        : const Color(0xFFFAFAFA);
+    final Color inactiveOutline = isDark
+        ? Colors.white.withValues(alpha: 0.3)
+        : const Color(0xFFBDBDBD);
+
     return SwitchListTile(
       title: Text(
         title,
@@ -319,23 +344,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
       value: value,
       onChanged: onChanged,
       activeThumbColor: Colors.white,
-      activeTrackColor: theme.primaryColor.withValues(alpha: 0.7),
-      inactiveThumbColor: Colors.white.withValues(alpha: 0.9),
-      inactiveTrackColor: Colors.white.withValues(alpha: 0.2),
+      activeTrackColor: theme.accentColor,
+      inactiveThumbColor: inactiveThumb,
+      inactiveTrackColor: inactiveTrack,
       thumbColor: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.selected)) {
           return Colors.white;
         }
-        return Colors.white.withValues(alpha: 0.9);
+        return inactiveThumb;
       }),
       trackColor: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.selected)) {
-          return theme.primaryColor.withValues(alpha: 0.7);
+          return theme.accentColor;
         }
-        return Colors.white.withValues(alpha: 0.2);
+        return inactiveTrack;
       }),
       trackOutlineColor: WidgetStateProperty.resolveWith((states) {
-        return Colors.white.withValues(alpha: 0.9);
+        if (states.contains(WidgetState.selected)) {
+          return theme.accentColor.withValues(alpha: 0.5);
+        }
+        return inactiveOutline;
       }),
     );
   }

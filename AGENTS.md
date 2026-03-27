@@ -90,6 +90,7 @@ lib/
 │   ├── exercise_service.dart # Exercise data loading
 │   └── *_repository.dart     # Data access layers
 ├── utils/                    # Color utilities, vocabulary
+│   └── dimensions.dart       # AppDimensions: nav bar sizes, spacing, responsive helpers
 └── data/                     # Static exercise data (JSON)
 ```
 
@@ -219,21 +220,39 @@ void main() {
 }
 ```
 
+### Dark Mode Color Handling
+Always access colors via `AppThemeData` from `ThemeProvider`, never hardcode:
+```dart
+// GOOD - theme-aware, works in both modes
+final theme = context.watch<ThemeProvider>().currentTheme;
+Container(color: theme.surfaceColor);
+
+// BAD - hardcoded, breaks in dark mode
+Container(color: Colors.white);
+```
+Dark mode uses derived colors from light theme via `AppThemeData.dark` getter.
+
 ---
 
 ## DESIGN SYSTEM (Flat Vitality)
 
 ### Color Usage
-| Element | Color/Pattern |
-|---------|---------------|
-| Background | Warm gradient (primaryColor → secondaryColor) |
-| Accent/Interactive | Deep indigo (#1A237E) via `accentColor` |
-| Progress Ring | `accentColor`, 10px stroke |
-| Buttons | White circular with accent icons |
-| Cards/Surfaces | White (#FFFFFF) |
-| Text | #212121 primary, #757575 secondary |
-| Active indicators | `accentColor.withValues(alpha: 0.15)` |
-| Borders | `accentColor.withValues(alpha: 0.3-0.4)` |
+| Element | Light Mode | Dark Mode |
+|---------|------------|-----------|
+| Background | Warm gradient (primary → secondary) | Darkened gradient (preserves hue) |
+| Accent/Interactive | Deep indigo (#1A237E) | Same accent |
+| Progress Ring | `accentColor`, 10px stroke | Same |
+| Buttons | White circular with accent icons | Dark surface circular |
+| Cards/Surfaces | White (#FFFFFF) | #2A2A3C |
+| Base surface | #FFFFFF | #1E1E2E |
+| Text (primary) | #212121 | #E8E8E8 |
+| Text (secondary) | #757575 | #9E9E9E |
+| Active indicators | `accentColor.withValues(alpha: 0.15)` | Same |
+| Borders | `accentColor.withValues(alpha: 0.3-0.4)` | Same |
+| Error | #E53935 | #EF5350 |
+| Success | #4CAF50 | #66BB6A |
+| Error background | #F5E6E6 | #3E2723 |
+| Divider | #E0E0E0 | #3A3A4A |
 
 ### Fonts
 - Display: `.SF Pro Display` (system font)
@@ -257,10 +276,14 @@ void main() {
 | Training states | `bloc/training_provider.dart` (`TrainingState` enum) |
 | Database schema | `services/database_helper.dart` (`_onCreate()`) |
 | Theme definitions | `theme/app_theme.dart` |
+| Dark theme getter | `theme/app_theme.dart:79-118` (`AppThemeData.dark`) |
+| Dark mode toggle | `theme_provider.dart` (`isDarkMode`, `setDarkMode()`) |
+| Dark mode UI | `screens/settings_screen.dart` ("深色模式" switch) |
 | Exercise data | `services/exercise_service.dart` |
 | Bottom navigation | `main.dart` (`MainNavigation` widget) |
 | AI plan wizard | `screens/ai_plan_wizard_screen.dart` |
 | Calendar widget | `widgets/calendar_widget.dart` |
+| Dimensions/spacing | `utils/dimensions.dart` (`AppDimensions`) |
 
 ---
 
@@ -287,6 +310,8 @@ Web uses in-memory SQLite database; native uses persistent storage.
 | Service in Provider | Hard to test | Constructor injection |
 | Release without `--no-tree-shake-icons` | Icons show as garbled | Use `build_release.sh` |
 | Direct color values | Breaks thememing | Use `AppThemeData` fields |
+| `Colors.white` / `Colors.black` | Breaks dark mode | Use `theme.surfaceColor` / `theme.textColor` |
+| Hardcoded dark colors in light mode | Wrong appearance | Use `ThemeProvider.currentTheme` |
 | Bottom padding in main content | Nav bar overlap | Use `extendBody: true`, add padding per-screen |
 | GridView with shrinkWrap in scrollable | Extra blank rows | Use LayoutBuilder + SizedBox with calculated height |
 | Fixed height SizedBox for variable content | Content clipped | Remove constraint, let content size naturally |

@@ -249,7 +249,7 @@ class _MainNavigationState extends State<MainNavigation> {
             Container(
               height: 70,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: appTheme.surfaceColor,
                 borderRadius: BorderRadius.circular(25), // All 4 corners
                 boxShadow: [
                   BoxShadow(
