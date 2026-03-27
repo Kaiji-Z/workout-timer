@@ -74,7 +74,7 @@ class _WeightInputDialogState extends State<WeightInputDialog> {
     final theme = context.watch<ThemeProvider>().currentTheme;
 
     return Dialog(
-      backgroundColor: Colors.white,
+      backgroundColor: theme.surfaceColor,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(24),

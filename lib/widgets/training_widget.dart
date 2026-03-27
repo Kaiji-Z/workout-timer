@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../bloc/training_provider.dart';
+import '../utils/dimensions.dart';
 import '../bloc/plan_provider.dart';
 import '../bloc/training_progress_provider.dart';
 import '../bloc/record_provider.dart';
@@ -108,7 +109,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
               _buildButtonArea(context, training, theme, progressProvider),
 
               // 底部导航栏空间
-              const SizedBox(height: 80),
+              SizedBox(height: AppDimensions.navBarTotalHeight),
             ],
           ),
         );
@@ -131,7 +132,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
           // Centered title
           Expanded(
             child: Text(
-              'WORKOUT TIMER',
+              '训练计时器',
               style: TextStyle(
                 fontFamily: '.SF Pro Display',
                 fontSize: 18,
@@ -181,9 +182,9 @@ class _TrainingWidgetState extends State<TrainingWidget>
     if (_isPlanMode && progressProvider.currentPlan != null) {
       final nextExercise = progressProvider.getNextExercise();
       if (nextExercise != null) {
-        nextHint = 'next: ${nextExercise.name}';
+        nextHint = '下一个：${nextExercise.name}';
       } else {
-        nextHint = 'next: 训练完成';
+        nextHint = '下一个：训练完成';
       }
     }
 
@@ -230,7 +231,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
           AnimatedStopwatchDisplay(
             seconds: training.sessionDuration,
             theme: theme,
-            size: 70,
+            size: AppDimensions.timerSmallSize(context),
           ),
           const SizedBox(height: 16),
           // 主倒计时
@@ -238,7 +239,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
             seconds: training.restRemaining,
             label: '休息倒计时',
             theme: theme,
-            size: 240,
+            size: AppDimensions.timerSize(context),
             isCountdown: true,
             progress: training.restDuration > 0
                 ? training.restRemaining / training.restDuration
@@ -254,7 +255,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
         seconds: training.sessionDuration,
         label: '运动中',
         theme: theme,
-        size: 280,
+        size: AppDimensions.timerSize(context),
         isCountdown: false,
       );
     }
@@ -269,7 +270,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
       seconds: training.restDuration,
       label: '休息时长',
       theme: theme,
-      size: 280,
+      size: AppDimensions.timerSize(context),
       isCountdown: false,
     );
   }
@@ -286,7 +287,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
             height: 180,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: Colors.white,
+              color: theme.surfaceColor,
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.15),
@@ -461,7 +462,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
           const SizedBox(width: 12),
           CircularControlButton(
             icon: Icons.stop,
-            iconColor: Colors.red,
+            iconColor: theme.errorColor,
             onPressed: () {
               if (_isPlanMode && progressProvider.currentExercise != null) {
                 final completedExercise = progressProvider.currentExercise!;
@@ -538,7 +539,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
         children: [
           CircularControlButton(
             icon: Icons.stop,
-            iconColor: Colors.red,
+            iconColor: theme.errorColor,
             onPressed: () {
               if (_isPlanMode && progressProvider.currentExercise != null) {
                 final completedExercise = progressProvider.currentExercise!;
@@ -589,7 +590,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
         children: [
           CircularControlButton(
             icon: Icons.delete_outline,
-            iconColor: Colors.red,
+            iconColor: theme.errorColor,
             onPressed: () {
               training.resetWorkout();
               if (_isPlanMode) {
@@ -638,7 +639,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: theme.surfaceColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -653,7 +654,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: Colors.grey[300],
+                  color: theme.dividerColor,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -677,7 +678,10 @@ class _TrainingWidgetState extends State<TrainingWidget>
                       progressProvider.endPlan();
                       Navigator.pop(context);
                     },
-                    child: Text('取消计划', style: TextStyle(color: Colors.red)),
+                    child: Text(
+                      '取消计划',
+                      style: TextStyle(color: theme.errorColor),
+                    ),
                   ),
               ],
             ),
@@ -882,7 +886,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('保存失败: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: theme.errorColor,
             behavior: SnackBarBehavior.floating,
           ),
         );

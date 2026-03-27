@@ -155,7 +155,7 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
     return Dialog(
-      backgroundColor: Colors.white,
+      backgroundColor: theme.surfaceColor,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Container(
         constraints: BoxConstraints(maxHeight: 600 - bottomInset),

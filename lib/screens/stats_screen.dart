@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../theme/theme_provider.dart';
+import '../utils/dimensions.dart';
 import '../theme/app_theme.dart';
 import '../models/workout_session.dart';
 import '../models/workout_record.dart';
@@ -397,7 +398,7 @@ class _StatsScreenState extends State<StatsScreen>
               ),
             ),
             Text(
-              'TRAINING STATS',
+              '训练统计',
               style: TextStyle(
                 fontFamily: '.SF Pro Display',
                 fontSize: 18,
@@ -669,6 +670,11 @@ class _StatsScreenState extends State<StatsScreen>
 
   /// 周视图
   Widget _buildWeekView(AppThemeData theme) {
+    // Show global empty state if no records at all
+    if (_getAllRecords().isEmpty) {
+      return _buildGlobalEmptyState(theme);
+    }
+
     final records = _filterBySelectedWeek();
     final workoutRecords = records.whereType<WorkoutRecord>().toList();
     final frequencyStats = _calculateFrequencyStats(records);
@@ -677,7 +683,12 @@ class _StatsScreenState extends State<StatsScreen>
     final dailySets = _getDailySets(records, true);
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 100),
+      padding: EdgeInsets.only(
+        left: 16,
+        right: 16,
+        top: 16,
+        bottom: AppDimensions.bottomPadding(context),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -685,16 +696,16 @@ class _StatsScreenState extends State<StatsScreen>
           _buildWeekSelector(theme),
           const SizedBox(height: 20),
 
-          // 训练频率概览
-          _buildSection('训练频率', theme, [
-            _buildFrequencyOverview(frequencyStats, theme),
-          ]),
-          const SizedBox(height: 20),
-
-          // 训练量统计
-          _buildSection('训练量', theme, [
-            _buildVolumeOverview(volumeStats, theme),
-          ]),
+          // 概览 (频率 + 训练量)
+          _CollapsibleSection(
+            title: '概览',
+            theme: theme,
+            children: [
+              _buildFrequencyOverview(frequencyStats, theme),
+              const SizedBox(height: 16),
+              _buildVolumeOverview(volumeStats, theme),
+            ],
+          ),
           const SizedBox(height: 20),
 
           // 每日训练时长图表
@@ -709,34 +720,34 @@ class _StatsScreenState extends State<StatsScreen>
           ]),
           const SizedBox(height: 20),
 
-          // 力量进步
-          _buildSection('力量进步', theme, [
-            _buildStrengthProgressSection(workoutRecords, theme),
-          ]),
+          // 进步追踪 (力量进步 + 常用动作)
+          _CollapsibleSection(
+            title: '进步追踪',
+            theme: theme,
+            children: [
+              _buildStrengthProgressSection(workoutRecords, theme),
+              const SizedBox(height: 16),
+              _buildCommonExercisesChart(
+                _calculateCommonExercises(records),
+                theme,
+              ),
+            ],
+          ),
           const SizedBox(height: 20),
 
-          // 肌群容量分布
-          _buildSection('肌群容量分布', theme, [
-            _buildMuscleVolumeChart(workoutRecords, theme),
-          ]),
-          const SizedBox(height: 20),
-
-          // 恢复状态 (refactored with secondary muscles)
-          _buildSection('恢复状态', theme, [
-            _buildSecondaryRecoveryStatusList(
-              _calculateSecondaryRecoveryData(workoutRecords),
-              theme,
-            ),
-          ]),
-          const SizedBox(height: 20),
-
-          // 常用动作
-          _buildSection('常用动作', theme, [
-            _buildCommonExercisesChart(
-              _calculateCommonExercises(records),
-              theme,
-            ),
-          ]),
+          // 身体分析 (肌群容量 + 恢复状态)
+          _CollapsibleSection(
+            title: '身体分析',
+            theme: theme,
+            children: [
+              _buildMuscleVolumeChart(workoutRecords, theme),
+              const SizedBox(height: 16),
+              _buildSecondaryRecoveryStatusList(
+                _calculateSecondaryRecoveryData(workoutRecords),
+                theme,
+              ),
+            ],
+          ),
           const SizedBox(height: 20),
 
           // 训练洞察
@@ -755,6 +766,11 @@ class _StatsScreenState extends State<StatsScreen>
 
   /// 月视图
   Widget _buildMonthView(AppThemeData theme) {
+    // Show global empty state if no records at all
+    if (_getAllRecords().isEmpty) {
+      return _buildGlobalEmptyState(theme);
+    }
+
     final records = _filterBySelectedMonth();
     final workoutRecords = records.whereType<WorkoutRecord>().toList();
     final frequencyStats = _calculateFrequencyStats(records);
@@ -762,7 +778,12 @@ class _StatsScreenState extends State<StatsScreen>
     final monthlyCounts = _getMonthlyCounts(_selectedYear);
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 100),
+      padding: EdgeInsets.only(
+        left: 16,
+        right: 16,
+        top: 16,
+        bottom: AppDimensions.bottomPadding(context),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -774,46 +795,46 @@ class _StatsScreenState extends State<StatsScreen>
           _buildMonthGrid(monthlyCounts, theme),
           const SizedBox(height: 20),
 
-          // 训练频率概览
-          _buildSection('训练频率 ($_selectedMonth月)', theme, [
-            _buildFrequencyOverview(frequencyStats, theme),
-          ]),
+          // 概览 (频率 + 训练量)
+          _CollapsibleSection(
+            title: '概览 ($_selectedMonth月)',
+            theme: theme,
+            children: [
+              _buildFrequencyOverview(frequencyStats, theme),
+              const SizedBox(height: 16),
+              _buildVolumeOverview(volumeStats, theme),
+            ],
+          ),
           const SizedBox(height: 20),
 
-          // 训练量统计
-          _buildSection('训练量 ($_selectedMonth月)', theme, [
-            _buildVolumeOverview(volumeStats, theme),
-          ]),
+          // 进步追踪 (力量进步 + 常用动作)
+          _CollapsibleSection(
+            title: '进步追踪',
+            theme: theme,
+            children: [
+              _buildStrengthProgressSection(workoutRecords, theme),
+              const SizedBox(height: 16),
+              _buildCommonExercisesChart(
+                _calculateCommonExercises(records),
+                theme,
+              ),
+            ],
+          ),
           const SizedBox(height: 20),
 
-          // 力量进步
-          _buildSection('力量进步', theme, [
-            _buildStrengthProgressSection(workoutRecords, theme),
-          ]),
-          const SizedBox(height: 20),
-
-          // 肌群容量分布
-          _buildSection('肌群容量分布', theme, [
-            _buildMuscleVolumeChart(workoutRecords, theme),
-          ]),
-          const SizedBox(height: 20),
-
-          // 恢复状态 (refactored with secondary muscles)
-          _buildSection('恢复状态', theme, [
-            _buildSecondaryRecoveryStatusList(
-              _calculateSecondaryRecoveryData(workoutRecords),
-              theme,
-            ),
-          ]),
-          const SizedBox(height: 20),
-
-          // 常用动作
-          _buildSection('常用动作', theme, [
-            _buildCommonExercisesChart(
-              _calculateCommonExercises(records),
-              theme,
-            ),
-          ]),
+          // 身体分析 (肌群容量 + 恢复状态)
+          _CollapsibleSection(
+            title: '身体分析',
+            theme: theme,
+            children: [
+              _buildMuscleVolumeChart(workoutRecords, theme),
+              const SizedBox(height: 16),
+              _buildSecondaryRecoveryStatusList(
+                _calculateSecondaryRecoveryData(workoutRecords),
+                theme,
+              ),
+            ],
+          ),
           const SizedBox(height: 20),
 
           // 训练洞察
@@ -930,7 +951,7 @@ class _StatsScreenState extends State<StatsScreen>
                       height: 36,
                       decoration: BoxDecoration(
                         color: isToday
-                            ? const Color(0xFF1A237E)
+                            ? theme.accentColor
                             : hasWorkout
                             ? theme.primaryColor.withValues(alpha: 0.2)
                             : Colors.transparent,
@@ -1160,6 +1181,42 @@ class _StatsScreenState extends State<StatsScreen>
             ),
           );
         },
+      ),
+    );
+  }
+
+  /// Global empty state when there are no records at all
+  Widget _buildGlobalEmptyState(AppThemeData theme) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.bar_chart_rounded,
+            size: 64,
+            color: theme.secondaryTextColor.withValues(alpha: 0.4),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            '暂无训练数据',
+            style: TextStyle(
+              fontFamily: '.SF Pro Display',
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: theme.textColor,
+              letterSpacing: 1,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '完成几次训练后这里会显示统计信息',
+            style: TextStyle(
+              fontFamily: '.SF Pro Text',
+              fontSize: 14,
+              color: theme.secondaryTextColor.withValues(alpha: 0.6),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -1656,7 +1713,7 @@ class _StatsScreenState extends State<StatsScreen>
         if (overtrainedMuscles.isNotEmpty) ...[
           Row(
             children: [
-              Icon(Icons.warning, size: 16, color: Colors.red),
+              Icon(Icons.warning, size: 16, color: theme.errorColor),
               const SizedBox(width: 6),
               Text(
                 '过度训练风险',
@@ -1664,7 +1721,7 @@ class _StatsScreenState extends State<StatsScreen>
                   fontFamily: '.SF Pro Text',
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: Colors.red,
+                  color: theme.errorColor,
                 ),
               ),
             ],
@@ -1680,16 +1737,18 @@ class _StatsScreenState extends State<StatsScreen>
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.red.withValues(alpha: 0.1),
+                  color: theme.errorColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
+                  border: Border.all(
+                    color: theme.errorColor.withValues(alpha: 0.3),
+                  ),
                 ),
                 child: Text(
                   '${m['displayName']} (连续${m['consecutiveDays']}天)',
                   style: TextStyle(
                     fontFamily: '.SF Pro Text',
                     fontSize: 11,
-                    color: Colors.red,
+                    color: theme.errorColor,
                   ),
                 ),
               );
@@ -2092,13 +2151,13 @@ class _StatsScreenState extends State<StatsScreen>
                 IconData icon;
 
                 if (days >= 3) {
-                  chipColor = Colors.green;
+                  chipColor = theme.successColor;
                   icon = Icons.check_circle;
                 } else if (days >= 1) {
                   chipColor = Colors.orange;
                   icon = Icons.access_time;
                 } else {
-                  chipColor = Colors.red;
+                  chipColor = theme.errorColor;
                   icon = Icons.warning;
                 }
 
@@ -2187,6 +2246,63 @@ class _StatsScreenState extends State<StatsScreen>
           records: records.whereType<WorkoutRecord>().toList(),
           previousRecords: previousRecords.whereType<WorkoutRecord>().toList(),
           allRecords: allWorkoutRecords,
+        ),
+      ),
+    );
+  }
+}
+
+/// Collapsible section wrapper for grouping related stats sections
+class _CollapsibleSection extends StatefulWidget {
+  final String title;
+  final List<Widget> children;
+  final AppThemeData theme;
+
+  const _CollapsibleSection({
+    required this.title,
+    required this.children,
+    required this.theme,
+  });
+
+  @override
+  State<_CollapsibleSection> createState() => _CollapsibleSectionState();
+}
+
+class _CollapsibleSectionState extends State<_CollapsibleSection> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 0),
+      decoration: BoxDecoration(
+        color: widget.theme.surfaceColor,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Theme(
+        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+        child: ExpansionTile(
+          tilePadding: const EdgeInsets.symmetric(horizontal: 16),
+          childrenPadding: const EdgeInsets.only(
+            left: 16,
+            right: 16,
+            bottom: 8,
+          ),
+          title: Text(
+            widget.title,
+            style: TextStyle(
+              fontFamily: '.SF Pro Text',
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              color: widget.theme.textColor,
+            ),
+          ),
+          children: widget.children,
         ),
       ),
     );

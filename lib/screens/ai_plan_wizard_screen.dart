@@ -22,10 +22,10 @@ class AIPlanWizardScreen extends StatefulWidget {
 class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
   final PageController _pageController = PageController();
   final TextEditingController _jsonController = TextEditingController();
-  
+
   int _currentStep = 0;
   int _activeTab = 0; // 0 = 新建计划, 1 = 导入分析
-  
+
   // Step 1 state (新建计划)
   String _goal = 'muscle_building';
   int _weeklyFrequency = 4;
@@ -33,39 +33,44 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
   String _experience = 'intermediate';
   String _equipment = 'gym';
   List<String> _focusAreas = [];
-  
+
   // Step 2 state
   DateTime _startDate = _nextMonday();
   String? _generatedPrompt;
-  
+
   // Step 3 state (import analysis)
   String? _parseError;
   bool _isParsing = false;
-  
+
   // Step 4 state (preview + import)
   WeeklyPlanImport? _parsedPlan;
   bool _isImporting = false;
   final Map<String, int> _editableSets = {};
-  
+
   bool _preferencesLoaded = false;
-  
+
   static DateTime _nextMonday() {
     final now = DateTime.now();
     final daysUntilMonday = (DateTime.monday - now.weekday + 7) % 7;
-    return DateTime(now.year, now.month, now.day).add(Duration(days: daysUntilMonday == 0 ? 7 : daysUntilMonday));
+    return DateTime(
+      now.year,
+      now.month,
+      now.day,
+    ).add(Duration(days: daysUntilMonday == 0 ? 7 : daysUntilMonday));
   }
-  
+
   @override
   void initState() {
     super.initState();
     _loadPreferences();
   }
-  
+
   Future<void> _loadPreferences() async {
     try {
       final service = UserPreferencesService();
-      final prefs = await service.loadPreferences()
-          .timeout(const Duration(seconds: 2));
+      final prefs = await service.loadPreferences().timeout(
+        const Duration(seconds: 2),
+      );
       if (mounted) {
         setState(() {
           _goal = prefs.goal;
@@ -83,18 +88,18 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
       }
     }
   }
-  
+
   @override
   void dispose() {
     _pageController.dispose();
     _jsonController.dispose();
     super.dispose();
   }
-  
+
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().currentTheme;
-    
+
     return Scaffold(
       backgroundColor: theme.backgroundColor,
       appBar: AppBar(
@@ -116,7 +121,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
               ),
             ),
             Text(
-              'AI PLAN GENERATOR',
+              'AI 计划生成器',
               style: TextStyle(
                 fontFamily: '.SF Pro Display',
                 fontSize: 18,
@@ -168,13 +173,13 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
       ),
     );
   }
-  
+
   Widget _buildStepIndicator(AppThemeData theme) {
     final isImport = _activeTab == 1;
     final stepLabels = isImport
         ? ['导入分析', '预览导入']
         : ['个人资料', '生成提示词', '粘贴JSON', '预览导入'];
-    
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       child: Row(
@@ -187,15 +192,22 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
       ),
     );
   }
-  
-  Widget _buildStepItem(int number, String label, bool isActive, AppThemeData theme) {
+
+  Widget _buildStepItem(
+    int number,
+    String label,
+    bool isActive,
+    AppThemeData theme,
+  ) {
     return Column(
       children: [
         Container(
           width: 32,
           height: 32,
           decoration: BoxDecoration(
-            color: isActive ? theme.accentColor : theme.textColor.withValues(alpha: 0.1),
+            color: isActive
+                ? theme.accentColor
+                : theme.textColor.withValues(alpha: 0.1),
             shape: BoxShape.circle,
           ),
           child: Center(
@@ -224,17 +236,19 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
       ],
     );
   }
-  
+
   Widget _buildStepLine(bool isActive, AppThemeData theme) {
     return Expanded(
       child: Container(
         height: 2,
         margin: const EdgeInsets.only(bottom: 20),
-        color: isActive ? theme.accentColor : theme.textColor.withValues(alpha: 0.1),
+        color: isActive
+            ? theme.accentColor
+            : theme.textColor.withValues(alpha: 0.1),
       ),
     );
   }
-  
+
   // ==================== 第1步：Tab切换（新建计划 / 导入分析） ====================
   Widget _buildStep1(AppThemeData theme) {
     return Column(
@@ -262,7 +276,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
       ],
     );
   }
-  
+
   Widget _buildTab(String label, int index, AppThemeData theme) {
     final isActive = _activeTab == index;
     return Expanded(
@@ -295,13 +309,13 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
       ),
     );
   }
-  
+
   // ==================== 新建计划表单（原Step1内容） ====================
   Widget _buildNewPlanForm(AppThemeData theme) {
     if (!_preferencesLoaded) {
       return const Center(child: CircularProgressIndicator());
     }
-    
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -326,16 +340,21 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
             ),
           ),
           const SizedBox(height: 24),
-          
+
           _buildSingleSelectQuestion(
             '训练目标',
             _goal,
-            {'增肌': 'muscle_building', '减脂': 'fat_loss', '力量': 'strength', '耐力': 'endurance'},
+            {
+              '增肌': 'muscle_building',
+              '减脂': 'fat_loss',
+              '力量': 'strength',
+              '耐力': 'endurance',
+            },
             (value) => setState(() => _goal = value),
             theme,
           ),
           const SizedBox(height: 16),
-          
+
           _buildSingleSelectQuestion(
             '每周训练频率',
             '$_weeklyFrequency',
@@ -344,7 +363,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
             theme,
           ),
           const SizedBox(height: 16),
-          
+
           _buildSingleSelectQuestion(
             '训练时长',
             '$_sessionDuration',
@@ -353,7 +372,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
             theme,
           ),
           const SizedBox(height: 16),
-          
+
           _buildSingleSelectQuestion(
             '经验水平',
             _experience,
@@ -362,7 +381,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
             theme,
           ),
           const SizedBox(height: 16),
-          
+
           _buildSingleSelectQuestion(
             '设备可用性',
             _equipment,
@@ -371,7 +390,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
             theme,
           ),
           const SizedBox(height: 16),
-          
+
           _buildMultiSelectQuestion(
             '重点部位',
             _focusAreas,
@@ -383,7 +402,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
       ),
     );
   }
-  
+
   // ==================== 导入分析表单（新增） ====================
   Widget _buildImportAnalysisForm(AppThemeData theme) {
     return SingleChildScrollView(
@@ -439,21 +458,21 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: const Color(0xFFF5E6E6),
+                color: theme.errorBackgroundColor,
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: const Color(0xFFE53935)),
+                border: Border.all(color: theme.errorColor),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.error, color: Color(0xFFE53935), size: 20),
+                  Icon(Icons.error, color: theme.errorColor, size: 20),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       _parseError!,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: '.SF Pro Text',
                         fontSize: 14,
-                        color: Color(0xFFE53935),
+                        color: theme.errorColor,
                       ),
                     ),
                   ),
@@ -465,19 +484,19 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
       ),
     );
   }
-  
+
   /// Parse JSON for import analysis tab - goes directly to preview
   void _parseJsonForImport() async {
     if (_jsonController.text.isEmpty) {
       setState(() => _parseError = '请输入JSON内容');
       return;
     }
-    
+
     setState(() {
       _isParsing = true;
       _parseError = null;
     });
-    
+
     try {
       final jsonMap = jsonDecode(_jsonController.text) as Map<String, dynamic>;
       final parsedPlan = WeeklyPlanImport.fromJson(jsonMap);
@@ -498,7 +517,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
       });
     }
   }
-  
+
   Widget _buildSingleSelectQuestion(
     String title,
     String currentValue,
@@ -527,12 +546,19 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
             return GestureDetector(
               onTap: () => onChanged(entry.value),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
+                ),
                 decoration: BoxDecoration(
-                  color: isSelected ? theme.accentColor : theme.accentColor.withValues(alpha: 0.1),
+                  color: isSelected
+                      ? theme.accentColor
+                      : theme.accentColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: isSelected ? theme.accentColor : theme.accentColor.withValues(alpha: 0.3),
+                    color: isSelected
+                        ? theme.accentColor
+                        : theme.accentColor.withValues(alpha: 0.3),
                   ),
                 ),
                 child: Text(
@@ -551,7 +577,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
       ],
     );
   }
-  
+
   Widget _buildMultiSelectQuestion(
     String title,
     List<String> selectedValues,
@@ -588,12 +614,19 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
                 onChanged(newValues);
               },
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
+                ),
                 decoration: BoxDecoration(
-                  color: isSelected ? theme.accentColor : theme.accentColor.withValues(alpha: 0.1),
+                  color: isSelected
+                      ? theme.accentColor
+                      : theme.accentColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: isSelected ? theme.accentColor : theme.accentColor.withValues(alpha: 0.3),
+                    color: isSelected
+                        ? theme.accentColor
+                        : theme.accentColor.withValues(alpha: 0.3),
                   ),
                 ),
                 child: Text(
@@ -612,7 +645,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
       ],
     );
   }
-  
+
   // ==================== 第2步：日期 + 生成提示词 ====================
   Widget _buildStep2(AppThemeData theme) {
     return SingleChildScrollView(
@@ -639,7 +672,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
             ),
           ),
           const SizedBox(height: 24),
-          
+
           Text(
             '开始日期',
             style: TextStyle(
@@ -667,7 +700,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
                         secondary: theme.accentColor,
                         surface: theme.surfaceColor,
                         onSurface: theme.textColor,
-                        error: const Color(0xFFE53935),
+                        error: theme.errorColor,
                         onError: Colors.white,
                       ),
                     ),
@@ -682,7 +715,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: theme.surfaceColor,
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
@@ -713,14 +746,14 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
             ),
           ),
           const SizedBox(height: 24),
-          
+
           PrimaryActionButton(
             label: '生成提示词',
             onPressed: _generatePrompt,
             height: 56,
           ),
           const SizedBox(height: 24),
-          
+
           if (_generatedPrompt != null) ...[
             Text(
               '生成的提示词',
@@ -735,7 +768,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: theme.surfaceColor,
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
@@ -757,14 +790,14 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            
+
             PrimaryActionButton(
               label: '复制到剪贴板',
               onPressed: _copyToClipboard,
               height: 56,
             ),
             const SizedBox(height: 16),
-            
+
             Text(
               '将此提示词复制到豆包/千问等AI应用，获取JSON后返回粘贴',
               style: TextStyle(
@@ -779,7 +812,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
       ),
     );
   }
-  
+
   void _generatePrompt() {
     final aiPromptService = AIPromptService();
     final userProfile = UserProfile(
@@ -794,21 +827,22 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
     final prompt = aiPromptService.generatePrompt(userProfile);
     setState(() => _generatedPrompt = prompt);
   }
-  
+
   Future<void> _copyToClipboard() async {
     if (_generatedPrompt != null) {
       await Clipboard.setData(ClipboardData(text: _generatedPrompt!));
       if (mounted) {
+        final theme = context.read<ThemeProvider>().currentTheme;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('已复制到剪贴板'),
-            backgroundColor: Color(0xFF4CAF50),
+          SnackBar(
+            content: const Text('已复制到剪贴板'),
+            backgroundColor: theme.successColor,
           ),
         );
       }
     }
   }
-  
+
   // ==================== 第3步：粘贴JSON ====================
   Widget _buildStep3(AppThemeData theme) {
     return SingleChildScrollView(
@@ -835,7 +869,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
             ),
           ),
           const SizedBox(height: 24),
-          
+
           TextField(
             controller: _jsonController,
             maxLines: 10,
@@ -854,35 +888,35 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
               }
             },
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           PrimaryActionButton(
             label: _isParsing ? '解析中...' : '解析JSON',
             onPressed: _isParsing ? null : _parseJson,
             height: 56,
           ),
-          
+
           if (_parseError != null) ...[
             const SizedBox(height: 16),
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: const Color(0xFFF5E6E6),
+                color: theme.errorBackgroundColor,
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: const Color(0xFFE53935)),
+                border: Border.all(color: theme.errorColor),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.error, color: Color(0xFFE53935), size: 20),
+                  Icon(Icons.error, color: theme.errorColor, size: 20),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       _parseError!,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: '.SF Pro Text',
                         fontSize: 14,
-                        color: Color(0xFFE53935),
+                        color: theme.errorColor,
                       ),
                     ),
                   ),
@@ -894,18 +928,18 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
       ),
     );
   }
-  
+
   void _parseJson() async {
     if (_jsonController.text.isEmpty) {
       setState(() => _parseError = '请输入JSON内容');
       return;
     }
-    
+
     setState(() {
       _isParsing = true;
       _parseError = null;
     });
-    
+
     try {
       final jsonMap = jsonDecode(_jsonController.text) as Map<String, dynamic>;
       final parsedPlan = WeeklyPlanImport.fromJson(jsonMap);
@@ -913,7 +947,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
         _isParsing = false;
         _parsedPlan = parsedPlan;
       });
-      
+
       if (_currentStep < 3) {
         setState(() => _currentStep = 3);
         _pageController.animateToPage(
@@ -929,7 +963,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
       });
     }
   }
-  
+
   // ==================== 第4步：预览 + 导入 ====================
   Widget _buildStep4(AppThemeData theme) {
     if (_parsedPlan == null) {
@@ -979,13 +1013,13 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                
+
                 ..._parsedPlan!.days.map((day) => _buildDayCard(day, theme)),
               ],
             ),
           ),
         ),
-        
+
         Padding(
           padding: const EdgeInsets.all(20),
           child: PrimaryActionButton(
@@ -997,14 +1031,14 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
       ],
     );
   }
-  
+
   Widget _buildDayCard(DailyPlanImport day, AppThemeData theme) {
     final dayNames = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
     final dayName = dayNames[day.dayOfWeek - 1];
-    
+
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
-      color: Colors.white,
+      color: theme.surfaceColor,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -1044,17 +1078,23 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
               ),
             ],
             const SizedBox(height: 12),
-            ...day.exercises.map((exercise) => _buildExerciseRow(exercise, day.dayOfWeek, theme)),
+            ...day.exercises.map(
+              (exercise) => _buildExerciseRow(exercise, day.dayOfWeek, theme),
+            ),
           ],
         ),
       ),
     );
   }
-  
-  Widget _buildExerciseRow(ExerciseEntryImport exercise, int dayOfWeek, AppThemeData theme) {
+
+  Widget _buildExerciseRow(
+    ExerciseEntryImport exercise,
+    int dayOfWeek,
+    AppThemeData theme,
+  ) {
     final exerciseKey = 'day${dayOfWeek}-${exercise.exerciseName}';
     final currentSets = _editableSets[exerciseKey] ?? exercise.targetSets;
-    
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
@@ -1074,7 +1114,11 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               IconButton(
-                icon: Icon(Icons.remove_circle_outline, color: theme.accentColor, size: 20),
+                icon: Icon(
+                  Icons.remove_circle_outline,
+                  color: theme.accentColor,
+                  size: 20,
+                ),
                 constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
                 padding: EdgeInsets.zero,
                 onPressed: () {
@@ -1100,7 +1144,11 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
                 ),
               ),
               IconButton(
-                icon: Icon(Icons.add_circle_outline, color: theme.accentColor, size: 20),
+                icon: Icon(
+                  Icons.add_circle_outline,
+                  color: theme.accentColor,
+                  size: 20,
+                ),
                 constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
                 padding: EdgeInsets.zero,
                 onPressed: () {
@@ -1124,9 +1172,11 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
       ),
     );
   }
-  
+
   Future<void> _importPlan() async {
     if (_parsedPlan == null) return;
+
+    final theme = context.read<ThemeProvider>().currentTheme;
 
     final confirmed = await showDialog<bool>(
       context: context,
@@ -1151,13 +1201,16 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
     setState(() => _isImporting = true);
 
     try {
-      await context.read<PlanProvider>().importWeeklyPlan(_parsedPlan!, _startDate);
+      await context.read<PlanProvider>().importWeeklyPlan(
+        _parsedPlan!,
+        _startDate,
+      );
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('训练计划导入成功！'),
-            backgroundColor: Color(0xFF4CAF50),
+          SnackBar(
+            content: const Text('训练计划导入成功！'),
+            backgroundColor: theme.successColor,
           ),
         );
         Navigator.pop(context, true);
@@ -1167,7 +1220,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('导入失败: $e'),
-            backgroundColor: const Color(0xFFE53935),
+            backgroundColor: theme.errorColor,
           ),
         );
       }
@@ -1177,23 +1230,29 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
       }
     }
   }
-  
+
   // ==================== 底部按钮 ====================
   Widget _buildBottomButton(AppThemeData theme) {
     String buttonText;
     bool isEnabled;
     VoidCallback? onPressed;
-    
+
     if (_activeTab == 1) {
       // Import analysis flow
       switch (_currentStep) {
         case 0:
           buttonText = '下一步：预览导入';
           isEnabled = _parsedPlan != null;
-          onPressed = isEnabled ? () {
-            setState(() => _currentStep = 1);
-            _pageController.animateToPage(1, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
-          } : null;
+          onPressed = isEnabled
+              ? () {
+                  setState(() => _currentStep = 1);
+                  _pageController.animateToPage(
+                    1,
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                  );
+                }
+              : null;
           break;
         case 1:
           buttonText = '完成';
@@ -1234,7 +1293,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
           onPressed = null;
       }
     }
-    
+
     return Container(
       padding: const EdgeInsets.all(20),
       child: SafeArea(
@@ -1243,7 +1302,9 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
           child: ElevatedButton(
             onPressed: onPressed,
             style: ElevatedButton.styleFrom(
-              backgroundColor: isEnabled ? theme.accentColor : theme.textColor.withValues(alpha: 0.1),
+              backgroundColor: isEnabled
+                  ? theme.accentColor
+                  : theme.textColor.withValues(alpha: 0.1),
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 16),
               elevation: 0,
@@ -1265,7 +1326,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
       ),
     );
   }
-  
+
   void _nextStep() {
     final maxStep = _activeTab == 1 ? 1 : 3;
     if (_currentStep < maxStep) {
@@ -1276,7 +1337,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
       );
     }
   }
-  
+
   void _previousStep() {
     if (_currentStep > 0) {
       setState(() => _currentStep--);
