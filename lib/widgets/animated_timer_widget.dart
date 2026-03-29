@@ -16,7 +16,6 @@ class AnimatedTimerDisplay extends StatefulWidget {
   final double size;
   final int sessionDuration;
   final double countdownProgress;
-  final bool showCountdown;
 
   const AnimatedTimerDisplay({
     super.key,
@@ -26,7 +25,6 @@ class AnimatedTimerDisplay extends StatefulWidget {
     required this.size,
     this.sessionDuration = 0,
     this.countdownProgress = 1.0,
-    this.showCountdown = false,
   });
 
   @override
@@ -49,7 +47,6 @@ class _AnimatedTimerDisplayState extends State<AnimatedTimerDisplay> {
               painter: _TimerRingPainter(
                 sessionDuration: widget.sessionDuration,
                 countdownProgress: widget.countdownProgress,
-                showCountdown: widget.showCountdown,
                 theme: widget.theme,
               ),
             ),
@@ -133,11 +130,10 @@ class _AnimatedTimerDisplayState extends State<AnimatedTimerDisplay> {
 /// 多环计时器绘制器
 ///
 /// 外环：正计时进度条（实线，圆头，每 60 分钟一圈，可多环）
-/// 内环：倒计时进度条（虚线 60 段，平头，仅休息状态显示）
+/// 内环：倒计时/就绪进度条（虚线 60 段，平头，始终显示）
 class _TimerRingPainter extends CustomPainter {
   final int sessionDuration;
   final double countdownProgress;
-  final bool showCountdown;
   final AppThemeData theme;
 
   // ── 尺寸常量 ──
@@ -154,7 +150,6 @@ class _TimerRingPainter extends CustomPainter {
   _TimerRingPainter({
     required this.sessionDuration,
     required this.countdownProgress,
-    required this.showCountdown,
     required this.theme,
   });
 
@@ -200,10 +195,8 @@ class _TimerRingPainter extends CustomPainter {
     // ── 绘制外环（正计时） ──
     _paintOuterRings(canvas, center, totalRadius);
 
-    // ── 绘制内环（倒计时虚线段） ──
-    if (showCountdown) {
-      _paintInnerRing(canvas, center, totalRadius);
-    }
+    // ── 绘制内环（虚线段，始终显示） ──
+    _paintInnerRing(canvas, center, totalRadius);
   }
 
   void _paintOuterRings(Canvas canvas, Offset center, double totalRadius) {
@@ -311,7 +304,6 @@ class _TimerRingPainter extends CustomPainter {
   bool shouldRepaint(covariant _TimerRingPainter oldDelegate) {
     return oldDelegate.sessionDuration != sessionDuration ||
         oldDelegate.countdownProgress != countdownProgress ||
-        oldDelegate.showCountdown != showCountdown ||
         oldDelegate.theme != theme;
   }
 }
