@@ -1,7 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
-import 'glass_widgets.dart';
 
 /// 训练完成奖牌显示组件
 ///
@@ -9,20 +8,18 @@ import 'glass_widgets.dart';
 /// Phase 1: 圆环收缩 (400ms)
 /// Phase 2: 圆环 → 奖牌变形 (500ms)
 /// Phase 3: 内容淡入 (300ms)
-/// Phase 4: 统计徽章淡入 (交错 100ms)
-/// Phase 5: 微呼吸动画 (永久)
+/// Phase 4: 微呼吸动画 (永久)
+///
+/// 奖牌大小对齐计时器内环内缘:
+/// medalRadius = innerRingRadius - innerStrokeWidth/2
 class CompletedMedalDisplay extends StatefulWidget {
   final int sessionDuration;
-  final int currentSet;
-  final int totalExerciseTime;
   final AppThemeData theme;
   final double size;
 
   const CompletedMedalDisplay({
     super.key,
     required this.sessionDuration,
-    required this.currentSet,
-    required this.totalExerciseTime,
     required this.theme,
     required this.size,
   });
@@ -33,21 +30,46 @@ class CompletedMedalDisplay extends StatefulWidget {
 
 class _CompletedMedalDisplayState extends State<CompletedMedalDisplay>
     with TickerProviderStateMixin {
+  // ── 尺寸常量（与 _TimerRingPainter 一致） ──
+  static const double _outerStrokeWidth = 8.0;
+  static const double _innerStrokeWidth = 6.0;
+  static const double _outerRingGap = 4.0;
+  static const double _innerOuterGap = 12.0;
+  static const double _edgeMargin = 8.0;
+  static const int _segmentsPerRing = 60;
+  static const double _segmentGapRadians = math.pi / 180 * 1.2;
+
+  // ── 奖牌装饰 ──
+  static const double _medalBorderWidth = 4.0;
+  static const double _medalInnerRingWidth = 2.0;
+
   // Animation controllers
   late AnimationController _shrinkController;
   late AnimationController _morphController;
   late AnimationController _contentFadeController;
-  late AnimationController _badgeFadeController1;
-  late AnimationController _badgeFadeController2;
   late AnimationController _breathingController;
 
   // Animations
   late Animation<double> _shrinkAnimation;
   late Animation<double> _morphAnimation;
   late Animation<double> _contentOpacityAnimation;
-  late Animation<double> _badge1OpacityAnimation;
-  late Animation<double> _badge2OpacityAnimation;
   late Animation<double> _breathingAnimation;
+
+  /// 奖牌半径 — 对齐内环内缘
+  double get _medalRadius {
+    final totalRadius = widget.size / 2;
+    final outerRadius = totalRadius - _edgeMargin;
+    final innerRingRadius =
+        (outerRadius -
+                _outerStrokeWidth / 2 -
+                _innerOuterGap -
+                _innerStrokeWidth / 2)
+            .clamp(0.0, outerRadius - _outerStrokeWidth);
+    return (innerRingRadius - _innerStrokeWidth / 2).clamp(
+      0.0,
+      innerRingRadius,
+    );
+  }
 
   @override
   void initState() {
@@ -85,25 +107,7 @@ class _CompletedMedalDisplayState extends State<CompletedMedalDisplay>
       CurvedAnimation(parent: _contentFadeController, curve: Curves.easeOut),
     );
 
-    // Phase 4: Badge 1 fade in (200ms)
-    _badgeFadeController1 = AnimationController(
-      duration: const Duration(milliseconds: 200),
-      vsync: this,
-    );
-    _badge1OpacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _badgeFadeController1, curve: Curves.easeOut),
-    );
-
-    // Phase 4: Badge 2 fade in (200ms, 100ms stagger)
-    _badgeFadeController2 = AnimationController(
-      duration: const Duration(milliseconds: 200),
-      vsync: this,
-    );
-    _badge2OpacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _badgeFadeController2, curve: Curves.easeOut),
-    );
-
-    // Phase 5: Breathing animation (forever, 2s cycle)
+    // Phase 4: Breathing animation (forever, 2s cycle)
     _breathingController = AnimationController(
       duration: const Duration(milliseconds: 2000),
       vsync: this,
@@ -124,14 +128,8 @@ class _CompletedMedalDisplayState extends State<CompletedMedalDisplay>
     await Future.delayed(const Duration(milliseconds: 200));
     _contentFadeController.forward();
 
-    // Phase 4: Badge fade in with stagger
-    await Future.delayed(const Duration(milliseconds: 150));
-    _badgeFadeController1.forward();
-    await Future.delayed(const Duration(milliseconds: 100));
-    _badgeFadeController2.forward();
-
-    // Phase 5: Start breathing animation (after all phases complete)
-    await Future.delayed(const Duration(milliseconds: 300));
+    // Phase 4: Start breathing (after all phases complete)
+    await Future.delayed(const Duration(milliseconds: 400));
     _breathingController.repeat(reverse: true);
   }
 
@@ -140,8 +138,6 @@ class _CompletedMedalDisplayState extends State<CompletedMedalDisplay>
     _shrinkController.dispose();
     _morphController.dispose();
     _contentFadeController.dispose();
-    _badgeFadeController1.dispose();
-    _badgeFadeController2.dispose();
     _breathingController.dispose();
     super.dispose();
   }
@@ -154,64 +150,58 @@ class _CompletedMedalDisplayState extends State<CompletedMedalDisplay>
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _breathingAnimation,
-      builder: (context, _) {
-        return ScaleTransition(
-          scale: _breathingAnimation,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Medal with animations
-              AnimatedBuilder(
-                animation: Listenable.merge([
-                  _shrinkAnimation,
-                  _morphAnimation,
-                ]),
-                builder: (context, _) {
-                  return Transform.scale(
-                    scale: _shrinkAnimation.value,
-                    child: SizedBox(
-                      width: widget.size,
-                      height: widget.size,
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          // Ring that morphs to medal
-                          CustomPaint(
-                            size: Size(widget.size, widget.size),
-                            painter: _MedalMorphPainter(
-                              morphProgress: _morphAnimation.value,
-                              theme: widget.theme,
-                            ),
+    // 保持与 AnimatedTimerDisplay 相同的容器大小，确保位置对齐
+    return SizedBox(
+      width: widget.size,
+      height: widget.size,
+      child: AnimatedBuilder(
+        animation: _breathingAnimation,
+        builder: (context, _) {
+          return ScaleTransition(
+            scale: _breathingAnimation,
+            child: AnimatedBuilder(
+              animation: Listenable.merge([_shrinkAnimation, _morphAnimation]),
+              builder: (context, _) {
+                return Transform.scale(
+                  scale: _shrinkAnimation.value,
+                  child: SizedBox(
+                    width: widget.size,
+                    height: widget.size,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        // Ring that morphs to medal border
+                        CustomPaint(
+                          size: Size(widget.size, widget.size),
+                          painter: _MedalMorphPainter(
+                            morphProgress: _morphAnimation.value,
+                            theme: widget.theme,
+                            medalRadius: _medalRadius,
                           ),
-                          // Medal content (fades in)
-                          FadeTransition(
-                            opacity: _contentOpacityAnimation,
-                            child: _buildMedalContent(),
-                          ),
-                        ],
-                      ),
+                        ),
+                        // Medal filled content (fades in)
+                        FadeTransition(
+                          opacity: _contentOpacityAnimation,
+                          child: _buildMedalContent(),
+                        ),
+                      ],
                     ),
-                  );
-                },
-              ),
-              // Stat badges (fade in with stagger)
-              const SizedBox(height: 20),
-              _buildStatBadges(),
-            ],
-          ),
-        );
-      },
+                  ),
+                );
+              },
+            ),
+          );
+        },
+      ),
     );
   }
 
   Widget _buildMedalContent() {
-    final medalSize = widget.size * 0.65;
+    final diameter = _medalRadius * 2;
 
     return Container(
-      width: medalSize,
-      height: medalSize,
+      width: diameter,
+      height: diameter,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: widget.theme.accentColor,
@@ -220,10 +210,8 @@ class _CompletedMedalDisplayState extends State<CompletedMedalDisplay>
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Checkmark icon
           const Icon(Icons.check, size: 48, color: Colors.white),
           const SizedBox(height: 8),
-          // Session duration text
           Text(
             _formatTime(widget.sessionDuration),
             style: const TextStyle(
@@ -235,13 +223,12 @@ class _CompletedMedalDisplayState extends State<CompletedMedalDisplay>
             ),
           ),
           const SizedBox(height: 4),
-          // "训练完成" label
           const Text(
             '训练完成',
             style: TextStyle(
               fontFamily: '.SF Pro Text',
               fontSize: 13,
-              color: Color(0xCCFFFFFF), // white 80%
+              color: Color(0xCCFFFFFF),
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -249,43 +236,16 @@ class _CompletedMedalDisplayState extends State<CompletedMedalDisplay>
       ),
     );
   }
-
-  Widget _buildStatBadges() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        // Badge 1: Sets count
-        FadeTransition(
-          opacity: _badge1OpacityAnimation,
-          child: StatusBadge(
-            text: '${widget.currentSet} 组',
-            color: widget.theme.accentColor,
-            icon: Icons.fitness_center,
-          ),
-        ),
-        const SizedBox(width: 12),
-        // Badge 2: Total exercise time
-        FadeTransition(
-          opacity: _badge2OpacityAnimation,
-          child: StatusBadge(
-            text: _formatTime(widget.totalExerciseTime),
-            color: widget.theme.accentColor,
-            icon: Icons.timer_outlined,
-          ),
-        ),
-      ],
-    );
-  }
 }
 
 /// 奖牌变形绘制器
 ///
-/// 从圆环动画变形为奖牌:
 /// - morphProgress = 0.0: 显示完整的计时器圆环（与 _TimerRingPainter 相同风格）
-/// - morphProgress = 1.0: 显示奖牌边框
+/// - morphProgress = 1.0: 显示奖牌装饰边框
 class _MedalMorphPainter extends CustomPainter {
   final double morphProgress;
   final AppThemeData theme;
+  final double medalRadius;
 
   // Dimensions (matching _TimerRingPainter)
   static const double _outerStrokeWidth = 8.0;
@@ -295,18 +255,21 @@ class _MedalMorphPainter extends CustomPainter {
   static const int _segmentsPerRing = 60;
   static const double _segmentGapRadians = math.pi / 180 * 1.2;
 
-  // Medal dimensions
+  // Medal decoration
   static const double _medalBorderWidth = 4.0;
   static const double _medalInnerRingWidth = 2.0;
 
-  _MedalMorphPainter({required this.morphProgress, required this.theme});
+  _MedalMorphPainter({
+    required this.morphProgress,
+    required this.theme,
+    required this.medalRadius,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
     final totalRadius = size.width / 2;
 
-    // Calculate ring radius (matching _TimerRingPainter)
     final outerRadius = totalRadius - _edgeMargin;
     final innerRadius =
         (outerRadius -
@@ -316,8 +279,7 @@ class _MedalMorphPainter extends CustomPainter {
             .clamp(0.0, outerRadius - _outerStrokeWidth);
 
     if (morphProgress < 0.5) {
-      // Phase 1: Ring shrinking and fading
-      final ringProgress = morphProgress * 2; // 0 -> 1 during 0-0.5
+      final ringProgress = morphProgress * 2;
       _paintMorphingRings(
         canvas,
         center,
@@ -326,9 +288,8 @@ class _MedalMorphPainter extends CustomPainter {
         ringProgress,
       );
     } else {
-      // Phase 2: Medal border appearing
-      final medalProgress = (morphProgress - 0.5) * 2; // 0 -> 1 during 0.5-1.0
-      _paintMedalBorder(canvas, center, totalRadius, medalProgress);
+      final medalProgress = (morphProgress - 0.5) * 2;
+      _paintMedalBorder(canvas, center, medalProgress);
     }
   }
 
@@ -339,7 +300,6 @@ class _MedalMorphPainter extends CustomPainter {
     double innerRadius,
     double progress,
   ) {
-    // Rings fade out and stroke thickens
     final opacity = 1.0 - progress * 0.7;
     final strokeThicken = 1.0 + progress * 1.5;
 
@@ -354,7 +314,7 @@ class _MedalMorphPainter extends CustomPainter {
         ..strokeCap = StrokeCap.round,
     );
 
-    // Outer ring progress (fading)
+    // Outer ring full circle (fading)
     final rect = Rect.fromCircle(center: center, radius: outerRadius);
     canvas.drawArc(
       rect,
@@ -368,7 +328,7 @@ class _MedalMorphPainter extends CustomPainter {
         ..strokeCap = StrokeCap.round,
     );
 
-    // Inner ring (dashed, fading)
+    // Inner dashed ring (fading)
     if (innerRadius > 0) {
       final innerRect = Rect.fromCircle(center: center, radius: innerRadius);
       final segmentAngle = 2 * math.pi / _segmentsPerRing;
@@ -392,15 +352,8 @@ class _MedalMorphPainter extends CustomPainter {
     }
   }
 
-  void _paintMedalBorder(
-    Canvas canvas,
-    Offset center,
-    double totalRadius,
-    double progress,
-  ) {
-    final medalRadius = (totalRadius - _edgeMargin) * 0.65 / 2 * 2 + 8;
-
-    // Outer decorative ring (4px, accentColor 30% alpha)
+  void _paintMedalBorder(Canvas canvas, Offset center, double progress) {
+    // Outer decorative ring — 外缘对齐内环内缘
     final outerBorderRadius = medalRadius + _medalBorderWidth;
     canvas.drawCircle(
       center,
@@ -411,7 +364,7 @@ class _MedalMorphPainter extends CustomPainter {
         ..style = PaintingStyle.stroke,
     );
 
-    // Inner decorative ring (2px, white 20% alpha)
+    // Inner decorative ring
     final innerRingRadius = medalRadius - _medalBorderWidth - 4;
     if (innerRingRadius > 0) {
       canvas.drawCircle(
@@ -428,6 +381,7 @@ class _MedalMorphPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant _MedalMorphPainter oldDelegate) {
     return oldDelegate.morphProgress != morphProgress ||
-        oldDelegate.theme != theme;
+        oldDelegate.theme != theme ||
+        oldDelegate.medalRadius != medalRadius;
   }
 }

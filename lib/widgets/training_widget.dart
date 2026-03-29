@@ -71,6 +71,12 @@ class _TrainingWidgetState extends State<TrainingWidget>
     }
   }
 
+  String _formatTime(int seconds) {
+    final minutes = seconds ~/ 60;
+    final remainingSeconds = seconds % 60;
+    return '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().currentTheme;
@@ -228,8 +234,6 @@ class _TrainingWidgetState extends State<TrainingWidget>
       return Center(
         child: CompletedMedalDisplay(
           sessionDuration: training.sessionDuration,
-          currentSet: training.currentSet,
-          totalExerciseTime: training.totalExerciseTime,
           theme: theme,
           size: AppDimensions.timerSize(context),
         ),
@@ -325,6 +329,35 @@ class _TrainingWidgetState extends State<TrainingWidget>
         text = '准备开始';
       }
       icon = Icons.play_circle_outline;
+    }
+
+    // 完成状态：训练完成 + 组数 + 总时长 三徽章一行
+    if (training.isCompleted) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            StatusBadge(
+              text: '训练完成',
+              color: theme.progressRingColor,
+              icon: Icons.emoji_events,
+            ),
+            const SizedBox(width: 10),
+            StatusBadge(
+              text: '${training.currentSet} 组',
+              color: theme.progressRingColor,
+              icon: Icons.fitness_center,
+            ),
+            const SizedBox(width: 10),
+            StatusBadge(
+              text: _formatTime(training.sessionDuration),
+              color: theme.progressRingColor,
+              icon: Icons.timer_outlined,
+            ),
+          ],
+        ),
+      );
     }
 
     return Padding(
