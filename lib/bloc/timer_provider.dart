@@ -13,16 +13,23 @@ class TimerProvider extends ChangeNotifier {
   int _remainingSeconds = 60;
   bool _isRunning = false;
   int _totalSets = 0;
+  final int _totalPlannedSets = 5;
   int _currentSessionRestTime = 0;
   int _selectedPresetIndex = 1;
-  DateTime? _sessionStartTime;  // For accurate time tracking in background
+  DateTime? _sessionStartTime; // For accurate time tracking in background
 
   final List<int> presetTimes = [30, 60, 90, 120];
 
   int get remainingSeconds => _remainingSeconds;
   bool get isRunning => _isRunning;
   int get totalSets => _totalSets;
+  int get totalPlannedSets => _totalPlannedSets;
   double get progress => _remainingSeconds / _initialSeconds;
+  double get completedSetsRatio {
+    if (_totalPlannedSets <= 0) return 0.0;
+    return (_totalSets / _totalPlannedSets).clamp(0.0, 1.0);
+  }
+
   int get _initialSeconds => presetTimes[_selectedPresetIndex];
   int get selectedPresetIndex => _selectedPresetIndex;
 
@@ -36,7 +43,8 @@ class TimerProvider extends ChangeNotifier {
   void startTimer() {
     if (_isRunning) return;
     _isRunning = true;
-    _sessionStartTime = DateTime.now();  // Record start time for accurate tracking
+    _sessionStartTime =
+        DateTime.now(); // Record start time for accurate tracking
     _timer = Timer.periodic(const Duration(seconds: 1), _tick);
 
     if (!kIsWeb) {
@@ -75,7 +83,9 @@ class TimerProvider extends ChangeNotifier {
   void refreshDuration() {
     if (_isRunning && _sessionStartTime != null) {
       // Recalculate rest time from DateTime for accuracy
-      _currentSessionRestTime = DateTime.now().difference(_sessionStartTime!).inSeconds;
+      _currentSessionRestTime = DateTime.now()
+          .difference(_sessionStartTime!)
+          .inSeconds;
       notifyListeners();
     }
   }
@@ -112,7 +122,8 @@ class TimerProvider extends ChangeNotifier {
     if (!kIsWeb) {
       final minutes = (_remainingSeconds / 60).floor();
       final seconds = _remainingSeconds % 60;
-      final timeStr = '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+      final timeStr =
+          '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
       TimerService.updateNotification('剩余 $timeStr');
     }
   }
@@ -121,7 +132,9 @@ class TimerProvider extends ChangeNotifier {
     pauseTimer();
     _totalSets++;
     if (!kIsWeb) {
-      _notificationService.showNotification().catchError((e) => debugPrint('Notification error: $e'));
+      _notificationService.showNotification().catchError(
+        (e) => debugPrint('Notification error: $e'),
+      );
     }
     _remainingSeconds = _initialSeconds;
     notifyListeners();
