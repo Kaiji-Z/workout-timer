@@ -15,6 +15,7 @@ import '../models/set_data.dart';
 import 'duration_picker.dart';
 import 'glass_widgets.dart';
 import 'animated_timer_widget.dart';
+import 'completed_medal_display.dart';
 import 'plan_card.dart';
 import 'bulk_exercise_data_dialog.dart';
 import 'set_record_dialog.dart';
@@ -68,12 +69,6 @@ class _TrainingWidgetState extends State<TrainingWidget>
         training.refreshDuration();
       }
     }
-  }
-
-  String _formatTime(int seconds) {
-    final minutes = seconds ~/ 60;
-    final remainingSeconds = seconds % 60;
-    return '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
   }
 
   @override
@@ -226,18 +221,17 @@ class _TrainingWidgetState extends State<TrainingWidget>
     return Center(child: _buildTimerDisplay(training, theme));
   }
 
-  /// 计时器显示 — 所有状态统一使用 AnimatedTimerDisplay，保持大小和位置一致
+  /// 计时器显示 — 完成状态使用奖牌动画
   Widget _buildTimerDisplay(TrainingProvider training, AppThemeData theme) {
-    // 完成状态：统一圆环 + 完成感
+    // 完成状态： 奖牌变形动画
     if (training.isCompleted) {
       return Center(
-        child: AnimatedTimerDisplay(
-          seconds: training.sessionDuration,
-          label: '训练完成',
+        child: CompletedMedalDisplay(
+          sessionDuration: training.sessionDuration,
+          currentSet: training.currentSet,
+          totalExerciseTime: training.totalExerciseTime,
           theme: theme,
           size: AppDimensions.timerSize(context),
-          sessionDuration: training.sessionDuration,
-          countdownProgress: 1.0,
         ),
       );
     }
@@ -508,13 +502,10 @@ class _TrainingWidgetState extends State<TrainingWidget>
 
     // 休息中：跳过休息(主按钮，居中)
     if (training.isResting) {
-      return Padding(
-        padding: const EdgeInsets.only(bottom: 16),
-        child: PrimaryActionButton(
-          label: '跳过休息',
-          icon: Icons.skip_next,
-          onPressed: training.skipRest,
-        ),
+      return PrimaryActionButton(
+        label: '跳过休息',
+        icon: Icons.skip_next,
+        onPressed: training.skipRest,
       );
     }
 
