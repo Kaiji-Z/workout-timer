@@ -81,17 +81,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
 
   /// Format muscle volume distribution (weighted by training volume)
   String _formatMuscleVolumeDistribution() {
-    final dist = <PrimaryMuscleGroup, double>{};
-    for (final record in widget.records) {
-      final recordVolume = _statsCalc.calculateTotalVolume([record]);
-      if (record.trainedMuscles.isNotEmpty && recordVolume > 0) {
-        final perMuscle = recordVolume / record.trainedMuscles.length;
-        for (final muscle in record.trainedMuscles) {
-          dist[muscle] = (dist[muscle] ?? 0) + perMuscle;
-        }
-      }
-    }
-
+    final dist = _statsCalc.calculateMuscleVolumeDistribution(widget.records);
     if (dist.isEmpty) return '- 暂无肌肉训练数据';
 
     final sorted = dist.entries.toList()
@@ -195,22 +185,49 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
   Map<PrimaryMuscleGroup, double> _calcMuscleVolume(
     List<WorkoutRecord> records,
   ) {
-    final dist = <PrimaryMuscleGroup, double>{};
+    return _statsCalc.calculateMuscleVolumeDistribution(records);
+  }
+
+  /// Extract trained muscles from a record, using exercise.primaryMuscle when available.
+  /// Falls back to record.trainedMuscles when no exercise detail is loaded.
+  Set<PrimaryMuscleGroup> _getMusclesFromRecord(WorkoutRecord record) {
+    final fromExercises = <PrimaryMuscleGroup>{};
+    for (final e in record.exercises) {
+      if (e.exercise != null) {
+        fromExercises.add(e.exercise!.primaryMuscle);
+      }
+    }
+    if (fromExercises.isNotEmpty) return fromExercises;
+    return record.trainedMuscles.toSet();
+  }
+
+  /// Calculate max weights per exercise using English names (for AI prompt)
+  Map<String, double> _calculateMaxWeightsByExerciseEn(
+    List<WorkoutRecord> records,
+  ) {
+    final maxWeights = <String, double>{};
     for (final record in records) {
-      final recordVolume = _statsCalc.calculateTotalVolume([record]);
-      if (record.trainedMuscles.isNotEmpty && recordVolume > 0) {
-        final perMuscle = recordVolume / record.trainedMuscles.length;
-        for (final muscle in record.trainedMuscles) {
-          dist[muscle] = (dist[muscle] ?? 0) + perMuscle;
+      for (final recordedExercise in record.exercises) {
+        final exerciseName = recordedExercise.nameEn.isNotEmpty
+            ? recordedExercise.nameEn
+            : recordedExercise.exerciseId;
+        if (exerciseName.isEmpty) continue;
+
+        final weight = recordedExercise.maxWeight;
+        if (weight == null || weight == 0) continue;
+
+        final currentMax = maxWeights[exerciseName];
+        if (currentMax == null || weight > currentMax) {
+          maxWeights[exerciseName] = weight;
         }
       }
     }
-    return dist;
+    return maxWeights;
   }
 
-  /// Format personal records (PR)
+  /// Format personal records (PR) — uses English exercise names for AI prompt compatibility
   String _formatPRs() {
-    final prs = _statsCalc.calculateMaxWeightsByExercise(widget.allRecords);
+    final prs = _calculateMaxWeightsByExerciseEn(widget.allRecords);
     if (prs.isEmpty) return '- 暂无重量记录';
 
     final sorted = prs.entries.toList()
@@ -233,7 +250,8 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
 
     final Map<PrimaryMuscleGroup, DateTime> lastTrainedDates = {};
     for (final record in records) {
-      for (final muscle in record.trainedMuscles) {
+      final muscles = _getMusclesFromRecord(record);
+      for (final muscle in muscles) {
         final existingDate = lastTrainedDates[muscle];
         if (existingDate == null || record.date.isAfter(existingDate)) {
           lastTrainedDates[muscle] = record.date;
@@ -278,9 +296,9 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
     final Map<String, int> exerciseCounts = {};
     for (final record in widget.records) {
       for (final exercise in record.exercises) {
-        final name = exercise.name.isNotEmpty
-            ? exercise.name
-            : exercise.exerciseId;
+        final name = exercise.nameEn.isNotEmpty
+            ? exercise.nameEn
+            : (exercise.name.isNotEmpty ? exercise.name : exercise.exerciseId);
         if (name.isNotEmpty) {
           exerciseCounts[name] = (exerciseCounts[name] ?? 0) + 1;
         }
@@ -342,7 +360,8 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
       DateTime? lastDate;
 
       for (final record in sortedRecords) {
-        if (record.trainedMuscles.contains(muscle)) {
+        final muscles = _getMusclesFromRecord(record);
+        if (muscles.contains(muscle)) {
           if (lastDate == null) {
             currentConsecutive = 1;
           } else {
@@ -369,6 +388,88 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
         .where((e) => e.value >= 3)
         .map((e) => '${e.key.displayName}(连续${e.value}天)')
         .toList();
+  }
+
+  /// Get muscle imbalance pairs (ratio >= 2:1)
+  List<String> _getMuscleImbalance() {
+    final dist = _statsCalc.calculateMuscleVolumeDistribution(widget.records);
+    if (dist.isEmpty) return [];
+
+    const threshold = 2.0;
+    final result = <String>[];
+
+    final chestVol = dist[PrimaryMuscleGroup.chest] ?? 0;
+    final backVol = dist[PrimaryMuscleGroup.back] ?? 0;
+    if (chestVol > 0 && backVol > 0) {
+      final ratio = chestVol / backVol;
+      if (ratio >= threshold) {
+        result.add('胸:背 ${ratio.toStringAsFixed(1)}:1');
+      } else if (1 / ratio >= threshold) {
+        result.add('背:胸 ${(1 / ratio).toStringAsFixed(1)}:1');
+      }
+    } else if (chestVol > 0 && backVol == 0) {
+      result.add('胸:背 ∞:1');
+    } else if (backVol > 0 && chestVol == 0) {
+      result.add('背:胸 ∞:1');
+    }
+
+    final shouldersVol = dist[PrimaryMuscleGroup.shoulders] ?? 0;
+    final armsVol = dist[PrimaryMuscleGroup.arms] ?? 0;
+    if (shouldersVol > 0 && armsVol > 0) {
+      final ratio = shouldersVol / armsVol;
+      if (ratio >= threshold) {
+        result.add('肩:手臂 ${ratio.toStringAsFixed(1)}:1');
+      } else if (1 / ratio >= threshold) {
+        result.add('手臂:肩 ${(1 / ratio).toStringAsFixed(1)}:1');
+      }
+    }
+
+    final upperVol = chestVol + backVol + shouldersVol + armsVol;
+    final lowerVol = dist[PrimaryMuscleGroup.legs] ?? 0;
+    if (upperVol > 0 && lowerVol > 0) {
+      final ratio = upperVol / lowerVol;
+      if (ratio >= threshold) {
+        result.add('上肢:下肢 ${ratio.toStringAsFixed(1)}:1');
+      } else if (1 / ratio >= threshold) {
+        result.add('下肢:上肢 ${(1 / ratio).toStringAsFixed(1)}:1');
+      }
+    } else if (upperVol > 0 && lowerVol == 0) {
+      result.add('上肢:下肢 ∞:1');
+    } else if (lowerVol > 0 && upperVol == 0) {
+      result.add('下肢:上肢 ∞:1');
+    }
+
+    return result;
+  }
+
+  /// Get strength breakthroughs (new PRs in current period)
+  List<String> _getStrengthBreakthroughs() {
+    if (widget.records.isEmpty) return [];
+
+    final currentE1RM = _statsCalc.calculateEstimated1RM(widget.records);
+    final allE1RM = _statsCalc.calculateEstimated1RM(widget.allRecords);
+
+    final result = <String>[];
+    for (final entry in currentE1RM.entries) {
+      final name = entry.key;
+      final currentVal = entry.value;
+      final allVal = allE1RM[name] ?? 0;
+
+      if (currentVal > 0 && currentVal >= allVal) {
+        if (widget.records.length < widget.allRecords.length ||
+            currentVal > allVal) {
+          if (allVal > 0 && allVal < currentVal) {
+            result.add(
+              '$name ${allVal.toStringAsFixed(1)}→${currentVal.toStringAsFixed(1)}kg',
+            );
+          } else {
+            result.add('$name ${currentVal.toStringAsFixed(1)}kg');
+          }
+        }
+      }
+    }
+
+    return result;
   }
 
   /// Generate dynamic rules based on training goal
@@ -445,6 +546,8 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
 
     final weakMuscles = _getWeakMuscles();
     final overtrainedMuscles = _getOvertrainedMuscles();
+    final muscleImbalance = _getMuscleImbalance();
+    final strengthBreakthroughs = _getStrengthBreakthroughs();
 
     // Basic statistics
     final totalVolume = _statsCalc.calculateTotalVolume(widget.records);
@@ -512,13 +615,22 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
 
     // Training insights
     buffer.writeln('### 训练洞察');
+    if (strengthBreakthroughs.isNotEmpty) {
+      buffer.writeln('- 力量突破: ${strengthBreakthroughs.join('、')}');
+    }
     if (weakMuscles.isNotEmpty) {
       buffer.writeln('- 薄弱部位: ${weakMuscles.join('、')}');
+    }
+    if (muscleImbalance.isNotEmpty) {
+      buffer.writeln('- 肌群不平衡: ${muscleImbalance.join('、')}');
     }
     if (overtrainedMuscles.isNotEmpty) {
       buffer.writeln('- 过度训练风险: ${overtrainedMuscles.join('、')}');
     }
-    if (weakMuscles.isEmpty && overtrainedMuscles.isEmpty) {
+    if (weakMuscles.isEmpty &&
+        overtrainedMuscles.isEmpty &&
+        muscleImbalance.isEmpty &&
+        strengthBreakthroughs.isEmpty) {
       buffer.writeln('- 训练均衡，继续保持');
     }
     buffer.writeln();
@@ -925,16 +1037,25 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
   Widget _buildInsightsSection(AppThemeData theme) {
     final weakMuscles = _getWeakMuscles();
     final overtrainedMuscles = _getOvertrainedMuscles();
+    final muscleImbalance = _getMuscleImbalance();
+    final strengthBreakthroughs = _getStrengthBreakthroughs();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSubsectionHeader('训练洞察', theme),
+        if (strengthBreakthroughs.isNotEmpty)
+          _buildDataRow('力量突破', strengthBreakthroughs.join('、'), theme),
         if (weakMuscles.isNotEmpty)
           _buildDataRow('薄弱部位', weakMuscles.join('、'), theme),
+        if (muscleImbalance.isNotEmpty)
+          _buildDataRow('肌群不平衡', muscleImbalance.join('、'), theme),
         if (overtrainedMuscles.isNotEmpty)
           _buildDataRow('过度训练风险', overtrainedMuscles.join('、'), theme),
-        if (weakMuscles.isEmpty && overtrainedMuscles.isEmpty)
+        if (weakMuscles.isEmpty &&
+            overtrainedMuscles.isEmpty &&
+            muscleImbalance.isEmpty &&
+            strengthBreakthroughs.isEmpty)
           Text(
             '训练均衡，继续保持',
             style: TextStyle(
