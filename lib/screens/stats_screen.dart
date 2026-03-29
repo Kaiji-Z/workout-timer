@@ -754,6 +754,8 @@ class _StatsScreenState extends State<StatsScreen>
           _buildSection('训练洞察', theme, [
             _buildTrainingInsightsCard(
               _calculateWeakMusclesData(records),
+              _calculateMuscleImbalance(workoutRecords),
+              _calculateStrengthBreakthroughs(workoutRecords, _newRecords),
               _calculateOvertrainedMusclesData(records),
               theme,
             ),
@@ -841,6 +843,8 @@ class _StatsScreenState extends State<StatsScreen>
           _buildSection('训练洞察', theme, [
             _buildTrainingInsightsCard(
               _calculateWeakMusclesData(records),
+              _calculateMuscleImbalance(workoutRecords),
+              _calculateStrengthBreakthroughs(workoutRecords, _newRecords),
               _calculateOvertrainedMusclesData(records),
               theme,
             ),
@@ -1536,6 +1540,161 @@ class _StatsScreenState extends State<StatsScreen>
     return result;
   }
 
+  /// 计算肌群不平衡（agonist/antagonist 比值偏离）
+  List<Map<String, dynamic>> _calculateMuscleImbalance(
+    List<WorkoutRecord> records,
+  ) {
+    if (records.isEmpty) return [];
+
+    final dist = _statsCalc.calculateMuscleVolumeDistribution(records);
+    if (dist.isEmpty) return [];
+
+    const imbalanceThreshold = 2.0;
+    final result = <Map<String, dynamic>>[];
+
+    final chestVol = dist[PrimaryMuscleGroup.chest] ?? 0;
+    final backVol = dist[PrimaryMuscleGroup.back] ?? 0;
+    if (chestVol > 0 && backVol > 0) {
+      final ratio = chestVol / backVol;
+      if (ratio >= imbalanceThreshold) {
+        result.add({
+          'label': '胸:背',
+          'ratioText': ratio.toStringAsFixed(1),
+          'biggerName': PrimaryMuscleGroup.chest.displayName,
+          'smallerName': PrimaryMuscleGroup.back.displayName,
+        });
+      } else if (1 / ratio >= imbalanceThreshold) {
+        result.add({
+          'label': '背:胸',
+          'ratioText': (1 / ratio).toStringAsFixed(1),
+          'biggerName': PrimaryMuscleGroup.back.displayName,
+          'smallerName': PrimaryMuscleGroup.chest.displayName,
+        });
+      }
+    } else if (chestVol > 0 && backVol == 0) {
+      result.add({
+        'label': '胸:背',
+        'ratioText': '∞',
+        'biggerName': PrimaryMuscleGroup.chest.displayName,
+        'smallerName': PrimaryMuscleGroup.back.displayName,
+      });
+    } else if (backVol > 0 && chestVol == 0) {
+      result.add({
+        'label': '背:胸',
+        'ratioText': '∞',
+        'biggerName': PrimaryMuscleGroup.back.displayName,
+        'smallerName': PrimaryMuscleGroup.chest.displayName,
+      });
+    }
+
+    final shouldersVol = dist[PrimaryMuscleGroup.shoulders] ?? 0;
+    final armsVol = dist[PrimaryMuscleGroup.arms] ?? 0;
+    if (shouldersVol > 0 && armsVol > 0) {
+      final ratio = shouldersVol / armsVol;
+      if (ratio >= imbalanceThreshold) {
+        result.add({
+          'label': '肩:手臂',
+          'ratioText': ratio.toStringAsFixed(1),
+          'biggerName': PrimaryMuscleGroup.shoulders.displayName,
+          'smallerName': PrimaryMuscleGroup.arms.displayName,
+        });
+      } else if (1 / ratio >= imbalanceThreshold) {
+        result.add({
+          'label': '手臂:肩',
+          'ratioText': (1 / ratio).toStringAsFixed(1),
+          'biggerName': PrimaryMuscleGroup.arms.displayName,
+          'smallerName': PrimaryMuscleGroup.shoulders.displayName,
+        });
+      }
+    }
+
+    final upperVol = chestVol + backVol + shouldersVol + armsVol;
+    final lowerVol = dist[PrimaryMuscleGroup.legs] ?? 0;
+    if (upperVol > 0 && lowerVol > 0) {
+      final ratio = upperVol / lowerVol;
+      if (ratio >= imbalanceThreshold) {
+        result.add({
+          'label': '上肢:下肢',
+          'ratioText': ratio.toStringAsFixed(1),
+          'biggerName': '上肢',
+          'smallerName': '下肢',
+        });
+      } else if (1 / ratio >= imbalanceThreshold) {
+        result.add({
+          'label': '下肢:上肢',
+          'ratioText': (1 / ratio).toStringAsFixed(1),
+          'biggerName': '下肢',
+          'smallerName': '上肢',
+        });
+      }
+    } else if (upperVol > 0 && lowerVol == 0) {
+      result.add({
+        'label': '上肢:下肢',
+        'ratioText': '∞',
+        'biggerName': '上肢',
+        'smallerName': '下肢',
+      });
+    } else if (lowerVol > 0 && upperVol == 0) {
+      result.add({
+        'label': '下肢:上肢',
+        'ratioText': '∞',
+        'biggerName': '下肢',
+        'smallerName': '上肢',
+      });
+    }
+
+    return result;
+  }
+
+  /// 计算当期力量突破（预估1RM 新 PR）
+  List<Map<String, dynamic>> _calculateStrengthBreakthroughs(
+    List<WorkoutRecord> currentRecords,
+    List<WorkoutRecord> allRecords,
+  ) {
+    if (currentRecords.isEmpty) return [];
+
+    final currentE1RM = _statsCalc.calculateEstimated1RM(currentRecords);
+    final allE1RM = _statsCalc.calculateEstimated1RM(allRecords);
+
+    final result = <Map<String, dynamic>>[];
+    for (final entry in currentE1RM.entries) {
+      final name = entry.key;
+      final currentVal = entry.value;
+      final allVal = allE1RM[name] ?? 0;
+
+      if (currentVal > 0 && currentVal >= allVal) {
+        if (currentRecords.length < allRecords.length || currentVal > allVal) {
+          result.add({
+            'exerciseName': name,
+            'currentE1RM': currentVal,
+            'previousE1RM': allVal < currentVal ? allVal : null,
+            'e1RMText': currentVal.toStringAsFixed(1),
+            'previousE1RMText': allVal < currentVal
+                ? allVal.toStringAsFixed(1)
+                : null,
+          });
+        }
+      }
+    }
+
+    result.sort((a, b) {
+      final aImprovement = (a['previousE1RM'] as double?) ?? 0;
+      final bImprovement = (b['previousE1RM'] as double?) ?? 0;
+      if (aImprovement == 0 && bImprovement == 0) {
+        return (b['currentE1RM'] as double).compareTo(
+          a['currentE1RM'] as double,
+        );
+      }
+      if (aImprovement == 0) return 1;
+      if (bImprovement == 0) return -1;
+      return ((b['currentE1RM'] as double) - (bImprovement)).compareTo(
+        (a['currentE1RM'] as double) - (aImprovement),
+      );
+    });
+
+    return result;
+  }
+
   // ==================== 新增图表组件方法 ====================
 
   /// 常用动作图表（水平条形图）
@@ -1635,13 +1794,21 @@ class _StatsScreenState extends State<StatsScreen>
     );
   }
 
-  /// 训练洞察卡片（薄弱部位 + 过度训练风险）
+  /// 训练洞察卡片（薄弱部位 + 肌群不平衡 + 力量突破 + 过度训练风险）
   Widget _buildTrainingInsightsCard(
     List<Map<String, dynamic>> weakMuscles,
+    List<Map<String, dynamic>> muscleImbalance,
+    List<Map<String, dynamic>> strengthBreakthroughs,
     List<Map<String, dynamic>> overtrainedMuscles,
     AppThemeData theme,
   ) {
-    if (weakMuscles.isEmpty && overtrainedMuscles.isEmpty) {
+    final hasAnyInsight =
+        weakMuscles.isNotEmpty ||
+        muscleImbalance.isNotEmpty ||
+        strengthBreakthroughs.isNotEmpty ||
+        overtrainedMuscles.isNotEmpty;
+
+    if (!hasAnyInsight) {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -1659,6 +1826,56 @@ class _StatsScreenState extends State<StatsScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        if (strengthBreakthroughs.isNotEmpty) ...[
+          Row(
+            children: [
+              Icon(Icons.emoji_events, size: 16, color: Colors.amber[700]),
+              const SizedBox(width: 6),
+              Text(
+                '力量突破',
+                style: TextStyle(
+                  fontFamily: '.SF Pro Text',
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.amber[700],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 6,
+            children: strengthBreakthroughs.map((m) {
+              final hasPrevious = m['previousE1RMText'] != null;
+              final label = hasPrevious
+                  ? '${m['exerciseName']} ${m['previousE1RMText']}→${m['e1RMText']}kg'
+                  : '${m['exerciseName']} ${m['e1RMText']}kg';
+              return Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.amber.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: Colors.amber.withValues(alpha: 0.3),
+                  ),
+                ),
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    fontFamily: '.SF Pro Text',
+                    fontSize: 11,
+                    color: Colors.amber[800],
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+          const SizedBox(height: 16),
+        ],
         if (weakMuscles.isNotEmpty) ...[
           Row(
             children: [
@@ -1709,7 +1926,50 @@ class _StatsScreenState extends State<StatsScreen>
           ),
           const SizedBox(height: 16),
         ],
-
+        if (muscleImbalance.isNotEmpty) ...[
+          Row(
+            children: [
+              Icon(Icons.balance, size: 16, color: Colors.teal),
+              const SizedBox(width: 6),
+              Text(
+                '肌群不平衡',
+                style: TextStyle(
+                  fontFamily: '.SF Pro Text',
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.teal,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 6,
+            children: muscleImbalance.map((m) {
+              return Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.teal.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.teal.withValues(alpha: 0.3)),
+                ),
+                child: Text(
+                  '${m['label']} ${m['ratioText']}:1',
+                  style: TextStyle(
+                    fontFamily: '.SF Pro Text',
+                    fontSize: 11,
+                    color: Colors.teal[800],
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+          const SizedBox(height: 16),
+        ],
         if (overtrainedMuscles.isNotEmpty) ...[
           Row(
             children: [
@@ -2210,7 +2470,7 @@ class _StatsScreenState extends State<StatsScreen>
     // 计算日期范围
     DateTime startDate;
     DateTime endDate;
-    List<dynamic> previousRecords;
+    List<WorkoutRecord> previousRecords;
 
     if (periodType == 'week') {
       final weekStart = _getStartOfWeek(_selectedWeekStart);
@@ -2218,7 +2478,7 @@ class _StatsScreenState extends State<StatsScreen>
       endDate = startDate.add(const Duration(days: 7));
       previousRecords = _filterByWeek(
         startDate.subtract(const Duration(days: 7)),
-      );
+      ).whereType<WorkoutRecord>().toList();
     } else {
       startDate = DateTime(_selectedYear, _selectedMonth, 1);
       endDate = DateTime(_selectedYear, _selectedMonth + 1, 0);
@@ -2228,7 +2488,10 @@ class _StatsScreenState extends State<StatsScreen>
         prevMonth = 12;
         prevYear--;
       }
-      previousRecords = _filterByMonth(prevYear, prevMonth);
+      previousRecords = _filterByMonth(
+        prevYear,
+        prevMonth,
+      ).whereType<WorkoutRecord>().toList();
     }
 
     // 全部 WorkoutRecord
@@ -2244,7 +2507,7 @@ class _StatsScreenState extends State<StatsScreen>
           startDate: startDate,
           endDate: endDate,
           records: records.whereType<WorkoutRecord>().toList(),
-          previousRecords: previousRecords.whereType<WorkoutRecord>().toList(),
+          previousRecords: previousRecords,
           allRecords: allWorkoutRecords,
         ),
       ),
