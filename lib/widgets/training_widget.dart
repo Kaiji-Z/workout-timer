@@ -100,7 +100,9 @@ class _TrainingWidgetState extends State<TrainingWidget>
                 _buildCompactProgress(progressProvider, theme),
 
               // 计时器 - 占用剩余空间
-              Expanded(child: _buildMainContent(training, theme)),
+              Expanded(
+                child: _buildMainContent(training, theme, progressProvider),
+              ),
 
               // 状态徽章
               _buildStatusBadge(training, theme, progressProvider),
@@ -216,47 +218,44 @@ class _TrainingWidgetState extends State<TrainingWidget>
   }
 
   /// 主内容区域 - 计时器
-  Widget _buildMainContent(TrainingProvider training, AppThemeData theme) {
+  Widget _buildMainContent(
+    TrainingProvider training,
+    AppThemeData theme,
+    TrainingProgressProvider progressProvider,
+  ) {
     return Center(child: _buildTimerDisplay(training, theme));
   }
 
   /// 计时器显示
   Widget _buildTimerDisplay(TrainingProvider training, AppThemeData theme) {
-    // 休息状态：显示总时长 + 倒计时
+    // 休息状态：外环正计时 + 内环虚线倒计时
     if (training.isResting) {
-      return Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          // 小秒表显示总时长
-          AnimatedStopwatchDisplay(
-            seconds: training.sessionDuration,
-            theme: theme,
-            size: AppDimensions.timerSmallSize(context),
-          ),
-          const SizedBox(height: 16),
-          // 主倒计时
-          AnimatedTimerDisplay(
-            seconds: training.restRemaining,
-            label: '休息倒计时',
-            theme: theme,
-            size: AppDimensions.timerSize(context),
-            isCountdown: true,
-            progress: training.restDuration > 0
-                ? training.restRemaining / training.restDuration
-                : 0,
-          ),
-        ],
+      return Center(
+        child: AnimatedTimerDisplay(
+          seconds: training.restRemaining,
+          label: '休息倒计时',
+          theme: theme,
+          size: AppDimensions.timerSize(context),
+          sessionDuration: training.sessionDuration,
+          countdownProgress: training.restDuration > 0
+              ? training.restRemaining / training.restDuration
+              : 0,
+          showCountdown: true,
+        ),
       );
     }
 
-    // 运动中或暂停
+    // 运动中或暂停：外环正计时
     if (training.isExercising || training.isExercisePaused) {
-      return AnimatedTimerDisplay(
-        seconds: training.sessionDuration,
-        label: '运动中',
-        theme: theme,
-        size: AppDimensions.timerSize(context),
-        isCountdown: false,
+      return Center(
+        child: AnimatedTimerDisplay(
+          seconds: training.sessionDuration,
+          label: '运动中',
+          theme: theme,
+          size: AppDimensions.timerSize(context),
+          sessionDuration: training.sessionDuration,
+          showCountdown: false,
+        ),
       );
     }
 
@@ -265,13 +264,16 @@ class _TrainingWidgetState extends State<TrainingWidget>
       return _buildCompletedDisplay(training, theme);
     }
 
-    // 空闲状态
-    return AnimatedTimerDisplay(
-      seconds: training.restDuration,
-      label: '休息时长',
-      theme: theme,
-      size: AppDimensions.timerSize(context),
-      isCountdown: false,
+    // 空闲状态：空外环
+    return Center(
+      child: AnimatedTimerDisplay(
+        seconds: training.restDuration,
+        label: '休息时长',
+        theme: theme,
+        size: AppDimensions.timerSize(context),
+        sessionDuration: 0,
+        showCountdown: false,
+      ),
     );
   }
 

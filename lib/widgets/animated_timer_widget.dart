@@ -2,20 +2,21 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 
-/// Flat Vitality 风格动画计时器显示
-/// 
+/// Flat Vitality 风格多环计时器显示
+///
 /// 设计特点:
-/// - 粗进度环 (10px)
-/// - 无发光/霓虹效果
-/// - 扁平设计
-/// - 高对比度
+/// - 外环：正计时进度条（实线，圆头，每 60 分钟一圈）
+/// - 内环：倒计时进度条（虚线 60 段，平头，一秒一段）
+/// - 扁平设计，高对比度
+/// - .SF Pro Display / .SF Pro Text 字体
 class AnimatedTimerDisplay extends StatefulWidget {
   final int seconds;
   final String label;
   final AppThemeData theme;
   final double size;
-  final bool isCountdown;
-  final double progress;
+  final int sessionDuration;
+  final double countdownProgress;
+  final bool showCountdown;
 
   const AnimatedTimerDisplay({
     super.key,
@@ -23,8 +24,9 @@ class AnimatedTimerDisplay extends StatefulWidget {
     required this.label,
     required this.theme,
     required this.size,
-    this.isCountdown = false,
-    this.progress = 1.0,
+    this.sessionDuration = 0,
+    this.countdownProgress = 1.0,
+    this.showCountdown = false,
   });
 
   @override
@@ -40,57 +42,55 @@ class _AnimatedTimerDisplayState extends State<AnimatedTimerDisplay> {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          // 进度环 - 粗线条，无发光
           SizedBox(
             width: widget.size,
             height: widget.size,
             child: CustomPaint(
-              painter: _FlatProgressPainter(
-                progress: widget.progress,
-                progressColor: widget.theme.progressRingColor,
-                bgColor: widget.theme.progressBgColor,
-                strokeWidth: widget.theme.progressStrokeWidth,
+              painter: _TimerRingPainter(
+                sessionDuration: widget.sessionDuration,
+                countdownProgress: widget.countdownProgress,
+                showCountdown: widget.showCountdown,
+                theme: widget.theme,
               ),
             ),
           ),
-          // 中心内容卡片
           _buildTimerCard(),
         ],
       ),
     );
   }
 
-  /// 构建计时器卡片 - 扁平设计
   Widget _buildTimerCard() {
     final timeText = _formatTime(widget.seconds);
-    final cardSize = widget.size * 0.75;
+    final cardSize = widget.size * 0.65;
 
     return Container(
       width: cardSize,
       height: cardSize,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        // 扁平背景色 - 使用主背景色
         color: widget.theme.primaryColor,
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
-          // 计时器数字 - 带动画过渡效果
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 250),
             transitionBuilder: (child, animation) {
               return FadeTransition(
                 opacity: animation,
                 child: SlideTransition(
-                  position: Tween<Offset>(
-                    begin: const Offset(0.0, 0.1),
-                    end: Offset.zero,
-                  ).animate(CurvedAnimation(
-                    parent: animation,
-                    curve: Curves.easeOut,
-                  )),
+                  position:
+                      Tween<Offset>(
+                        begin: const Offset(0.0, 0.1),
+                        end: Offset.zero,
+                      ).animate(
+                        CurvedAnimation(
+                          parent: animation,
+                          curve: Curves.easeOut,
+                        ),
+                      ),
                   child: child,
                 ),
               );
@@ -100,7 +100,7 @@ class _AnimatedTimerDisplayState extends State<AnimatedTimerDisplay> {
               key: ValueKey(timeText),
               style: TextStyle(
                 fontFamily: '.SF Pro Display',
-                fontSize: widget.size * 0.2,
+                fontSize: widget.size * 0.18,
                 fontWeight: FontWeight.w700,
                 color: widget.theme.textColor,
                 letterSpacing: -2,
@@ -112,7 +112,7 @@ class _AnimatedTimerDisplayState extends State<AnimatedTimerDisplay> {
             widget.label,
             style: TextStyle(
               fontFamily: '.SF Pro Text',
-              fontSize: widget.size * 0.055,
+              fontSize: widget.size * 0.045,
               fontWeight: FontWeight.w500,
               color: widget.theme.secondaryTextColor,
               letterSpacing: 0.5,
@@ -130,122 +130,193 @@ class _AnimatedTimerDisplayState extends State<AnimatedTimerDisplay> {
   }
 }
 
-/// 扁平进度环绘制器 - 无发光效果
-class _FlatProgressPainter extends CustomPainter {
-  final double progress;
-  final Color progressColor;
-  final Color bgColor;
-  final double strokeWidth;
+/// 多环计时器绘制器
+///
+/// 外环：正计时进度条（实线，圆头，每 60 分钟一圈，可多环）
+/// 内环：倒计时进度条（虚线 60 段，平头，仅休息状态显示）
+class _TimerRingPainter extends CustomPainter {
+  final int sessionDuration;
+  final double countdownProgress;
+  final bool showCountdown;
+  final AppThemeData theme;
 
-  _FlatProgressPainter({
-    required this.progress,
-    required this.progressColor,
-    required this.bgColor,
-    required this.strokeWidth,
+  // ── 尺寸常量 ──
+  static const double _outerStrokeWidth = 8.0;
+  static const double _innerStrokeWidth = 6.0;
+  static const double _outerRingGap = 4.0; // 多个外环之间的间距
+  static const double _innerOuterGap = 12.0; // 内环与最外环之间的间距（大于外环间距）
+  static const double _edgeMargin = 8.0; // 容器边缘留白
+  static const int _segmentsPerRing = 60; // 倒计时内环分段数
+  static const double _segmentGapRadians =
+      math.pi / 180 * 1.2; // 每段之间的间隙角度（~1.2°）
+  static const int _secondsPerRing = 3600; // 60 分钟 = 3600 秒
+
+  _TimerRingPainter({
+    required this.sessionDuration,
+    required this.countdownProgress,
+    required this.showCountdown,
+    required this.theme,
   });
+
+  /// 计算需要的外环数量（含当前进行中的那一个）
+  int get _outerRingCount {
+    if (sessionDuration <= 0) return 1; // 空闲状态也显示一个空轨道
+    return (sessionDuration ~/ _secondsPerRing) + 1;
+  }
+
+  /// 当前外环的进度（0.0 ~ 1.0）
+  double get _currentRingProgress {
+    if (sessionDuration <= 0) return 0.0;
+    return (sessionDuration % _secondsPerRing) / _secondsPerRing;
+  }
+
+  /// 已完成的外环数量
+  int get _completeRingCount => sessionDuration ~/ _secondsPerRing;
+
+  /// 计算第 N 个外环的半径（0 = 最外层）
+  double _outerRingRadius(int index, double totalRadius) {
+    return (totalRadius -
+            _edgeMargin -
+            index * (_outerStrokeWidth + _outerRingGap))
+        .clamp(0.0, totalRadius);
+  }
+
+  /// 计算内环半径
+  double _innerRingRadius(double totalRadius) {
+    final lastOuterIndex = _outerRingCount - 1;
+    final lastOuterRadius = _outerRingRadius(lastOuterIndex, totalRadius);
+    return (lastOuterRadius -
+            _outerStrokeWidth / 2 -
+            _innerOuterGap -
+            _innerStrokeWidth / 2)
+        .clamp(0.0, lastOuterRadius - _outerStrokeWidth);
+  }
 
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
-    final radius = size.width / 2 - strokeWidth / 2;
+    final totalRadius = size.width / 2;
 
-    // 背景环 - 浅色
-    final bgPaint = Paint()
-      ..color = bgColor
-      ..strokeWidth = strokeWidth
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round;
-    canvas.drawCircle(center, radius, bgPaint);
+    // ── 绘制外环（正计时） ──
+    _paintOuterRings(canvas, center, totalRadius);
 
-    // 进度环 - 深蓝色，粗线条
-    final progressPaint = Paint()
-      ..color = progressColor
-      ..strokeWidth = strokeWidth
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round;
+    // ── 绘制内环（倒计时虚线段） ──
+    if (showCountdown) {
+      _paintInnerRing(canvas, center, totalRadius);
+    }
+  }
 
-    final sweepAngle = 2 * math.pi * progress;
-    canvas.drawArc(
-      Rect.fromCircle(center: center, radius: radius),
-      -math.pi / 2, // 从顶部开始
-      sweepAngle,
-      false,
-      progressPaint,
-    );
+  void _paintOuterRings(Canvas canvas, Offset center, double totalRadius) {
+    final ringCount = _outerRingCount;
+
+    for (int i = ringCount - 1; i >= 0; i--) {
+      final radius = _outerRingRadius(i, totalRadius);
+      final rect = Rect.fromCircle(center: center, radius: radius);
+      final isComplete = i < _completeRingCount;
+      final isCurrent = i == _completeRingCount;
+
+      // 背景轨道（始终显示）
+      canvas.drawCircle(
+        center,
+        radius,
+        Paint()
+          ..color = theme.accentColor.withValues(alpha: 0.12)
+          ..strokeWidth = _outerStrokeWidth
+          ..style = PaintingStyle.stroke
+          ..strokeCap = StrokeCap.round,
+      );
+
+      // 进度弧
+      if (isComplete) {
+        // 已完成的环 — 画满一圈
+        canvas.drawArc(
+          rect,
+          -math.pi / 2,
+          2 * math.pi,
+          false,
+          Paint()
+            ..color = theme.accentColor
+            ..strokeWidth = _outerStrokeWidth
+            ..style = PaintingStyle.stroke
+            ..strokeCap = StrokeCap.round,
+        );
+      } else if (isCurrent) {
+        // 当前进行中的环
+        final progress = _currentRingProgress.clamp(0.0, 1.0);
+        if (progress > 0) {
+          canvas.drawArc(
+            rect,
+            -math.pi / 2,
+            2 * math.pi * progress,
+            false,
+            Paint()
+              ..color = theme.accentColor
+              ..strokeWidth = _outerStrokeWidth
+              ..style = PaintingStyle.stroke
+              ..strokeCap = StrokeCap.round,
+          );
+        }
+      }
+      // ringCount > completeRingCount + 1 的环（未来环）只显示背景轨道
+    }
+  }
+
+  void _paintInnerRing(Canvas canvas, Offset center, double totalRadius) {
+    final radius = _innerRingRadius(totalRadius);
+    if (radius <= 0) return;
+
+    final rect = Rect.fromCircle(center: center, radius: radius);
+    final totalAngle = 2 * math.pi;
+    final segmentAngle = totalAngle / _segmentsPerRing;
+    final activeSegmentAngle = segmentAngle - _segmentGapRadians;
+    final clampedProgress = countdownProgress.clamp(0.0, 1.0);
+    final activeSegments = (clampedProgress * _segmentsPerRing).round();
+
+    // 绘制 60 段背景（淡色）
+    for (int i = 0; i < _segmentsPerRing; i++) {
+      final startAngle =
+          -math.pi / 2 + i * segmentAngle + _segmentGapRadians / 2;
+      canvas.drawArc(
+        rect,
+        startAngle,
+        activeSegmentAngle,
+        false,
+        Paint()
+          ..color = theme.accentColor.withValues(alpha: 0.1)
+          ..strokeWidth = _innerStrokeWidth
+          ..style = PaintingStyle.stroke
+          ..strokeCap = StrokeCap.butt,
+      );
+    }
+
+    // 绘制活跃段（实色）
+    for (int i = 0; i < activeSegments; i++) {
+      final startAngle =
+          -math.pi / 2 + i * segmentAngle + _segmentGapRadians / 2;
+      canvas.drawArc(
+        rect,
+        startAngle,
+        activeSegmentAngle,
+        false,
+        Paint()
+          ..color = theme.accentColor
+          ..strokeWidth = _innerStrokeWidth
+          ..style = PaintingStyle.stroke
+          ..strokeCap = StrokeCap.butt,
+      );
+    }
   }
 
   @override
-  bool shouldRepaint(covariant _FlatProgressPainter oldDelegate) {
-    return oldDelegate.progress != progress ||
-        oldDelegate.progressColor != progressColor ||
-        oldDelegate.bgColor != bgColor;
+  bool shouldRepaint(covariant _TimerRingPainter oldDelegate) {
+    return oldDelegate.sessionDuration != sessionDuration ||
+        oldDelegate.countdownProgress != countdownProgress ||
+        oldDelegate.showCountdown != showCountdown ||
+        oldDelegate.theme != theme;
   }
 }
 
-/// 小计时器（总时长显示）- 扁平设计
-class AnimatedStopwatchDisplay extends StatelessWidget {
-  final int seconds;
-  final AppThemeData theme;
-  final double size;
-
-  const AnimatedStopwatchDisplay({
-    super.key,
-    required this.seconds,
-    required this.theme,
-    this.size = 80,
-  });
-
-  String _formatTime(int totalSeconds) {
-    final minutes = totalSeconds ~/ 60;
-    final secs = totalSeconds % 60;
-    return '${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: Colors.white.withValues(alpha: 0.9),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            _formatTime(seconds),
-            style: TextStyle(
-              fontFamily: '.SF Pro Display',
-              fontSize: size * 0.22,
-              fontWeight: FontWeight.w600,
-              color: theme.textColor,
-              letterSpacing: -1,
-            ),
-          ),
-          Text(
-            '总时长',
-            style: TextStyle(
-              fontFamily: '.SF Pro Text',
-              fontSize: size * 0.11,
-              fontWeight: FontWeight.w400,
-              color: theme.secondaryTextColor,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// 脉冲动画组件 - 保留用于完成状态
+/// 脉冲动画组件 - 用于完成状态
 class PulsingWidget extends StatefulWidget {
   final Widget child;
   final Duration duration;
@@ -272,17 +343,12 @@ class _PulsingWidgetState extends State<PulsingWidget>
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      duration: widget.duration,
-      vsync: this,
-    )..repeat(reverse: true);
+    _controller = AnimationController(duration: widget.duration, vsync: this)
+      ..repeat(reverse: true);
     _animation = Tween<double>(
       begin: widget.minScale,
       end: widget.maxScale,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOut,
-    ));
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
   @override
@@ -293,9 +359,6 @@ class _PulsingWidgetState extends State<PulsingWidget>
 
   @override
   Widget build(BuildContext context) {
-    return ScaleTransition(
-      scale: _animation,
-      child: widget.child,
-    );
+    return ScaleTransition(scale: _animation, child: widget.child);
   }
 }
