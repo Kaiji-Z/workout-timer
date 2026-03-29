@@ -37,7 +37,7 @@ class AppDimensions {
   // 计时器尺寸（响应式基准）
   static double timerSize(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    return (screenWidth * 0.8).clamp(260.0, 360.0);
+    return (screenWidth * 0.9).clamp(280.0, 400.0);
   }
 
   static double timerSmallSize(BuildContext context) {
