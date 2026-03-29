@@ -226,8 +226,22 @@ class _TrainingWidgetState extends State<TrainingWidget>
     return Center(child: _buildTimerDisplay(training, theme));
   }
 
-  /// 计时器显示
+  /// 计时器显示 — 所有状态统一使用 AnimatedTimerDisplay，保持大小和位置一致
   Widget _buildTimerDisplay(TrainingProvider training, AppThemeData theme) {
+    // 完成状态：统一圆环 + 完成感
+    if (training.isCompleted) {
+      return Center(
+        child: AnimatedTimerDisplay(
+          seconds: training.sessionDuration,
+          label: '训练完成',
+          theme: theme,
+          size: AppDimensions.timerSize(context),
+          sessionDuration: training.sessionDuration,
+          countdownProgress: 1.0,
+        ),
+      );
+    }
+
     // 休息状态：外环正计时 + 内环虚线倒计时
     if (training.isResting) {
       return Center(
@@ -240,12 +254,11 @@ class _TrainingWidgetState extends State<TrainingWidget>
           countdownProgress: training.restDuration > 0
               ? training.restRemaining / training.restDuration
               : 0,
-          showCountdown: true,
         ),
       );
     }
 
-    // 运动中或暂停：外环正计时
+    // 运动中或暂停：外环正计时 + 内环满段
     if (training.isExercising || training.isExercisePaused) {
       return Center(
         child: AnimatedTimerDisplay(
@@ -254,17 +267,12 @@ class _TrainingWidgetState extends State<TrainingWidget>
           theme: theme,
           size: AppDimensions.timerSize(context),
           sessionDuration: training.sessionDuration,
-          showCountdown: false,
+          countdownProgress: 1.0,
         ),
       );
     }
 
-    // 完成状态
-    if (training.isCompleted) {
-      return _buildCompletedDisplay(training, theme);
-    }
-
-    // 空闲状态：空外环
+    // 空闲状态：空外环 + 内环满段
     return Center(
       child: AnimatedTimerDisplay(
         seconds: training.restDuration,
@@ -272,83 +280,8 @@ class _TrainingWidgetState extends State<TrainingWidget>
         theme: theme,
         size: AppDimensions.timerSize(context),
         sessionDuration: 0,
-        showCountdown: false,
+        countdownProgress: 1.0,
       ),
-    );
-  }
-
-  /// 完成状态显示
-  Widget _buildCompletedDisplay(TrainingProvider training, AppThemeData theme) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        // 完成圆圈
-        PulsingWidget(
-          child: Container(
-            width: 180,
-            height: 180,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: theme.surfaceColor,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.15),
-                  blurRadius: 20,
-                  offset: const Offset(0, 8),
-                ),
-              ],
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.check_circle_outline,
-                  size: 44,
-                  color: theme.progressRingColor,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  _formatTime(training.sessionDuration),
-                  style: TextStyle(
-                    fontFamily: '.SF Pro Display',
-                    fontSize: 36,
-                    fontWeight: FontWeight.w300,
-                    color: theme.textColor,
-                    letterSpacing: -2,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '总时长',
-                  style: TextStyle(
-                    fontFamily: '.SF Pro Text',
-                    fontSize: 13,
-                    color: theme.secondaryTextColor,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(height: 16),
-        // 统计徽章
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            StatusBadge(
-              text: '${training.currentSet} 组',
-              color: theme.progressRingColor,
-              icon: Icons.repeat,
-            ),
-            const SizedBox(width: 12),
-            StatusBadge(
-              text: _formatTime(training.totalExerciseTime),
-              color: theme.progressRingColor,
-              icon: Icons.timer,
-            ),
-          ],
-        ),
-      ],
     );
   }
 
