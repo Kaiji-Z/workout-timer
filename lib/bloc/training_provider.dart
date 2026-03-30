@@ -1,40 +1,39 @@
 import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/foundation.dart';
-import '../services/notification_service.dart';
 import '../services/timer_service.dart';
 
 /// 训练状态枚举
 enum TrainingState {
-  idle,           // 空闲，未开始
-  exercising,     // 运动中（正向计时）
+  idle, // 空闲，未开始
+  exercising, // 运动中（正向计时）
   exercisePaused, // 运动暂停
-  resting,        // 休息中（倒计时）
-  completed,      // 训练完成
+  resting, // 休息中（倒计时）
+  completed, // 训练完成
 }
 
 /// 训练状态管理 Provider
 class TrainingProvider extends ChangeNotifier {
-  final NotificationService _notificationService = NotificationService();
-
   // 状态
   TrainingState _state = TrainingState.idle;
-  int _currentSet = 0;           // 当前组数
-  int _restDuration = 60;        // 休息时长（秒）
-  int _restRemaining = 0;        // 休息剩余时间（秒）
-  int _exerciseTime = 0;         // 运动时长（秒）
-  int _totalExerciseTime = 0;    // 总运动时长（秒）
-  int _totalRestTime = 0;        // 总休息时长（秒）
+  int _currentSet = 0; // 当前组数
+  int _restDuration = 60; // 休息时长（秒）
+  int _restRemaining = 0; // 休息剩余时间（秒）
+  int _exerciseTime = 0; // 运动时长（秒）
+  int _totalExerciseTime = 0; // 总运动时长（秒）
+  int _totalRestTime = 0; // 总休息时长（秒）
   bool _isPaused = false;
 
   // 计时器
   Timer? _timer;
-  Timer? _sessionTimer;       // Session timer for UI updates
+  Timer? _sessionTimer; // Session timer for UI updates
   Stopwatch? _stopwatch;
-  Stopwatch? _sessionStopwatch;  // Runs continuously from start to end
-  int _sessionDuration = 0;   // Total session duration in seconds
-  DateTime? _sessionStartTime;  // When session started (for accurate time tracking)
-  DateTime? _pauseStartTime;   // When session was paused (to exclude paused time)
+  Stopwatch? _sessionStopwatch; // Runs continuously from start to end
+  int _sessionDuration = 0; // Total session duration in seconds
+  DateTime?
+  _sessionStartTime; // When session started (for accurate time tracking)
+  DateTime? _pauseStartTime; // When session was paused (to exclude paused time)
+  DateTime? _restStartTime; // When rest period started (for accurate countdown)
 
   // Getters
   TrainingState get state => _state;
@@ -45,16 +44,16 @@ class TrainingProvider extends ChangeNotifier {
   int get totalExerciseTime => _totalExerciseTime;
   int get totalRestTime => _totalRestTime;
   bool get isPaused => _isPaused;
-  
+
   bool get isIdle => _state == TrainingState.idle;
   bool get isExercising => _state == TrainingState.exercising;
   bool get isExercisePaused => _state == TrainingState.exercisePaused;
   bool get isResting => _state == TrainingState.resting;
   bool get isCompleted => _state == TrainingState.completed;
-  
+
   /// 总时长（秒）
   int get sessionDuration => _sessionDuration;
-  
+
   /// 格式化的总时长 MM:SS
   String get sessionDurationFormatted {
     final minutes = _sessionDuration ~/ 60;
@@ -87,7 +86,8 @@ class TrainingProvider extends ChangeNotifier {
 
   /// 开始运动
   void startExercise() {
-    if (_state != TrainingState.idle && _state != TrainingState.completed) return;
+    if (_state != TrainingState.idle && _state != TrainingState.completed)
+      return;
 
     _state = TrainingState.exercising;
     _currentSet = 1;
@@ -99,10 +99,11 @@ class TrainingProvider extends ChangeNotifier {
 
     // Start session stopwatch (runs continuously)
     _sessionStopwatch = Stopwatch()..start();
-    _sessionStartTime = DateTime.now();  // Record actual start time for accurate tracking
+    _sessionStartTime =
+        DateTime.now(); // Record actual start time for accurate tracking
     _pauseStartTime = null;
     _startSessionTimer();
-    
+
     // Start exercise stopwatch
     _stopwatch = Stopwatch()..start();
     _startExerciseTimer();
@@ -125,7 +126,7 @@ class TrainingProvider extends ChangeNotifier {
     // Resume session stopwatch
     _sessionStopwatch?.start();
     _startSessionTimer();
-    
+
     // Start new exercise stopwatch
     _stopwatch = Stopwatch()..start();
     _startExerciseTimer();
@@ -152,7 +153,8 @@ class TrainingProvider extends ChangeNotifier {
     _sessionTimer = null;
     // Fix: Also stop session stopwatch to prevent time accumulation during pause
     _sessionStopwatch?.stop();
-    _pauseStartTime = DateTime.now();  // Record pause time to exclude from duration
+    _pauseStartTime =
+        DateTime.now(); // Record pause time to exclude from duration
 
     if (!kIsWeb) {
       TimerService.stopService();
@@ -168,7 +170,7 @@ class TrainingProvider extends ChangeNotifier {
     _state = TrainingState.exercising;
     _isPaused = false;
     // Fix: Resume session stopwatch too, not just exercise stopwatch
-    _pauseStartTime = null;  // Clear pause time
+    _pauseStartTime = null; // Clear pause time
     _sessionStopwatch?.start();
     _stopwatch = Stopwatch()..start();
     _startExerciseTimer();
@@ -192,12 +194,17 @@ class TrainingProvider extends ChangeNotifier {
 
     _state = TrainingState.resting;
     _restRemaining = _restDuration;
+    _restStartTime = DateTime.now(); // 记录休息开始时间，用于后台恢复
     _stopwatch?.stop();
     _timer?.cancel();
     _timer = null;
     // Note: Session stopwatch continues running
 
     _startRestTimer();
+
+    if (!kIsWeb) {
+      TimerService.startCountdown(duration: _restDuration, mode: 'rest');
+    }
 
     notifyListeners();
   }
@@ -209,6 +216,10 @@ class TrainingProvider extends ChangeNotifier {
     _timer?.cancel();
     _timer = null;
 
+    if (!kIsWeb) {
+      TimerService.stopCountdown();
+    }
+
     // 保存已休息的时间
     final restedTime = _restDuration - _restRemaining;
     _totalRestTime += restedTime;
@@ -218,7 +229,7 @@ class TrainingProvider extends ChangeNotifier {
 
   /// 结束训练
   void endWorkout() {
-    if (_state != TrainingState.exercising && 
+    if (_state != TrainingState.exercising &&
         _state != TrainingState.exercisePaused) {
       return;
     }
@@ -232,12 +243,14 @@ class TrainingProvider extends ChangeNotifier {
     _stopwatch = null;
     _timer?.cancel();
     _timer = null;
-    
+
     // Stop session stopwatch
     _sessionStopwatch?.stop();
     // Calculate final duration using DateTime for accuracy (works after background)
     if (_sessionStartTime != null) {
-      _sessionDuration = DateTime.now().difference(_sessionStartTime!).inSeconds;
+      _sessionDuration = DateTime.now()
+          .difference(_sessionStartTime!)
+          .inSeconds;
     }
     _sessionTimer?.cancel();
     _sessionTimer = null;
@@ -247,6 +260,7 @@ class TrainingProvider extends ChangeNotifier {
 
     if (!kIsWeb) {
       TimerService.stopService();
+      TimerService.stopCountdown();
     }
 
     notifyListeners();
@@ -258,7 +272,7 @@ class TrainingProvider extends ChangeNotifier {
     _stopwatch = null;
     _timer?.cancel();
     _timer = null;
-    
+
     _sessionStopwatch?.stop();
     _sessionStopwatch = null;
     _sessionTimer?.cancel();
@@ -275,6 +289,7 @@ class TrainingProvider extends ChangeNotifier {
 
     if (!kIsWeb) {
       TimerService.stopService();
+      TimerService.stopCountdown();
     }
 
     notifyListeners();
@@ -290,12 +305,53 @@ class TrainingProvider extends ChangeNotifier {
     };
   }
 
-  /// 刷新会话时长（从后台恢复时调用）
+  /// 刷新会话时长和休息倒计时（从后台恢复时调用）
   void refreshDuration() {
     if (_sessionStartTime != null && _pauseStartTime == null) {
-      _sessionDuration = DateTime.now().difference(_sessionStartTime!).inSeconds;
-      notifyListeners();
+      _sessionDuration = DateTime.now()
+          .difference(_sessionStartTime!)
+          .inSeconds;
     }
+
+    // 修复休息倒计时：同步轮询 Kotlin 获取权威时间
+    if (_state == TrainingState.resting && _restStartTime != null) {
+      // Poll native timer synchronously-style (fire-and-forget async)
+      if (!kIsWeb) {
+        TimerService.getRemainingTime()
+            .then((nativeState) {
+              // State guard: only act if still resting (prevent double transition)
+              if (_state != TrainingState.resting) return;
+
+              if (nativeState['completed'] == true) {
+                _timer?.cancel();
+                _timer = null;
+                _restRemaining = 0;
+                _totalRestTime += _restDuration;
+                _restStartTime = null;
+                _transitionToNextSet();
+              } else {
+                final nativeRemaining = nativeState['remaining'] as int? ?? 0;
+                if (nativeRemaining > 0) {
+                  _restRemaining = nativeRemaining;
+                  notifyListeners();
+                }
+              }
+            })
+            .catchError((e) {
+              debugPrint('Native timer poll error on resume: $e');
+            });
+      }
+
+      // Rebuild timer (Flutter #94094: Timer.periodic may be unresponsive after background)
+      _timer?.cancel();
+      _timer = null;
+      _startRestTimer();
+
+      // Don't check _restRemaining <= 0 here — let the async poll or
+      // the rebuilt _startRestTimer handle it to avoid double transition
+    }
+
+    notifyListeners();
   }
 
   // Private methods
@@ -314,7 +370,9 @@ class TrainingProvider extends ChangeNotifier {
     _sessionTimer = Timer.periodic(const Duration(milliseconds: 500), (timer) {
       // Calculate duration from DateTime for accuracy (works in background)
       if (_sessionStartTime != null && _pauseStartTime == null) {
-        _sessionDuration = DateTime.now().difference(_sessionStartTime!).inSeconds;
+        _sessionDuration = DateTime.now()
+            .difference(_sessionStartTime!)
+            .inSeconds;
         _updateServiceNotification();
         notifyListeners();
       }
@@ -322,17 +380,45 @@ class TrainingProvider extends ChangeNotifier {
   }
 
   void _startRestTimer() {
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (_restRemaining > 0) {
-        _restRemaining--;
-        _updateServiceNotification();
-        notifyListeners();
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) async {
+      // Poll native timer — single source of truth for rest countdown
+      if (!kIsWeb) {
+        try {
+          final nativeState = await TimerService.getRemainingTime();
+          _restRemaining = nativeState['remaining'] as int? ?? 0;
+
+          // Native timer completed — transition with state guard
+          if (nativeState['completed'] == true &&
+              _state == TrainingState.resting) {
+            _timer?.cancel();
+            _timer = null;
+            _restRemaining = 0;
+            _totalRestTime += _restDuration;
+            _restStartTime = null;
+            _transitionToNextSet();
+            return;
+          }
+        } catch (e) {
+          debugPrint('Native timer poll error: $e');
+        }
       } else {
-        // Cancel timer FIRST to prevent infinite loop
+        // Web fallback: use DateTime
+        if (_restStartTime != null) {
+          final elapsed = DateTime.now().difference(_restStartTime!).inSeconds;
+          _restRemaining = (_restDuration - elapsed).clamp(0, _restDuration);
+        }
+      }
+
+      if (_restRemaining > 0) {
+        // Only update UI — Kotlin handles notification during rest
+        notifyListeners();
+      } else if (_state == TrainingState.resting) {
+        // Fallback: Dart-detected completion (shouldn't happen if Kotlin is running)
         _timer?.cancel();
         _timer = null;
-        // 休息结束，自动切换到下一组
+        _restRemaining = 0;
         _totalRestTime += _restDuration;
+        _restStartTime = null;
         _transitionToNextSet();
       }
     });
@@ -348,27 +434,18 @@ class TrainingProvider extends ChangeNotifier {
     _stopwatch = Stopwatch()..start();
     _startExerciseTimer();
 
-    // 发送通知提醒用户开始下一组
+    // Resume exercise notification (Dart manages during exercise, Kotlin during rest)
     if (!kIsWeb) {
-      _notificationService.showNotification().catchError(
-        (e) => debugPrint('Notification error: $e'),
-      );
+      _updateServiceNotification();
     }
 
     notifyListeners();
   }
 
   void _updateServiceNotification() {
-    if (!kIsWeb) {
-      String timeStr;
-      if (_state == TrainingState.resting) {
-        final minutes = _restRemaining ~/ 60;
-        final seconds = _restRemaining % 60;
-        timeStr = '休息 ${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
-      } else {
-        // Show session duration during exercise
-        timeStr = '运动 $sessionDurationFormatted';
-      }
+    if (!kIsWeb && _state != TrainingState.resting) {
+      // Only update during exercise — Kotlin handles rest notifications
+      final timeStr = '运动 $sessionDurationFormatted';
       TimerService.updateNotification(timeStr);
     }
   }

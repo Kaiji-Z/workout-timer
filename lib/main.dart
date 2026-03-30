@@ -17,6 +17,7 @@ import 'theme/theme_provider.dart';
 import 'theme/app_theme.dart';
 import 'services/notification_service.dart';
 import 'services/exercise_service.dart';
+import 'services/timer_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -51,6 +52,9 @@ void main() async {
       debugPrint('Failed to initialize notifications: $e');
       // Continue without notifications - app can still function
     }
+
+    // Initialize native timer service channel (receives onTimerTick from Kotlin)
+    TimerService.initialize();
   }
 
   runApp(MyApp(themeProvider: themeProvider));

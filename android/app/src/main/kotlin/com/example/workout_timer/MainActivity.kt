@@ -15,7 +15,10 @@ class MainActivity : FlutterActivity() {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
 
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler { call, result ->
+        val channel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL)
+        TimerService.methodChannel = channel
+
+        channel.setMethodCallHandler { call, result ->
             when (call.method) {
                 "startService" -> {
                     val intent = Intent(this, TimerService::class.java).apply {
@@ -43,6 +46,33 @@ class MainActivity : FlutterActivity() {
                     }
                     startService(intent)
                     result.success(null)
+                }
+                "startCountdown" -> {
+                    val duration = call.argument<Int>("duration") ?: 60
+                    val mode = call.argument<String>("mode") ?: "simple"
+                    val intent = Intent(this, TimerService::class.java).apply {
+                        action = TimerService.ACTION_START
+                        putExtra(TimerService.EXTRA_DURATION, duration)
+                        putExtra(TimerService.EXTRA_MODE, mode)
+                    }
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        startForegroundService(intent)
+                    } else {
+                        startService(intent)
+                    }
+                    result.success(null)
+                }
+                "stopCountdown" -> {
+                    val intent = Intent(this, TimerService::class.java).apply {
+                        action = TimerService.ACTION_STOP
+                    }
+                    startService(intent)
+                    result.success(null)
+                }
+                "getRemainingTime" -> {
+                    val state = TimerService.instance?.getTimerState()
+                        ?: mapOf("remaining" to 0, "completed" to false, "mode" to "none")
+                    result.success(state)
                 }
                 else -> result.notImplemented()
             }
