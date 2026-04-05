@@ -6,7 +6,7 @@ on:
     paths-ignore:
       - '**.md'
       - 'docs/**'
-      - '.github/workflows/android.yml'
+      - '.github/workflows/android-build.yml'
   pull_request:
     branches: [master, main]
   workflow_dispatch:
@@ -33,6 +33,9 @@ jobs:
 
       - name: Get dependencies
         run: flutter pub get
+
+      - name: Prebuild iOS (generate ephemeral files)
+        run: flutter build ios --no-codesign --debug --no-tree-shake-icons || true
 
       - name: Install CocoaPods dependencies
         run: cd ios && pod install --repo-update && cd ..
