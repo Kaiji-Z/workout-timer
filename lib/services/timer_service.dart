@@ -2,9 +2,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
 
 class TimerService {
-  static const _channel = MethodChannel(
-    'com.example.workout_timer/timer_service',
-  );
+  static const _channel = MethodChannel('com.kaiji.workouttimer/timer_service');
 
   /// Callback for native timer tick events (called from Kotlin side)
   static void Function(Map<String, dynamic>)? onNativeTick;

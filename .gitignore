@@ -44,9 +44,15 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
+# Release signing (NEVER commit these)
+/android/key.properties
+*.jks
+*.keystore
+
 # Temporary files
 *.png
 !android/app/src/main/res/**/*.png
 nul
 *.html
 !web/**/*.html
+!docs/**/*.html

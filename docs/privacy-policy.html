@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>撸铁计时器 - 隐私政策</title>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    line-height: 1.8;
+    color: #333;
+    background-color: #f7f7f7;
+    padding: 16px;
+  }
+
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 12px;
+    padding: 32px 24px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  }
+
+  h1 {
+    font-size: 22px;
+    color: #1A237E;
+    text-align: center;
+    margin-bottom: 8px;
+    font-weight: 700;
+  }
+
+  .subtitle {
+    text-align: center;
+    font-size: 14px;
+    color: #999;
+    margin-bottom: 32px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+  }
+
+  .intro {
+    font-size: 15px;
+    color: #555;
+    margin-bottom: 28px;
+    padding: 16px;
+    background: #f0f2ff;
+    border-radius: 8px;
+    border-left: 4px solid #1A237E;
+  }
+
+  h2 {
+    font-size: 17px;
+    color: #1A237E;
+    margin: 28px 0 12px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid #e8eaf6;
+    font-weight: 600;
+  }
+
+  p {
+    font-size: 15px;
+    color: #444;
+    margin-bottom: 12px;
+  }
+
+  ul {
+    padding-left: 20px;
+    margin-bottom: 12px;
+  }
+
+  li {
+    font-size: 15px;
+    color: #444;
+    margin-bottom: 8px;
+    line-height: 1.7;
+  }
+
+  .highlight {
+    padding: 14px 16px;
+    background: #e8f5e9;
+    border-radius: 8px;
+    border-left: 4px solid #4CAF50;
+    margin: 16px 0;
+    font-size: 15px;
+    color: #2e7d32;
+  }
+
+  .contact-box {
+    margin-top: 28px;
+    padding: 20px;
+    background: #f5f5f5;
+    border-radius: 8px;
+  }
+
+  .contact-box p {
+    margin-bottom: 8px;
+    color: #555;
+  }
+
+  .contact-box a {
+    color: #1A237E;
+    text-decoration: none;
+    word-break: break-all;
+  }
+
+  .contact-box a:hover,
+  .contact-box a:active {
+    text-decoration: underline;
+  }
+
+  .footer {
+    text-align: center;
+    font-size: 13px;
+    color: #bbb;
+    margin-top: 36px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+  }
+
+  @media (max-width: 480px) {
+    .container {
+      padding: 24px 16px;
+      border-radius: 0;
+    }
+
+    h1 {
+      font-size: 20px;
+    }
+
+    h2 {
+      font-size: 16px;
+    }
+
+    body {
+      padding: 0;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <h1>撸铁计时器 隐私政策</h1>
+  <p class="subtitle">最后更新日期：2026年4月</p>
+
+  <div class="intro">
+    感谢您使用撸铁计时器。我们非常重视您的隐私。本政策将向您说明本应用如何处理您的数据。请花几分钟时间阅读以下内容。
+  </div>
+
+  <h2>一、数据收集说明</h2>
+  <p>撸铁计时器是一款免费、开源的健身计时工具应用。我们的设计原则是：尽可能少地获取数据。</p>
+  <ul>
+    <li>本应用<strong>不收集</strong>任何个人身份信息，包括但不限于姓名、邮箱、手机号、设备标识符等。</li>
+    <li>本应用<strong>不要求</strong>用户注册账号或登录。</li>
+    <li>本应用<strong>不使用</strong>任何第三方数据分析 SDK、广告 SDK 或崩溃收集服务。</li>
+    <li>您主动录入的训练记录（如组数、休息时间、训练日期等）仅保存在您的设备本地，详见下文。</li>
+  </ul>
+
+  <div class="highlight">
+    总结：本应用不收集、不上传、不共享任何用户数据。
+  </div>
+
+  <h2>二、数据存储</h2>
+  <p>您在使用撸铁计时器过程中产生的所有数据，包括：</p>
+  <ul>
+    <li>训练计划内容</li>
+    <li>训练历史记录（组数、重量、时间等）</li>
+    <li>应用设置和偏好</li>
+  </ul>
+  <p>以上数据全部通过 <strong>SQLite</strong> 数据库存储在<strong>您的设备本地</strong>。</p>
+  <p>本应用没有任何后台服务器。您的数据不会被上传、同步或备份到云端。卸载应用后，本地数据将被清除且无法恢复。</p>
+
+  <h2>三、本地通知</h2>
+  <p>撸铁计时器使用系统本地通知功能，在组间休息结束时提醒您。通知完全由设备系统发送和展示，不经过任何服务器。</p>
+  <p>您可以随时在系统设置中关闭本应用的通知权限。</p>
+
+  <h2>四、网络图片缓存</h2>
+  <p>本应用内置了来自开源运动数据库的动作示意图。这些图片会在您首次查看时从网络加载，并缓存在设备本地以供离线使用。</p>
+  <ul>
+    <li>图片来源：<a href="https://github.com/yuhonas/free-exercise-db" style="color: #1A237E;">free-exercise-db</a>（CC0 公共领域许可）。</li>
+    <li>图片加载过程中不会附带任何用户信息或追踪参数。</li>
+    <li>如果您不希望加载图片，可以在无网络环境下使用本应用，已缓存的图片仍可正常显示。</li>
+  </ul>
+
+  <h2>五、第三方服务</h2>
+  <p>撸铁计时器<strong>不集成</strong>以下任何类型的第三方服务：</p>
+  <ul>
+    <li>数据分析服务（如 Google Analytics、Firebase Analytics 等）</li>
+    <li>广告平台（如 AdMob、穿山甲等）</li>
+    <li>社交登录（如微信、微博、QQ 登录等）</li>
+    <li>推送服务（如极光推送、个推等）</li>
+    <li>崩溃上报服务（如 Bugly、Sentry 等）</li>
+    <li>支付服务</li>
+  </ul>
+  <p>本应用不会与任何第三方共享您的数据。</p>
+
+  <h2>六、用户权利</h2>
+  <p>由于所有数据均存储在您的设备本地，您可以完全掌控自己的信息：</p>
+  <ul>
+    <li><strong>查看数据：</strong>在应用内随时查看所有训练记录和计划。</li>
+    <li><strong>删除数据：</strong>在应用内删除单条记录，或通过清除应用数据/卸载应用来删除全部数据。</li>
+    <li><strong>导出数据：</strong>训练记录可通过应用界面查看和管理。</li>
+  </ul>
+  <p>我们无法远程访问、修改或删除您设备上的任何数据，因为我们根本没有您的数据。</p>
+
+  <h2>七、未成年人保护</h2>
+  <p>撸铁计时器适合所有年龄段的健身爱好者使用。本应用：</p>
+  <ul>
+    <li>不收集任何用户的个人信息，包括未成年人的信息。</li>
+    <li>不含任何广告、弹窗或外部链接跳转。</li>
+    <li>不提供任何社交功能或用户间互动。</li>
+    <li>内容均为健身训练相关，无不当内容。</li>
+  </ul>
+  <p>家长可以放心让未成年人使用本应用。如果您对未成年人使用本应用有任何疑虑，欢迎通过下方联系方式与我们沟通。</p>
+
+  <h2>八、隐私政策更新</h2>
+  <p>我们可能会不定期更新本隐私政策。更新后的政策将在项目仓库发布，并在页面顶部标注新的更新日期。</p>
+  <p>重大变更时，我们会在应用内或仓库公告中提醒用户。建议您定期查阅本页面，了解最新的隐私保护措施。</p>
+  <p>如果本政策有任何文字调整，继续使用本应用即表示您认可更新后的内容。</p>
+
+  <h2>九、联系方式</h2>
+  <div class="contact-box">
+    <p>撸铁计时器是一个开源项目，源代码公开透明，欢迎审查。</p>
+    <p><strong>项目地址：</strong><a href="https://github.com/Kaiji-Z/workout-timer">https://github.com/Kaiji-Z/workout-timer</a></p>
+    <p>如果您对本隐私政策有任何疑问或建议，请通过 GitHub 仓库的 Issues 页面提交反馈。</p>
+  </div>
+
+  <div class="footer">
+    撸铁计时器 &middot; 开源健身工具 &middot; MIT License
+  </div>
+
+</div>
+</body>
+</html>

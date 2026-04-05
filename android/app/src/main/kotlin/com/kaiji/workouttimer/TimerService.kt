@@ -1,4 +1,4 @@
-package com.example.workout_timer
+package com.kaiji.workouttimer
 
 import android.app.Notification
 import android.app.NotificationChannel
@@ -19,10 +19,10 @@ class TimerService : Service() {
         const val NOTIFICATION_ID = 1001
         const val COMPLETION_CHANNEL_ID = "timer_completion_channel"
         const val COMPLETION_NOTIFICATION_ID = 1002
-        const val METHOD_CHANNEL = "com.example.workout_timer/timer_service"
-        const val ACTION_START = "com.example.workout_timer.START"
-        const val ACTION_STOP = "com.example.workout_timer.STOP"
-        const val ACTION_UPDATE = "com.example.workout_timer.UPDATE"
+        const val METHOD_CHANNEL = "com.kaiji.workouttimer/timer_service"
+        const val ACTION_START = "com.kaiji.workouttimer.START"
+        const val ACTION_STOP = "com.kaiji.workouttimer.STOP"
+        const val ACTION_UPDATE = "com.kaiji.workouttimer.UPDATE"
         const val EXTRA_DURATION = "duration"
         const val EXTRA_MODE = "mode"
 

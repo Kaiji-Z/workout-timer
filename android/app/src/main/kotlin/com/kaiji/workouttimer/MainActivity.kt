@@ -1,4 +1,4 @@
-package com.example.workout_timer
+package com.kaiji.workouttimer
 
 import android.content.Intent
 import android.os.Build
@@ -9,7 +9,7 @@ import io.flutter.plugin.common.MethodChannel
 class MainActivity : FlutterActivity() {
 
     companion object {
-        const val CHANNEL = "com.example.workout_timer/timer_service"
+        const val CHANNEL = "com.kaiji.workouttimer/timer_service"
     }
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {

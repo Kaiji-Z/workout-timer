@@ -1,14 +1,27 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class NotificationService {
-  final FlutterLocalNotificationsPlugin _notifications = FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin _notifications =
+      FlutterLocalNotificationsPlugin();
 
   Future<void> initialize() async {
     try {
-      const AndroidInitializationSettings androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
-      const InitializationSettings settings = InitializationSettings(android: androidSettings);
+      const AndroidInitializationSettings androidSettings =
+          AndroidInitializationSettings('@mipmap/ic_launcher');
+      const DarwinInitializationSettings iosSettings =
+          DarwinInitializationSettings(
+            requestAlertPermission: false,
+            requestBadgePermission: false,
+            requestSoundPermission: false,
+          );
+      const InitializationSettings settings = InitializationSettings(
+        android: androidSettings,
+        iOS: iosSettings,
+      );
       await _notifications.initialize(settings);
 
       await _createNotificationChannel();
@@ -19,17 +32,21 @@ class NotificationService {
   }
 
   Future<void> _createNotificationChannel() async {
-    const AndroidNotificationChannel channel = AndroidNotificationChannel(
-      'timer_channel',
-      'Timer Notifications',
-      importance: Importance.high,
-      enableVibration: true,
-      playSound: true,
-    );
+    if (!kIsWeb && Platform.isAndroid) {
+      const AndroidNotificationChannel channel = AndroidNotificationChannel(
+        'timer_channel',
+        'Timer Notifications',
+        importance: Importance.high,
+        enableVibration: true,
+        playSound: true,
+      );
 
-    await _notifications
-        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
-        ?.createNotificationChannel(channel);
+      await _notifications
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >()
+          ?.createNotificationChannel(channel);
+    }
   }
 
   Future<void> showNotification() async {
@@ -41,27 +58,35 @@ class NotificationService {
       final vibrationEnabled = prefs.getBool('vibration_enabled') ?? true;
       final customMessage = prefs.getString('custom_message') ?? '准备开始下一组！';
 
-      final AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
-        'timer_channel',
-        'Timer Notifications',
-        importance: Importance.high,
-        priority: Priority.high,
-        playSound: soundEnabled,
-        enableVibration: vibrationEnabled,
-        vibrationPattern: vibrationEnabled ? Int64List.fromList([0, 500, 200, 500]) : null,
-        // Fix: Use drawable icon (copied from mipmap)
-        // DrawableResourceAndroidBitmap requires drawable resources
-        icon: '@drawable/ic_launcher',
-        largeIcon: const DrawableResourceAndroidBitmap('@drawable/ic_launcher'),
-      );
-      final NotificationDetails details = NotificationDetails(android: androidDetails);
+      final AndroidNotificationDetails androidDetails =
+          AndroidNotificationDetails(
+            'timer_channel',
+            'Timer Notifications',
+            importance: Importance.high,
+            priority: Priority.high,
+            playSound: soundEnabled,
+            enableVibration: vibrationEnabled,
+            vibrationPattern: vibrationEnabled
+                ? Int64List.fromList([0, 500, 200, 500])
+                : null,
+            icon: '@drawable/ic_launcher',
+            largeIcon: const DrawableResourceAndroidBitmap(
+              '@drawable/ic_launcher',
+            ),
+          );
 
-      await _notifications.show(
-        0,
-        '休息结束！',
-        customMessage,
-        details,
+      const DarwinNotificationDetails iosDetails = DarwinNotificationDetails(
+        presentAlert: true,
+        presentBadge: false,
+        presentSound: true,
       );
+
+      final NotificationDetails details = NotificationDetails(
+        android: androidDetails,
+        iOS: iosDetails,
+      );
+
+      await _notifications.show(0, '休息结束！', customMessage, details);
     } catch (e) {
       debugPrint('Failed to show notification: $e');
     }
@@ -69,8 +94,19 @@ class NotificationService {
 
   Future<void> requestPermissions() async {
     try {
-      await _notifications.resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin>()?.requestNotificationsPermission();
+      if (!kIsWeb && Platform.isIOS) {
+        await _notifications
+            .resolvePlatformSpecificImplementation<
+              IOSFlutterLocalNotificationsPlugin
+            >()
+            ?.requestPermissions(alert: true, badge: false, sound: true);
+      } else if (!kIsWeb && Platform.isAndroid) {
+        await _notifications
+            .resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin
+            >()
+            ?.requestNotificationsPermission();
+      }
     } catch (e) {
       debugPrint('Failed to request notification permissions: $e');
     }
