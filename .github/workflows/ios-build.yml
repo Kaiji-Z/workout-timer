@@ -1,0 +1,54 @@
+name: iOS Build Verification
+
+on:
+  push:
+    branches: [master, main]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.github/workflows/android.yml'
+  pull_request:
+    branches: [master, main]
+  workflow_dispatch:
+
+concurrency:
+  group: ios-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-ios:
+    name: Build iOS (no codesign)
+    runs-on: macos-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Install CocoaPods dependencies
+        run: cd ios && pod install --repo-update && cd ..
+
+      - name: Build iOS (no codesign)
+        run: flutter build ios --no-codesign --release --no-tree-shake-icons
+
+      - name: Verify build output
+        run: |
+          if [ -d "build/ios/iphoneos/Runner.app" ]; then
+            echo "✅ iOS build successful"
+            ls -la build/ios/iphoneos/Runner.app/
+          else
+            echo "❌ iOS build failed"
+            exit 1
+          fi
+
+      - name: Run unit tests
+        run: flutter test
