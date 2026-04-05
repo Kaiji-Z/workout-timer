@@ -34,8 +34,11 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
 
-      - name: Create ephemeral placeholder for pod install
-        run: mkdir -p ios/Flutter/ephemeral && touch ios/Flutter/ephemeral/Flutter-Generated.xcconfig
+      - name: Generate ephemeral Flutter-Generated.xcconfig
+        run: |
+          mkdir -p ios/Flutter/ephemeral
+          FLUTTER_ROOT=$(dirname $(dirname $(which flutter)))
+          echo "FLUTTER_ROOT=${FLUTTER_ROOT}" > ios/Flutter/ephemeral/Flutter-Generated.xcconfig
 
       - name: Build iOS (no codesign)
         run: flutter build ios --no-codesign --release --no-tree-shake-icons
