@@ -36,7 +36,8 @@ class _StatsScreenState extends State<StatsScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    _loadData();
+    // 延迟到 build 完成后再加载数据，避免 setState during build 异常
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadData());
   }
 
   @override
