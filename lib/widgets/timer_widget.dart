@@ -222,6 +222,7 @@ class TimerWidget extends StatelessWidget {
           icon: Icons.refresh_rounded,
           onPressed: timer.resetTimer,
           theme: theme,
+          semanticLabel: '重置计时器',
         ),
         // 主按钮 (开始/暂停)
         Expanded(
@@ -242,6 +243,7 @@ class TimerWidget extends StatelessWidget {
           icon: Icons.skip_next_rounded,
           onPressed: timer.skipSet,
           theme: theme,
+          semanticLabel: '跳过当前组',
         ),
       ],
     );
@@ -324,7 +326,10 @@ class _PresetChip extends StatelessWidget {
       child: InkWell(
         onTap: onPressed,
         borderRadius: BorderRadius.circular(20),
-        child: Container(
+        child: Semantics(
+          button: true,
+          label: '$seconds秒',
+          child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           decoration: BoxDecoration(
             color: isSelected
@@ -349,6 +354,7 @@ class _PresetChip extends StatelessWidget {
             ),
           ),
         ),
+        ),
       ),
     );
   }
@@ -359,11 +365,13 @@ class _CircleControlButton extends StatelessWidget {
   final IconData icon;
   final VoidCallback onPressed;
   final AppThemeData theme;
+  final String semanticLabel;
 
   const _CircleControlButton({
     required this.icon,
     required this.onPressed,
     required this.theme,
+    required this.semanticLabel,
   });
 
   @override
@@ -373,7 +381,10 @@ class _CircleControlButton extends StatelessWidget {
       child: InkWell(
         onTap: onPressed,
         customBorder: const CircleBorder(),
-        child: Container(
+        child: Semantics(
+          button: true,
+          label: semanticLabel,
+          child: Container(
           width: 56,
           height: 56,
           decoration: BoxDecoration(
@@ -388,6 +399,7 @@ class _CircleControlButton extends StatelessWidget {
             ],
           ),
           child: Icon(icon, color: theme.accentColor, size: 24),
+        ),
         ),
       ),
     );
@@ -410,12 +422,16 @@ class _PrimaryControlButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final semanticLabel = icon == Icons.pause_rounded ? '暂停计时' : '开始计时';
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: onPressed,
         borderRadius: BorderRadius.circular(28),
-        child: Container(
+        child: Semantics(
+          button: true,
+          label: semanticLabel,
+          child: Container(
           height: 56,
           decoration: BoxDecoration(
             color: theme.accentColor,
@@ -445,6 +461,7 @@ class _PrimaryControlButton extends StatelessWidget {
               ),
             ],
           ),
+        ),
         ),
       ),
     );

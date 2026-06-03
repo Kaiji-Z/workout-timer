@@ -109,6 +109,7 @@ class CircularControlButton extends StatefulWidget {
   final Color? iconColor;
   final double size;
   final Color? backgroundColor;
+  final String? semanticLabel;
 
   const CircularControlButton({
     super.key,
@@ -117,6 +118,7 @@ class CircularControlButton extends StatefulWidget {
     this.iconColor,
     this.size = 56,
     this.backgroundColor,
+    this.semanticLabel,
   });
 
   @override
@@ -143,27 +145,32 @@ class _CircularControlButtonState extends State<CircularControlButton>
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().currentTheme;
-    return buildPressable(
-      onPressed: widget.onPressed,
-      child: Container(
-        width: widget.size,
-        height: widget.size,
-        decoration: BoxDecoration(
-          color: widget.backgroundColor ?? theme.cardColor,
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: theme.textColor.withValues(alpha: 0.12),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Icon(
-          widget.icon,
-          color: widget.iconColor ?? theme.textColor,
-          size: widget.size * 0.45,
-        ),
+    final child = Container(
+      width: widget.size,
+      height: widget.size,
+      decoration: BoxDecoration(
+        color: widget.backgroundColor ?? theme.cardColor,
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: theme.textColor.withValues(alpha: 0.12),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Icon(
+        widget.icon,
+        color: widget.iconColor ?? theme.textColor,
+        size: widget.size * 0.45,
+      ),
+    );
+    return Semantics(
+      button: true,
+      label: widget.semanticLabel,
+      child: buildPressable(
+        onPressed: widget.onPressed,
+        child: child,
       ),
     );
   }
