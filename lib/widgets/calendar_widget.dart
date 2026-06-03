@@ -234,55 +234,60 @@ class _DateCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final semanticsLabel = '$day日${hasPlan ? "，有训练计划" : ""}${isToday ? "，今天" : ""}${isSelected ? "，已选中" : ""}';
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
         customBorder: const CircleBorder(),
-        child: Stack(
-        alignment: Alignment.center,
-        children: [
-          // 选中或今天的背景
-          if (isSelected || isToday)
-            Container(
-              width: 28,
-              height: 28,
-              decoration: BoxDecoration(
-                color: isSelected ? theme.accentColor : theme.accentColor.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-            ),
-          
-          // 日期数字
-          Text(
-            '$day',
-            style: TextStyle(
-              fontFamily: '.SF Pro Text',
-              fontSize: 12,
-              fontWeight: isSelected || isToday ? FontWeight.w600 : FontWeight.w400,
-              color: isSelected 
-                  ? Colors.white 
-                  : isToday 
-                      ? theme.accentColor 
-                      : theme.textColor,
-            ),
-          ),
-          
-          // 计划标记点
-          if (hasPlan)
-            Positioned(
-              bottom: 2,
-              child: Container(
-                width: 5,
-                height: 5,
+        child: Semantics(
+          button: true,
+          label: semanticsLabel,
+          child: Stack(
+          alignment: Alignment.center,
+          children: [
+            // 选中或今天的背景
+            if (isSelected || isToday)
+              Container(
+                width: 28,
+                height: 28,
                 decoration: BoxDecoration(
-                  color: isSelected ? Colors.white : theme.accentColor,
+                  color: isSelected ? theme.accentColor : theme.accentColor.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
+              ),
+            
+            // 日期数字
+            Text(
+              '$day',
+              style: TextStyle(
+                fontFamily: '.SF Pro Text',
+                fontSize: 12,
+                fontWeight: isSelected || isToday ? FontWeight.w600 : FontWeight.w400,
+                color: isSelected 
+                    ? Colors.white 
+                    : isToday 
+                        ? theme.accentColor 
+                        : theme.textColor,
+              ),
             ),
-          ),
-        ],
-      ),
+            
+            // 计划标记点
+            if (hasPlan)
+              Positioned(
+                bottom: 2,
+                child: Container(
+                  width: 5,
+                  height: 5,
+                  decoration: BoxDecoration(
+                    color: isSelected ? Colors.white : theme.accentColor,
+                    shape: BoxShape.circle,
+                  ),
+              ),
+            ),
+          ],
+        ),
+        ),
       ),
     );
   }
@@ -384,13 +389,19 @@ class _CompactCalendarState extends State<CompactCalendar> {
         final isToday = _isSameDay(date, todayNormalized);
         final hasPlan = markedDates.any((d) => _isSameDay(d, date));
         
+        final weekDayName = ['日', '一', '二', '三', '四', '五', '六'][date.weekday % 7];
+        final semanticsLabel = '${date.month}月${date.day}日 星期$weekDayName${hasPlan ? '，有训练计划' : ''}${isSelected ? '，已选中' : ''}${isToday ? '，今天' : ''}';
+        
         return Material(
           color: Colors.transparent,
           child: InkWell(
             onTap: () => widget.onDateSelected(date),
             borderRadius: BorderRadius.circular(20),
-            child: Container(
-              width: 40,
+            child: Semantics(
+              button: true,
+              label: semanticsLabel,
+              child: Container(
+              width: 44,
               padding: const EdgeInsets.symmetric(vertical: 8),
               child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -446,6 +457,7 @@ class _CompactCalendarState extends State<CompactCalendar> {
               ],
             ),
           ),
+            ),
           ),
         );
       }),
@@ -517,13 +529,20 @@ class _WeekDatePickerState extends State<WeekDatePicker> {
           final date = _dates[index];
           final isSelected = _isSameDay(date, widget.selectedDate);
           final hasPlan = markedDates.any((d) => _isSameDay(d, date));
+          final today = DateTime.now();
+          final isToday = _isSameDay(date, DateTime(today.year, today.month, today.day));
+          final weekDayName = ['日', '一', '二', '三', '四', '五', '六'][date.weekday % 7];
+          final semanticsLabel = '${date.month}月${date.day}日 星期$weekDayName${hasPlan ? '，有训练计划' : ''}${isSelected ? '，已选中' : ''}${isToday ? '，今天' : ''}';
           
           return Material(
             color: Colors.transparent,
             child: InkWell(
               onTap: () => widget.onDateSelected(date),
               borderRadius: BorderRadius.circular(16),
-              child: Container(
+              child: Semantics(
+                button: true,
+                label: semanticsLabel,
+                child: Container(
                 width: 50,
                 margin: const EdgeInsets.symmetric(horizontal: 4),
               child: Column(
@@ -575,8 +594,9 @@ class _WeekDatePickerState extends State<WeekDatePicker> {
                     ),
                 ],
               ),
+                ),
+              ),
             ),
-          ),
           );
         },
       ),
