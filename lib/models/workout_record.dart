@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'exercise.dart';
 import 'muscle_group.dart';
 import 'set_data.dart';
+import '../services/bodyweight_coefficient_service.dart';
 
 /// 记录中的动作详情
 class RecordedExercise {
@@ -36,6 +37,25 @@ class RecordedExercise {
   /// 计算总训练容量
   double get totalVolume =>
       setsData?.fold<double>(0.0, (sum, s) => sum + s.volume) ?? (completedSets * (maxWeight ?? 0));
+
+  /// 计算体重调整后的训练容量
+  ///
+  /// 对于自重动作，volume = reps × (weight + bodyWeight × coefficient)
+  /// 对于负重动作或无体重数据时，返回 [totalVolume]
+  double bodyweightAdjustedVolume(double? bodyWeight) {
+    if (bodyWeight == null || bodyWeight <= 0) return totalVolume;
+    if (exercise == null) return totalVolume;
+    if (!BodyweightCoefficientService.isBodyweightExercise(exercise)) {
+      return totalVolume;
+    }
+    final coefficient = BodyweightCoefficientService.getCoefficient(exercise);
+    final eqWeight = bodyWeight * coefficient;
+    return setsData?.fold<double>(
+          0.0,
+          (sum, s) => sum + (s.reps ?? 0) * ((s.weight ?? 0) + eqWeight),
+        ) ??
+        totalVolume;
+  }
 
   /// 从JSON解析
   factory RecordedExercise.fromJson(Map<String, dynamic> json) {

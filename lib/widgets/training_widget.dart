@@ -706,6 +706,10 @@ class _TrainingWidgetState extends State<TrainingWidget>
 
     if (!context.mounted) return;
 
+    if (training.isResting) {
+      training.pauseRest();
+    }
+
     final setData = await SetRecordDialog.show(
       context,
       exerciseName: completedExercise.name,
@@ -714,6 +718,10 @@ class _TrainingWidgetState extends State<TrainingWidget>
       initialWeight: lastSetData?.weight,
       exercise: completedExercise.exercise,
     );
+
+    if (training.isRestPaused) {
+      training.resumeRest();
+    }
 
     if (setData != null && context.mounted) {
       progressProvider.addSetData(completedExercise.exerciseId, setData);
