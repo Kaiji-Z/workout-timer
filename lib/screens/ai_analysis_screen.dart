@@ -36,7 +36,7 @@ class AIAnalysisScreen extends StatefulWidget {
 }
 
 class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
-  late String _generatedPrompt;
+  String? _generatedPrompt;
   bool _isPromptCopied = false;
 
   final StatsCalculatorService _statsCalc = StatsCalculatorService();
@@ -1111,7 +1111,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
       ),
       child: SingleChildScrollView(
         child: Text(
-          _generatedPrompt,
+          _generatedPrompt ?? '正在生成提示词...',
           style: TextStyle(
             fontFamily: '.SF Pro Text',
             fontSize: 12,
@@ -1128,8 +1128,8 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
       width: double.infinity,
       height: 56,
       child: ElevatedButton.icon(
-        onPressed: () {
-          Clipboard.setData(ClipboardData(text: _generatedPrompt));
+        onPressed: _generatedPrompt == null ? null : () {
+          Clipboard.setData(ClipboardData(text: _generatedPrompt!));
           setState(() => _isPromptCopied = true);
           ScaffoldMessenger.of(
             context,
