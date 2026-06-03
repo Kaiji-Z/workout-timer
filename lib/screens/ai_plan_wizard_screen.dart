@@ -280,28 +280,32 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
   Widget _buildTab(String label, int index, AppThemeData theme) {
     final isActive = _activeTab == index;
     return Expanded(
-      child: GestureDetector(
-        onTap: () {
-          setState(() {
-            _activeTab = index;
-            _currentStep = 0;
-            _pageController.jumpToPage(0);
-          });
-        },
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          decoration: BoxDecoration(
-            color: isActive ? theme.accentColor : Colors.transparent,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Center(
-            child: Text(
-              label,
-              style: TextStyle(
-                fontFamily: '.SF Pro Text',
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: isActive ? Colors.white : theme.textColor,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+            setState(() {
+              _activeTab = index;
+              _currentStep = 0;
+              _pageController.jumpToPage(0);
+            });
+          },
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            decoration: BoxDecoration(
+              color: isActive ? theme.accentColor : Colors.transparent,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Center(
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontFamily: '.SF Pro Text',
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: isActive ? Colors.white : theme.textColor,
+                ),
               ),
             ),
           ),
@@ -543,31 +547,35 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
           runSpacing: 8,
           children: options.entries.map((entry) {
             final isSelected = entry.value == currentValue;
-            return GestureDetector(
-              onTap: () => onChanged(entry.value),
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 10,
-                ),
-                decoration: BoxDecoration(
-                  color: isSelected
-                      ? theme.accentColor
-                      : theme.accentColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
+            return Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () => onChanged(entry.value),
+                borderRadius: BorderRadius.circular(20),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 10,
+                  ),
+                  decoration: BoxDecoration(
                     color: isSelected
                         ? theme.accentColor
-                        : theme.accentColor.withValues(alpha: 0.3),
+                        : theme.accentColor.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: isSelected
+                          ? theme.accentColor
+                          : theme.accentColor.withValues(alpha: 0.3),
+                    ),
                   ),
-                ),
-                child: Text(
-                  entry.key,
-                  style: TextStyle(
-                    fontFamily: '.SF Pro Text',
-                    fontSize: 14,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                    color: isSelected ? Colors.white : theme.accentColor,
+                  child: Text(
+                    entry.key,
+                    style: TextStyle(
+                      fontFamily: '.SF Pro Text',
+                      fontSize: 14,
+                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                      color: isSelected ? Colors.white : theme.accentColor,
+                    ),
                   ),
                 ),
               ),
@@ -603,39 +611,43 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
           runSpacing: 8,
           children: options.map((option) {
             final isSelected = selectedValues.contains(option);
-            return GestureDetector(
-              onTap: () {
-                final newValues = List<String>.from(selectedValues);
-                if (isSelected) {
-                  newValues.remove(option);
-                } else {
-                  newValues.add(option);
-                }
-                onChanged(newValues);
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 10,
-                ),
-                decoration: BoxDecoration(
-                  color: isSelected
-                      ? theme.accentColor
-                      : theme.accentColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
+            return Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () {
+                  final newValues = List<String>.from(selectedValues);
+                  if (isSelected) {
+                    newValues.remove(option);
+                  } else {
+                    newValues.add(option);
+                  }
+                  onChanged(newValues);
+                },
+                borderRadius: BorderRadius.circular(20),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 10,
+                  ),
+                  decoration: BoxDecoration(
                     color: isSelected
                         ? theme.accentColor
-                        : theme.accentColor.withValues(alpha: 0.3),
+                        : theme.accentColor.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: isSelected
+                          ? theme.accentColor
+                          : theme.accentColor.withValues(alpha: 0.3),
+                    ),
                   ),
-                ),
-                child: Text(
-                  option,
-                  style: TextStyle(
-                    fontFamily: '.SF Pro Text',
-                    fontSize: 14,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                    color: isSelected ? Colors.white : theme.accentColor,
+                  child: Text(
+                    option,
+                    style: TextStyle(
+                      fontFamily: '.SF Pro Text',
+                      fontSize: 14,
+                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                      color: isSelected ? Colors.white : theme.accentColor,
+                    ),
                   ),
                 ),
               ),
@@ -683,65 +695,69 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
             ),
           ),
           const SizedBox(height: 8),
-          GestureDetector(
-            onTap: () async {
-              final date = await showDatePicker(
-                context: context,
-                initialDate: _startDate,
-                firstDate: DateTime.now(),
-                lastDate: DateTime.now().add(const Duration(days: 365)),
-                builder: (context, child) {
-                  return Theme(
-                    data: ThemeData(
-                      useMaterial3: true,
-                      colorScheme: ColorScheme.light(
-                        primary: theme.accentColor,
-                        onPrimary: Colors.white,
-                        secondary: theme.accentColor,
-                        surface: theme.surfaceColor,
-                        onSurface: theme.textColor,
-                        error: theme.errorColor,
-                        onError: Colors.white,
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () async {
+                final date = await showDatePicker(
+                  context: context,
+                  initialDate: _startDate,
+                  firstDate: DateTime.now(),
+                  lastDate: DateTime.now().add(const Duration(days: 365)),
+                  builder: (context, child) {
+                    return Theme(
+                      data: ThemeData(
+                        useMaterial3: true,
+                        colorScheme: ColorScheme.light(
+                          primary: theme.accentColor,
+                          onPrimary: Colors.white,
+                          secondary: theme.accentColor,
+                          surface: theme.surfaceColor,
+                          onSurface: theme.textColor,
+                          error: theme.errorColor,
+                          onError: Colors.white,
+                        ),
+                      ),
+                      child: child!,
+                    );
+                  },
+                );
+                if (date != null) {
+                  setState(() => _startDate = date);
+                }
+              },
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                decoration: BoxDecoration(
+                  color: theme.surfaceColor,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      '${_startDate.year}年${_startDate.month}月${_startDate.day}日',
+                      style: TextStyle(
+                        fontFamily: '.SF Pro Text',
+                        fontSize: 16,
+                        color: theme.textColor,
                       ),
                     ),
-                    child: child!,
-                  );
-                },
-              );
-              if (date != null) {
-                setState(() => _startDate = date);
-              }
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              decoration: BoxDecoration(
-                color: theme.surfaceColor,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    '${_startDate.year}年${_startDate.month}月${_startDate.day}日',
-                    style: TextStyle(
-                      fontFamily: '.SF Pro Text',
-                      fontSize: 16,
-                      color: theme.textColor,
+                    Icon(
+                      Icons.calendar_today,
+                      color: theme.accentColor,
+                      size: 20,
                     ),
-                  ),
-                  Icon(
-                    Icons.calendar_today,
-                    color: theme.accentColor,
-                    size: 20,
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

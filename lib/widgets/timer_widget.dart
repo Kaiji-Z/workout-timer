@@ -175,11 +175,11 @@ class TimerWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.9),
+        color: theme.surfaceColor.withValues(alpha: 0.9),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
+            color: theme.textColor.withValues(alpha: 0.08),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -269,7 +269,7 @@ class _CircularProgressPainter extends CustomPainter {
 
     // 背景环 - 浅色
     final backgroundPaint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.3)
+      ..color = backgroundColor
       ..strokeWidth = 10
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
@@ -319,30 +319,34 @@ class _PresetChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final label = seconds >= 120 ? '2min' : '${seconds}s';
 
-    return GestureDetector(
-      onTap: onPressed,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? theme.accentColor
-              : Colors.white.withValues(alpha: 0.9),
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? theme.accentColor
+                : theme.surfaceColor.withValues(alpha: 0.9),
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: theme.textColor.withValues(alpha: 0.08),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Text(
+            label,
+            style: TextStyle(
+              fontFamily: '.SF Pro Text',
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: isSelected ? Colors.white : theme.textColor,
             ),
-          ],
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontFamily: '.SF Pro Text',
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: isSelected ? Colors.white : theme.textColor,
           ),
         ),
       ),
@@ -364,23 +368,27 @@ class _CircleControlButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onPressed,
-      child: Container(
-        width: 56,
-        height: 56,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onPressed,
+        customBorder: const CircleBorder(),
+        child: Container(
+          width: 56,
+          height: 56,
+          decoration: BoxDecoration(
+            color: theme.cardColor,
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: theme.textColor.withValues(alpha: 0.1),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Icon(icon, color: theme.accentColor, size: 24),
         ),
-        child: Icon(icon, color: theme.accentColor, size: 24),
       ),
     );
   }
@@ -402,37 +410,41 @@ class _PrimaryControlButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onPressed,
-      child: Container(
-        height: 56,
-        decoration: BoxDecoration(
-          color: theme.accentColor,
-          borderRadius: BorderRadius.circular(28),
-          boxShadow: [
-            BoxShadow(
-              color: theme.accentColor.withValues(alpha: 0.3),
-              blurRadius: 15,
-              offset: const Offset(0, 6),
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, color: Colors.white, size: 24),
-            const SizedBox(width: 8),
-            Text(
-              label,
-              style: const TextStyle(
-                fontFamily: '.SF Pro Text',
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-                letterSpacing: 1,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(28),
+        child: Container(
+          height: 56,
+          decoration: BoxDecoration(
+            color: theme.accentColor,
+            borderRadius: BorderRadius.circular(28),
+            boxShadow: [
+              BoxShadow(
+                color: theme.accentColor.withValues(alpha: 0.3),
+                blurRadius: 15,
+                offset: const Offset(0, 6),
               ),
-            ),
-          ],
+            ],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, color: Colors.white, size: 24),
+              const SizedBox(width: 8),
+              Text(
+                label,
+                style: const TextStyle(
+                  fontFamily: '.SF Pro Text',
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                  letterSpacing: 1,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

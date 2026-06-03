@@ -263,11 +263,11 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: theme.dividerColor.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -442,15 +442,15 @@ Widget _buildExerciseItem(int index, RecordedExercise exercise, AppThemeData the
   final hasSetData = exercise.setsData != null && exercise.setsData!.isNotEmpty;
   final exerciseControllers = _weightControllers[index] ?? {};
   
-  return Container(
+    return Container(
     margin: const EdgeInsets.only(top: 8, bottom: 8),
     padding: const EdgeInsets.all(16),
     decoration: BoxDecoration(
-      color: Colors.white,
+      color: theme.cardColor,
       borderRadius: BorderRadius.circular(16),
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withValues(alpha: 0.05),
+          color: theme.dividerColor.withValues(alpha: 0.1),
           blurRadius: 8,
           offset: const Offset(0, 2),
         ),
@@ -577,14 +577,18 @@ Widget _buildExerciseItem(int index, RecordedExercise exercise, AppThemeData the
                   const SizedBox(width: 4),
                   
                   // 删除按钮 (紧凑)
-                  GestureDetector(
-                    onTap: () => _deleteSet(index, setData.setNumber),
-                    child: Padding(
-                      padding: const EdgeInsets.all(4),
-                      child: Icon(
-                        Icons.delete_outline,
-                        size: 18,
-                        color: theme.textColor.withValues(alpha: 0.5),
+                  Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () => _deleteSet(index, setData.setNumber),
+                      customBorder: const CircleBorder(),
+                      child: Padding(
+                        padding: const EdgeInsets.all(4),
+                        child: Icon(
+                          Icons.delete_outline,
+                          size: 18,
+                          color: theme.textColor.withValues(alpha: 0.5),
+                        ),
                       ),
                     ),
                   ),
@@ -649,20 +653,24 @@ Widget _buildExerciseItem(int index, RecordedExercise exercise, AppThemeData the
           ),
         ] else ...[
           // 无数据：显示提示
-          GestureDetector(
-            onTap: () => _addSet(index, exercise),
-            child: Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: theme.accentColor.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                '点击添加训练数据',
-                style: TextStyle(
-                  fontFamily: '.SF Pro Text',
-                  fontSize: 14,
-                  color: theme.accentColor,
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () => _addSet(index, exercise),
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: theme.accentColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  '点击添加训练数据',
+                  style: TextStyle(
+                    fontFamily: '.SF Pro Text',
+                    fontSize: 14,
+                    color: theme.accentColor,
+                  ),
                 ),
               ),
             ),
@@ -693,10 +701,11 @@ Widget _buildExerciseItem(int index, RecordedExercise exercise, AppThemeData the
       }
     } catch (e) {
       if (mounted) {
+        final theme = context.read<ThemeProvider>().currentTheme;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('保存失败: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: theme.errorColor,
           ),
         );
       }
@@ -766,17 +775,17 @@ Widget _buildExerciseItem(int index, RecordedExercise exercise, AppThemeData the
       width: double.infinity,
       child: OutlinedButton.icon(
         onPressed: () => _confirmDelete(),
-        icon: const Icon(Icons.delete_outline, color: Colors.red),
-        label: const Text(
+        icon: Icon(Icons.delete_outline, color: theme.errorColor),
+        label: Text(
           '删除此记录',
           style: TextStyle(
             fontFamily: '.SF Pro Text',
-            color: Colors.red,
+            color: theme.errorColor,
           ),
         ),
         style: OutlinedButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 14),
-          side: const BorderSide(color: Colors.red),
+          side: BorderSide(color: theme.errorColor),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
@@ -786,6 +795,7 @@ Widget _buildExerciseItem(int index, RecordedExercise exercise, AppThemeData the
   }
 
   void _confirmDelete() {
+    final theme = context.read<ThemeProvider>().currentTheme;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -817,13 +827,13 @@ Widget _buildExerciseItem(int index, RecordedExercise exercise, AppThemeData the
                   messenger.showSnackBar(
                     SnackBar(
                       content: Text('删除失败: $e'),
-                      backgroundColor: Colors.red,
+                      backgroundColor: theme.errorColor,
                     ),
                   );
                 }
               }
             },
-            child: const Text('删除', style: TextStyle(color: Colors.red)),
+            child: Text('删除', style: TextStyle(color: theme.errorColor)),
           ),
         ],
       ),

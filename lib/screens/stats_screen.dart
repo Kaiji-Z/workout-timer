@@ -472,11 +472,11 @@ class _StatsScreenState extends State<StatsScreen>
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.9),
+            color: theme.surfaceColor.withValues(alpha: 0.9),
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.08),
+                color: theme.textColor.withValues(alpha: 0.08),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -873,11 +873,11 @@ class _StatsScreenState extends State<StatsScreen>
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.9),
+        color: theme.surfaceColor.withValues(alpha: 0.9),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
+            color: theme.textColor.withValues(alpha: 0.08),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -979,7 +979,7 @@ class _StatsScreenState extends State<StatsScreen>
                                 ? FontWeight.w700
                                 : FontWeight.w500,
                             color: isToday
-                                ? Colors.white
+                                ? theme.surfaceColor
                                 : hasWorkout
                                 ? theme.primaryColor
                                 : theme.textColor,
@@ -1002,11 +1002,11 @@ class _StatsScreenState extends State<StatsScreen>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.9),
+        color: theme.surfaceColor.withValues(alpha: 0.9),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
+            color: theme.textColor.withValues(alpha: 0.08),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -1066,11 +1066,11 @@ class _StatsScreenState extends State<StatsScreen>
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.9),
+        color: theme.surfaceColor.withValues(alpha: 0.9),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
+            color: theme.textColor.withValues(alpha: 0.08),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -1111,38 +1111,41 @@ class _StatsScreenState extends State<StatsScreen>
                 final isFuture = _selectedYear == now.year && month > now.month;
                 final intensity = maxCount > 0 ? count / maxCount : 0.0;
 
-                return GestureDetector(
-                  onTap: isFuture ? null : () => _selectMonth(month),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      gradient: isSelected
-                          ? LinearGradient(
-                              colors: [
-                                theme.primaryColor,
-                                theme.secondaryColor,
-                              ],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            )
-                          : null,
-                      color: isSelected
-                          ? null
-                          : isFuture
-                          ? theme.textColor.withValues(alpha: 0.05)
-                          : intensity > 0
-                          ? theme.primaryColor.withValues(
-                              alpha: 0.1 + intensity * 0.3,
-                            )
-                          : theme.textColor.withValues(alpha: 0.05),
-                      borderRadius: BorderRadius.circular(12),
-                      border: isSelected
-                          ? null
-                          : Border.all(
-                              color: isSelected
-                                  ? Colors.transparent
-                                  : theme.textColor.withValues(alpha: 0.1),
-                            ),
-                    ),
+                return Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: isFuture ? null : () => _selectMonth(month),
+                    borderRadius: BorderRadius.circular(12),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: isSelected
+                            ? LinearGradient(
+                                colors: [
+                                  theme.primaryColor,
+                                  theme.secondaryColor,
+                                ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              )
+                            : null,
+                        color: isSelected
+                            ? null
+                            : isFuture
+                            ? theme.textColor.withValues(alpha: 0.05)
+                            : intensity > 0
+                            ? theme.primaryColor.withValues(
+                                alpha: 0.1 + intensity * 0.3,
+                              )
+                            : theme.textColor.withValues(alpha: 0.05),
+                        borderRadius: BorderRadius.circular(12),
+                        border: isSelected
+                            ? null
+                            : Border.all(
+                                color: isSelected
+                                    ? Colors.transparent
+                                    : theme.textColor.withValues(alpha: 0.1),
+                              ),
+                      ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -1155,7 +1158,7 @@ class _StatsScreenState extends State<StatsScreen>
                                 ? FontWeight.w600
                                 : FontWeight.w500,
                             color: isSelected
-                                ? Colors.white
+                                ? theme.surfaceColor
                                 : isFuture
                                 ? theme.secondaryTextColor.withValues(
                                     alpha: 0.3,
@@ -1172,13 +1175,14 @@ class _StatsScreenState extends State<StatsScreen>
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
                               color: isSelected
-                                  ? Colors.white
+                                  ? theme.surfaceColor
                                   : theme.primaryColor,
                             ),
                           ),
                         ],
                       ],
                     ),
+                  ),
                   ),
                 );
               },
@@ -1829,7 +1833,7 @@ class _StatsScreenState extends State<StatsScreen>
         if (strengthBreakthroughs.isNotEmpty) ...[
           Row(
             children: [
-              Icon(Icons.emoji_events, size: 16, color: Colors.amber[700]),
+              Icon(Icons.emoji_events, size: 16, color: theme.accentColor),
               const SizedBox(width: 6),
               Text(
                 '力量突破',
@@ -1837,7 +1841,7 @@ class _StatsScreenState extends State<StatsScreen>
                   fontFamily: '.SF Pro Text',
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: Colors.amber[700],
+                  color: theme.accentColor,
                 ),
               ),
             ],
@@ -1857,10 +1861,10 @@ class _StatsScreenState extends State<StatsScreen>
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.amber.withValues(alpha: 0.1),
+                  color: theme.accentColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: Colors.amber.withValues(alpha: 0.3),
+                    color: theme.accentColor.withValues(alpha: 0.3),
                   ),
                 ),
                 child: Text(
@@ -1868,7 +1872,7 @@ class _StatsScreenState extends State<StatsScreen>
                   style: TextStyle(
                     fontFamily: '.SF Pro Text',
                     fontSize: 11,
-                    color: Colors.amber[800],
+                    color: theme.accentColor,
                   ),
                 ),
               );
@@ -1879,7 +1883,7 @@ class _StatsScreenState extends State<StatsScreen>
         if (weakMuscles.isNotEmpty) ...[
           Row(
             children: [
-              Icon(Icons.trending_down, size: 16, color: Colors.orange),
+              Icon(Icons.trending_down, size: 16, color: theme.errorColor),
               const SizedBox(width: 6),
               Text(
                 '薄弱部位',
@@ -1887,7 +1891,7 @@ class _StatsScreenState extends State<StatsScreen>
                   fontFamily: '.SF Pro Text',
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: Colors.orange,
+                  color: theme.errorColor,
                 ),
               ),
             ],
@@ -1907,10 +1911,10 @@ class _StatsScreenState extends State<StatsScreen>
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.orange.withValues(alpha: 0.1),
+                  color: theme.errorColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: Colors.orange.withValues(alpha: 0.3),
+                    color: theme.errorColor.withValues(alpha: 0.3),
                   ),
                 ),
                 child: Text(
@@ -1918,7 +1922,7 @@ class _StatsScreenState extends State<StatsScreen>
                   style: TextStyle(
                     fontFamily: '.SF Pro Text',
                     fontSize: 11,
-                    color: Colors.orange,
+                    color: theme.errorColor,
                   ),
                 ),
               );
@@ -1929,7 +1933,7 @@ class _StatsScreenState extends State<StatsScreen>
         if (muscleImbalance.isNotEmpty) ...[
           Row(
             children: [
-              Icon(Icons.balance, size: 16, color: Colors.teal),
+              Icon(Icons.balance, size: 16, color: theme.primaryColor),
               const SizedBox(width: 6),
               Text(
                 '肌群不平衡',
@@ -1937,7 +1941,7 @@ class _StatsScreenState extends State<StatsScreen>
                   fontFamily: '.SF Pro Text',
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: Colors.teal,
+                  color: theme.primaryColor,
                 ),
               ),
             ],
@@ -1953,16 +1957,16 @@ class _StatsScreenState extends State<StatsScreen>
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.teal.withValues(alpha: 0.1),
+                  color: theme.primaryColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.teal.withValues(alpha: 0.3)),
+                  border: Border.all(color: theme.primaryColor.withValues(alpha: 0.3)),
                 ),
                 child: Text(
                   '${m['label']} ${m['ratioText']}:1',
                   style: TextStyle(
                     fontFamily: '.SF Pro Text',
                     fontSize: 11,
-                    color: Colors.teal[800],
+                    color: theme.primaryColor,
                   ),
                 ),
               );
@@ -2094,11 +2098,11 @@ class _StatsScreenState extends State<StatsScreen>
                   height: 24,
                   decoration: BoxDecoration(
                     color: isTop
-                        ? const Color(0xFFFFD700).withValues(alpha: 0.2)
+                        ? theme.accentColor.withValues(alpha: 0.2)
                         : theme.textColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                     border: isTop
-                        ? Border.all(color: const Color(0xFFFFD700))
+                        ? Border.all(color: theme.accentColor)
                         : null,
                   ),
                   child: Center(
@@ -2247,6 +2251,7 @@ class _StatsScreenState extends State<StatsScreen>
               data: sortedEntries,
               colors: muscleColors,
               totalVolume: totalVolume,
+              fallbackColor: theme.secondaryTextColor,
             ),
           ),
         ),
@@ -2414,7 +2419,7 @@ class _StatsScreenState extends State<StatsScreen>
                   chipColor = theme.successColor;
                   icon = Icons.check_circle;
                 } else if (days >= 1) {
-                  chipColor = Colors.orange;
+                  chipColor = theme.accentColor;
                   icon = Icons.access_time;
                 } else {
                   chipColor = theme.errorColor;
@@ -2541,7 +2546,7 @@ class _CollapsibleSectionState extends State<_CollapsibleSection> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
+            color: widget.theme.textColor.withValues(alpha: 0.08),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -2577,11 +2582,13 @@ class _DonutChartPainter extends CustomPainter {
   final List<MapEntry<PrimaryMuscleGroup, double>> data;
   final Map<PrimaryMuscleGroup, Color> colors;
   final double totalVolume;
+  final Color fallbackColor;
 
   _DonutChartPainter({
     required this.data,
     required this.colors,
     required this.totalVolume,
+    required this.fallbackColor,
   });
 
   @override
@@ -2604,7 +2611,7 @@ class _DonutChartPainter extends CustomPainter {
       final sweepAngle = percentage * 2 * 3.14159265359 - gapRadians;
 
       final paint = Paint()
-        ..color = colors[muscle] ?? Colors.grey
+        ..color = colors[muscle] ?? fallbackColor
         ..style = PaintingStyle.stroke
         ..strokeWidth = ringWidth
         ..strokeCap = StrokeCap.round;
@@ -2628,6 +2635,7 @@ class _DonutChartPainter extends CustomPainter {
   bool shouldRepaint(covariant _DonutChartPainter oldDelegate) {
     return oldDelegate.data != data ||
         oldDelegate.colors != colors ||
-        oldDelegate.totalVolume != totalVolume;
+        oldDelegate.totalVolume != totalVolume ||
+        oldDelegate.fallbackColor != fallbackColor;
   }
 }

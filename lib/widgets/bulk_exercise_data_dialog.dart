@@ -270,7 +270,7 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: theme.textColor.withValues(alpha: 0.05),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),

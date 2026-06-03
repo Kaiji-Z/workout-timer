@@ -32,143 +32,147 @@ class PlanCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().currentTheme;
     
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.06),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 主要内容
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // 标题行
-                  Row(
-                    children: [
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: theme.accentColor.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Icon(
-                          Icons.fitness_center,
-                          color: theme.accentColor,
-                          size: 20,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              plan.name,
-                              style: TextStyle(
-                                fontFamily: '.SF Pro Display',
-                                fontSize: 17,
-                                fontWeight: FontWeight.w600,
-                                color: theme.textColor,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 2),
-                            MuscleBadge(
-                              muscles: plan.targetMuscles,
-                              compact: true,
-                              fontSize: 12,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  
-                  if (!isCompact) ...[
-                    const SizedBox(height: 12),
-                    // 统计信息
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+          decoration: BoxDecoration(
+            color: theme.surfaceColor,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: theme.textColor.withValues(alpha: 0.06),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 主要内容
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // 标题行
                     Row(
                       children: [
-                        _buildStat(
-                          '${plan.exerciseCount} 个动作',
-                          Icons.list_alt,
-                          theme,
+                        Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: theme.accentColor.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Icon(
+                            Icons.fitness_center,
+                            color: theme.accentColor,
+                            size: 20,
+                          ),
                         ),
-                        const SizedBox(width: 16),
-                        _buildStat(
-                          '${plan.totalSets} 组',
-                          Icons.repeat,
-                          theme,
-                        ),
-                        const SizedBox(width: 16),
-                        _buildStat(
-                          '~${plan.estimatedDuration} 分钟',
-                          Icons.timer_outlined,
-                          theme,
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                plan.name,
+                                style: TextStyle(
+                                  fontFamily: '.SF Pro Display',
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w600,
+                                  color: theme.textColor,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 2),
+                              MuscleBadge(
+                                muscles: plan.targetMuscles,
+                                compact: true,
+                                fontSize: 12,
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
-                  ],
-                ],
-              ),
-            ),
-            
-            // 操作按钮
-            if (showActions && !isCompact) ...[
-              const Divider(height: 1),
-              Padding(
-                padding: const EdgeInsets.all(8),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    if (onEdit != null)
-                      TextButton.icon(
-                        onPressed: onEdit,
-                        icon: Icon(Icons.edit_outlined, size: 18, color: theme.secondaryTextColor),
-                        label: Text(
-                          '编辑',
-                          style: TextStyle(
-                            fontFamily: '.SF Pro Text',
-                            color: theme.secondaryTextColor,
+                    
+                    if (!isCompact) ...[
+                      const SizedBox(height: 12),
+                      // 统计信息
+                      Row(
+                        children: [
+                          _buildStat(
+                            '${plan.exerciseCount} 个动作',
+                            Icons.list_alt,
+                            theme,
                           ),
-                        ),
-                      ),
-                    if (onStart != null)
-                      ElevatedButton.icon(
-                        onPressed: onStart,
-                        icon: const Icon(Icons.play_arrow, size: 18),
-                        label: const Text('开始'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: theme.accentColor,
-                          foregroundColor: Colors.white,
-                          elevation: 0,
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
+                          const SizedBox(width: 16),
+                          _buildStat(
+                            '${plan.totalSets} 组',
+                            Icons.repeat,
+                            theme,
                           ),
-                        ),
+                          const SizedBox(width: 16),
+                          _buildStat(
+                            '~${plan.estimatedDuration} 分钟',
+                            Icons.timer_outlined,
+                            theme,
+                          ),
+                        ],
                       ),
+                    ],
                   ],
                 ),
               ),
+              
+              // 操作按钮
+              if (showActions && !isCompact) ...[
+                const Divider(height: 1),
+                Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      if (onEdit != null)
+                        TextButton.icon(
+                          onPressed: onEdit,
+                          icon: Icon(Icons.edit_outlined, size: 18, color: theme.secondaryTextColor),
+                          label: Text(
+                            '编辑',
+                            style: TextStyle(
+                              fontFamily: '.SF Pro Text',
+                              color: theme.secondaryTextColor,
+                            ),
+                          ),
+                        ),
+                      if (onStart != null)
+                        ElevatedButton.icon(
+                          onPressed: onStart,
+                          icon: const Icon(Icons.play_arrow, size: 18),
+                          label: const Text('开始'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: theme.accentColor,
+                            foregroundColor: Colors.white,
+                            elevation: 0,
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );
@@ -210,26 +214,29 @@ class CompactPlanCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().currentTheme;
     
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: isSelected ? theme.accentColor.withValues(alpha: 0.1) : Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isSelected ? theme.accentColor : Colors.transparent,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.03),
-              blurRadius: 4,
-              offset: const Offset(0, 1),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: isSelected ? theme.accentColor.withValues(alpha: 0.1) : theme.surfaceColor,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isSelected ? theme.accentColor : Colors.transparent,
             ),
-          ],
-        ),
-        child: Row(
+            boxShadow: [
+              BoxShadow(
+                color: theme.textColor.withValues(alpha: 0.03),
+                blurRadius: 4,
+                offset: const Offset(0, 1),
+              ),
+            ],
+          ),
+          child: Row(
           children: [
             Container(
               width: 36,
@@ -289,6 +296,7 @@ class CompactPlanCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
       ),
     );
   }
@@ -368,11 +376,11 @@ class _PlanProgressCardState extends State<PlanProgressCard> with SingleTickerPr
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.surfaceColor,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
+            color: theme.textColor.withValues(alpha: 0.08),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -382,11 +390,13 @@ class _PlanProgressCardState extends State<PlanProgressCard> with SingleTickerPr
         mainAxisSize: MainAxisSize.min,
         children: [
           // 标题栏 - 始终显示
-          GestureDetector(
-            onTap: widget.onToggle,
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              child: Row(
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: widget.onToggle,
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                child: Row(
                 children: [
                   Container(
                     width: 32,
@@ -434,6 +444,7 @@ class _PlanProgressCardState extends State<PlanProgressCard> with SingleTickerPr
                 ],
               ),
             ),
+          ),
           ),
           
           // 展开内容
@@ -618,54 +629,58 @@ class EmptyPlanCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().currentTheme;
     
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: theme.accentColor.withValues(alpha: 0.3),
-            style: BorderStyle.solid,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: theme.surfaceColor,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: theme.accentColor.withValues(alpha: 0.3),
+              style: BorderStyle.solid,
+            ),
           ),
-        ),
-        child: Column(
-          children: [
-            Container(
-              width: 56,
-              height: 56,
-              decoration: BoxDecoration(
-                color: theme.accentColor.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
+          child: Column(
+            children: [
+              Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  color: theme.accentColor.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.add,
+                  color: theme.accentColor,
+                  size: 28,
+                ),
               ),
-              child: Icon(
-                Icons.add,
-                color: theme.accentColor,
-                size: 28,
+              const SizedBox(height: 16),
+              Text(
+                title,
+                style: TextStyle(
+                  fontFamily: '.SF Pro Display',
+                  fontSize: 17,
+                  fontWeight: FontWeight.w600,
+                  color: theme.textColor,
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              title,
-              style: TextStyle(
-                fontFamily: '.SF Pro Display',
-                fontSize: 17,
-                fontWeight: FontWeight.w600,
-                color: theme.textColor,
+              const SizedBox(height: 4),
+              Text(
+                subtitle,
+                style: TextStyle(
+                  fontFamily: '.SF Pro Text',
+                  fontSize: 14,
+                  color: theme.secondaryTextColor,
+                ),
               ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              subtitle,
-              style: TextStyle(
-                fontFamily: '.SF Pro Text',
-                fontSize: 14,
-                color: theme.secondaryTextColor,
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -697,11 +712,11 @@ class PlanProgressCompact extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 20),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.surfaceColor,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: theme.textColor.withValues(alpha: 0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),

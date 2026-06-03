@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../theme/theme_provider.dart';
 
 // ============================================================================
 // PRESSABLE MIXIN - 按压动画混入
@@ -140,17 +142,18 @@ class _CircularControlButtonState extends State<CircularControlButton>
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.watch<ThemeProvider>().currentTheme;
     return buildPressable(
       onPressed: widget.onPressed,
       child: Container(
         width: widget.size,
         height: widget.size,
         decoration: BoxDecoration(
-          color: widget.backgroundColor ?? Colors.white,
+          color: widget.backgroundColor ?? theme.cardColor,
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.12),
+              color: theme.textColor.withValues(alpha: 0.12),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
@@ -158,7 +161,7 @@ class _CircularControlButtonState extends State<CircularControlButton>
         ),
         child: Icon(
           widget.icon,
-          color: widget.iconColor ?? const Color(0xFF212121),
+          color: widget.iconColor ?? theme.textColor,
           size: widget.size * 0.45,
         ),
       ),
@@ -218,17 +221,18 @@ class _PrimaryActionButtonState extends State<PrimaryActionButton>
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.watch<ThemeProvider>().currentTheme;
+    final bgColor = widget.backgroundColor ?? theme.accentColor;
     return buildPressable(
       onPressed: widget.onPressed,
       child: Container(
         height: widget.height,
         decoration: BoxDecoration(
-          color: widget.backgroundColor ?? const Color(0xFF1A237E),
+          color: bgColor,
           borderRadius: BorderRadius.circular(widget.height / 2),
           boxShadow: [
             BoxShadow(
-              color: (widget.backgroundColor ?? const Color(0xFF1A237E))
-                  .withValues(alpha: 0.3),
+              color: bgColor.withValues(alpha: 0.3),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
@@ -283,15 +287,16 @@ class FlatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.watch<ThemeProvider>().currentTheme;
     return Container(
       margin: margin,
       padding: padding ?? const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.9),
+        color: theme.surfaceColor.withValues(alpha: 0.9),
         borderRadius: BorderRadius.circular(borderRadius),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
+            color: theme.textColor.withValues(alpha: 0.08),
             blurRadius: 16,
             offset: const Offset(0, 4),
           ),
@@ -443,6 +448,7 @@ class SingleRowButtonArea extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (buttons.isEmpty) return const SizedBox.shrink();
+    final theme = context.watch<ThemeProvider>().currentTheme;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -457,7 +463,7 @@ class SingleRowButtonArea extends StatelessWidget {
                   label: button.label,
                   icon: button.icon,
                   backgroundColor: button.isDestructive
-                      ? Colors.red
+                      ? theme.errorColor
                       : button.color,
                   onPressed: button.onPressed,
                   height: height,

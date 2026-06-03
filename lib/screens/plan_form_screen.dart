@@ -379,26 +379,29 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
   
   /// 选择动作入口按钮
   Widget _buildSelectExerciseButton(AppThemeData theme) {
-    return GestureDetector(
-      onTap: _openExerciseSelection,
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 20),
-        decoration: BoxDecoration(
-          color: theme.surfaceColor,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: theme.accentColor.withValues(alpha: 0.3),
-            width: 2,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: _openExerciseSelection,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 20),
+          decoration: BoxDecoration(
+            color: theme.surfaceColor,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: theme.accentColor.withValues(alpha: 0.3),
+              width: 2,
             ),
-          ],
-        ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.05),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
         child: Column(
           children: [
             Icon(
@@ -431,6 +434,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
             ],
           ],
         ),
+      ),
       ),
     );
   }
@@ -468,25 +472,28 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
     final isSelected = _selectedMuscles.length == muscles.length && 
         _selectedMuscles.every((m) => muscles.contains(m));
     
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedMuscles = muscles;
-        });
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        decoration: BoxDecoration(
-          color: isSelected 
-              ? theme.accentColor 
-              : theme.accentColor.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {
+          setState(() {
+            _selectedMuscles = muscles;
+          });
+        },
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          decoration: BoxDecoration(
             color: isSelected 
                 ? theme.accentColor 
-                : theme.accentColor.withValues(alpha: 0.3),
+                : theme.accentColor.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: isSelected 
+                  ? theme.accentColor 
+                  : theme.accentColor.withValues(alpha: 0.3),
+            ),
           ),
-        ),
         child: Text(
           label,
           style: TextStyle(
@@ -496,6 +503,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
             color: isSelected ? Colors.white : theme.accentColor,
           ),
         ),
+      ),
       ),
     );
   }
@@ -912,10 +920,11 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
       }
     } catch (e) {
       if (mounted) {
+        final theme = context.read<ThemeProvider>().currentTheme;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('保存失败: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: theme.errorColor,
           ),
         );
       }

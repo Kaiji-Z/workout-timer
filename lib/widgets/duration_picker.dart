@@ -113,10 +113,10 @@ class _DurationPickerState extends State<DurationPicker> {
           child: Container(
             decoration: BoxDecoration(
               // 半透明材质 - 浅色风格
-              color: Colors.white.withValues(alpha: 0.92),
+              color: theme.surfaceColor.withValues(alpha: 0.92),
               borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
               border: Border.all(
-                color: Colors.white.withValues(alpha: 0.5),
+                color: theme.surfaceColor.withValues(alpha: 0.5),
                 width: 0.5,
               ),
             ),
@@ -128,7 +128,7 @@ class _DurationPickerState extends State<DurationPicker> {
                   width: 36,
                   height: 5,
                   decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.2),
+                    color: theme.dividerColor,
                     borderRadius: BorderRadius.circular(2.5),
                   ),
                 ),
@@ -262,31 +262,35 @@ class _DurationPickerState extends State<DurationPicker> {
   }
 
   Widget _buildConfirmButton(AppThemeData theme) {
-    return GestureDetector(
-      onTap: _onConfirm,
-      child: Container(
-        width: double.infinity,
-        height: 52,
-        decoration: BoxDecoration(
-          color: theme.primaryColor,
-          borderRadius: BorderRadius.circular(26),
-          boxShadow: [
-            BoxShadow(
-              color: theme.primaryColor.withValues(alpha: 0.25),
-              blurRadius: 8,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
-        child: Center(
-          child: Text(
-            '确认',
-            style: TextStyle(
-              fontFamily: '.SF Pro Text',
-              fontSize: 17,
-              fontWeight: FontWeight.w600,
-              color: Colors.white,
-              letterSpacing: -0.3,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: _onConfirm,
+        borderRadius: BorderRadius.circular(26),
+        child: Container(
+          width: double.infinity,
+          height: 52,
+          decoration: BoxDecoration(
+            color: theme.primaryColor,
+            borderRadius: BorderRadius.circular(26),
+            boxShadow: [
+              BoxShadow(
+                color: theme.primaryColor.withValues(alpha: 0.25),
+                blurRadius: 8,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Center(
+            child: Text(
+              '确认',
+              style: TextStyle(
+                fontFamily: '.SF Pro Text',
+                fontSize: 17,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+                letterSpacing: -0.3,
+              ),
             ),
           ),
         ),
