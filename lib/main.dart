@@ -327,6 +327,8 @@ class _MainNavigationState extends State<MainNavigation> {
     final inactiveColor = appTheme.textColor.withValues(alpha: 0.5);
     final isSelected = _currentIndex == index;
 
+    final color = isSelected ? activeColor : inactiveColor;
+
     return Expanded(
       child: Semantics(
         label: label,
@@ -338,11 +340,28 @@ class _MainNavigationState extends State<MainNavigation> {
             borderRadius: BorderRadius.circular(12),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),
-              padding: const EdgeInsets.symmetric(vertical: 20),
-              child: Icon(
-                isSelected ? activeIcon : icon,
-                color: isSelected ? activeColor : inactiveColor,
-                size: 24,
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    isSelected ? activeIcon : icon,
+                    color: color,
+                    size: 24,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    label,
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w500,
+                      color: color,
+                      height: 1.2,
+                    ),
+                    overflow: TextOverflow.clip,
+                    maxLines: 1,
+                  ),
+                ],
               ),
             ),
           ),
