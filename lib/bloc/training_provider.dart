@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import '../services/timer_service.dart';
 
 /// 训练状态枚举
@@ -9,6 +10,7 @@ enum TrainingState {
   exercising, // 运动中（正向计时）
   exercisePaused, // 运动暂停
   resting, // 休息中（倒计时）
+  restPaused, // 休息暂停
   completed, // 训练完成
 }
 
@@ -49,6 +51,7 @@ class TrainingProvider extends ChangeNotifier {
   bool get isExercising => _state == TrainingState.exercising;
   bool get isExercisePaused => _state == TrainingState.exercisePaused;
   bool get isResting => _state == TrainingState.resting;
+  bool get isRestPaused => _state == TrainingState.restPaused;
   bool get isCompleted => _state == TrainingState.completed;
 
   /// 总时长（秒）
@@ -72,6 +75,8 @@ class TrainingProvider extends ChangeNotifier {
         return '第$_currentSet组 已暂停';
       case TrainingState.resting:
         return '已完成$_currentSet组，准备进行第${_currentSet + 1}组';
+      case TrainingState.restPaused:
+        return '休息暂停中';
       case TrainingState.completed:
         return '本次训练已完成$_currentSet组';
     }
@@ -108,7 +113,7 @@ class TrainingProvider extends ChangeNotifier {
     _stopwatch = Stopwatch()..start();
     _startExerciseTimer();
 
-    if (!kIsWeb) {
+    if (_canUsePlatformServices) {
       TimerService.startService();
       _updateServiceNotification();
     }
@@ -131,7 +136,7 @@ class TrainingProvider extends ChangeNotifier {
     _stopwatch = Stopwatch()..start();
     _startExerciseTimer();
 
-    if (!kIsWeb) {
+    if (_canUsePlatformServices) {
       TimerService.startService();
       _updateServiceNotification();
     }
@@ -156,7 +161,7 @@ class TrainingProvider extends ChangeNotifier {
     _pauseStartTime =
         DateTime.now(); // Record pause time to exclude from duration
 
-    if (!kIsWeb) {
+    if (_canUsePlatformServices) {
       TimerService.stopService();
     }
 
@@ -177,7 +182,7 @@ class TrainingProvider extends ChangeNotifier {
     // 重新启动session timer
     _startSessionTimer();
 
-    if (!kIsWeb) {
+    if (_canUsePlatformServices) {
       TimerService.startService();
       _updateServiceNotification();
     }
@@ -202,7 +207,7 @@ class TrainingProvider extends ChangeNotifier {
 
     _startRestTimer();
 
-    if (!kIsWeb) {
+    if (_canUsePlatformServices) {
       TimerService.startCountdown(duration: _restDuration, mode: 'rest');
     }
 
@@ -216,7 +221,7 @@ class TrainingProvider extends ChangeNotifier {
     _timer?.cancel();
     _timer = null;
 
-    if (!kIsWeb) {
+    if (_canUsePlatformServices) {
       TimerService.stopCountdown();
     }
 
@@ -225,6 +230,38 @@ class TrainingProvider extends ChangeNotifier {
     _totalRestTime += restedTime;
 
     _transitionToNextSet();
+  }
+
+  /// 暂停休息
+  void pauseRest() {
+    if (_state != TrainingState.resting) return;
+
+    _state = TrainingState.restPaused;
+    _timer?.cancel();
+    _timer = null;
+    // _restRemaining is already set by startRest() / tick, just preserve it
+
+    if (_canUsePlatformServices) {
+      TimerService.stopCountdown();
+    }
+
+    notifyListeners();
+  }
+
+  /// 恢复休息
+  void resumeRest() {
+    if (_state != TrainingState.restPaused) return;
+
+    _state = TrainingState.resting;
+    // Update _restStartTime so web fallback calculates correctly from now
+    _restStartTime = DateTime.now().subtract(Duration(seconds: _restDuration - _restRemaining));
+    _startRestTimer();
+
+    if (_canUsePlatformServices) {
+      TimerService.startCountdown(duration: _restRemaining, mode: 'rest');
+    }
+
+    notifyListeners();
   }
 
   /// 结束训练
@@ -258,7 +295,7 @@ class TrainingProvider extends ChangeNotifier {
     _state = TrainingState.completed;
     _isPaused = false;
 
-    if (!kIsWeb) {
+    if (_canUsePlatformServices) {
       TimerService.stopService();
       TimerService.stopCountdown();
     }
@@ -287,7 +324,7 @@ class TrainingProvider extends ChangeNotifier {
     _sessionDuration = 0;
     _isPaused = false;
 
-    if (!kIsWeb) {
+    if (_canUsePlatformServices) {
       TimerService.stopService();
       TimerService.stopCountdown();
     }
@@ -316,7 +353,7 @@ class TrainingProvider extends ChangeNotifier {
     // 修复休息倒计时：同步轮询 Kotlin 获取权威时间
     if (_state == TrainingState.resting && _restStartTime != null) {
       // Poll native timer synchronously-style (fire-and-forget async)
-      if (!kIsWeb) {
+      if (_canUsePlatformServices) {
         TimerService.getRemainingTime()
             .then((nativeState) {
               // State guard: only act if still resting (prevent double transition)
@@ -356,6 +393,19 @@ class TrainingProvider extends ChangeNotifier {
 
   // Private methods
 
+  /// Whether platform services (TimerService) are available.
+  /// Returns false on web or when ServicesBinding is not initialized (e.g., unit tests).
+  static bool get _canUsePlatformServices {
+    if (kIsWeb) return false;
+    try {
+      // ignore: invalid_use_of_visible_for_testing_member
+      ServicesBinding.instance;
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
   void _startExerciseTimer() {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_stopwatch != null) {
@@ -382,7 +432,7 @@ class TrainingProvider extends ChangeNotifier {
   void _startRestTimer() {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) async {
       // Poll native timer — single source of truth for rest countdown
-      if (!kIsWeb) {
+      if (_canUsePlatformServices) {
         try {
           final nativeState = await TimerService.getRemainingTime();
           _restRemaining = nativeState['remaining'] as int? ?? 0;
@@ -435,7 +485,7 @@ class TrainingProvider extends ChangeNotifier {
     _startExerciseTimer();
 
     // Resume exercise notification (Dart manages during exercise, Kotlin during rest)
-    if (!kIsWeb) {
+    if (_canUsePlatformServices) {
       _updateServiceNotification();
     }
 
@@ -443,7 +493,7 @@ class TrainingProvider extends ChangeNotifier {
   }
 
   void _updateServiceNotification() {
-    if (!kIsWeb && _state != TrainingState.resting) {
+    if (_canUsePlatformServices && _state != TrainingState.resting) {
       // Only update during exercise — Kotlin handles rest notifications
       final timeStr = '运动 $sessionDurationFormatted';
       TimerService.updateNotification(timeStr);

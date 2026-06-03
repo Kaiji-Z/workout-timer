@@ -172,28 +172,6 @@ class TrainingProgressProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// 切换到下一个动作
-  void nextExercise() {
-    if (_currentPlan == null) return;
-    if (_currentExerciseIndex >= _currentPlan!.exercises.length - 1) return;
-
-    _currentExerciseIndex++;
-    _currentSetInExercise = _completedSets[currentExercise!.exerciseId] ?? 0;
-
-    notifyListeners();
-  }
-
-  /// 切换到指定动作
-  void goToExercise(int index) {
-    if (_currentPlan == null) return;
-    if (index < 0 || index >= _currentPlan!.exercises.length) return;
-
-    _currentExerciseIndex = index;
-    _currentSetInExercise = _completedSets[currentExercise!.exerciseId] ?? 0;
-
-    notifyListeners();
-  }
-
   /// 设置动作的重量
   void setWeight(String exerciseId, double weight) {
     _exerciseWeights[exerciseId] = weight;

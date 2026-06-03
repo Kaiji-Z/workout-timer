@@ -280,7 +280,7 @@ class _PlanScreenState extends State<PlanScreen> {
         margin: const EdgeInsets.symmetric(horizontal: 16),
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: theme.surfaceColor,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: theme.accentColor.withValues(alpha: 0.3),
@@ -347,6 +347,7 @@ class _PlanScreenState extends State<PlanScreen> {
 
   void _showAddPlanToDateSheet(PlanProvider planProvider) {
     final allPlans = planProvider.plans;
+    final theme = context.read<ThemeProvider>().currentTheme;
 
     if (allPlans.isEmpty) {
       _navigateToCreatePlan();
@@ -356,7 +357,7 @@ class _PlanScreenState extends State<PlanScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: theme.surfaceColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -455,10 +456,12 @@ class _PlanScreenState extends State<PlanScreen> {
   }
 
   void _showPlanLibraryModal(PlanProvider planProvider) {
+    final theme = context.read<ThemeProvider>().currentTheme;
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: theme.surfaceColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -758,8 +761,8 @@ class _PlanDetailSheet extends StatelessWidget {
     final theme = context.watch<ThemeProvider>().currentTheme;
 
     return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      decoration: BoxDecoration(
+        color: theme.surfaceColor,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       padding: const EdgeInsets.all(24),

@@ -9,6 +9,8 @@ import '../theme/app_theme.dart';
 import '../bloc/plan_provider.dart';
 import '../widgets/exercise_selector.dart'; // 复用 ExerciseDetailSheet
 import '../widgets/fullscreen_image_viewer.dart';
+import '../services/exercise_favorites_service.dart';
+import '../services/database_helper.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 /// 独立的动作选择页面
@@ -61,6 +63,10 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
   String _searchQuery = '';
   late TextEditingController _searchController;
   late ScrollController _scrollController;
+  bool _showFavoritesOnly = false;
+  Set<String> _favoriteIds = {};
+  late ExerciseFavoritesService _favoritesService;
+  
   @override
   void initState() {
     super.initState();
@@ -73,6 +79,22 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
     // 搜索控制器
     _searchController = TextEditingController();
     _scrollController = ScrollController();
+    
+    // 初始化收藏服务并加载收藏列表
+    _initFavorites();
+  }
+  
+  Future<void> _initFavorites() async {
+    final db = await DatabaseHelper.instance.database;
+    _favoritesService = ExerciseFavoritesService(database: db);
+    _favoriteIds = await _favoritesService.getFavoriteIds();
+    if (mounted) setState(() {});
+  }
+  
+  Future<void> _toggleFavorite(String exerciseId) async {
+    await _favoritesService.toggleFavorite(exerciseId);
+    _favoriteIds = await _favoritesService.getFavoriteIds();
+    if (mounted) setState(() {});
   }
   
   @override
@@ -108,6 +130,10 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
               // 器械类型筛选标签
               _buildEquipmentFilterChips(theme),
               const SizedBox(height: 12),
+              
+              // 收藏筛选标签
+              _buildFavoritesFilterChip(theme),
+              if (_showFavoritesOnly || _filterEquipment != null) const SizedBox(height: 12),
               
               // 动作列表
               Expanded(
@@ -332,6 +358,48 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
     );
   }
   
+  /// 收藏筛选标签
+  Widget _buildFavoritesFilterChip(AppThemeData theme) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: GestureDetector(
+        onTap: () => setState(() => _showFavoritesOnly = !_showFavoritesOnly),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: _showFavoritesOnly ? theme.accentColor : Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: _showFavoritesOnly 
+                  ? theme.accentColor 
+                  : theme.textColor.withValues(alpha: 0.15),
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                _showFavoritesOnly ? Icons.favorite : Icons.favorite_border,
+                size: 16,
+                color: _showFavoritesOnly ? Colors.white : theme.secondaryTextColor,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                '收藏',
+                style: TextStyle(
+                  fontFamily: '.SF Pro Text',
+                  fontSize: 13,
+                  fontWeight: _showFavoritesOnly ? FontWeight.w600 : FontWeight.w500,
+                  color: _showFavoritesOnly ? Colors.white : theme.textColor,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+  
   Widget _buildExerciseList(PlanProvider planProvider, AppThemeData theme) {
     // 获取所有动作
     List<Exercise> exercises = planProvider.exercises;
@@ -344,6 +412,11 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
     // 按器械类型筛选
     if (_filterEquipment != null) {
       exercises = exercises.where((e) => e.equipment == _filterEquipment).toList();
+    }
+    
+    // 按收藏筛选
+    if (_showFavoritesOnly) {
+      exercises = exercises.where((e) => _favoriteIds.contains(e.id)).toList();
     }
     
     // 搜索筛选（增强版：支持名称、英文名、器械类型模糊搜索）
@@ -402,8 +475,10 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
         return _ExerciseListItem(
           exercise: exercise,
           isSelected: isSelected,
+          isFavorite: _favoriteIds.contains(exercise.id),
           onTap: () => _toggleExercise(exercise),
           onLongPress: () => _showDetailSheet(exercise, isSelected),
+          onToggleFavorite: () => _toggleFavorite(exercise.id),
           theme: theme,
         );
       },
@@ -613,15 +688,19 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
 class _ExerciseListItem extends StatefulWidget {
   final Exercise exercise;
   final bool isSelected;
+  final bool isFavorite;
   final VoidCallback onTap;
   final VoidCallback onLongPress;
+  final VoidCallback onToggleFavorite;
   final AppThemeData theme;
   
   const _ExerciseListItem({
     required this.exercise,
     required this.isSelected,
+    required this.isFavorite,
     required this.onTap,
     required this.onLongPress,
+    required this.onToggleFavorite,
     required this.theme,
   });
   
@@ -800,9 +879,31 @@ class _ExerciseListItemState extends State<_ExerciseListItem>
                 ),
               ],
             ),
-            trailing: widget.isSelected
-                ? Icon(Icons.check_circle, color: widget.theme.accentColor, size: 24)
-                : Icon(Icons.add_circle_outline, color: widget.theme.secondaryTextColor, size: 24),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // 收藏切换按钮
+                GestureDetector(
+                  onTap: widget.onToggleFavorite,
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: Icon(
+                      widget.isFavorite 
+                          ? Icons.favorite 
+                          : Icons.favorite_border,
+                      color: widget.isFavorite 
+                          ? widget.theme.accentColor 
+                          : widget.theme.secondaryTextColor,
+                      size: 20,
+                    ),
+                  ),
+                ),
+                // 选中/添加按钮
+                widget.isSelected
+                    ? Icon(Icons.check_circle, color: widget.theme.accentColor, size: 24)
+                    : Icon(Icons.add_circle_outline, color: widget.theme.secondaryTextColor, size: 24),
+              ],
+            ),
           ),
         ),
       ),

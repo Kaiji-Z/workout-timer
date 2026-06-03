@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/workout_repository.dart';
+import '../services/notification_sound_service.dart';
 import '../theme/theme_provider.dart';
 import '../theme/app_theme.dart';
 import 'user_preferences_screen.dart';
@@ -15,12 +16,14 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   final WorkoutRepository _repository = WorkoutRepository();
+  final NotificationSoundService _soundService = NotificationSoundService();
   late SharedPreferences _prefs;
 
   bool _soundEnabled = true;
   bool _vibrationEnabled = true;
   bool _detailedRecordingEnabled = false;
   String _customMessage = '准备开始下一组！';
+  String _selectedSound = 'default';
 
   @override
   void initState() {
@@ -30,11 +33,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _loadSettings() async {
     _prefs = await SharedPreferences.getInstance();
+    await _soundService.init();
     setState(() {
       _soundEnabled = _prefs.getBool('sound_enabled') ?? true;
       _vibrationEnabled = _prefs.getBool('vibration_enabled') ?? true;
       _detailedRecordingEnabled = _prefs.getBool('detailed_recording') ?? false;
       _customMessage = _prefs.getString('custom_message') ?? '准备开始下一组！';
+      _selectedSound = _soundService.getSelectedSound();
     });
   }
 
@@ -130,6 +135,33 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   setState(() => _soundEnabled = value);
                   _saveSettings();
                 }, theme),
+                if (_soundEnabled) ...[
+                  Divider(
+                    color: theme.surfaceColor.withValues(alpha: 0.1),
+                    height: 1,
+                  ),
+                  ListTile(
+                    title: Text(
+                      '通知铃声',
+                      style: TextStyle(
+                        fontFamily: '.SF Pro Text',
+                        color: theme.textColor,
+                      ),
+                    ),
+                    subtitle: Text(
+                      _soundService.getSoundDisplayName(_selectedSound),
+                      style: TextStyle(
+                        fontFamily: '.SF Pro Text',
+                        color: theme.secondaryTextColor,
+                      ),
+                    ),
+                    trailing: Icon(
+                      Icons.chevron_right,
+                      color: theme.secondaryTextColor,
+                    ),
+                    onTap: () => _showSoundPicker(context, theme),
+                  ),
+                ],
                 Divider(
                   color: theme.surfaceColor.withValues(alpha: 0.1),
                   height: 1,
@@ -274,6 +306,57 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 );
               },
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showSoundPicker(BuildContext context, AppThemeData theme) {
+    final sounds = _soundService.getAvailableSounds();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: theme.surfaceColor.withValues(alpha: 0.95),
+        title: Text(
+          '选择铃声',
+          style: TextStyle(
+            fontFamily: '.SF Pro Display',
+            fontWeight: FontWeight.w600,
+            color: theme.textColor,
+          ),
+        ),
+        content: RadioGroup<String>(
+          groupValue: _selectedSound,
+          onChanged: (value) async {
+            if (value == null) return;
+            await _soundService.setSelectedSound(value);
+            setState(() => _selectedSound = value);
+            if (context.mounted) {
+              Navigator.pop(context);
+            }
+          },
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: sounds.map((sound) {
+              return RadioListTile<String>(
+                title: Text(
+                  _soundService.getSoundDisplayName(sound),
+                  style: TextStyle(
+                    fontFamily: '.SF Pro Text',
+                    color: theme.textColor,
+                  ),
+                ),
+                value: sound,
+                activeColor: theme.accentColor,
+              );
+            }).toList(),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('关闭'),
           ),
         ],
       ),

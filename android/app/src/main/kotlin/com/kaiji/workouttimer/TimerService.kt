@@ -7,6 +7,8 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.media.AudioManager
+import android.media.ToneGenerator
 import android.os.CountDownTimer
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
@@ -32,6 +34,7 @@ class TimerService : Service() {
     }
 
     private var countDownTimer: CountDownTimer? = null
+    private var countdownBeepTone: ToneGenerator? = null
     private var remainingSeconds: Int = 0
     private var totalDuration: Int = 0
     private var timerMode: String = "simple"
@@ -43,10 +46,17 @@ class TimerService : Service() {
         super.onCreate()
         createNotificationChannel()
         createCompletionNotificationChannel()
+        try {
+            countdownBeepTone = ToneGenerator(AudioManager.STREAM_MUSIC, 50)
+        } catch (e: Exception) {
+            // ToneGenerator may fail on some devices
+        }
         instance = this
     }
 
     override fun onDestroy() {
+        countdownBeepTone?.release()
+        countdownBeepTone = null
         instance = null
         countDownTimer?.cancel()
         countDownTimer = null
@@ -113,6 +123,10 @@ class TimerService : Service() {
                     "completed" to false,
                     "mode" to timerMode
                 ))
+                // Play countdown beep at 3, 2, 1 seconds
+                if (remainingSeconds <= 3 && remainingSeconds > 0) {
+                    playCountdownBeep()
+                }
             }
 
             override fun onFinish() {
@@ -137,6 +151,14 @@ class TimerService : Service() {
         // Cancel completion notification if user skipped rest
         val manager = getSystemService(NotificationManager::class.java)
         manager.cancel(COMPLETION_NOTIFICATION_ID)
+    }
+
+    private fun playCountdownBeep() {
+        try {
+            countdownBeepTone?.startTone(ToneGenerator.TONE_PROP_BEEP, 80)
+        } catch (e: Exception) {
+            // Ignore if beep fails
+        }
     }
 
     fun getTimerState(): Map<String, Any> {

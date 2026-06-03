@@ -6,7 +6,7 @@ import '../models/workout_session.dart';
 
 class DatabaseHelper {
   static const _databaseName = 'workout_timer.db';
-  static const _databaseVersion = 4; // 升级到v4
+  static const _databaseVersion = 5; // 升级到v5
 
   // 表名常量
   static const tableWorkoutSessions = 'workout_sessions';
@@ -16,6 +16,7 @@ class DatabaseHelper {
   static const tableCalendarPlans = 'calendar_plans';
   static const tableWorkoutRecords = 'workout_records';
   static const tableRecordExercises = 'record_exercises';
+  static const tableFavoriteExercises = 'favorite_exercises';
 
   // workout_sessions 表列名（保持兼容）
   static const columnId = 'id';
@@ -162,6 +163,14 @@ class DatabaseHelper {
       await txn.execute('CREATE INDEX idx_calendar_plans_date ON $tableCalendarPlans(date)');
       await txn.execute('CREATE INDEX idx_workout_records_date ON $tableWorkoutRecords(date)');
       await txn.execute('CREATE INDEX idx_record_exercises_record_id ON $tableRecordExercises(record_id)');
+
+      // 创建 favorite_exercises 表
+      await txn.execute('''
+        CREATE TABLE IF NOT EXISTS $tableFavoriteExercises (
+          exercise_id TEXT PRIMARY KEY,
+          created_at TEXT NOT NULL
+        )
+      ''');
     });
   }
 
@@ -273,6 +282,16 @@ class DatabaseHelper {
     if (oldVersion < 4) {
       // 从v3升级到v4：添加unmatched_name列用于未匹配的自定义动作
       await db.execute('ALTER TABLE $tablePlanExercises ADD COLUMN unmatched_name TEXT');
+    }
+
+    if (oldVersion < 5) {
+      // 从v4升级到v5：添加favorite_exercises表用于收藏动作
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS $tableFavoriteExercises (
+          exercise_id TEXT PRIMARY KEY,
+          created_at TEXT NOT NULL
+        )
+      ''');
     }
   }
 
