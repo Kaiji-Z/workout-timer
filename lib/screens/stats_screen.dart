@@ -9,6 +9,8 @@ import '../models/muscle_group.dart';
 import '../services/workout_repository.dart';
 import '../services/stats_calculator_service.dart';
 import '../bloc/record_provider.dart';
+import '../widgets/strength_trend_chart.dart';
+import '../widgets/volume_trend_charts.dart';
 import 'ai_analysis_screen.dart';
 
 class StatsScreen extends StatefulWidget {
@@ -720,6 +722,14 @@ class _StatsScreenState extends State<StatsScreen>
           ]),
           const SizedBox(height: 20),
 
+          // 训练量趋势（周）
+          _buildSection('训练量趋势', theme, [
+            WeeklyVolumeChart(
+              data: _statsCalc.calculateWeeklyVolumeTrend(workoutRecords, 8),
+            ),
+          ]),
+          const SizedBox(height: 20),
+
           // 进步追踪 (力量进步 + 常用动作)
           _CollapsibleSection(
             title: '进步追踪',
@@ -807,6 +817,14 @@ class _StatsScreenState extends State<StatsScreen>
               _buildVolumeOverview(volumeStats, theme),
             ],
           ),
+          const SizedBox(height: 20),
+
+          // 训练量趋势（月）
+          _buildSection('训练量趋势', theme, [
+            DailyVolumeChart(
+              data: _statsCalc.calculateDailyVolumeTrend(workoutRecords),
+            ),
+          ]),
           const SizedBox(height: 20),
 
           // 进步追踪 (力量进步 + 常用动作)
@@ -2194,6 +2212,35 @@ class _StatsScreenState extends State<StatsScreen>
             );
           }).toList(),
         ),
+        const SizedBox(height: 16),
+        Divider(color: theme.textColor.withValues(alpha: 0.1)),
+        const SizedBox(height: 16),
+        // 力量趋势图
+        if (top8PRs.isNotEmpty) ...[
+          Row(
+            children: [
+              Icon(Icons.show_chart, size: 16, color: theme.accentColor),
+              const SizedBox(width: 6),
+              Text(
+                '力量趋势',
+                style: TextStyle(
+                  fontFamily: '.SF Pro Text',
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: theme.textColor,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          StrengthTrendChart(
+            dataPoints: _statsCalc.calculateExerciseStrengthTrend(
+              records,
+              top8PRs.first.key,
+            ),
+            exerciseName: top8PRs.first.key,
+          ),
+        ],
       ],
     );
   }
