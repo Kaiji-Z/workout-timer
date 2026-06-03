@@ -437,10 +437,10 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
         child: Container(
           padding: padding ?? const EdgeInsets.symmetric(vertical: 4),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: bgAlpha),
+            color: theme.surfaceColor.withValues(alpha: bgAlpha),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: Colors.white.withValues(alpha: borderAlpha),
+              color: theme.surfaceColor.withValues(alpha: borderAlpha),
               width: 1,
             ),
           ),
@@ -456,29 +456,33 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
     required VoidCallback onTap,
     required AppThemeData theme,
   }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? theme.accentColor
-              : theme.accentColor.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          decoration: BoxDecoration(
             color: isSelected
                 ? theme.accentColor
-                : theme.accentColor.withValues(alpha: 0.3),
-            width: 1,
+                : theme.accentColor.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: isSelected
+                  ? theme.accentColor
+                  : theme.accentColor.withValues(alpha: 0.3),
+              width: 1,
+            ),
           ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontFamily: '.SF Pro Text',
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-            color: isSelected ? Colors.white : theme.accentColor,
+          child: Text(
+            label,
+            style: TextStyle(
+              fontFamily: '.SF Pro Text',
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: isSelected ? theme.surfaceColor : theme.accentColor,
+            ),
           ),
         ),
       ),
@@ -491,22 +495,25 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
     required VoidCallback onTap,
     required AppThemeData theme,
   }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? theme.accentColor.withValues(alpha: 0.15)
-              : theme.accentColor.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          decoration: BoxDecoration(
             color: isSelected
-                ? theme.accentColor.withValues(alpha: 0.5)
-                : theme.accentColor.withValues(alpha: 0.3),
-            width: 1,
+                ? theme.accentColor.withValues(alpha: 0.15)
+                : theme.accentColor.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: isSelected
+                  ? theme.accentColor.withValues(alpha: 0.5)
+                  : theme.accentColor.withValues(alpha: 0.3),
+              width: 1,
+            ),
           ),
-        ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -525,6 +532,7 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
             ),
           ],
         ),
+      ),
       ),
     );
   }

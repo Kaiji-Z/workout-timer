@@ -133,9 +133,11 @@ class _FullscreenImageViewerState extends State<FullscreenImageViewer>
 
   /// 单图模式
   Widget _buildSingleMode(BuildContext context) {
-    return GestureDetector(
-      onTap: () => Navigator.of(context).pop(),
-      child: Scaffold(
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => Navigator.of(context).pop(),
+        child: Scaffold(
         backgroundColor: Colors.transparent,
         body: Stack(
           children: [
@@ -245,6 +247,7 @@ class _FullscreenImageViewerState extends State<FullscreenImageViewer>
             ),
           ],
         ),
+        ),
       ),
     );
   }
@@ -253,9 +256,11 @@ class _FullscreenImageViewerState extends State<FullscreenImageViewer>
   Widget _buildCarouselMode(BuildContext context) {
     final images = widget.images!;
     
-    return GestureDetector(
-      onTap: () => Navigator.of(context).pop(),
-      child: Scaffold(
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => Navigator.of(context).pop(),
+        child: Scaffold(
         backgroundColor: Colors.transparent,
         body: Stack(
           children: [
@@ -360,19 +365,23 @@ class _FullscreenImageViewerState extends State<FullscreenImageViewer>
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: List.generate(images.length, (index) {
-                      return GestureDetector(
-                        onTap: () {
-                          setState(() => _currentIndex = index);
-                        },
-                        child: Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 4),
-                          width: _currentIndex == index ? 24 : 8,
-                          height: 8,
-                          decoration: BoxDecoration(
-                            color: _currentIndex == index 
-                                ? Colors.white 
-                                : Colors.white38,
-                            borderRadius: BorderRadius.circular(4),
+                      return Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: () {
+                            setState(() => _currentIndex = index);
+                          },
+                          borderRadius: BorderRadius.circular(4),
+                          child: Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 4),
+                            width: _currentIndex == index ? 24 : 8,
+                            height: 8,
+                            decoration: BoxDecoration(
+                              color: _currentIndex == index 
+                                  ? Colors.white 
+                                  : Colors.white38,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
                           ),
                         ),
                       );
@@ -382,6 +391,7 @@ class _FullscreenImageViewerState extends State<FullscreenImageViewer>
               ),
             ),
           ],
+        ),
         ),
       ),
     );

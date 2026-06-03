@@ -195,7 +195,7 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: theme.surfaceColor,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
@@ -252,27 +252,31 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
       child: Row(
         children: [
           // "全部" 选项
-          GestureDetector(
-            onTap: () => setState(() => _filterMuscle = null),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              margin: const EdgeInsets.only(right: 8),
-              decoration: BoxDecoration(
-                color: _filterMuscle == null ? theme.accentColor : Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: _filterMuscle == null 
-                      ? theme.accentColor 
-                      : theme.textColor.withValues(alpha: 0.2),
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () => setState(() => _filterMuscle = null),
+              borderRadius: BorderRadius.circular(20),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                margin: const EdgeInsets.only(right: 8),
+                decoration: BoxDecoration(
+                  color: _filterMuscle == null ? theme.accentColor : theme.surfaceColor,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: _filterMuscle == null 
+                        ? theme.accentColor 
+                        : theme.textColor.withValues(alpha: 0.2),
+                  ),
                 ),
-              ),
-              child: Text(
-                '全部',
-                style: TextStyle(
-                  fontFamily: '.SF Pro Text',
-                  fontSize: 14,
-                  fontWeight: _filterMuscle == null ? FontWeight.w600 : FontWeight.w500,
-                  color: _filterMuscle == null ? Colors.white : theme.textColor,
+                child: Text(
+                  '全部',
+                  style: TextStyle(
+                    fontFamily: '.SF Pro Text',
+                    fontSize: 14,
+                    fontWeight: _filterMuscle == null ? FontWeight.w600 : FontWeight.w500,
+                    color: _filterMuscle == null ? Colors.white : theme.textColor,
+                  ),
                 ),
               ),
             ),
@@ -280,25 +284,29 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
           // 各肌肉部位
           ...widget.selectedMuscles.map((muscle) {
             final isSelected = _filterMuscle == muscle;
-            return GestureDetector(
-              onTap: () => setState(() => _filterMuscle = muscle),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                margin: const EdgeInsets.only(right: 8),
-                decoration: BoxDecoration(
-                  color: isSelected ? theme.accentColor : Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: isSelected ? theme.accentColor : theme.textColor.withValues(alpha: 0.2),
+            return Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () => setState(() => _filterMuscle = muscle),
+                borderRadius: BorderRadius.circular(20),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  margin: const EdgeInsets.only(right: 8),
+                  decoration: BoxDecoration(
+                    color: isSelected ? theme.accentColor : theme.surfaceColor,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: isSelected ? theme.accentColor : theme.textColor.withValues(alpha: 0.2),
+                    ),
                   ),
-                ),
-                child: Text(
-                  muscle.displayName,
-                  style: TextStyle(
-                    fontFamily: '.SF Pro Text',
-                    fontSize: 14,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                    color: isSelected ? Colors.white : theme.textColor,
+                  child: Text(
+                    muscle.displayName,
+                    style: TextStyle(
+                      fontFamily: '.SF Pro Text',
+                      fontSize: 14,
+                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                      color: isSelected ? Colors.white : theme.textColor,
+                    ),
                   ),
                 ),
               ),
@@ -328,27 +336,31 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
       child: Row(
         children: equipmentTypes.map((item) {
           final isSelected = _filterEquipment == item['key'];
-          return GestureDetector(
-            onTap: () => setState(() => _filterEquipment = item['key']),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              margin: const EdgeInsets.only(right: 8),
-              decoration: BoxDecoration(
-                color: isSelected ? theme.accentColor : Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: isSelected 
-                      ? theme.accentColor 
-                      : theme.textColor.withValues(alpha: 0.15),
+          return Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () => setState(() => _filterEquipment = item['key']),
+              borderRadius: BorderRadius.circular(16),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                margin: const EdgeInsets.only(right: 8),
+                decoration: BoxDecoration(
+                  color: isSelected ? theme.accentColor : theme.surfaceColor,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: isSelected 
+                        ? theme.accentColor 
+                        : theme.textColor.withValues(alpha: 0.15),
+                  ),
                 ),
-              ),
-              child: Text(
-                item['label']!,
-                style: TextStyle(
-                  fontFamily: '.SF Pro Text',
-                  fontSize: 13,
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                  color: isSelected ? Colors.white : theme.textColor,
+                child: Text(
+                  item['label']!,
+                  style: TextStyle(
+                    fontFamily: '.SF Pro Text',
+                    fontSize: 13,
+                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                    color: isSelected ? Colors.white : theme.textColor,
+                  ),
                 ),
               ),
             ),
@@ -362,38 +374,42 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
   Widget _buildFavoritesFilterChip(AppThemeData theme) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: GestureDetector(
-        onTap: () => setState(() => _showFavoritesOnly = !_showFavoritesOnly),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(
-            color: _showFavoritesOnly ? theme.accentColor : Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: _showFavoritesOnly 
-                  ? theme.accentColor 
-                  : theme.textColor.withValues(alpha: 0.15),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => setState(() => _showFavoritesOnly = !_showFavoritesOnly),
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: _showFavoritesOnly ? theme.accentColor : theme.surfaceColor,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: _showFavoritesOnly 
+                    ? theme.accentColor 
+                    : theme.textColor.withValues(alpha: 0.15),
+              ),
             ),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                _showFavoritesOnly ? Icons.favorite : Icons.favorite_border,
-                size: 16,
-                color: _showFavoritesOnly ? Colors.white : theme.secondaryTextColor,
-              ),
-              const SizedBox(width: 4),
-              Text(
-                '收藏',
-                style: TextStyle(
-                  fontFamily: '.SF Pro Text',
-                  fontSize: 13,
-                  fontWeight: _showFavoritesOnly ? FontWeight.w600 : FontWeight.w500,
-                  color: _showFavoritesOnly ? Colors.white : theme.textColor,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  _showFavoritesOnly ? Icons.favorite : Icons.favorite_border,
+                  size: 16,
+                  color: _showFavoritesOnly ? Colors.white : theme.secondaryTextColor,
                 ),
-              ),
-            ],
+                const SizedBox(width: 4),
+                Text(
+                  '收藏',
+                  style: TextStyle(
+                    fontFamily: '.SF Pro Text',
+                    fontSize: 13,
+                    fontWeight: _showFavoritesOnly ? FontWeight.w600 : FontWeight.w500,
+                    color: _showFavoritesOnly ? Colors.white : theme.textColor,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -491,7 +507,7 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
     return Container(
       height: 88,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.surfaceColor,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.1),
@@ -580,32 +596,36 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
         children: _selectedExercises.take(3).map((exercise) {
           return Padding(
             padding: const EdgeInsets.only(right: 8),
-            child: GestureDetector(
-              onTap: () => _removeExerciseById(exercise.exerciseId),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: theme.accentColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      exercise.name,
-                      style: TextStyle(
-                        fontFamily: '.SF Pro Text',
-                        fontSize: 13,
-                        color: theme.textColor,
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () => _removeExerciseById(exercise.exerciseId),
+                borderRadius: BorderRadius.circular(16),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: theme.accentColor.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        exercise.name,
+                        style: TextStyle(
+                          fontFamily: '.SF Pro Text',
+                          fontSize: 13,
+                          color: theme.textColor,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 4),
-                    Icon(
-                      Icons.close,
-                      size: 14,
-                      color: theme.secondaryTextColor,
-                    ),
-                  ],
+                      const SizedBox(width: 4),
+                      Icon(
+                        Icons.close,
+                        size: 14,
+                        color: theme.secondaryTextColor,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -708,63 +728,21 @@ class _ExerciseListItem extends StatefulWidget {
   State<_ExerciseListItem> createState() => _ExerciseListItemState();
 }
 
-class _ExerciseListItemState extends State<_ExerciseListItem>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _scaleController;
-  late Animation<double> _scaleAnimation;
-  
-  @override
-  void initState() {
-    super.initState();
-    _scaleController = AnimationController(
-      duration: const Duration(milliseconds: 100),
-      vsync: this,
-    );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.98).animate(
-      CurvedAnimation(parent: _scaleController, curve: Curves.easeInOut),
-    );
-  }
-  
-  @override
-  void dispose() {
-    _scaleController.dispose();
-    super.dispose();
-  }
-  
-  void _onTapDown(TapDownDetails details) {
-    _scaleController.forward();
-  }
-  
-  void _onTapUp(TapUpDetails details) {
-    _scaleController.reverse();
-    widget.onTap();
-  }
-  
-  void _onTapCancel() {
-    _scaleController.reverse();
-  }
-  
+class _ExerciseListItemState extends State<_ExerciseListItem> {
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: _onTapDown,
-      onTapUp: _onTapUp,
-      onTapCancel: _onTapCancel,
-      onLongPress: widget.onLongPress,
-      child: AnimatedBuilder(
-        animation: _scaleAnimation,
-        builder: (context, child) {
-          return Transform.scale(
-            scale: _scaleAnimation.value,
-            child: child,
-          );
-        },
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: widget.onTap,
+        onLongPress: widget.onLongPress,
+        borderRadius: BorderRadius.circular(12),
         child: Container(
           margin: const EdgeInsets.symmetric(vertical: 4),
           decoration: BoxDecoration(
             color: widget.isSelected 
                 ? widget.theme.accentColor.withValues(alpha: 0.1) 
-                : Colors.white,
+                : widget.theme.surfaceColor,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: widget.isSelected 
@@ -781,25 +759,28 @@ class _ExerciseListItemState extends State<_ExerciseListItem>
             ],
           ),
           child: ListTile(
-            leading: GestureDetector(
-              onTap: () {
-                // 如果有多张图片，使用轮播模式
-                if (widget.exercise.images.isNotEmpty) {
-                  FullscreenImageViewer.showCarousel(
-                    context,
-                    images: widget.exercise.images,
-                    title: widget.exercise.name,
-                    heroTag: widget.exercise.imageUrl, // 传递 Hero 标签
-                  );
-                } else if (widget.exercise.imageUrl != null) {
-                  FullscreenImageViewer.show(
-                    context,
-                    imageUrl: widget.exercise.imageUrl!,
-                    title: widget.exercise.name,
-                  );
-                }
-              },
-              child: Container(
+            leading: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () {
+                  // 如果有多张图片，使用轮播模式
+                  if (widget.exercise.images.isNotEmpty) {
+                    FullscreenImageViewer.showCarousel(
+                      context,
+                      images: widget.exercise.images,
+                      title: widget.exercise.name,
+                      heroTag: widget.exercise.imageUrl, // 传递 Hero 标签
+                    );
+                  } else if (widget.exercise.imageUrl != null) {
+                    FullscreenImageViewer.show(
+                      context,
+                      imageUrl: widget.exercise.imageUrl!,
+                      title: widget.exercise.name,
+                    );
+                  }
+                },
+                customBorder: const CircleBorder(),
+                child: Container(
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
@@ -842,7 +823,8 @@ class _ExerciseListItemState extends State<_ExerciseListItem>
                 ),
               ),
             ),
-            title: Text(
+            ),
+          title: Text(
               widget.exercise.name,
               style: TextStyle(
                 fontFamily: '.SF Pro Text',
@@ -883,18 +865,22 @@ class _ExerciseListItemState extends State<_ExerciseListItem>
               mainAxisSize: MainAxisSize.min,
               children: [
                 // 收藏切换按钮
-                GestureDetector(
-                  onTap: widget.onToggleFavorite,
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: Icon(
-                      widget.isFavorite 
-                          ? Icons.favorite 
-                          : Icons.favorite_border,
-                      color: widget.isFavorite 
-                          ? widget.theme.accentColor 
-                          : widget.theme.secondaryTextColor,
-                      size: 20,
+                Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: widget.onToggleFavorite,
+                    customBorder: const CircleBorder(),
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: Icon(
+                        widget.isFavorite 
+                            ? Icons.favorite 
+                            : Icons.favorite_border,
+                        color: widget.isFavorite 
+                            ? widget.theme.accentColor 
+                            : widget.theme.secondaryTextColor,
+                        size: 20,
+                      ),
                     ),
                   ),
                 ),

@@ -49,11 +49,11 @@ class _CalendarWidgetState extends State<CalendarWidget> {
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.surfaceColor,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: theme.textColor.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -234,10 +234,12 @@ class _DateCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Stack(
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        customBorder: const CircleBorder(),
+        child: Stack(
         alignment: Alignment.center,
         children: [
           // 选中或今天的背景
@@ -277,9 +279,10 @@ class _DateCell extends StatelessWidget {
                   color: isSelected ? Colors.white : theme.accentColor,
                   shape: BoxShape.circle,
                 ),
-              ),
             ),
+          ),
         ],
+      ),
       ),
     );
   }
@@ -381,12 +384,15 @@ class _CompactCalendarState extends State<CompactCalendar> {
         final isToday = _isSameDay(date, todayNormalized);
         final hasPlan = markedDates.any((d) => _isSameDay(d, date));
         
-        return GestureDetector(
-          onTap: () => widget.onDateSelected(date),
-          child: Container(
-            width: 40,
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: Column(
+        return Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () => widget.onDateSelected(date),
+            borderRadius: BorderRadius.circular(20),
+            child: Container(
+              width: 40,
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
@@ -439,6 +445,7 @@ class _CompactCalendarState extends State<CompactCalendar> {
                 ),
               ],
             ),
+          ),
           ),
         );
       }),
@@ -511,11 +518,14 @@ class _WeekDatePickerState extends State<WeekDatePicker> {
           final isSelected = _isSameDay(date, widget.selectedDate);
           final hasPlan = markedDates.any((d) => _isSameDay(d, date));
           
-          return GestureDetector(
-            onTap: () => widget.onDateSelected(date),
-            child: Container(
-              width: 50,
-              margin: const EdgeInsets.symmetric(horizontal: 4),
+          return Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () => widget.onDateSelected(date),
+              borderRadius: BorderRadius.circular(16),
+              child: Container(
+                width: 50,
+                margin: const EdgeInsets.symmetric(horizontal: 4),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -566,6 +576,7 @@ class _WeekDatePickerState extends State<WeekDatePicker> {
                 ],
               ),
             ),
+          ),
           );
         },
       ),

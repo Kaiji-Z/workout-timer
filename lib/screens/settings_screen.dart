@@ -24,11 +24,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _detailedRecordingEnabled = false;
   String _customMessage = '准备开始下一组！';
   String _selectedSound = 'default';
+  late final TextEditingController _messageController;
 
   @override
   void initState() {
     super.initState();
+    _messageController = TextEditingController(text: _customMessage);
     _loadSettings();
+  }
+
+  @override
+  void dispose() {
+    _messageController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadSettings() async {
@@ -39,6 +47,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _vibrationEnabled = _prefs.getBool('vibration_enabled') ?? true;
       _detailedRecordingEnabled = _prefs.getBool('detailed_recording') ?? false;
       _customMessage = _prefs.getString('custom_message') ?? '准备开始下一组！';
+      _messageController.text = _customMessage;
       _selectedSound = _soundService.getSelectedSound();
     });
   }
@@ -232,7 +241,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             theme: theme,
             padding: const EdgeInsets.all(16),
             child: TextField(
-              controller: TextEditingController(text: _customMessage),
+              controller: _messageController,
               style: TextStyle(color: theme.textColor),
               onChanged: (value) => _customMessage = value,
               onSubmitted: (_) => _saveSettings(),
@@ -391,7 +400,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
+            color: theme.dividerColor.withValues(alpha: 0.15),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -410,14 +419,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
     // 根据深色/浅色模式确定关闭态颜色
     final bool isDark = theme.surfaceColor == const Color(0xFF1E1E2E);
     final Color inactiveTrack = isDark
-        ? Colors.white.withValues(alpha: 0.15)
-        : const Color(0xFFE0E0E0);
+        ? theme.surfaceColor.withValues(alpha: 0.4)
+        : theme.dividerColor;
     final Color inactiveThumb = isDark
-        ? Colors.white.withValues(alpha: 0.8)
-        : const Color(0xFFFAFAFA);
+        ? theme.surfaceColor.withValues(alpha: 0.9)
+        : theme.cardColor;
     final Color inactiveOutline = isDark
-        ? Colors.white.withValues(alpha: 0.3)
-        : const Color(0xFFBDBDBD);
+        ? theme.surfaceColor.withValues(alpha: 0.5)
+        : theme.dividerColor;
 
     return SwitchListTile(
       title: Text(
@@ -426,13 +435,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
       value: value,
       onChanged: onChanged,
-      activeThumbColor: Colors.white,
+      activeThumbColor: theme.surfaceColor,
       activeTrackColor: theme.accentColor,
       inactiveThumbColor: inactiveThumb,
       inactiveTrackColor: inactiveTrack,
       thumbColor: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.selected)) {
-          return Colors.white;
+          return theme.surfaceColor;
         }
         return inactiveThumb;
       }),

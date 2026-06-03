@@ -99,11 +99,11 @@ class _ExerciseSelectorState extends State<ExerciseSelector> {
   Widget _buildSearchBar(AppThemeData theme) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.surfaceColor,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: theme.textColor.withValues(alpha: 0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -154,27 +154,31 @@ class _ExerciseSelectorState extends State<ExerciseSelector> {
       child: Row(
         children: [
           // "全部" 选项
-          GestureDetector(
-            onTap: () => setState(() => _filterMuscle = null),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              margin: const EdgeInsets.only(right: 8),
-              decoration: BoxDecoration(
-                color: _filterMuscle == null ? theme.accentColor : Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: _filterMuscle == null 
-                      ? theme.accentColor 
-                      : theme.textColor.withValues(alpha: 0.2),
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () => setState(() => _filterMuscle = null),
+              borderRadius: BorderRadius.circular(20),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                margin: const EdgeInsets.only(right: 8),
+                decoration: BoxDecoration(
+                  color: _filterMuscle == null ? theme.accentColor : theme.surfaceColor,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: _filterMuscle == null 
+                        ? theme.accentColor 
+                        : theme.textColor.withValues(alpha: 0.2),
+                  ),
                 ),
-              ),
-              child: Text(
-                '全部',
-                style: TextStyle(
-                  fontFamily: '.SF Pro Text',
-                  fontSize: 14,
-                  fontWeight: _filterMuscle == null ? FontWeight.w600 : FontWeight.w500,
-                  color: _filterMuscle == null ? Colors.white : theme.textColor,
+                child: Text(
+                  '全部',
+                  style: TextStyle(
+                    fontFamily: '.SF Pro Text',
+                    fontSize: 14,
+                    fontWeight: _filterMuscle == null ? FontWeight.w600 : FontWeight.w500,
+                    color: _filterMuscle == null ? Colors.white : theme.textColor,
+                  ),
                 ),
               ),
             ),
@@ -182,25 +186,29 @@ class _ExerciseSelectorState extends State<ExerciseSelector> {
           // 各肌肉部位
           ...widget.selectedMuscles.map((muscle) {
             final isSelected = _filterMuscle == muscle;
-            return GestureDetector(
-              onTap: () => setState(() => _filterMuscle = muscle),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                margin: const EdgeInsets.only(right: 8),
-                decoration: BoxDecoration(
-                  color: isSelected ? theme.accentColor : Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: isSelected ? theme.accentColor : theme.textColor.withValues(alpha: 0.2),
+            return Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () => setState(() => _filterMuscle = muscle),
+                borderRadius: BorderRadius.circular(20),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  margin: const EdgeInsets.only(right: 8),
+                  decoration: BoxDecoration(
+                    color: isSelected ? theme.accentColor : theme.surfaceColor,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: isSelected ? theme.accentColor : theme.textColor.withValues(alpha: 0.2),
+                    ),
                   ),
-                ),
-                child: Text(
-                  muscle.displayName,
-                  style: TextStyle(
-                    fontFamily: '.SF Pro Text',
-                    fontSize: 14,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                    color: isSelected ? Colors.white : theme.textColor,
+                  child: Text(
+                    muscle.displayName,
+                    style: TextStyle(
+                      fontFamily: '.SF Pro Text',
+                      fontSize: 14,
+                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                      color: isSelected ? Colors.white : theme.textColor,
+                    ),
                   ),
                 ),
               ),
@@ -316,11 +324,11 @@ class _ExerciseSelectorState extends State<ExerciseSelector> {
                   return Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.05),
+                       color: theme.surfaceColor,
+                       borderRadius: BorderRadius.circular(16),
+                       boxShadow: [
+                         BoxShadow(
+                           color: theme.textColor.withValues(alpha: 0.05),
                           blurRadius: 4,
                           offset: const Offset(0, 1),
                         ),
@@ -347,12 +355,16 @@ class _ExerciseSelectorState extends State<ExerciseSelector> {
                           ),
                         ),
                         const SizedBox(width: 4),
-                        GestureDetector(
-                          onTap: () => _removeExerciseById(planExercise.exerciseId),
-                          child: Icon(
-                            Icons.close,
-                            size: 16,
-                            color: theme.secondaryTextColor,
+                        Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: () => _removeExerciseById(planExercise.exerciseId),
+                            borderRadius: BorderRadius.circular(8),
+                            child: Icon(
+                              Icons.close,
+                              size: 16,
+                              color: theme.secondaryTextColor,
+                            ),
                           ),
                         ),
                       ],
@@ -412,7 +424,7 @@ class _ExerciseListItem extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
       decoration: BoxDecoration(
-        color: isSelected ? theme.accentColor.withValues(alpha: 0.1) : Colors.white,
+        color: isSelected ? theme.accentColor.withValues(alpha: 0.1) : theme.surfaceColor,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isSelected ? theme.accentColor : Colors.transparent,
@@ -420,55 +432,59 @@ class _ExerciseListItem extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
+            color: theme.textColor.withValues(alpha: 0.03),
             blurRadius: 4,
             offset: const Offset(0, 1),
           ),
         ],
       ),
       child: ListTile(
-        leading: GestureDetector(
-          onTap: () {
-            if (exercise.imageUrl != null) {
-              FullscreenImageViewer.show(
-                context,
-                imageUrl: exercise.imageUrl!,
-                title: exercise.name,
-              );
-            }
-          },
-          child: Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: isSelected ? theme.accentColor : theme.accentColor.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: exercise.imageUrl != null
-                  ? Hero(
-                      tag: exercise.imageUrl!,
-                      child: CachedNetworkImage(
-                        imageUrl: exercise.imageUrl!,
-                        fit: BoxFit.cover,
-                        placeholder: (context, url) => Icon(
-                          Icons.fitness_center,
-                          color: isSelected ? Colors.white : theme.accentColor,
-                          size: 22,
+        leading: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () {
+              if (exercise.imageUrl != null) {
+                FullscreenImageViewer.show(
+                  context,
+                  imageUrl: exercise.imageUrl!,
+                  title: exercise.name,
+                );
+              }
+            },
+            borderRadius: BorderRadius.circular(10),
+            child: Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: isSelected ? theme.accentColor : theme.accentColor.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: exercise.imageUrl != null
+                    ? Hero(
+                        tag: exercise.imageUrl!,
+                        child: CachedNetworkImage(
+                          imageUrl: exercise.imageUrl!,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => Icon(
+                            Icons.fitness_center,
+                            color: isSelected ? Colors.white : theme.accentColor,
+                            size: 22,
+                          ),
+                          errorWidget: (context, url, error) => Icon(
+                            Icons.fitness_center,
+                            color: isSelected ? Colors.white : theme.accentColor,
+                            size: 22,
+                          ),
                         ),
-                        errorWidget: (context, url, error) => Icon(
-                          Icons.fitness_center,
-                          color: isSelected ? Colors.white : theme.accentColor,
-                          size: 22,
-                        ),
+                      )
+                    : Icon(
+                        Icons.fitness_center,
+                        color: isSelected ? Colors.white : theme.accentColor,
+                        size: 22,
                       ),
-                    )
-                  : Icon(
-                      Icons.fitness_center,
-                      color: isSelected ? Colors.white : theme.accentColor,
-                      size: 22,
-                    ),
+              ),
             ),
           ),
         ),
@@ -597,9 +613,9 @@ class _ExerciseDetailSheetState extends State<ExerciseDetailSheet> with SingleTi
       maxChildSize: 0.95,
       builder: (context, scrollController) {
         return Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          decoration: BoxDecoration(
+            color: theme.surfaceColor,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           ),
           child: Column(
             children: [
@@ -610,7 +626,7 @@ class _ExerciseDetailSheetState extends State<ExerciseDetailSheet> with SingleTi
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: Colors.grey[300],
+                    color: theme.dividerColor,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -693,7 +709,7 @@ class _ExerciseDetailSheetState extends State<ExerciseDetailSheet> with SingleTi
                             return Container(
                               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                               decoration: BoxDecoration(
-                                color: Colors.white,
+                                 color: theme.surfaceColor,
                                 borderRadius: BorderRadius.circular(16),
                                 border: Border.all(color: theme.textColor.withValues(alpha: 0.1)),
                               ),
@@ -720,7 +736,7 @@ class _ExerciseDetailSheetState extends State<ExerciseDetailSheet> with SingleTi
                             Navigator.pop(context);
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: widget.isSelected ? Colors.red : theme.accentColor,
+                            backgroundColor: widget.isSelected ? theme.errorColor : theme.accentColor,
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(
@@ -757,11 +773,14 @@ class _ExerciseDetailSheetState extends State<ExerciseDetailSheet> with SingleTi
     return Column(
       children: [
         // 轮播图片 - 使用 AnimatedSwitcher 实现交叉渐隐
-        GestureDetector(
-          onTap: () => _showFullscreenImage(_currentPage),
-          child: SizedBox(
-            height: 200,
-            child: AnimatedSwitcher(
+        Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () => _showFullscreenImage(_currentPage),
+            borderRadius: BorderRadius.circular(12),
+            child: SizedBox(
+              height: 200,
+              child: AnimatedSwitcher(
               duration: _fadeDuration,
               transitionBuilder: (child, animation) {
                 return FadeTransition(
@@ -798,6 +817,7 @@ class _ExerciseDetailSheetState extends State<ExerciseDetailSheet> with SingleTi
               ),
             ),
           ),
+          ),
         ),
         
         const SizedBox(height: 12),
@@ -806,19 +826,23 @@ class _ExerciseDetailSheetState extends State<ExerciseDetailSheet> with SingleTi
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: List.generate(images.length, (index) {
-            return GestureDetector(
-              onTap: () {
-                setState(() => _currentPage = index);
-              },
-              child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 4),
-                width: _currentPage == index ? 24 : 8,
-                height: 8,
-                decoration: BoxDecoration(
-                  color: _currentPage == index 
-                      ? theme.accentColor 
-                      : theme.textColor.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(4),
+            return Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () {
+                  setState(() => _currentPage = index);
+                },
+                borderRadius: BorderRadius.circular(4),
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                  width: _currentPage == index ? 24 : 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: _currentPage == index 
+                        ? theme.accentColor 
+                        : theme.textColor.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
                 ),
               ),
             );
@@ -1093,10 +1117,12 @@ class _FullscreenImageGalleryState extends State<_FullscreenImageGallery> with S
       child: Stack(
         children: [
           // 图片轮播 - 交叉渐隐
-          GestureDetector(
-            onTap: () => Navigator.pop(context),
-            child: Center(
-              child: AnimatedSwitcher(
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () => Navigator.pop(context),
+              child: Center(
+                child: AnimatedSwitcher(
                 duration: _fadeDuration,
                 transitionBuilder: (child, animation) {
                   return FadeTransition(
@@ -1125,6 +1151,7 @@ class _FullscreenImageGalleryState extends State<_FullscreenImageGallery> with S
                 ),
               ),
             ),
+          ),
           ),
           
           // 顶部栏
@@ -1189,19 +1216,23 @@ class _FullscreenImageGalleryState extends State<_FullscreenImageGallery> with S
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: List.generate(widget.images.length, (index) {
-                    return GestureDetector(
-                      onTap: () {
-                        setState(() => _currentIndex = index);
-                      },
-                      child: Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 4),
-                        width: _currentIndex == index ? 24 : 8,
-                        height: 8,
-                        decoration: BoxDecoration(
-                          color: _currentIndex == index 
-                              ? Colors.white 
-                              : Colors.white38,
-                          borderRadius: BorderRadius.circular(4),
+                    return Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () {
+                          setState(() => _currentIndex = index);
+                        },
+                        borderRadius: BorderRadius.circular(4),
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 4),
+                          width: _currentIndex == index ? 24 : 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: _currentIndex == index 
+                                ? Colors.white 
+                                : Colors.white38,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
                         ),
                       ),
                     );

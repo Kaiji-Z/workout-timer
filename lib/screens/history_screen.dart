@@ -249,6 +249,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   void _showClearConfirmDialog() {
+    final theme = context.read<ThemeProvider>().currentTheme;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -264,7 +265,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
               Navigator.pop(context);
               _clearHistory();
             },
-            child: const Text('清除', style: TextStyle(color: Colors.red)),
+            child: Text('清除', style: TextStyle(color: theme.errorColor)),
           ),
         ],
       ),
@@ -321,22 +322,25 @@ class _RecordCard extends StatelessWidget {
         child: Icon(Icons.delete, color: theme.textColor),
       ),
       onDismissed: (direction) => onDelete(),
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          margin: const EdgeInsets.only(bottom: 12),
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.9),
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.08),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 12),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: theme.cardColor.withValues(alpha: 0.9),
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: theme.dividerColor.withValues(alpha: 0.15),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
           child: Row(
             children: [
               // 图标
@@ -510,11 +514,12 @@ class _RecordCard extends StatelessWidget {
               ),
             ],
           ),
+          ),
+          ),
         ),
-      ),
-    );
+      );
+    }
   }
-}
 
 /// 旧记录卡片 - 保持兼容性
 class _SessionCard extends StatelessWidget {
@@ -554,11 +559,11 @@ class _SessionCard extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.9),
+          color: theme.cardColor.withValues(alpha: 0.9),
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08),
+              color: theme.dividerColor.withValues(alpha: 0.15),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),

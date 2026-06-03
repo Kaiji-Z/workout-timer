@@ -895,10 +895,10 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: bgAlpha),
+            color: theme.surfaceColor.withValues(alpha: bgAlpha),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: Colors.white.withValues(alpha: borderAlpha),
+              color: theme.surfaceColor.withValues(alpha: borderAlpha),
               width: 1,
             ),
           ),
@@ -1138,7 +1138,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
         icon: Icon(
           _isPromptCopied ? Icons.check : Icons.copy,
           size: 20,
-          color: Colors.white,
+          color: theme.surfaceColor,
         ),
         label: Text(
           _isPromptCopied ? '已复制' : '复制提示词',
@@ -1146,12 +1146,12 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
             fontFamily: '.SF Pro Text',
             fontSize: 16,
             fontWeight: FontWeight.w600,
-            color: Colors.white,
+            color: theme.surfaceColor,
           ),
         ),
         style: ElevatedButton.styleFrom(
           backgroundColor: theme.accentColor,
-          foregroundColor: Colors.white,
+          foregroundColor: theme.surfaceColor,
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),

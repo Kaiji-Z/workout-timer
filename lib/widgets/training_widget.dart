@@ -147,23 +147,27 @@ class _TrainingWidgetState extends State<TrainingWidget>
             ),
           ),
           // Plan icon button
-          GestureDetector(
-            onTap: () =>
-                _showPlanSelector(theme, planProvider, progressProvider),
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: _isPlanMode
-                    ? theme.accentColor.withValues(alpha: 0.1)
-                    : Colors.transparent,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(
-                Icons.playlist_add_check,
-                size: 24,
-                color: _isPlanMode
-                    ? theme.accentColor
-                    : theme.secondaryTextColor,
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () =>
+                  _showPlanSelector(theme, planProvider, progressProvider),
+              borderRadius: BorderRadius.circular(8),
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: _isPlanMode
+                      ? theme.accentColor.withValues(alpha: 0.1)
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  Icons.playlist_add_check,
+                  size: 24,
+                  color: _isPlanMode
+                      ? theme.accentColor
+                      : theme.secondaryTextColor,
+                ),
               ),
             ),
           ),

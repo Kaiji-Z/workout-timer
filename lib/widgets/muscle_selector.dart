@@ -87,45 +87,49 @@ class _MuscleChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-        decoration: BoxDecoration(
-          color: isSelected ? theme.accentColor : Colors.white,
-          borderRadius: BorderRadius.circular(25),
-          border: Border.all(
-            color: isSelected ? theme.accentColor : theme.textColor.withValues(alpha: 0.2),
-            width: 1.5,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(25),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          decoration: BoxDecoration(
+            color: isSelected ? theme.accentColor : theme.cardColor,
+            borderRadius: BorderRadius.circular(25),
+            border: Border.all(
+              color: isSelected ? theme.accentColor : theme.textColor.withValues(alpha: 0.2),
+              width: 1.5,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: theme.textColor.withValues(alpha: isSelected ? 0.15 : 0.05),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: isSelected ? 0.15 : 0.05),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              _getIconForMuscle(muscle),
-              size: 20,
-              color: isSelected ? Colors.white : theme.textColor,
-            ),
-            const SizedBox(width: 8),
-            Text(
-              muscle.displayName,
-              style: TextStyle(
-                fontFamily: '.SF Pro Text',
-                fontSize: 15,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                _getIconForMuscle(muscle),
+                size: 20,
                 color: isSelected ? Colors.white : theme.textColor,
               ),
-            ),
-          ],
+              const SizedBox(width: 8),
+              Text(
+                muscle.displayName,
+                style: TextStyle(
+                  fontFamily: '.SF Pro Text',
+                  fontSize: 15,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                  color: isSelected ? Colors.white : theme.textColor,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -171,25 +175,29 @@ class CompactMuscleSelector extends StatelessWidget {
       runSpacing: 8,
       children: PrimaryMuscleGroup.values.take(maxChips).map((muscle) {
         final isSelected = selectedMuscles.contains(muscle);
-        return GestureDetector(
-          onTap: () => _toggleMuscle(muscle),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: isSelected ? theme.accentColor : Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: isSelected ? theme.accentColor : theme.textColor.withValues(alpha: 0.15),
+        return Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () => _toggleMuscle(muscle),
+            borderRadius: BorderRadius.circular(16),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: isSelected ? theme.accentColor : theme.cardColor,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: isSelected ? theme.accentColor : theme.textColor.withValues(alpha: 0.15),
+                ),
               ),
-            ),
-            child: Text(
-              muscle.displayName,
-              style: TextStyle(
-                fontFamily: '.SF Pro Text',
-                fontSize: 13,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                color: isSelected ? Colors.white : theme.textColor,
+              child: Text(
+                muscle.displayName,
+                style: TextStyle(
+                  fontFamily: '.SF Pro Text',
+                  fontSize: 13,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                  color: isSelected ? Colors.white : theme.textColor,
+                ),
               ),
             ),
           ),
