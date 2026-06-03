@@ -274,37 +274,41 @@ class _PlanScreenState extends State<PlanScreen> {
   }
 
   Widget _buildEmptyDayPlan(AppThemeData theme) {
-    return GestureDetector(
-      onTap: () => _showAddPlanToDateSheet(context.read<PlanProvider>()),
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 16),
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: theme.surfaceColor,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: theme.accentColor.withValues(alpha: 0.3),
-            style: BorderStyle.solid,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => _showAddPlanToDateSheet(context.read<PlanProvider>()),
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: theme.surfaceColor,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: theme.accentColor.withValues(alpha: 0.3),
+              style: BorderStyle.solid,
+            ),
           ),
-        ),
-        child: Center(
-          child: Column(
-            children: [
-              Icon(
-                Icons.add_circle_outline,
-                size: 32,
-                color: theme.accentColor.withValues(alpha: 0.5),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                '添加今日计划',
-                style: TextStyle(
-                  fontFamily: '.SF Pro Text',
-                  fontSize: 14,
-                  color: theme.secondaryTextColor,
+          child: Center(
+            child: Column(
+              children: [
+                Icon(
+                  Icons.add_circle_outline,
+                  size: 32,
+                  color: theme.accentColor.withValues(alpha: 0.5),
                 ),
-              ),
-            ],
+                const SizedBox(height: 8),
+                Text(
+                  '添加今日计划',
+                  style: TextStyle(
+                    fontFamily: '.SF Pro Text',
+                    fontSize: 14,
+                    color: theme.secondaryTextColor,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -849,16 +853,18 @@ class _PlanDetailSheet extends StatelessWidget {
               final planExercise = entry.value;
               final hasDetails = planExercise.hasDetails;
 
-              return GestureDetector(
-                onTap: hasDetails && planExercise.exercise != null
-                    ? () => ExerciseDetailSheet.show(
-                        context,
-                        exercise: planExercise.exercise!,
-                        isSelected: false,
-                        onToggle: () => Navigator.pop(context),
-                      )
-                    : null,
-                child: Container(
+              return Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: hasDetails && planExercise.exercise != null
+                      ? () => ExerciseDetailSheet.show(
+                          context,
+                          exercise: planExercise.exercise!,
+                          isSelected: false,
+                          onToggle: () => Navigator.pop(context),
+                        )
+                      : null,
+                  child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 10),
                   decoration: BoxDecoration(
                     border: Border(
@@ -870,9 +876,11 @@ class _PlanDetailSheet extends StatelessWidget {
                   child: Row(
                     children: [
                       // 缩略图或序号
-                      GestureDetector(
-                        onTap:
-                            hasDetails &&
+                      Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap:
+                              hasDetails &&
                                 planExercise.exercise?.imageUrl != null
                             ? () {
                                 if (planExercise.exercise!.images.isNotEmpty) {
@@ -891,9 +899,12 @@ class _PlanDetailSheet extends StatelessWidget {
                                   );
                                 }
                               }
-                            : null,
-                        child: Container(
-                          width: 44,
+                              : null,
+                            customBorder: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Container(
+                              width: 44,
                           height: 44,
                           decoration: BoxDecoration(
                             color: hasDetails
@@ -943,6 +954,7 @@ class _PlanDetailSheet extends StatelessWidget {
                                       ),
                                     ),
                                   ),
+                          ),
                           ),
                         ),
                       ),
@@ -1020,6 +1032,7 @@ class _PlanDetailSheet extends StatelessWidget {
                         ),
                       ),
                     ],
+                  ),
                   ),
                 ),
               );
