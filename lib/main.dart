@@ -280,13 +280,8 @@ class _MainNavigationState extends State<MainNavigation> {
                     appTheme,
                     '历史记录',
                   ),
-                  _buildNavItem(
-                    2,
-                    Icons.sports_gymnastics_outlined,
-                    Icons.sports_gymnastics,
-                    appTheme,
-                    '计时器',
-                  ),
+                  // Index 2: 空白占位，中心圆形按钮通过 Positioned 覆盖此区域
+                  const Expanded(child: SizedBox()),
                   _buildNavItem(
                     3,
                     Icons.bar_chart_outlined,
