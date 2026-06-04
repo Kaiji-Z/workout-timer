@@ -29,6 +29,10 @@ flutter build apk --debug          # Debug APK
 flutter build apk --release --no-tree-shake-icons  # Direct release build
 flutter build web                  # Web build
 
+# Install to phone (NEVER uninstall first — always overwrite)
+adb install -r build/app/outputs/flutter-apk/app-debug.apk  # Overwrite install (preserves data)
+# Do NOT use `flutter install` — it uninstalls first, wiping all user data
+
 # Test
 flutter test                                    # Run all unit tests
 flutter test test/widget_test.dart              # Run single test file
