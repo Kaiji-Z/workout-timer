@@ -229,9 +229,9 @@ void main() {
         expect(density, closeTo(0.5, 0.001));
       });
 
-      test('StatsCalculatorService calculates max weights by exercise', () {
+      test('StatsCalculatorService calculates estimated 1RM trend', () {
         final service = StatsCalculatorService();
-        
+
         final records = [
           WorkoutRecord(
             id: 'r1',
@@ -243,7 +243,11 @@ void main() {
                 exerciseId: 'bench',
                 exercise: _createTestExercise(id: 'bench', name: 'Bench Press'),
                 completedSets: 3,
-                maxWeight: 80.0,
+                setsData: const [
+                  SetData(setNumber: 1, reps: 12, weight: 80.0),
+                  SetData(setNumber: 2, reps: 10, weight: 82.5),
+                  SetData(setNumber: 3, reps: 8, weight: 85.0),
+                ],
               ),
             ],
             totalSets: 3,
@@ -259,24 +263,31 @@ void main() {
                 exerciseId: 'bench',
                 exercise: _createTestExercise(id: 'bench', name: 'Bench Press'),
                 completedSets: 3,
-                maxWeight: 85.0, // New PR
+                setsData: const [
+                  SetData(setNumber: 1, reps: 12, weight: 82.5),
+                  SetData(setNumber: 2, reps: 10, weight: 85.0),
+                  SetData(setNumber: 3, reps: 8, weight: 87.5),
+                ],
               ),
             ],
             totalSets: 3,
             createdAt: DateTime(2024, 1, 16),
           ),
         ];
-        
-        final maxWeights = service.calculateMaxWeightsByExercise(records);
-        expect(maxWeights['Bench Press'], 85.0);
+
+        final trend = service.calculateEstimated1RMTrend(records);
+        expect(trend['Bench Press'], isNotNull);
+        expect(trend['Bench Press']!.length, equals(2));
+        // Session 2 should have higher 1RM than session 1
+        expect(
+          trend['Bench Press']![1].estimated1RM,
+          greaterThan(trend['Bench Press']![0].estimated1RM),
+        );
       });
 
-      test('StatsCalculatorService weekly volume trend aggregates correctly', () {
+      test('StatsCalculatorService daily volume trend aggregates correctly', () {
         final service = StatsCalculatorService();
-        
-        // Test that volume calculation per record works correctly
-        // Note: calculateWeeklyVolumeTrend uses DateTime.now() for current week,
-        // so we test with records that may or may not fall in current weeks
+
         final records = [
           WorkoutRecord(
             id: 'r1',
@@ -313,15 +324,15 @@ void main() {
             createdAt: DateTime.now().subtract(const Duration(days: 2)),
           ),
         ];
-        
-        final trend = service.calculateWeeklyVolumeTrend(records, 2);
-        
-        // Should have 2 weeks initialized
+
+        final trend = service.calculateDailyVolumeTrend(records);
+
+        // Should have 2 daily entries
         expect(trend.length, 2);
-        
-        // Total volume across all weeks should be 1100 (500 + 600)
-        final totalWeeklyVolume = trend.values.fold<double>(0.0, (sum, v) => sum + v);
-        expect(totalWeeklyVolume, 1100.0);
+
+        // Total volume across all days should be 1100 (500 + 600)
+        final totalDailyVolume = trend.values.fold<double>(0.0, (sum, v) => sum + v);
+        expect(totalDailyVolume, 1100.0);
       });
     });
 
