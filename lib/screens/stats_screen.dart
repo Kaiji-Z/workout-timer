@@ -628,8 +628,24 @@ class _StatsScreenState extends State<StatsScreen>
     );
   }
 
+  /// Calculate volume change percentage between current and previous period
+  /// Returns null if no comparison is available
+  double? _calculateVolumeChange(List<dynamic> currentRecords, List<dynamic> previousRecords) {
+    final currentWorkoutRecords = currentRecords.whereType<WorkoutRecord>().toList();
+    final previousWorkoutRecords = previousRecords.whereType<WorkoutRecord>().toList();
+
+    if (currentWorkoutRecords.isEmpty || previousWorkoutRecords.isEmpty) return null;
+
+    final currentVolume = _statsCalc.calculateTotalVolume(currentWorkoutRecords, bodyWeight: _userBodyWeight);
+    final previousVolume = _statsCalc.calculateTotalVolume(previousWorkoutRecords, bodyWeight: _userBodyWeight);
+
+    if (previousVolume == 0) return null;
+
+    return ((currentVolume - previousVolume) / previousVolume) * 100;
+  }
+
   /// 训练量概览
-  Widget _buildVolumeOverview(Map<String, dynamic> stats, AppThemeData theme) {
+  Widget _buildVolumeOverview(Map<String, dynamic> stats, AppThemeData theme, {double? volumeChange}) {
     return Column(
       children: [
         Row(
@@ -684,10 +700,34 @@ class _StatsScreenState extends State<StatsScreen>
               ),
             ],
           ),
-        ),
-      ],
-    );
-  }
+         ),
+         if (volumeChange != null)
+           Padding(
+             padding: const EdgeInsets.only(top: 8),
+             child: Row(
+               mainAxisAlignment: MainAxisAlignment.center,
+               children: [
+                 Icon(
+                   volumeChange >= 0 ? Icons.trending_up : Icons.trending_down,
+                   size: 14,
+                   color: volumeChange >= 0 ? theme.successColor : theme.errorColor,
+                 ),
+                 const SizedBox(width: 4),
+                 Text(
+                   '${volumeChange >= 0 ? '+' : ''}${volumeChange.toStringAsFixed(1)}% vs 上期',
+                   style: TextStyle(
+                     fontFamily: '.SF Pro Text',
+                     fontSize: 11,
+                     color: volumeChange >= 0 ? theme.successColor : theme.errorColor,
+                     fontWeight: FontWeight.w500,
+                   ),
+                 ),
+               ],
+             ),
+           ),
+       ],
+     );
+   }
 
   Widget _buildMetricCard(
     String label,
@@ -776,6 +816,10 @@ class _StatsScreenState extends State<StatsScreen>
     final dailyDurations = _getDailyDurations(records, true);
     final dailySets = _getDailySets(records, true);
 
+    // 计算周环比变化
+    final previousWeekRecords = _filterByWeek(_selectedWeekStart.subtract(const Duration(days: 7)));
+    final volumeChange = _calculateVolumeChange(records, previousWeekRecords);
+
     return SingleChildScrollView(
       padding: EdgeInsets.only(
         left: 16,
@@ -797,7 +841,7 @@ class _StatsScreenState extends State<StatsScreen>
             children: [
               _buildFrequencyOverview(frequencyStats, theme),
               const SizedBox(height: 16),
-              _buildVolumeOverview(volumeStats, theme),
+              _buildVolumeOverview(volumeStats, theme, volumeChange: volumeChange),
             ],
           ),
           const SizedBox(height: 20),
@@ -844,6 +888,8 @@ class _StatsScreenState extends State<StatsScreen>
             children: [
               _buildMuscleVolumeChart(workoutRecords, theme),
               const SizedBox(height: 16),
+              _buildSecondaryMuscleVolumeChart(workoutRecords, theme),
+              const SizedBox(height: 16),
               _buildSecondaryRecoveryStatusList(
                 _calculateSecondaryRecoveryData(workoutRecords),
                 theme,
@@ -881,6 +927,12 @@ class _StatsScreenState extends State<StatsScreen>
     final volumeStats = _calculateVolumeStats(records);
     final monthlyCounts = _getMonthlyCounts(_selectedYear);
 
+    // 计算月环比变化
+    final prevMonth = _selectedMonth == 1 ? 12 : _selectedMonth - 1;
+    final prevYear = _selectedMonth == 1 ? _selectedYear - 1 : _selectedYear;
+    final previousMonthRecords = _filterByMonth(prevYear, prevMonth);
+    final volumeChange = _calculateVolumeChange(records, previousMonthRecords);
+
     return SingleChildScrollView(
       padding: EdgeInsets.only(
         left: 16,
@@ -906,7 +958,7 @@ class _StatsScreenState extends State<StatsScreen>
             children: [
               _buildFrequencyOverview(frequencyStats, theme),
               const SizedBox(height: 16),
-              _buildVolumeOverview(volumeStats, theme),
+              _buildVolumeOverview(volumeStats, theme, volumeChange: volumeChange),
             ],
           ),
           const SizedBox(height: 20),
@@ -940,6 +992,8 @@ class _StatsScreenState extends State<StatsScreen>
             theme: theme,
             children: [
               _buildMuscleVolumeChart(workoutRecords, theme),
+              const SizedBox(height: 16),
+              _buildSecondaryMuscleVolumeChart(workoutRecords, theme),
               const SizedBox(height: 16),
               _buildSecondaryRecoveryStatusList(
                 _calculateSecondaryRecoveryData(workoutRecords),
@@ -2692,6 +2746,147 @@ class _StatsScreenState extends State<StatsScreen>
           ],
         );
       }).toList(),
+    );
+  }
+
+  /// 次级肌群容量分布
+  Widget _buildSecondaryMuscleVolumeChart(
+    List<WorkoutRecord> records,
+    AppThemeData theme,
+  ) {
+    final distribution = _statsCalc.calculateSecondaryMuscleVolumeDistribution(
+      records,
+      bodyWeight: _userBodyWeight,
+    );
+
+    if (distribution.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Text(
+            '暂无次级肌群数据',
+            style: TextStyle(
+              color: theme.secondaryTextColor,
+              fontFamily: '.SF Pro Text',
+            ),
+          ),
+        ),
+      );
+    }
+
+    final totalVolume = distribution.values.fold<double>(0, (sum, v) => sum + v);
+    final sortedEntries = distribution.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
+    // Take top 8, group rest into "其他"
+    final topEntries = sortedEntries.take(8).toList();
+    final otherVolume = sortedEntries.skip(8).fold<double>(0, (sum, e) => sum + e.value);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '次级肌群容量',
+          style: TextStyle(
+            fontFamily: '.SF Pro Text',
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: theme.secondaryTextColor,
+          ),
+        ),
+        const SizedBox(height: 12),
+        ...topEntries.map((entry) {
+          final percentage = totalVolume > 0 ? (entry.value / totalVolume * 100) : 0.0;
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 80,
+                  child: Text(
+                    entry.key.displayName,
+                    style: TextStyle(
+                      fontFamily: '.SF Pro Text',
+                      fontSize: 11,
+                      color: theme.textColor,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: LinearProgressIndicator(
+                      value: totalVolume > 0 ? entry.value / totalVolume : 0,
+                      backgroundColor: theme.textColor.withValues(alpha: 0.08),
+                      valueColor: AlwaysStoppedAnimation<Color>(theme.accentColor),
+                      minHeight: 8,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                SizedBox(
+                  width: 45,
+                  child: Text(
+                    '${percentage.toStringAsFixed(1)}%',
+                    style: TextStyle(
+                      fontFamily: '.SF Pro Text',
+                      fontSize: 10,
+                      color: theme.secondaryTextColor,
+                    ),
+                    textAlign: TextAlign.end,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }),
+        if (otherVolume > 0)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 80,
+                  child: Text(
+                    '其他',
+                    style: TextStyle(
+                      fontFamily: '.SF Pro Text',
+                      fontSize: 11,
+                      color: theme.secondaryTextColor,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: LinearProgressIndicator(
+                      value: totalVolume > 0 ? otherVolume / totalVolume : 0,
+                      backgroundColor: theme.textColor.withValues(alpha: 0.08),
+                      valueColor: AlwaysStoppedAnimation<Color>(theme.secondaryTextColor),
+                      minHeight: 8,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                SizedBox(
+                  width: 45,
+                  child: Text(
+                    '${(totalVolume > 0 ? otherVolume / totalVolume * 100 : 0).toStringAsFixed(1)}%',
+                    style: TextStyle(
+                      fontFamily: '.SF Pro Text',
+                      fontSize: 10,
+                      color: theme.secondaryTextColor,
+                    ),
+                    textAlign: TextAlign.end,
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
     );
   }
 
