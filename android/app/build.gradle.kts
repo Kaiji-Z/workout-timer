@@ -31,7 +31,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.kaiji.workouttimer"
+        applicationId = "com.example.workout_timer"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
