@@ -19,7 +19,7 @@ class AIAnalysisScreen extends StatefulWidget {
   final List<WorkoutRecord> records; // current period
   final List<WorkoutRecord>
   previousRecords; // previous period for trend comparison
-  final List<WorkoutRecord> allRecords; // all records for PR calculation
+  final List<WorkoutRecord> allRecords; // all records for recovery calculation
 
   const AIAnalysisScreen({
     super.key,
@@ -70,14 +70,69 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
       });
     } catch (e) {
       debugPrint('Error loading user preferences: $e');
-      // Use defaults and generate prompt
       setState(() {
         _generatedPrompt = _generatePrompt();
       });
     }
   }
 
-  // ==================== Data Formatting Methods ====================
+  // ==================== Data Calculation ====================
+
+  /// Calculate estimated 1RM trend with English exercise names for AI prompt.
+  ///
+  /// Same logic as [StatsCalculatorService.calculateEstimated1RMTrend] but keys
+  /// by `nameEn` (falling back to `name` / `exerciseId`) so the generated prompt
+  /// uses standard English exercise names that AI models recognise.
+  Map<String, List<Estimated1RMPoint>> _calculate1RMTrendEn(
+    List<WorkoutRecord> records,
+  ) {
+    final result = <String, List<Estimated1RMPoint>>{};
+
+    for (final record in records) {
+      final sessionBest = <String, Estimated1RMPoint>{};
+
+      for (final recordedExercise in record.exercises) {
+        final name = recordedExercise.nameEn.isNotEmpty
+            ? recordedExercise.nameEn
+            : (recordedExercise.name.isNotEmpty
+                  ? recordedExercise.name
+                  : recordedExercise.exerciseId);
+        if (name.isEmpty) continue;
+
+        final sets = recordedExercise.setsData;
+        if (sets == null || sets.isEmpty) continue;
+
+        for (final set in sets) {
+          if (set.weight == null || set.weight! <= 0) continue;
+          if (set.reps == null || set.reps! <= 0) continue;
+
+          final e1RM = StatsCalculatorService.estimate1RM(set.weight!, set.reps!);
+          final current = sessionBest[name];
+          if (current == null || e1RM > current.estimated1RM) {
+            sessionBest[name] = Estimated1RMPoint(
+              date: record.date,
+              estimated1RM: e1RM,
+              weight: set.weight!,
+              reps: set.reps,
+            );
+          }
+        }
+      }
+
+      for (final entry in sessionBest.entries) {
+        result.putIfAbsent(entry.key, () => []);
+        result[entry.key]!.add(entry.value);
+      }
+    }
+
+    for (final points in result.values) {
+      points.sort((a, b) => a.date.compareTo(b.date));
+    }
+
+    return result;
+  }
+
+  // ==================== Formatting Methods ====================
 
   /// Format muscle volume distribution (weighted by training volume)
   String _formatMuscleVolumeDistribution() {
@@ -148,8 +203,12 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
     }
 
     // Per-muscle volume trend
-    final currentMuscleVol = _calcMuscleVolume(widget.records);
-    final previousMuscleVol = _calcMuscleVolume(widget.previousRecords);
+    final currentMuscleVol = _statsCalc.calculateMuscleVolumeDistribution(
+      widget.records,
+    );
+    final previousMuscleVol = _statsCalc.calculateMuscleVolumeDistribution(
+      widget.previousRecords,
+    );
     final allMuscles = {
       ...currentMuscleVol.keys,
       ...previousMuscleVol.keys,
@@ -172,77 +231,107 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
     return buffer.toString().trimRight();
   }
 
-  /// Count unique training days
-  int _countUniqueDays(List<WorkoutRecord> records) {
-    final days = <String>{};
-    for (final r in records) {
-      days.add('${r.date.year}-${r.date.month}-${r.date.day}');
-    }
-    return days.length;
-  }
+  /// Format sets per muscle group with MEV reference
+  String _formatSetsPerMuscleGroup() {
+    final setsPerMuscle = _statsCalc.calculateSetsPerMuscleGroup(
+      widget.records,
+    );
+    if (setsPerMuscle.isEmpty) return '- 暂无组数数据';
 
-  /// Calculate per-muscle training volume
-  Map<PrimaryMuscleGroup, double> _calcMuscleVolume(
-    List<WorkoutRecord> records,
-  ) {
-    return _statsCalc.calculateMuscleVolumeDistribution(records);
-  }
+    final isWeek = widget.periodType == 'week';
+    // MEV reference: 10 sets/week (Schoenfeld 2017)
+    const weeklyMev = 10;
+    final mevLabel = isWeek ? '周MEV参考: $weeklyMev 组' : '月MEV参考: ${weeklyMev * 4} 组';
 
-  /// Extract trained muscles from a record, using exercise.primaryMuscle when available.
-  /// Falls back to record.trainedMuscles when no exercise detail is loaded.
-  Set<PrimaryMuscleGroup> _getMusclesFromRecord(WorkoutRecord record) {
-    final fromExercises = <PrimaryMuscleGroup>{};
-    for (final e in record.exercises) {
-      if (e.exercise != null) {
-        fromExercises.add(e.exercise!.primaryMuscle);
-      }
-    }
-    if (fromExercises.isNotEmpty) return fromExercises;
-    return record.trainedMuscles.toSet();
-  }
-
-  /// Calculate max weights per exercise using English names (for AI prompt)
-  Map<String, double> _calculateMaxWeightsByExerciseEn(
-    List<WorkoutRecord> records,
-  ) {
-    final maxWeights = <String, double>{};
-    for (final record in records) {
-      for (final recordedExercise in record.exercises) {
-        final exerciseName = recordedExercise.nameEn.isNotEmpty
-            ? recordedExercise.nameEn
-            : recordedExercise.exerciseId;
-        if (exerciseName.isEmpty) continue;
-
-        final weight = recordedExercise.maxWeight;
-        if (weight == null || weight == 0) continue;
-
-        final currentMax = maxWeights[exerciseName];
-        if (currentMax == null || weight > currentMax) {
-          maxWeights[exerciseName] = weight;
-        }
-      }
-    }
-    return maxWeights;
-  }
-
-  /// Format personal records (PR) — uses English exercise names for AI prompt compatibility
-  String _formatPRs() {
-    final prs = _calculateMaxWeightsByExerciseEn(widget.allRecords);
-    if (prs.isEmpty) return '- 暂无重量记录';
-
-    final sorted = prs.entries.toList()
+    final sorted = setsPerMuscle.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
 
     final buffer = StringBuffer();
+    buffer.writeln('  ($mevLabel)');
+    for (final entry in sorted) {
+      final sets = entry.value;
+      final ratio = isWeek ? sets / weeklyMev : sets / (weeklyMev * 4);
+      String status;
+      if (ratio >= 1.0) {
+        status = '✅ 充足';
+      } else if (ratio >= 0.5) {
+        status = '⚠️ 偏低';
+      } else {
+        status = '🔴 不足';
+      }
+      buffer.writeln(
+        '  - ${entry.key.displayName}: $sets 组 $status',
+      );
+    }
+    return buffer.toString().trimRight();
+  }
+
+  /// Format estimated 1RM for top exercises (uses English names for AI)
+  String _formatEstimated1RM() {
+    final trend = _calculate1RMTrendEn(widget.records);
+    if (trend.isEmpty) return '- 暂无1RM数据（需要每组重量和次数记录）';
+
+    // Sort by estimated1RM descending (best session), take top 10
+    final sorted = trend.entries.toList()
+      ..sort((a, b) => b.value.last.estimated1RM.compareTo(
+        a.value.last.estimated1RM,
+      ));
+
+    final buffer = StringBuffer();
+    buffer.writeln('  (基于 Mayhew 公式估算，±5-8kg 误差)');
     for (final entry in sorted.take(10)) {
-      buffer.writeln('  - ${entry.key}: ${entry.value.toStringAsFixed(1)} kg');
+      final point = entry.value.last;
+      final e1RM = point.estimated1RM.toStringAsFixed(1);
+      final w = point.weight.toStringAsFixed(1);
+      final r = point.reps ?? 0;
+      buffer.writeln(
+        '  - ${entry.key}: ~$e1RM kg (基于 ${w}kg×$r)',
+      );
+    }
+    return buffer.toString().trimRight();
+  }
+
+  /// Format 1RM progression trend (month view only)
+  String _format1RMProgression() {
+    final trend = _calculate1RMTrendEn(widget.records);
+    if (trend.isEmpty) return '- 暂无1RM趋势数据';
+
+    // Filter to exercises with 2+ sessions, sort by change%
+    final progressable = <MapEntry<String, List<Estimated1RMPoint>>>[];
+    for (final entry in trend.entries) {
+      if (entry.value.length >= 2) {
+        progressable.add(entry);
+      }
+    }
+
+    if (progressable.isEmpty) return '- 本周期内各动作仅训练1次，无法计算进步趋势';
+
+    progressable.sort((a, b) {
+      final changeA = (a.value.last.estimated1RM - a.value.first.estimated1RM) /
+          a.value.first.estimated1RM;
+      final changeB = (b.value.last.estimated1RM - b.value.first.estimated1RM) /
+          b.value.first.estimated1RM;
+      return changeB.compareTo(changeA);
+    });
+
+    final buffer = StringBuffer();
+    for (final entry in progressable.take(10)) {
+      final first = entry.value.first;
+      final last = entry.value.last;
+      final change =
+          ((last.estimated1RM - first.estimated1RM) / first.estimated1RM * 100);
+      final weeks = last.date.difference(first.date).inDays / 7.0;
+      final arrow = change > 0 ? '↑' : change < 0 ? '↓' : '→';
+      buffer.writeln(
+        '  - ${entry.key}: ${first.estimated1RM.toStringAsFixed(1)} → ${last.estimated1RM.toStringAsFixed(1)} kg (${change > 0 ? '+' : ''}${change.toStringAsFixed(1)}% $arrow${weeks > 0 ? ' / ${weeks.toStringAsFixed(0)}周' : ''})',
+      );
     }
     return buffer.toString().trimRight();
   }
 
   /// Format recovery management data (calculate rest days per muscle)
   String _formatRecoveryManagement() {
-    // Use allRecords for the most comprehensive recovery data
+    // Recovery is a global state (not period-specific)
     final records = widget.allRecords.isNotEmpty
         ? widget.allRecords
         : widget.records;
@@ -289,233 +378,35 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
     return buffer.toString().trimRight();
   }
 
-  /// Format common exercises data
-  String _formatCommonExercises() {
-    if (widget.records.isEmpty) return '- 暂无动作数据';
+  // ==================== Helpers ====================
 
-    final Map<String, int> exerciseCounts = {};
-    for (final record in widget.records) {
-      for (final exercise in record.exercises) {
-        final name = exercise.nameEn.isNotEmpty
-            ? exercise.nameEn
-            : (exercise.name.isNotEmpty ? exercise.name : exercise.exerciseId);
-        if (name.isNotEmpty) {
-          exerciseCounts[name] = (exerciseCounts[name] ?? 0) + 1;
-        }
-      }
+  /// Count unique training days
+  int _countUniqueDays(List<WorkoutRecord> records) {
+    final days = <String>{};
+    for (final r in records) {
+      days.add('${r.date.year}-${r.date.month}-${r.date.day}');
     }
-
-    if (exerciseCounts.isEmpty) return '- 暂无动作训练数据';
-
-    final sortedExercises = exerciseCounts.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
-
-    final buffer = StringBuffer();
-    for (final entry in sortedExercises.take(10)) {
-      buffer.writeln('  - ${entry.key}: ${entry.value} 次');
-    }
-    return buffer.toString().trimRight();
+    return days.length;
   }
 
-  /// Get weak muscles (based on training volume)
-  List<String> _getWeakMuscles() {
-    final muscleVol = _calcMuscleVolume(widget.allRecords);
-    if (muscleVol.isEmpty) return [];
-
-    final allMuscles = PrimaryMuscleGroup.values;
-    final trainedMuscles = muscleVol.keys.toSet();
-
-    // Untrained muscles
-    final untrained = allMuscles
-        .where((m) => !trainedMuscles.contains(m))
-        .map((m) => m.displayName)
-        .toList();
-
-    // Muscles with volume below 50% of average
-    final avgVol =
-        muscleVol.values.fold<double>(0, (sum, v) => sum + v) /
-        muscleVol.length;
-    final weakTrained = muscleVol.entries
-        .where((e) => e.value <= avgVol * 0.5)
-        .map(
-          (e) => '${e.key.displayName}(${(e.value / avgVol * 100).round()}%)',
-        )
-        .toList();
-
-    return [...untrained, ...weakTrained];
-  }
-
-  /// Get overtrained muscles (too many consecutive training days)
-  List<String> _getOvertrainedMuscles() {
-    if (widget.records.length < 2) return [];
-
-    final sortedRecords = List<WorkoutRecord>.from(widget.records)
-      ..sort((a, b) => a.date.compareTo(b.date));
-
-    final Map<PrimaryMuscleGroup, int> consecutiveDays = {};
-
-    for (final muscle in PrimaryMuscleGroup.values) {
-      int maxConsecutive = 0;
-      int currentConsecutive = 0;
-      DateTime? lastDate;
-
-      for (final record in sortedRecords) {
-        final muscles = _getMusclesFromRecord(record);
-        if (muscles.contains(muscle)) {
-          if (lastDate == null) {
-            currentConsecutive = 1;
-          } else {
-            final diff = record.date.difference(lastDate).inDays;
-            if (diff <= 1) {
-              currentConsecutive++;
-            } else {
-              currentConsecutive = 1;
-            }
-          }
-          lastDate = record.date;
-          if (currentConsecutive > maxConsecutive) {
-            maxConsecutive = currentConsecutive;
-          }
-        }
-      }
-
-      if (maxConsecutive >= 3) {
-        consecutiveDays[muscle] = maxConsecutive;
+  /// Extract trained muscles from a record, using exercise.primaryMuscle when available.
+  /// Falls back to record.trainedMuscles when no exercise detail is loaded.
+  Set<PrimaryMuscleGroup> _getMusclesFromRecord(WorkoutRecord record) {
+    final fromExercises = <PrimaryMuscleGroup>{};
+    for (final e in record.exercises) {
+      if (e.exercise != null) {
+        fromExercises.add(e.exercise!.primaryMuscle);
       }
     }
-
-    return consecutiveDays.entries
-        .where((e) => e.value >= 3)
-        .map((e) => '${e.key.displayName}(连续${e.value}天)')
-        .toList();
-  }
-
-  /// Get muscle imbalance pairs (ratio >= 2:1)
-  List<String> _getMuscleImbalance() {
-    final dist = _statsCalc.calculateMuscleVolumeDistribution(widget.records);
-    if (dist.isEmpty) return [];
-
-    const threshold = 2.0;
-    final result = <String>[];
-
-    final chestVol = dist[PrimaryMuscleGroup.chest] ?? 0;
-    final backVol = dist[PrimaryMuscleGroup.back] ?? 0;
-    if (chestVol > 0 && backVol > 0) {
-      final ratio = chestVol / backVol;
-      if (ratio >= threshold) {
-        result.add('胸:背 ${ratio.toStringAsFixed(1)}:1');
-      } else if (1 / ratio >= threshold) {
-        result.add('背:胸 ${(1 / ratio).toStringAsFixed(1)}:1');
-      }
-    } else if (chestVol > 0 && backVol == 0) {
-      result.add('胸:背 ∞:1');
-    } else if (backVol > 0 && chestVol == 0) {
-      result.add('背:胸 ∞:1');
-    }
-
-    final shouldersVol = dist[PrimaryMuscleGroup.shoulders] ?? 0;
-    final armsVol = dist[PrimaryMuscleGroup.arms] ?? 0;
-    if (shouldersVol > 0 && armsVol > 0) {
-      final ratio = shouldersVol / armsVol;
-      if (ratio >= threshold) {
-        result.add('肩:手臂 ${ratio.toStringAsFixed(1)}:1');
-      } else if (1 / ratio >= threshold) {
-        result.add('手臂:肩 ${(1 / ratio).toStringAsFixed(1)}:1');
-      }
-    }
-
-    final upperVol = chestVol + backVol + shouldersVol + armsVol;
-    final lowerVol = dist[PrimaryMuscleGroup.legs] ?? 0;
-    if (upperVol > 0 && lowerVol > 0) {
-      final ratio = upperVol / lowerVol;
-      if (ratio >= threshold) {
-        result.add('上肢:下肢 ${ratio.toStringAsFixed(1)}:1');
-      } else if (1 / ratio >= threshold) {
-        result.add('下肢:上肢 ${(1 / ratio).toStringAsFixed(1)}:1');
-      }
-    } else if (upperVol > 0 && lowerVol == 0) {
-      result.add('上肢:下肢 ∞:1');
-    } else if (lowerVol > 0 && upperVol == 0) {
-      result.add('下肢:上肢 ∞:1');
-    }
-
-    return result;
-  }
-
-  /// Get strength breakthroughs (new PRs in current period)
-  List<String> _getStrengthBreakthroughs() {
-    if (widget.records.isEmpty) return [];
-
-    final currentE1RM = _statsCalc.calculateEstimated1RM(widget.records);
-    final allE1RM = _statsCalc.calculateEstimated1RM(widget.allRecords);
-
-    final result = <String>[];
-    for (final entry in currentE1RM.entries) {
-      final name = entry.key;
-      final currentVal = entry.value;
-      final allVal = allE1RM[name] ?? 0;
-
-      if (currentVal > 0 && currentVal >= allVal) {
-        if (widget.records.length < widget.allRecords.length ||
-            currentVal > allVal) {
-          if (allVal > 0 && allVal < currentVal) {
-            result.add(
-              '$name ${allVal.toStringAsFixed(1)}→${currentVal.toStringAsFixed(1)}kg',
-            );
-          } else {
-            result.add('$name ${currentVal.toStringAsFixed(1)}kg');
-          }
-        }
-      }
-    }
-
-    return result;
-  }
-
-  /// Generate dynamic rules based on training goal
-  String _getDynamicRules() {
-    switch (_selectedGoal) {
-      case 'muscle_building':
-        return '''1. 每个动作 3-5 组，复合动作可到 5 组
-2. 每次训练 5-6 个动作，时长 60-75 分钟
-3. 复合动作占 60-70%，孤立动作占 30-40%
-4. 同一肌群间隔至少 48 小时，大肌群(胸/背/腿)优先 72 小时
-5. 针对薄弱部位增加训练频次和动作选择
-6. 参考PR数据安排重量区间，确保渐进超负荷
-7. 容量下降的部位适当减量或更换动作刺激''';
-      case 'fat_loss':
-        return '''1. 每个动作 3-4 组，短间歇(30-60秒)
-2. 每次训练 6-8 个动作，时长 45-60 分钟
-3. 复合动作占 50%，孤立动作占 50%，多关节参与优先
-4. 保持较高训练密度，减少组间休息
-5. 结合超级组或循环训练提升心率
-6. 保留力量水平，避免大幅降低训练容量''';
-      case 'strength':
-        return '''1. 每个动作 3-6 组，长间歇(120-180秒)
-2. 每次训练 4-5 个动作，时长 60-90 分钟
-3. 复合动作占 70-80%，以深蹲/硬拉/卧推/推举为核心
-4. 低次数高重量(3-6 reps)，以PR数据为基准安排训练重量
-5. 同一肌群间隔至少 72-96 小时确保充分恢复
-6. 渐进超负荷为核心原则，每周尝试提升重量或次数''';
-      case 'endurance':
-        return '''1. 每个动作 2-4 组，短间歇(30-45秒)
-2. 每次训练 8-10 个动作，时长 45-60 分钟
-3. 高次数(12-20 reps)，中等重量
-4. 多关节和单关节动作结合，提升肌肉耐力
-5. 组间休息尽量短，保持心率
-6. 可加入自重训练和有氧元素''';
-      default:
-        return '''1. targetSets: 3-5 每个动作
-2. 复合动作优先，孤立动作在后
-3. 同一肌群间隔至少 48 小时
-4. 渐进式超负荷''';
-    }
+    if (fromExercises.isNotEmpty) return fromExercises;
+    return record.trainedMuscles.toSet();
   }
 
   // ==================== Prompt Generation ====================
 
   String _generatePrompt() {
-    final periodLabel = widget.periodType == 'week' ? '本周' : '本月';
+    final isWeek = widget.periodType == 'week';
+    final periodLabel = isWeek ? '本周' : '本月';
     final dateRange =
         '${widget.startDate.month}月${widget.startDate.day}日 - ${widget.endDate.month}月${widget.endDate.day}日';
 
@@ -544,31 +435,23 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
       'core': '核心',
     };
 
-    final weakMuscles = _getWeakMuscles();
-    final overtrainedMuscles = _getOvertrainedMuscles();
-    final muscleImbalance = _getMuscleImbalance();
-    final strengthBreakthroughs = _getStrengthBreakthroughs();
-
     // Basic statistics
     final totalVolume = _statsCalc.calculateTotalVolume(widget.records);
     final density = _statsCalc.calculateDensity(widget.records);
-    final totalDurationMin =
-        widget.records.fold<int>(0, (sum, r) => sum + r.durationSeconds) ~/ 60;
     final sessionCount = widget.records.length;
     final workoutDays = _countUniqueDays(widget.records);
-    final avgPerSession = sessionCount > 0
-        ? totalDurationMin ~/ sessionCount
-        : 0;
-    final avgVolumePerSession = sessionCount > 0
-        ? totalVolume / sessionCount
-        : 0.0;
     final fmtVol = (double v) =>
         v >= 1000 ? '${(v / 1000).toStringAsFixed(1)}k' : v.toStringAsFixed(0);
 
     final buffer = StringBuffer();
 
-    // Opening
+    // Opening — period-adaptive
     buffer.writeln('你是一位专业的健身教练。根据我的训练数据报告，为我制定下个周期的训练计划。');
+    if (isWeek) {
+      buffer.writeln('本周数据量较少，重点关注恢复状态和下周的肌群轮换安排。');
+    } else {
+      buffer.writeln('本月数据较充分，重点关注渐进超负荷趋势和肌群容量分配是否均衡。');
+    }
     buffer.writeln();
 
     // Training data report
@@ -581,15 +464,10 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
     buffer.writeln('- 训练次数: $sessionCount 次 / $workoutDays 天');
     buffer.writeln('- 总训练量: ${fmtVol(totalVolume)} kg (组×次×重量)');
     buffer.writeln('- 训练密度: ${density.toStringAsFixed(1)} 组/分钟');
-    if (sessionCount > 0) {
-      buffer.writeln(
-        '- 平均每次: ${fmtVol(avgVolumePerSession)} kg / $avgPerSession 分钟',
-      );
-    }
     buffer.writeln();
 
     // Trend changes
-    buffer.writeln('### 趋势变化（vs 上${widget.periodType == 'week' ? '周' : '月'}）');
+    buffer.writeln('### 趋势变化（vs 上${isWeek ? '周' : '月'}）');
     buffer.writeln(_formatVolumeTrend());
     buffer.writeln();
 
@@ -598,41 +476,26 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
     buffer.writeln(_formatMuscleVolumeDistribution());
     buffer.writeln();
 
-    // PR
-    buffer.writeln('### 个人最佳记录（PR）');
-    buffer.writeln(_formatPRs());
+    // Sets per muscle group (NEW)
+    buffer.writeln('### 每肌群组数');
+    buffer.writeln(_formatSetsPerMuscleGroup());
     buffer.writeln();
+
+    // Estimated 1RM (REPLACED from PR)
+    buffer.writeln('### 估算1RM（本周期最佳，TOP 10）');
+    buffer.writeln(_formatEstimated1RM());
+    buffer.writeln();
+
+    // 1RM progression — MONTH ONLY
+    if (!isWeek) {
+      buffer.writeln('### 估算1RM进步趋势');
+      buffer.writeln(_format1RMProgression());
+      buffer.writeln();
+    }
 
     // Recovery status
-    buffer.writeln('### 恢复状态（截至今天）');
+    buffer.writeln('### 恢复状态（截至今天，全局数据）');
     buffer.writeln(_formatRecoveryManagement());
-    buffer.writeln();
-
-    // Common exercises
-    buffer.writeln('### 常用动作（按训练次数 TOP 10）');
-    buffer.writeln(_formatCommonExercises());
-    buffer.writeln();
-
-    // Training insights
-    buffer.writeln('### 训练洞察');
-    if (strengthBreakthroughs.isNotEmpty) {
-      buffer.writeln('- 力量突破: ${strengthBreakthroughs.join('、')}');
-    }
-    if (weakMuscles.isNotEmpty) {
-      buffer.writeln('- 薄弱部位: ${weakMuscles.join('、')}');
-    }
-    if (muscleImbalance.isNotEmpty) {
-      buffer.writeln('- 肌群不平衡: ${muscleImbalance.join('、')}');
-    }
-    if (overtrainedMuscles.isNotEmpty) {
-      buffer.writeln('- 过度训练风险: ${overtrainedMuscles.join('、')}');
-    }
-    if (weakMuscles.isEmpty &&
-        overtrainedMuscles.isEmpty &&
-        muscleImbalance.isEmpty &&
-        strengthBreakthroughs.isEmpty) {
-      buffer.writeln('- 训练均衡，继续保持');
-    }
     buffer.writeln();
 
     // User profile
@@ -650,12 +513,6 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
         '- 重点加强: ${_selectedFocusAreas.map((m) => muscleLabels[m] ?? m).join('、')}',
       );
     }
-    buffer.writeln();
-
-    // Training plan rules
-    buffer.writeln('## 训练计划规则');
-    buffer.writeln('根据「${goalLabels[_selectedGoal]}」目标，遵循以下原则：');
-    buffer.writeln(_getDynamicRules());
     buffer.writeln();
 
     // Output format
@@ -701,6 +558,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
   Widget build(BuildContext context) {
     final themeProvider = context.watch<ThemeProvider>();
     final theme = themeProvider.currentTheme;
+    final isWeek = widget.periodType == 'week';
 
     return Scaffold(
       backgroundColor: theme.primaryColor,
@@ -733,23 +591,33 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
             ),
             const SizedBox(height: 12),
 
-            // d) Personal Records
-            _buildGlassCard(theme: theme, child: _buildPRSection(theme)),
-            const SizedBox(height: 12),
-
-            // e) Recovery Status
-            _buildGlassCard(theme: theme, child: _buildRecoverySection(theme)),
-            const SizedBox(height: 12),
-
-            // f) Common Exercises
+            // d) Sets Per Muscle Group (NEW)
             _buildGlassCard(
               theme: theme,
-              child: _buildCommonExercisesSection(theme),
+              child: _buildSetsPerMuscleSection(theme),
             ),
             const SizedBox(height: 12),
 
-            // g) Training Insights
-            _buildGlassCard(theme: theme, child: _buildInsightsSection(theme)),
+            // e) Estimated 1RM (REPLACED from PR)
+            _buildGlassCard(
+              theme: theme,
+              child: _buildEstimated1RMSection(theme),
+            ),
+            const SizedBox(height: 12),
+
+            // f) 1RM Progression — MONTH ONLY
+            if (!isWeek) ...[
+              _buildGlassCard(
+                theme: theme,
+                child: _build1RMProgressionSection(theme),
+              ),
+              const SizedBox(height: 12),
+            ],
+
+            // g) Recovery Status
+            _buildGlassCard(theme: theme, child: _buildRecoverySection(theme)),
+            const SizedBox(height: 12),
+
             const SizedBox(height: 24),
 
             // Section 3: Generated Prompt
@@ -883,7 +751,6 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
   }
 
   Widget _buildGlassCard({required AppThemeData theme, required Widget child}) {
-    // 深色模式下使用更低的透明度
     final isDark = theme.surfaceColor == const Color(0xFF1E1E2E);
     final bgAlpha = isDark ? 0.08 : 0.12;
     final borderAlpha = isDark ? 0.20 : 0.30;
@@ -980,13 +847,52 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
     );
   }
 
-  Widget _buildPRSection(AppThemeData theme) {
+  Widget _buildSetsPerMuscleSection(AppThemeData theme) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSubsectionHeader('个人最佳记录 (PR)', theme),
+        _buildSubsectionHeader(
+          '每肌群组数 (MEV参考: ${widget.periodType == 'week' ? '10组/周' : '40组/月'})',
+          theme,
+        ),
         Text(
-          _formatPRs(),
+          _formatSetsPerMuscleGroup(),
+          style: TextStyle(
+            fontFamily: '.SF Pro Text',
+            fontSize: 13,
+            color: theme.textColor,
+            height: 1.5,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEstimated1RMSection(AppThemeData theme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSubsectionHeader('估算1RM (Mayhew公式)', theme),
+        Text(
+          _formatEstimated1RM(),
+          style: TextStyle(
+            fontFamily: '.SF Pro Text',
+            fontSize: 13,
+            color: theme.textColor,
+            height: 1.5,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _build1RMProgressionSection(AppThemeData theme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSubsectionHeader('估算1RM进步趋势', theme),
+        Text(
+          _format1RMProgression(),
           style: TextStyle(
             fontFamily: '.SF Pro Text',
             fontSize: 13,
@@ -1016,57 +922,6 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
     );
   }
 
-  Widget _buildCommonExercisesSection(AppThemeData theme) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildSubsectionHeader('常用动作 TOP 10', theme),
-        Text(
-          _formatCommonExercises(),
-          style: TextStyle(
-            fontFamily: '.SF Pro Text',
-            fontSize: 13,
-            color: theme.textColor,
-            height: 1.5,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildInsightsSection(AppThemeData theme) {
-    final weakMuscles = _getWeakMuscles();
-    final overtrainedMuscles = _getOvertrainedMuscles();
-    final muscleImbalance = _getMuscleImbalance();
-    final strengthBreakthroughs = _getStrengthBreakthroughs();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildSubsectionHeader('训练洞察', theme),
-        if (strengthBreakthroughs.isNotEmpty)
-          _buildDataRow('力量突破', strengthBreakthroughs.join('、'), theme),
-        if (weakMuscles.isNotEmpty)
-          _buildDataRow('薄弱部位', weakMuscles.join('、'), theme),
-        if (muscleImbalance.isNotEmpty)
-          _buildDataRow('肌群不平衡', muscleImbalance.join('、'), theme),
-        if (overtrainedMuscles.isNotEmpty)
-          _buildDataRow('过度训练风险', overtrainedMuscles.join('、'), theme),
-        if (weakMuscles.isEmpty &&
-            overtrainedMuscles.isEmpty &&
-            muscleImbalance.isEmpty &&
-            strengthBreakthroughs.isEmpty)
-          Text(
-            '训练均衡，继续保持',
-            style: TextStyle(
-              fontFamily: '.SF Pro Text',
-              fontSize: 13,
-              color: theme.textColor,
-            ),
-          ),
-      ],
-    );
-  }
 
   Widget _buildDataRow(String label, String value, AppThemeData theme) {
     return Padding(
