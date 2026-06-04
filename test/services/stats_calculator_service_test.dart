@@ -271,114 +271,203 @@ void main() {
       });
     });
 
-    group('calculateWeeklyVolumeTrend', () {
-      test('returns empty map for 0 weeks', () {
+    group('calculateSetsPerMuscleGroup', () {
+      test('returns empty map for empty records list', () {
+        final result = service.calculateSetsPerMuscleGroup([]);
+        expect(result, isEmpty);
+      });
+
+      test('counts sets per primary muscle group using setsData', () {
         final records = [
           _createRecord(
             id: '1',
-            date: DateTime.now(),
-          ),
-        ];
-
-        final trend = service.calculateWeeklyVolumeTrend(records, 0);
-        expect(trend, isEmpty);
-      });
-
-      test('returns empty map for negative weeks', () {
-        final records = [
-          _createRecord(
-            id: '1',
-            date: DateTime.now(),
-          ),
-        ];
-
-        final trend = service.calculateWeeklyVolumeTrend(records, -1);
-        expect(trend, isEmpty);
-      });
-
-      test('returns map with correct number of weeks', () {
-        final trend = service.calculateWeeklyVolumeTrend([], 4);
-        expect(trend.length, equals(4));
-      });
-
-      test('fills missing weeks with 0', () {
-        final trend = service.calculateWeeklyVolumeTrend([], 3);
-        for (final volume in trend.values) {
-          expect(volume, equals(0.0));
-        }
-      });
-
-      test('groups records by week', () {
-        final now = DateTime.now();
-        final thisMonday = _getWeekStart(now);
-
-        final records = [
-          _createRecord(
-            id: '1',
-            date: thisMonday, // This week's Monday
             exercises: [
               _createRecordedExercise(
                 exerciseId: 'ex1',
+                exercise: _createExercise(
+                  id: 'ex1',
+                  name: 'Bench Press',
+                  muscle: PrimaryMuscleGroup.chest,
+                ),
                 setsData: [
-                  const SetData(setNumber: 1, reps: 10, weight: 100), // 1000
+                  const SetData(setNumber: 1, reps: 10, weight: 80),
+                  const SetData(setNumber: 2, reps: 10, weight: 80),
+                  const SetData(setNumber: 3, reps: 10, weight: 80),
+                ],
+              ),
+              _createRecordedExercise(
+                exerciseId: 'ex2',
+                exercise: _createExercise(
+                  id: 'ex2',
+                  name: 'Squat',
+                  muscle: PrimaryMuscleGroup.legs,
+                ),
+                setsData: [
+                  const SetData(setNumber: 1, reps: 8, weight: 120),
+                  const SetData(setNumber: 2, reps: 8, weight: 120),
+                ],
+              ),
+            ],
+          ),
+        ];
+
+        final result = service.calculateSetsPerMuscleGroup(records);
+        expect(result[PrimaryMuscleGroup.chest], equals(3));
+        expect(result[PrimaryMuscleGroup.legs], equals(2));
+      });
+
+      test('falls back to completedSets when no setsData', () {
+        final records = [
+          _createRecord(
+            id: '1',
+            exercises: [
+              _createRecordedExercise(
+                exerciseId: 'ex1',
+                exercise: _createExercise(
+                  id: 'ex1',
+                  name: 'Row',
+                  muscle: PrimaryMuscleGroup.back,
+                ),
+                completedSets: 4,
+              ),
+            ],
+          ),
+        ];
+
+        final result = service.calculateSetsPerMuscleGroup(records);
+        expect(result[PrimaryMuscleGroup.back], equals(4));
+      });
+
+      test('skips exercises with null exercise reference', () {
+        final records = [
+          _createRecord(
+            id: '1',
+            exercises: [
+              _createRecordedExercise(
+                exerciseId: 'ex1',
+                exercise: null,
+                setsData: [
+                  const SetData(setNumber: 1, reps: 10, weight: 80),
+                ],
+              ),
+              _createRecordedExercise(
+                exerciseId: 'ex2',
+                exercise: _createExercise(
+                  id: 'ex2',
+                  name: 'Press',
+                  muscle: PrimaryMuscleGroup.shoulders,
+                ),
+                setsData: [
+                  const SetData(setNumber: 1, reps: 10, weight: 50),
+                ],
+              ),
+            ],
+          ),
+        ];
+
+        final result = service.calculateSetsPerMuscleGroup(records);
+        expect(result.length, equals(1));
+        expect(result[PrimaryMuscleGroup.shoulders], equals(1));
+      });
+
+      test('aggregates across multiple records', () {
+        final records = [
+          _createRecord(
+            id: '1',
+            exercises: [
+              _createRecordedExercise(
+                exerciseId: 'ex1',
+                exercise: _createExercise(
+                  id: 'ex1',
+                  name: 'Bench',
+                  muscle: PrimaryMuscleGroup.chest,
+                ),
+                setsData: [
+                  const SetData(setNumber: 1, reps: 10, weight: 80),
+                  const SetData(setNumber: 2, reps: 10, weight: 80),
                 ],
               ),
             ],
           ),
           _createRecord(
             id: '2',
-            date: thisMonday.add(const Duration(days: 2)), // Wednesday
-            exercises: [
-              _createRecordedExercise(
-                exerciseId: 'ex2',
-                setsData: [
-                  const SetData(setNumber: 1, reps: 10, weight: 50), // 500
-                ],
-              ),
-            ],
-          ),
-        ];
-
-        final trend = service.calculateWeeklyVolumeTrend(records, 1);
-        expect(trend.length, equals(1));
-        // Both records should be grouped into the same week
-        expect(trend[thisMonday], equals(1500.0));
-      });
-
-      test('handles records outside the requested weeks', () {
-        final now = DateTime.now();
-        final oldDate = now.subtract(const Duration(days: 30));
-
-        final records = [
-          _createRecord(
-            id: '1',
-            date: oldDate,
             exercises: [
               _createRecordedExercise(
                 exerciseId: 'ex1',
+                exercise: _createExercise(
+                  id: 'ex1',
+                  name: 'Bench',
+                  muscle: PrimaryMuscleGroup.chest,
+                ),
                 setsData: [
-                  const SetData(setNumber: 1, reps: 10, weight: 100),
+                  const SetData(setNumber: 1, reps: 10, weight: 85),
+                  const SetData(setNumber: 2, reps: 10, weight: 85),
+                  const SetData(setNumber: 3, reps: 10, weight: 85),
                 ],
               ),
             ],
           ),
         ];
 
-        final trend = service.calculateWeeklyVolumeTrend(records, 2);
-        // Old record should not be included
-        for (final volume in trend.values) {
-          expect(volume, equals(0.0));
-        }
+        final result = service.calculateSetsPerMuscleGroup(records);
+        expect(result[PrimaryMuscleGroup.chest], equals(5)); // 2 + 3
       });
     });
 
-    group('calculateMaxWeightsByExercise', () {
+    group('estimate1RM', () {
+      test('returns 0 for zero or negative weight', () {
+        expect(StatsCalculatorService.estimate1RM(0, 10), equals(0.0));
+        expect(StatsCalculatorService.estimate1RM(-10, 10), equals(0.0));
+      });
+
+      test('returns 0 for zero or negative reps', () {
+        expect(StatsCalculatorService.estimate1RM(100, 0), equals(0.0));
+        expect(StatsCalculatorService.estimate1RM(100, -5), equals(0.0));
+      });
+
+      test('1RM at 1 rep equals weight × ~1.09', () {
+        // Mayhew at r=1: 100*100 / (52.2 + 41.9*e^(-0.055))
+        // e^(-0.055) ≈ 0.9465 → denominator ≈ 52.2 + 39.66 ≈ 91.86
+        // 1RM ≈ 10000/91.86 ≈ 108.86
+        final e1RM = StatsCalculatorService.estimate1RM(100, 1);
+        expect(e1RM, closeTo(108.86, 0.5));
+      });
+
+      test('1RM at 10 reps', () {
+        // Mayhew: 100*100 / (52.2 + 41.9*e^(-0.55)) ≈ 10000/76.37 ≈ 130.9
+        final e1RM = StatsCalculatorService.estimate1RM(100, 10);
+        expect(e1RM, closeTo(130.9, 0.5));
+      });
+
+      test('1RM at 12 reps (user hypertrophy range)', () {
+        // Mayhew: 100*80 / (52.2 + 41.9*e^(-0.66)) ≈ 8000/73.86 ≈ 108.3
+        final e1RM = StatsCalculatorService.estimate1RM(80, 12);
+        expect(e1RM, closeTo(108.3, 0.5));
+      });
+
+      test('1RM at 15 reps (upper validation limit)', () {
+        // Mayhew: 100*70 / (52.2 + 41.9*e^(-0.825)) ≈ 7000/70.56 ≈ 99.2
+        final e1RM = StatsCalculatorService.estimate1RM(70, 15);
+        expect(e1RM, closeTo(99.2, 0.5));
+      });
+
+      test('higher reps at same weight gives higher 1RM', () {
+        // More reps at same weight = stronger → higher 1RM estimate
+        final at5 = StatsCalculatorService.estimate1RM(100, 5);
+        final at10 = StatsCalculatorService.estimate1RM(100, 10);
+        final at15 = StatsCalculatorService.estimate1RM(100, 15);
+        expect(at15, greaterThan(at10));
+        expect(at10, greaterThan(at5));
+      });
+    });
+
+    group('calculateEstimated1RMTrend', () {
       test('returns empty map for empty records list', () {
-        final maxWeights = service.calculateMaxWeightsByExercise([]);
-        expect(maxWeights, isEmpty);
+        final result = service.calculateEstimated1RMTrend([]);
+        expect(result, isEmpty);
       });
 
-      test('finds max weight for each exercise', () {
+      test('returns empty when exercises have no setsData', () {
         final records = [
           _createRecord(
             id: '1',
@@ -391,29 +480,20 @@ void main() {
                   muscle: PrimaryMuscleGroup.chest,
                 ),
                 maxWeight: 100,
-              ),
-              _createRecordedExercise(
-                exerciseId: 'ex2',
-                exercise: _createExercise(
-                  id: 'ex2',
-                  name: 'Squat',
-                  muscle: PrimaryMuscleGroup.legs,
-                ),
-                maxWeight: 200,
               ),
             ],
           ),
         ];
 
-        final maxWeights = service.calculateMaxWeightsByExercise(records);
-        expect(maxWeights['Bench Press'], equals(100.0));
-        expect(maxWeights['Squat'], equals(200.0));
+        final result = service.calculateEstimated1RMTrend(records);
+        expect(result, isEmpty);
       });
 
-      test('updates max weight when higher weight found', () {
+      test('calculates 1RM from best set in a single session', () {
         final records = [
           _createRecord(
             id: '1',
+            date: DateTime(2026, 1, 1),
             exercises: [
               _createRecordedExercise(
                 exerciseId: 'ex1',
@@ -422,95 +502,172 @@ void main() {
                   name: 'Bench Press',
                   muscle: PrimaryMuscleGroup.chest,
                 ),
-                maxWeight: 100,
+                setsData: [
+                  const SetData(setNumber: 1, reps: 12, weight: 80),
+                  const SetData(setNumber: 2, reps: 8, weight: 85),
+                ],
+              ),
+            ],
+          ),
+        ];
+
+        final result = service.calculateEstimated1RMTrend(records);
+        expect(result.length, equals(1));
+        expect(result['Bench Press'], isNotNull);
+        expect(result['Bench Press']!.length, equals(1));
+
+        // Best 1RM set: 85×8 vs 80×12
+        // 85×8: 100*85/(52.2+41.9*e^(-0.44)) = 8500/(52.2+26.98) = 8500/79.18 ≈ 107.3
+        // 80×12: 100*80/(52.2+41.9*e^(-0.66)) = 8000/(52.2+21.55) = 8000/73.75 ≈ 108.5
+        // 80×12 should win (higher 1RM)
+        final point = result['Bench Press']![0];
+        expect(point.estimated1RM, closeTo(108.5, 0.5));
+        expect(point.weight, equals(80.0));
+        expect(point.reps, equals(12));
+      });
+
+      test('tracks 1RM trend across multiple sessions', () {
+        final records = [
+          _createRecord(
+            id: '1',
+            date: DateTime(2026, 1, 1),
+            exercises: [
+              _createRecordedExercise(
+                exerciseId: 'ex1',
+                exercise: _createExercise(
+                  id: 'ex1',
+                  name: 'Squat',
+                  muscle: PrimaryMuscleGroup.legs,
+                ),
+                setsData: [
+                  const SetData(setNumber: 1, reps: 12, weight: 60),
+                ],
               ),
             ],
           ),
           _createRecord(
             id: '2',
+            date: DateTime(2026, 1, 8),
             exercises: [
               _createRecordedExercise(
                 exerciseId: 'ex1',
                 exercise: _createExercise(
                   id: 'ex1',
-                  name: 'Bench Press',
-                  muscle: PrimaryMuscleGroup.chest,
+                  name: 'Squat',
+                  muscle: PrimaryMuscleGroup.legs,
                 ),
-                maxWeight: 120,
+                setsData: [
+                  const SetData(setNumber: 1, reps: 12, weight: 65),
+                ],
               ),
             ],
           ),
         ];
 
-        final maxWeights = service.calculateMaxWeightsByExercise(records);
-        expect(maxWeights['Bench Press'], equals(120.0));
+        final result = service.calculateEstimated1RMTrend(records);
+        expect(result['Squat']!.length, equals(2));
+        // Points should be sorted by date
+        expect(result['Squat']![0].date, equals(DateTime(2026, 1, 1)));
+        expect(result['Squat']![1].date, equals(DateTime(2026, 1, 8)));
+        // 1RM should increase
+        expect(
+          result['Squat']![1].estimated1RM,
+          greaterThan(result['Squat']![0].estimated1RM),
+        );
       });
 
-      test('keeps lower weight when no higher found', () {
+      test('handles multiple exercises in same session', () {
         final records = [
           _createRecord(
             id: '1',
+            date: DateTime(2026, 1, 1),
             exercises: [
               _createRecordedExercise(
                 exerciseId: 'ex1',
                 exercise: _createExercise(
                   id: 'ex1',
-                  name: 'Bench Press',
+                  name: 'Bench',
                   muscle: PrimaryMuscleGroup.chest,
                 ),
-                maxWeight: 120,
-              ),
-            ],
-          ),
-          _createRecord(
-            id: '2',
-            exercises: [
-              _createRecordedExercise(
-                exerciseId: 'ex1',
-                exercise: _createExercise(
-                  id: 'ex1',
-                  name: 'Bench Press',
-                  muscle: PrimaryMuscleGroup.chest,
-                ),
-                maxWeight: 100,
-              ),
-            ],
-          ),
-        ];
-
-        final maxWeights = service.calculateMaxWeightsByExercise(records);
-        expect(maxWeights['Bench Press'], equals(120.0));
-      });
-
-      test('ignores null and zero maxWeight', () {
-        final records = [
-          _createRecord(
-            id: '1',
-            exercises: [
-              _createRecordedExercise(
-                exerciseId: 'ex1',
-                exercise: _createExercise(
-                  id: 'ex1',
-                  name: 'Bench Press',
-                  muscle: PrimaryMuscleGroup.chest,
-                ),
-                maxWeight: null,
+                setsData: [
+                  const SetData(setNumber: 1, reps: 10, weight: 60),
+                ],
               ),
               _createRecordedExercise(
                 exerciseId: 'ex2',
                 exercise: _createExercise(
                   id: 'ex2',
-                  name: 'Squat',
-                  muscle: PrimaryMuscleGroup.legs,
+                  name: 'Row',
+                  muscle: PrimaryMuscleGroup.back,
                 ),
-                maxWeight: 0,
+                setsData: [
+                  const SetData(setNumber: 1, reps: 10, weight: 70),
+                ],
               ),
             ],
           ),
         ];
 
-        final maxWeights = service.calculateMaxWeightsByExercise(records);
-        expect(maxWeights, isEmpty);
+        final result = service.calculateEstimated1RMTrend(records);
+        expect(result.length, equals(2));
+        // Bench 60×10: 6000/76.37 ≈ 78.6
+        expect(result['Bench']![0].estimated1RM, closeTo(78.6, 0.5));
+        // Row 70×10: 7000/76.37 ≈ 91.6
+        expect(result['Row']![0].estimated1RM, closeTo(91.6, 0.5));
+      });
+
+      test('ignores sets with zero or null weight', () {
+        final records = [
+          _createRecord(
+            id: '1',
+            exercises: [
+              _createRecordedExercise(
+                exerciseId: 'ex1',
+                exercise: _createExercise(
+                  id: 'ex1',
+                  name: 'Bench Press',
+                  muscle: PrimaryMuscleGroup.chest,
+                ),
+                setsData: [
+                  const SetData(setNumber: 1, reps: 10, weight: 0),
+                  const SetData(setNumber: 2, reps: 10, weight: null),
+                  const SetData(setNumber: 3, reps: 10, weight: 80),
+                ],
+              ),
+            ],
+          ),
+        ];
+
+        final result = service.calculateEstimated1RMTrend(records);
+        expect(result.length, equals(1));
+        expect(result['Bench Press']![0].weight, equals(80.0));
+      });
+
+      test('ignores sets with zero or null reps', () {
+        final records = [
+          _createRecord(
+            id: '1',
+            exercises: [
+              _createRecordedExercise(
+                exerciseId: 'ex1',
+                exercise: _createExercise(
+                  id: 'ex1',
+                  name: 'Bench Press',
+                  muscle: PrimaryMuscleGroup.chest,
+                ),
+                setsData: [
+                  const SetData(setNumber: 1, reps: 0, weight: 80),
+                  const SetData(setNumber: 2, reps: null, weight: 80),
+                  const SetData(setNumber: 3, reps: 10, weight: 80),
+                ],
+              ),
+            ],
+          ),
+        ];
+
+        final result = service.calculateEstimated1RMTrend(records);
+        expect(result.length, equals(1));
+        expect(result['Bench Press']![0].reps, equals(10));
       });
 
       test('ignores exercises with empty name', () {
@@ -520,15 +677,57 @@ void main() {
             exercises: [
               _createRecordedExercise(
                 exerciseId: 'ex1',
-                exercise: null, // name will be empty
-                maxWeight: 100,
+                exercise: null,
+                setsData: [
+                  const SetData(setNumber: 1, reps: 10, weight: 80),
+                ],
               ),
             ],
           ),
         ];
 
-        final maxWeights = service.calculateMaxWeightsByExercise(records);
-        expect(maxWeights, isEmpty);
+        final result = service.calculateEstimated1RMTrend(records);
+        expect(result, isEmpty);
+      });
+
+      test('takes highest 1RM set when same exercise appears multiple times', () {
+        // If an exercise name appears twice in the same session (e.g. superserset),
+        // the highest estimated1RM point should be recorded
+        final records = [
+          _createRecord(
+            id: '1',
+            date: DateTime(2026, 1, 1),
+            exercises: [
+              _createRecordedExercise(
+                exerciseId: 'ex1',
+                exercise: _createExercise(
+                  id: 'ex1',
+                  name: 'Curl',
+                  muscle: PrimaryMuscleGroup.arms,
+                ),
+                setsData: [
+                  const SetData(setNumber: 1, reps: 15, weight: 20),
+                ],
+              ),
+              _createRecordedExercise(
+                exerciseId: 'ex1',
+                exercise: _createExercise(
+                  id: 'ex1',
+                  name: 'Curl',
+                  muscle: PrimaryMuscleGroup.arms,
+                ),
+                setsData: [
+                  const SetData(setNumber: 1, reps: 8, weight: 30),
+                ],
+              ),
+            ],
+          ),
+        ];
+
+        final result = service.calculateEstimated1RMTrend(records);
+        expect(result['Curl']!.length, equals(1));
+        // 30×8 gives higher 1RM than 20×15
+        expect(result['Curl']![0].weight, equals(30.0));
       });
     });
 
@@ -542,7 +741,7 @@ void main() {
         expect(service.calculateTotalVolume(records), equals(0.0));
         expect(service.calculateDensity(records), equals(0.0));
         expect(service.calculateMuscleVolumeDistribution(records), isEmpty);
-        expect(service.calculateMaxWeightsByExercise(records), isEmpty);
+        expect(service.calculateEstimated1RMTrend(records), isEmpty);
       });
 
       test('handles empty exercises within records', () {
@@ -755,59 +954,6 @@ void main() {
         expect(volume, equals(0.0));
       });
     });
-
-    group('calculateExerciseStrengthTrend reps tracking', () {
-      test('populates reps from heaviest set', () {
-        final records = [
-          _createRecord(
-            id: '1',
-            exercises: [
-              _createRecordedExercise(
-                exerciseId: 'ex1',
-                exercise: _createExercise(
-                  id: 'ex1',
-                  name: 'Bench Press',
-                  muscle: PrimaryMuscleGroup.chest,
-                ),
-                setsData: [
-                  const SetData(setNumber: 1, reps: 10, weight: 80),
-                  const SetData(setNumber: 2, reps: 6, weight: 100),
-                ],
-              ),
-            ],
-          ),
-        ];
-
-        final dataPoints = service.calculateExerciseStrengthTrend(records, 'Bench Press');
-        expect(dataPoints.length, equals(1));
-        expect(dataPoints[0].reps, equals(6));
-        expect(dataPoints[0].weight, equals(100.0));
-      });
-
-      test('reps is null when no setsData', () {
-        final records = [
-          _createRecord(
-            id: '1',
-            exercises: [
-              _createRecordedExercise(
-                exerciseId: 'ex1',
-                exercise: _createExercise(
-                  id: 'ex1',
-                  name: 'Bench Press',
-                  muscle: PrimaryMuscleGroup.chest,
-                ),
-                maxWeight: 100,
-              ),
-            ],
-          ),
-        ];
-
-        final dataPoints = service.calculateExerciseStrengthTrend(records, 'Bench Press');
-        expect(dataPoints.length, equals(1));
-        expect(dataPoints[0].reps, isNull);
-        expect(dataPoints[0].weight, equals(100.0));
-      });
-    });
   });
 }
 
@@ -889,12 +1035,5 @@ Exercise _createBodyweightExercise({
       maxReps: 12,
       restSeconds: 60,
     ),
-  );
-}
-
-DateTime _getWeekStart(DateTime date) {
-  final weekday = date.weekday;
-  return DateTime(date.year, date.month, date.day).subtract(
-    Duration(days: weekday - 1),
   );
 }
