@@ -13,7 +13,7 @@ UI screens/pages for the WorkoutTimer app. Each screen is a standalone page with
 | `timer_screen.dart` | 38 | Main timer page with app bar actions |
 | `history_screen.dart` | 572 | Workout history list with swipe-to-delete |
 | `settings_screen.dart` | 96 | User preferences (sound, vibration, message) |
-| `stats_screen.dart` | 1545 | Statistics dashboard with calendar navigation |
+| `stats_screen.dart` | 2549 | Statistics dashboard with calendar navigation |
 | `plan_screen.dart` | 801 | Workout plan list |
 | `plan_form_screen.dart` | 724 | Plan creation/editing form |
 | `record_detail_screen.dart` | 731 | Detailed record view |
