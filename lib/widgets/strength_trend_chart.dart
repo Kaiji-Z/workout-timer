@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -11,9 +13,40 @@ import 'package:workout_timer/theme/theme_provider.dart';
 AppThemeData _getAppTheme(BuildContext context) {
   try {
     return Provider.of<ThemeProvider>(context, listen: true).currentTheme;
-  } catch (_) {
+  } catch (e) {
+    debugPrint('ThemeProvider not available, using fallback: $e');
     return amberGoldTheme;
   }
+}
+
+/// Calculate a "nice" Y-axis interval that produces round numbers.
+/// Returns a value like 1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, etc.
+double _niceInterval(double range, int targetTicks) {
+  if (range <= 0) return 1.0;
+  final roughStep = range / targetTicks;
+  final magnitude =
+      math.pow(10, (math.log(roughStep) / math.log(10)).floor()).toDouble();
+  final residual = roughStep / magnitude;
+  double niceStep;
+  if (residual <= 1.5) {
+    niceStep = magnitude;
+  } else if (residual <= 3.5) {
+    niceStep = 2 * magnitude;
+  } else if (residual <= 7.5) {
+    niceStep = 5 * magnitude;
+  } else {
+    niceStep = 10 * magnitude;
+  }
+  return niceStep;
+}
+
+/// Format a numeric value for Y-axis labels.
+/// Shows integer when whole, otherwise one decimal place.
+String _formatValue(double value) {
+  if (value == value.roundToDouble()) {
+    return value.round().toString();
+  }
+  return value.toStringAsFixed(1);
 }
 
 /// Strength trend line chart widget using fl_chart.
@@ -79,18 +112,51 @@ class StrengthTrendChart extends StatelessWidget {
           (a, b) => a > b ? a : b,
         );
     final padding = (max1RM - min1RM) * 0.1;
+    double minY, maxY;
+
+    // Ensure non-degenerate Y-axis range
+    if (padding == 0) {
+      minY = 0;
+      maxY = max1RM > 0 ? max1RM * 1.2 : 10.0;
+    } else {
+      minY = (min1RM - padding).clamp(0.0, double.infinity);
+      maxY = max1RM + padding;
+    }
+
+    // Calculate nice Y-axis
+    final interval = _niceInterval(maxY - minY, 4);
+    maxY = (maxY / interval).ceilToDouble() * interval;
+    minY = (minY / interval).floorToDouble() * interval;
 
     return LineChartData(
       minX: 0,
       maxX: (dataPoints.length - 1).toDouble(),
-      minY: (min1RM - padding).clamp(0, double.infinity),
-      maxY: max1RM + padding,
+      minY: minY,
+      maxY: maxY,
+      lineTouchData: LineTouchData(
+        touchTooltipData: LineTouchTooltipData(
+          getTooltipItems: (touchedSpots) {
+            return touchedSpots.map((spot) {
+              final index = spot.x.toInt();
+              final dateStr = index >= 0 && index < dataPoints.length
+                  ? DateFormat.Md().format(dataPoints[index].date)
+                  : '';
+              return LineTooltipItem(
+                '$dateStr\n${_formatValue(spot.y)} kg',
+                TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              );
+            }).toList();
+          },
+        ),
+      ),
       gridData: FlGridData(
         show: true,
         drawVerticalLine: false,
-        horizontalInterval: dataPoints.length > 1
-            ? ((max1RM - min1RM) / 4).clamp(1, double.infinity)
-            : 10,
+        horizontalInterval: interval,
         getDrawingHorizontalLine: (value) => FlLine(
           color: theme.dividerColor,
           strokeWidth: 1,
@@ -131,9 +197,13 @@ class StrengthTrendChart extends StatelessWidget {
           sideTitles: SideTitles(
             showTitles: true,
             reservedSize: 40,
+            interval: interval,
             getTitlesWidget: (value, meta) {
+              if (value % interval != 0 && (value % interval).abs() > 0.01) {
+                return const SizedBox.shrink();
+              }
               return Text(
-                value.round().toString(),
+                _formatValue(value),
                 style: TextStyle(
                   fontSize: 10,
                   color: theme.secondaryTextColor,

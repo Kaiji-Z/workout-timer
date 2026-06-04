@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../bloc/timer_provider.dart';
@@ -285,10 +286,10 @@ class _CircularProgressPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
 
-    final sweepAngle = 2 * 3.14159 * progress;
+    final sweepAngle = 2 * math.pi * progress;
     canvas.drawArc(
       Rect.fromCircle(center: center, radius: radius),
-      -1.5708, // 从顶部开始
+      -math.pi / 2, // 从顶部开始
       sweepAngle,
       false,
       progressPaint,
