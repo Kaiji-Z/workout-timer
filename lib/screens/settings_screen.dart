@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/workout_repository.dart';
 import '../services/notification_sound_service.dart';
+import '../services/data_transfer_service.dart';
 import '../theme/theme_provider.dart';
 import '../theme/app_theme.dart';
 import 'user_preferences_screen.dart';
@@ -17,6 +18,7 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   final WorkoutRepository _repository = WorkoutRepository();
   final NotificationSoundService _soundService = NotificationSoundService();
+  final DataTransferService _dataTransferService = DataTransferService();
   late SharedPreferences _prefs;
 
   bool _soundEnabled = true;
@@ -271,13 +273,57 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _buildSectionHeader('数据管理', theme),
           _buildSettingsCard(
             theme: theme,
-            child: ListTile(
-              title: Text(
-                '清除所有历史记录',
-                style: TextStyle(color: theme.accentColor),
-              ),
-              trailing: Icon(Icons.delete_outline, color: theme.accentColor),
-              onTap: () => _clearHistory(theme),
+            child: Column(
+              children: [
+                ListTile(
+                  leading: Icon(Icons.upload_file, color: theme.accentColor),
+                  title: Text(
+                    '导出数据',
+                    style: TextStyle(
+                      fontFamily: '.SF Pro Text',
+                      color: theme.textColor,
+                    ),
+                  ),
+                  subtitle: Text(
+                    '导出全部训练记录、计划等数据为文件',
+                    style: TextStyle(
+                      fontFamily: '.SF Pro Text',
+                      fontSize: 12,
+                      color: theme.secondaryTextColor,
+                    ),
+                  ),
+                  onTap: () => _exportData(theme),
+                ),
+                Divider(color: theme.dividerColor, height: 1),
+                ListTile(
+                  leading: Icon(Icons.download, color: theme.accentColor),
+                  title: Text(
+                    '导入数据',
+                    style: TextStyle(
+                      fontFamily: '.SF Pro Text',
+                      color: theme.textColor,
+                    ),
+                  ),
+                  subtitle: Text(
+                    '从备份文件恢复全部数据（会覆盖现有数据）',
+                    style: TextStyle(
+                      fontFamily: '.SF Pro Text',
+                      fontSize: 12,
+                      color: theme.secondaryTextColor,
+                    ),
+                  ),
+                  onTap: () => _importData(theme),
+                ),
+                Divider(color: theme.dividerColor, height: 1),
+                ListTile(
+                  title: Text(
+                    '清除所有历史记录',
+                    style: TextStyle(color: theme.accentColor),
+                  ),
+                  trailing: Icon(Icons.delete_outline, color: theme.accentColor),
+                  onTap: () => _clearHistory(theme),
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 24),
@@ -319,6 +365,261 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _exportData(AppThemeData theme) async {
+    // 先显示确认对话框
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: theme.surfaceColor.withValues(alpha: 0.95),
+        title: Text('导出数据', style: TextStyle(color: theme.textColor)),
+        content: Text(
+          '将导出全部训练记录、计划、练习等数据。\n\n文件会保存到手机 Downloads 目录，同时弹出分享面板。',
+          style: TextStyle(color: theme.textColor),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('取消'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: theme.accentColor),
+            child: const Text('导出'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    // 显示加载提示
+    if (!mounted) return;
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => Center(
+        child: CircularProgressIndicator(color: theme.accentColor),
+      ),
+    );
+
+    try {
+      await _dataTransferService.exportAndShare();
+    } catch (e) {
+      debugPrint('导出失败: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('导出失败: $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        Navigator.pop(context); // 关闭加载提示
+      }
+    }
+  }
+
+  Future<void> _importData(AppThemeData theme) async {
+    // 先显示加载提示，扫描本地备份文件
+    if (!mounted) return;
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => Center(
+        child: CircularProgressIndicator(color: theme.accentColor),
+      ),
+    );
+
+    final localBackups = await _dataTransferService.discoverLocalBackups();
+
+    if (!mounted) return;
+    Navigator.pop(context); // 关闭加载提示
+
+    // 显示导入选择对话框
+    final result = await _showImportDialog(context, theme, localBackups);
+    if (result == null || result.isEmpty) return;
+
+    // 二次确认：导入会覆盖数据
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: theme.surfaceColor.withValues(alpha: 0.95),
+        title: Text('确认导入', style: TextStyle(color: theme.textColor)),
+        content: Text(
+          '⚠️ 导入将覆盖现有全部数据！\n\n将恢复来自：\n$result',
+          style: TextStyle(color: theme.textColor),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('取消'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: theme.errorColor),
+            child: const Text('确认导入'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    // 执行导入
+    if (!mounted) return;
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => Center(
+        child: CircularProgressIndicator(color: theme.accentColor),
+      ),
+    );
+
+    try {
+      int count;
+      if (result.startsWith('/')) {
+        // 本地文件路径
+        count = await _dataTransferService.importFromFile(result);
+      } else {
+        // 文件选择器模式
+        count = await _dataTransferService.pickAndImport();
+      }
+
+      if (!mounted) return;
+      Navigator.pop(context); // 关闭加载提示
+
+      if (count > 0) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('导入成功，共恢复 $count 条记录')),
+        );
+      }
+    } catch (e) {
+      debugPrint('导入失败: $e');
+      if (mounted) {
+        Navigator.pop(context); // 关闭加载提示
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('导入失败: $e')),
+        );
+      }
+    }
+  }
+
+  /// 显示导入选择对话框
+  /// 返回选中的文件路径，或 "file_picker" 表示手动选择
+  Future<String?> _showImportDialog(
+    BuildContext context,
+    AppThemeData theme,
+    List<BackupFileInfo> localBackups,
+  ) async {
+    return showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: theme.surfaceColor.withValues(alpha: 0.95),
+        title: Text('导入数据', style: TextStyle(color: theme.textColor)),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 本地发现的备份文件
+              if (localBackups.isNotEmpty) ...[
+                Text(
+                  '发现本地备份',
+                  style: TextStyle(
+                    fontFamily: '.SF Pro Text',
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: theme.secondaryTextColor,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                ...localBackups.map((backup) => ListTile(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+                  title: Text(
+                    _formatBackupName(backup.fileName),
+                    style: TextStyle(
+                      fontFamily: '.SF Pro Text',
+                      fontSize: 14,
+                      color: theme.textColor,
+                    ),
+                  ),
+                  subtitle: Text(
+                    '${backup.sizeText} · ${_formatDate(backup.modifiedTime)}',
+                    style: TextStyle(
+                      fontFamily: '.SF Pro Text',
+                      fontSize: 12,
+                      color: theme.secondaryTextColor,
+                    ),
+                  ),
+                  trailing: Icon(
+                    Icons.restore,
+                    color: theme.accentColor,
+                    size: 20,
+                  ),
+                  onTap: () => Navigator.pop(context, backup.path),
+                )),
+                const SizedBox(height: 8),
+                Divider(color: theme.dividerColor, height: 1),
+                const SizedBox(height: 4),
+              ],
+              // 手动选择文件
+              ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+                leading: Icon(Icons.folder_open, color: theme.accentColor),
+                title: Text(
+                  '手动选择文件',
+                  style: TextStyle(
+                    fontFamily: '.SF Pro Text',
+                    color: theme.textColor,
+                  ),
+                ),
+                subtitle: Text(
+                  '从其他位置选择 JSON 备份文件',
+                  style: TextStyle(
+                    fontFamily: '.SF Pro Text',
+                    fontSize: 12,
+                    color: theme.secondaryTextColor,
+                  ),
+                ),
+                onTap: () => Navigator.pop(context, 'file_picker'),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, null),
+            child: const Text('取消'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 格式化备份文件名为可读的日期
+  String _formatBackupName(String fileName) {
+    // workout_timer_backup_2026-06-04T12-30-45.json
+    try {
+      final dateStr = fileName
+          .replaceFirst('workout_timer_backup_', '')
+          .replaceFirst('.json', '');
+      // 2026-06-04T12-30-45 -> 2026年6月4日 12:30
+      final parts = dateStr.split('T');
+      if (parts.length == 2) {
+        final datePart = parts[0]; // 2026-06-04
+        final timePart = parts[1].replaceAll('-', ':'); // 12-30-45 -> 12:30:45
+        final date = DateTime.parse('$datePart $timePart');
+        return '备份 ${date.year}年${date.month}月${date.day}日 ${date.hour}:${date.minute.toString().padLeft(2, '0')}';
+      }
+    } catch (_) {}
+    return fileName;
+  }
+
+  /// 格式化日期
+  String _formatDate(DateTime dt) {
+    return '${dt.month}月${dt.day}日 ${dt.hour}:${dt.minute.toString().padLeft(2, '0')}';
   }
 
   void _showSoundPicker(BuildContext context, AppThemeData theme) {
