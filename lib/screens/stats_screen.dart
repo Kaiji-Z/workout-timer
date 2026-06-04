@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../theme/theme_provider.dart';
@@ -31,6 +32,17 @@ class _StatsScreenState extends State<StatsScreen>
   DateTime _selectedWeekStart = DateTime.now();
   int _selectedMonth = DateTime.now().month;
   int _selectedYear = DateTime.now().year;
+  List<dynamic>? _cachedAllRecords;
+  String? _selectedStrengthExercise;
+
+  static const _kMuscleColors = <PrimaryMuscleGroup, Color>{
+    PrimaryMuscleGroup.chest: Color(0xFFE69F00), // orange
+    PrimaryMuscleGroup.back: Color(0xFF56B4E9), // sky blue
+    PrimaryMuscleGroup.shoulders: Color(0xFF009E73), // bluish green
+    PrimaryMuscleGroup.arms: Color(0xFFF0E442), // yellow
+    PrimaryMuscleGroup.legs: Color(0xFF0072B2), // blue
+    PrimaryMuscleGroup.core: Color(0xFFD55E00), // vermillion
+  };
 
   @override
   void initState() {
@@ -48,6 +60,8 @@ class _StatsScreenState extends State<StatsScreen>
 
   Future<void> _loadData() async {
     try {
+      _cachedAllRecords = null;
+      _selectedStrengthExercise = null;
       final recordProvider = context.read<RecordProvider>();
       // 确保记录已加载（首次进入时可能还未加载）
       if (recordProvider.recordCount == 0) {
@@ -62,13 +76,14 @@ class _StatsScreenState extends State<StatsScreen>
       });
     } catch (e) {
       debugPrint('Error loading data: $e');
+      if (!mounted) return;
       setState(() => _isLoading = false);
     }
   }
 
   /// 获取所有记录（合并旧记录和新记录）
   List<dynamic> _getAllRecords() {
-    return [..._oldSessions, ..._newRecords];
+    return _cachedAllRecords ??= [..._oldSessions, ..._newRecords];
   }
 
   /// 获取记录日期（剥离时间部分，只保留日期）
@@ -79,7 +94,7 @@ class _StatsScreenState extends State<StatsScreen>
     } else if (record is WorkoutRecord) {
       return DateTime(record.date.year, record.date.month, record.date.day);
     }
-    return DateTime.now();
+    throw ArgumentError('Unknown record type: ${record.runtimeType}');
   }
 
   /// 获取记录组数
@@ -725,8 +740,8 @@ class _StatsScreenState extends State<StatsScreen>
 
           // 训练量趋势（周）
           _buildSection('训练量趋势', theme, [
-            WeeklyVolumeChart(
-              data: _statsCalc.calculateWeeklyVolumeTrend(workoutRecords, 8),
+            DailyVolumeChart(
+              data: _statsCalc.calculateDailyVolumeTrend(workoutRecords),
             ),
           ]),
           const SizedBox(height: 20),
@@ -736,7 +751,7 @@ class _StatsScreenState extends State<StatsScreen>
             title: '进步追踪',
             theme: theme,
             children: [
-              _buildStrengthProgressSection(workoutRecords, theme),
+              _buildStrengthProgressSection(workoutRecords, theme, showStrengthTrend: false),
               const SizedBox(height: 16),
               _buildCommonExercisesChart(
                 _calculateCommonExercises(records),
@@ -2047,8 +2062,9 @@ class _StatsScreenState extends State<StatsScreen>
   /// 力量进步 section - PR榜单 + 预估1RM
   Widget _buildStrengthProgressSection(
     List<WorkoutRecord> records,
-    AppThemeData theme,
-  ) {
+    AppThemeData theme, {
+    bool showStrengthTrend = true,
+  }) {
     final maxWeights = _statsCalc.calculateMaxWeightsByExercise(records);
     final estimated1RMs = _statsCalc.calculateEstimated1RM(records);
 
@@ -2217,7 +2233,7 @@ class _StatsScreenState extends State<StatsScreen>
         Divider(color: theme.textColor.withValues(alpha: 0.1)),
         const SizedBox(height: 16),
         // 力量趋势图
-        if (top8PRs.isNotEmpty) ...[
+        if (showStrengthTrend && top8PRs.isNotEmpty) ...[
           Row(
             children: [
               Icon(Icons.show_chart, size: 16, color: theme.accentColor),
@@ -2233,13 +2249,56 @@ class _StatsScreenState extends State<StatsScreen>
               ),
             ],
           ),
+          const SizedBox(height: 8),
+          // Exercise selector chips
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: top8PRs.map((pr) {
+                final isSelected = pr.key == (_selectedStrengthExercise ?? top8PRs.first.key);
+                return Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _selectedStrengthExercise = pr.key;
+                      });
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? theme.accentColor
+                            : theme.accentColor.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: isSelected
+                              ? theme.accentColor
+                              : theme.accentColor.withValues(alpha: 0.3),
+                        ),
+                      ),
+                      child: Text(
+                        pr.key.length > 6 ? '${pr.key.substring(0, 5)}...' : pr.key,
+                        style: TextStyle(
+                          fontFamily: '.SF Pro Text',
+                          fontSize: 11,
+                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                          color: isSelected ? Colors.white : theme.textColor,
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
           const SizedBox(height: 12),
           StrengthTrendChart(
             dataPoints: _statsCalc.calculateExerciseStrengthTrend(
               records,
-              top8PRs.first.key,
+              _selectedStrengthExercise ?? top8PRs.first.key,
             ),
-            exerciseName: top8PRs.first.key,
+            exerciseName: _selectedStrengthExercise ?? top8PRs.first.key,
           ),
         ],
       ],
@@ -2274,15 +2333,7 @@ class _StatsScreenState extends State<StatsScreen>
       (sum, v) => sum + v,
     );
 
-    // Color mapping for each PrimaryMuscleGroup
-    final muscleColors = <PrimaryMuscleGroup, Color>{
-      PrimaryMuscleGroup.chest: const Color(0xFFE53935), // Red
-      PrimaryMuscleGroup.back: const Color(0xFF1E88E5), // Blue
-      PrimaryMuscleGroup.shoulders: const Color(0xFFFB8C00), // Orange
-      PrimaryMuscleGroup.arms: const Color(0xFF8E24AA), // Purple
-      PrimaryMuscleGroup.legs: const Color(0xFF43A047), // Green
-      PrimaryMuscleGroup.core: const Color(0xFF00ACC1), // Cyan
-    };
+    // Color mapping for each PrimaryMuscleGroup (uses class-level static const)
 
     // Sort entries by volume for consistent display
     final sortedEntries = distribution.entries.toList()
@@ -2297,7 +2348,7 @@ class _StatsScreenState extends State<StatsScreen>
           child: CustomPaint(
             painter: _DonutChartPainter(
               data: sortedEntries,
-              colors: muscleColors,
+              colors: _kMuscleColors,
               totalVolume: totalVolume,
               fallbackColor: theme.secondaryTextColor,
             ),
@@ -2323,38 +2374,59 @@ class _StatsScreenState extends State<StatsScreen>
           ),
         ),
         const SizedBox(height: 20),
-        // Legend
-        Wrap(
-          spacing: 12,
-          runSpacing: 8,
-          children: sortedEntries.map((entry) {
-            final percentage = totalVolume > 0
-                ? (entry.value / totalVolume * 100).toStringAsFixed(1)
-                : '0.0';
-            return Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 12,
-                  height: 12,
-                  decoration: BoxDecoration(
-                    color: muscleColors[entry.key],
-                    borderRadius: BorderRadius.circular(3),
+        // Legend - group small segments (<5%) into "其他"
+        Builder(builder: (context) {
+          const kSmallThreshold = 0.05;
+          final legendItems = <MapEntry<String, Color?>>[];
+          double otherPercentage = 0;
+
+          for (final entry in sortedEntries) {
+            final pct = totalVolume > 0 ? entry.value / totalVolume : 0.0;
+            if (pct < kSmallThreshold) {
+              otherPercentage += pct;
+            } else {
+              legendItems.add(MapEntry(
+                '${entry.key.displayName} ${(pct * 100).toStringAsFixed(1)}%',
+                _kMuscleColors[entry.key],
+              ));
+            }
+          }
+          if (otherPercentage > 0) {
+            legendItems.add(MapEntry(
+              '其他 ${(otherPercentage * 100).toStringAsFixed(1)}%',
+              theme.secondaryTextColor,
+            ));
+          }
+
+          return Wrap(
+            spacing: 12,
+            runSpacing: 8,
+            children: legendItems.map((item) {
+              return Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 12,
+                    height: 12,
+                    decoration: BoxDecoration(
+                      color: item.value ?? theme.secondaryTextColor,
+                      borderRadius: BorderRadius.circular(3),
+                    ),
                   ),
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  '${entry.key.displayName} $percentage%',
-                  style: TextStyle(
-                    fontFamily: '.SF Pro Text',
-                    fontSize: 11,
-                    color: theme.textColor,
+                  const SizedBox(width: 6),
+                  Text(
+                    item.key,
+                    style: TextStyle(
+                      fontFamily: '.SF Pro Text',
+                      fontSize: 11,
+                      color: theme.textColor,
+                    ),
                   ),
-                ),
-              ],
-            );
-          }).toList(),
-        ),
+                ],
+              );
+            }).toList(),
+          );
+        }),
       ],
     );
   }
@@ -2569,7 +2641,7 @@ class _StatsScreenState extends State<StatsScreen>
 }
 
 /// Collapsible section wrapper for grouping related stats sections
-class _CollapsibleSection extends StatefulWidget {
+class _CollapsibleSection extends StatelessWidget {
   final String title;
   final List<Widget> children;
   final AppThemeData theme;
@@ -2581,20 +2653,15 @@ class _CollapsibleSection extends StatefulWidget {
   });
 
   @override
-  State<_CollapsibleSection> createState() => _CollapsibleSectionState();
-}
-
-class _CollapsibleSectionState extends State<_CollapsibleSection> {
-  @override
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 0),
       decoration: BoxDecoration(
-        color: widget.theme.surfaceColor,
+        color: theme.surfaceColor,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: widget.theme.textColor.withValues(alpha: 0.08),
+            color: theme.textColor.withValues(alpha: 0.08),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -2610,15 +2677,15 @@ class _CollapsibleSectionState extends State<_CollapsibleSection> {
             bottom: 8,
           ),
           title: Text(
-            widget.title,
+            title,
             style: TextStyle(
               fontFamily: '.SF Pro Text',
               fontSize: 15,
               fontWeight: FontWeight.w600,
-              color: widget.theme.textColor,
+              color: theme.textColor,
             ),
           ),
-          children: widget.children,
+          children: children,
         ),
       ),
     );
@@ -2648,15 +2715,22 @@ class _DonutChartPainter extends CustomPainter {
     final ringWidth = 24.0;
     final innerRadius = outerRadius - ringWidth;
 
-    double startAngle = -90 * (3.14159265359 / 180); // Start from top
+    double startAngle = -math.pi / 2; // Start from top
     const gapDegrees = 2.0;
-    const gapRadians = gapDegrees * (3.14159265359 / 180);
+    final gapRadians = gapDegrees * math.pi / 180;
 
     for (final entry in data) {
       final muscle = entry.key;
       final volume = entry.value;
       final percentage = volume / totalVolume;
-      final sweepAngle = percentage * 2 * 3.14159265359 - gapRadians;
+
+      // Skip segments too small to render (avoid negative sweep angle)
+      final rawSweep = percentage * 2 * math.pi - gapRadians;
+      if (rawSweep <= 0) {
+        startAngle += percentage * 2 * math.pi;
+        continue;
+      }
+      final sweepAngle = rawSweep;
 
       final paint = Paint()
         ..color = colors[muscle] ?? fallbackColor
@@ -2681,9 +2755,18 @@ class _DonutChartPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _DonutChartPainter oldDelegate) {
-    return oldDelegate.data != data ||
-        oldDelegate.colors != colors ||
-        oldDelegate.totalVolume != totalVolume ||
-        oldDelegate.fallbackColor != fallbackColor;
+    if (oldDelegate.data.length != data.length) return true;
+    if (oldDelegate.totalVolume != totalVolume) return true;
+    if (oldDelegate.fallbackColor != fallbackColor) return true;
+    for (int i = 0; i < data.length; i++) {
+      if (oldDelegate.data[i].key != data[i].key ||
+          oldDelegate.data[i].value != data[i].value) {
+        return true;
+      }
+    }
+    for (final key in colors.keys) {
+      if (oldDelegate.colors[key] != colors[key]) return true;
+    }
+    return false;
   }
 }
