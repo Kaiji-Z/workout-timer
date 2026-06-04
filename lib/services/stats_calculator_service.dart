@@ -131,27 +131,29 @@ class StatsCalculatorService {
     for (final record in records) {
       for (final recordedExercise in record.exercises) {
         final name = recordedExercise.name;
-        if (name.isEmpty) continue;
+        final key = name.isNotEmpty ? name : 'exercise_${recordedExercise.exerciseId}';
 
         // 从每组数据中计算最大预估1RM
         final sets = recordedExercise.setsData;
         if (sets != null && sets.isNotEmpty) {
           for (final set in sets) {
             if (set.weight == null || set.weight == 0) continue;
-            final reps = set.reps ?? 1;
+            if (set.reps == null || set.reps! > 10) continue;
+            final reps = set.reps!;
             // Epley 公式：weight × (1 + reps / 30)
             final e1rm = set.weight! * (1 + reps / 30);
-            final currentMax = estimated1RMs[name];
+            final currentMax = estimated1RMs[key];
             if (currentMax == null || e1rm > currentMax) {
-              estimated1RMs[name] = e1rm;
+              estimated1RMs[key] = e1rm;
             }
           }
         } else if (recordedExercise.maxWeight != null &&
             recordedExercise.maxWeight! > 0) {
-          // 没有详细组数据时，用 maxWeight 估算（假设 reps=1）
-          final currentMax = estimated1RMs[name];
+          // 回退：没有每组数据时，使用最大重量作为1RM的保守估计
+          // 注意：这会低估实际1RM（例如 80kg×8 实际1RM约103kg）
+          final currentMax = estimated1RMs[key];
           if (currentMax == null || recordedExercise.maxWeight! > currentMax) {
-            estimated1RMs[name] = recordedExercise.maxWeight!;
+            estimated1RMs[key] = recordedExercise.maxWeight!;
           }
         }
       }
@@ -256,7 +258,11 @@ class StatsCalculatorService {
     return recoveryData;
   }
 
-  /// Calculate secondary muscle group volume distribution
+  /// 计算次级肌群的容量分布
+  /// 
+  /// 采用 70/30 分配模型：主肌群下属的次级肌群获得 70% 的训练容量，
+  /// 辅助肌群获得 30%（稳定肌/协同肌）。
+  /// 当某个肌群没有定义次级肌群时，其份额全部分配给主肌群下属。
   /// Returns map of secondary muscle group → total volume (reps × weight)
   Map<SecondaryMuscleGroup, double> calculateSecondaryMuscleVolumeDistribution(
     List<WorkoutRecord> records,
