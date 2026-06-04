@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:uuid/uuid.dart';
@@ -281,17 +282,13 @@ class RecordRepository {
 
       try {
         // 解析JSON数组
-        final musclesList = musclesJson
-            .replaceAll('[', '')
-            .replaceAll(']', '')
-            .replaceAll('"', '')
-            .split(',');
+        final List<dynamic> musclesList = jsonDecode(musclesJson);
 
-        for (var muscleName in musclesList) {
-          final trimmed = muscleName.trim();
-          if (trimmed.isEmpty) continue;
+        for (final entry in musclesList) {
+          final muscleStr = entry.toString();
+          if (muscleStr.isEmpty) continue;
 
-          final muscle = PrimaryMuscleGroupExtension.fromString(trimmed);
+          final muscle = PrimaryMuscleGroupExtension.fromString(muscleStr);
           if (muscle != null) {
             distribution[muscle] = (distribution[muscle] ?? 0) + 1;
           }
