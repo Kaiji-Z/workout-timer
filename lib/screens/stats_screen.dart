@@ -157,6 +157,38 @@ class _StatsScreenState extends State<StatsScreen>
     });
   }
 
+  /// 跳转到本周
+  void _goToCurrentWeek() {
+    setState(() {
+      _selectedWeekStart = _getStartOfWeek(DateTime.now());
+    });
+  }
+
+  /// 跳转到当前月份
+  void _goToCurrentMonth() {
+    setState(() {
+      final now = DateTime.now();
+      _selectedMonth = now.month;
+      _selectedYear = now.year;
+    });
+  }
+
+  /// 是否已选中当前周
+  bool _isCurrentWeek() {
+    final now = DateTime.now();
+    final thisWeekStart = _getStartOfWeek(now);
+    final selectedWeekStart = _getStartOfWeek(_selectedWeekStart);
+    return thisWeekStart.year == selectedWeekStart.year &&
+        thisWeekStart.month == selectedWeekStart.month &&
+        thisWeekStart.day == selectedWeekStart.day;
+  }
+
+  /// 是否已选中当前月份
+  bool _isCurrentMonth() {
+    final now = DateTime.now();
+    return _selectedYear == now.year && _selectedMonth == now.month;
+  }
+
   /// 导航年份
   void _navigateYear(int direction) {
     setState(() {
@@ -496,7 +528,18 @@ class _StatsScreenState extends State<StatsScreen>
           ? Center(child: CircularProgressIndicator(color: theme.primaryColor))
           : TabBarView(
               controller: _tabController,
-              children: [_buildWeekView(theme), _buildMonthView(theme)],
+              children: [
+                RefreshIndicator(
+                  color: theme.primaryColor,
+                  onRefresh: () async => _loadData(),
+                  child: _buildWeekView(theme),
+                ),
+                RefreshIndicator(
+                  color: theme.primaryColor,
+                  onRefresh: () async => _loadData(),
+                  child: _buildMonthView(theme),
+                ),
+              ],
             ),
     );
   }
@@ -981,15 +1024,36 @@ class _StatsScreenState extends State<StatsScreen>
                   ),
                 ],
               ),
-              IconButton(
-                onPressed: canGoNext ? () => _navigateWeek(1) : null,
-                icon: Icon(
-                  Icons.chevron_right,
-                  color: canGoNext
-                      ? theme.textColor
-                      : theme.secondaryTextColor.withValues(alpha: 0.3),
-                ),
-              ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (!_isCurrentWeek())
+                    GestureDetector(
+                      onTap: _goToCurrentWeek,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        child: Text(
+                          '今天',
+                          style: TextStyle(
+                            fontFamily: '.SF Pro Text',
+                            fontSize: 12,
+                            color: theme.accentColor,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ),
+                  IconButton(
+                    onPressed: canGoNext ? () => _navigateWeek(1) : null,
+                    icon: Icon(
+                      Icons.chevron_right,
+                      color: canGoNext
+                          ? theme.textColor
+                          : theme.secondaryTextColor.withValues(alpha: 0.3),
+                    ),
+                  ),
+                 ],
+               ),
             ],
           ),
           const SizedBox(height: 16),
@@ -1095,6 +1159,22 @@ class _StatsScreenState extends State<StatsScreen>
               color: theme.textColor,
             ),
           ),
+          if (!_isCurrentMonth())
+            GestureDetector(
+              onTap: _goToCurrentMonth,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: Text(
+                  '今天',
+                  style: TextStyle(
+                    fontFamily: '.SF Pro Text',
+                    fontSize: 12,
+                    color: theme.accentColor,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ),
           IconButton(
             onPressed: _selectedYear < DateTime.now().year
                 ? () => _navigateYear(1)
