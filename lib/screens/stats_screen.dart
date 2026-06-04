@@ -1796,8 +1796,8 @@ class _StatsScreenState extends State<StatsScreen>
     return Column(
       children: exercises.entries.map((entry) {
         final percentage = maxCount > 0 ? entry.value / maxCount : 0.0;
-        final displayName = entry.key.length > 20
-            ? '${entry.key.substring(0, 18)}...'
+        final displayName = entry.key.length > 12
+            ? '${entry.key.substring(0, 12)}...'
             : entry.key;
 
         return Padding(
@@ -2151,8 +2151,8 @@ class _StatsScreenState extends State<StatsScreen>
           final index = entry.key;
           final pr = entry.value;
           final rank = index + 1;
-          final exerciseName = pr.key.length > 15
-              ? '${pr.key.substring(0, 13)}...'
+          final exerciseName = pr.key.length > 12
+              ? '${pr.key.substring(0, 12)}...'
               : pr.key;
           final isTop = rank == 1;
 
@@ -2175,7 +2175,7 @@ class _StatsScreenState extends State<StatsScreen>
                   ),
                   child: Center(
                     child: isTop
-                        ? const Text('🏆', style: TextStyle(fontSize: 12))
+                        ? Icon(Icons.emoji_events, size: 12, color: theme.accentColor)
                         : Text(
                             '$rank',
                             style: TextStyle(
@@ -2239,8 +2239,8 @@ class _StatsScreenState extends State<StatsScreen>
           spacing: 12,
           runSpacing: 8,
           children: top5_1RMs.map((e1rm) {
-            final name = e1rm.key.length > 10
-                ? '${e1rm.key.substring(0, 8)}...'
+            final name = e1rm.key.length > 12
+                ? '${e1rm.key.substring(0, 12)}...'
                 : e1rm.key;
             return Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
@@ -2311,7 +2311,7 @@ class _StatsScreenState extends State<StatsScreen>
                         ),
                       ),
                       child: Text(
-                        pr.key.length > 6 ? '${pr.key.substring(0, 5)}...' : pr.key,
+                        pr.key.length > 12 ? '${pr.key.substring(0, 12)}...' : pr.key,
                         style: TextStyle(
                           fontFamily: '.SF Pro Text',
                           fontSize: 11,
