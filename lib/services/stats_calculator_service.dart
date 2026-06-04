@@ -19,11 +19,12 @@ class StrengthDataPoint {
 /// Service for calculating workout statistics
 class StatsCalculatorService {
   /// Calculate total volume (sets × reps × weight) for all records
-  double calculateTotalVolume(List<WorkoutRecord> records) {
+  /// When [bodyWeight] is provided (>0), bodyweight exercises use adjusted volume
+  double calculateTotalVolume(List<WorkoutRecord> records, {double? bodyWeight}) {
     double totalVolume = 0.0;
     for (final record in records) {
       for (final exercise in record.exercises) {
-        totalVolume += exercise.totalVolume;
+        totalVolume += exercise.bodyweightAdjustedVolume(bodyWeight);
       }
     }
     return totalVolume;
@@ -42,8 +43,10 @@ class StatsCalculatorService {
   }
 
   /// Calculate muscle group distribution with volume
+  /// When [bodyWeight] is provided (>0), bodyweight exercises use adjusted volume
   Map<PrimaryMuscleGroup, double> calculateMuscleVolumeDistribution(
     List<WorkoutRecord> records,
+    {double? bodyWeight}
   ) {
     final distribution = <PrimaryMuscleGroup, double>{};
 
@@ -54,7 +57,7 @@ class StatsCalculatorService {
         if (exercise == null) continue;
 
         final muscle = exercise.primaryMuscle;
-        final volume = recordedExercise.totalVolume;
+        final volume = recordedExercise.bodyweightAdjustedVolume(bodyWeight);
         distribution[muscle] = (distribution[muscle] ?? 0) + volume;
       }
     }
@@ -64,9 +67,11 @@ class StatsCalculatorService {
 
   /// Calculate weekly volume trend
   /// Returns map of week start date (Monday) to total volume
+  /// When [bodyWeight] is provided (>0), bodyweight exercises use adjusted volume
   Map<DateTime, double> calculateWeeklyVolumeTrend(
     List<WorkoutRecord> records,
     int weeks,
+    {double? bodyWeight}
   ) {
     final result = <DateTime, double>{};
 
@@ -90,7 +95,7 @@ class StatsCalculatorService {
       if (result.containsKey(recordWeekStart)) {
         final recordVolume = record.exercises.fold<double>(
           0.0,
-          (sum, e) => sum + e.totalVolume,
+          (sum, e) => sum + e.bodyweightAdjustedVolume(bodyWeight),
         );
         result[recordWeekStart] = (result[recordWeekStart] ?? 0) + recordVolume;
       }
@@ -176,12 +181,14 @@ class StatsCalculatorService {
 
         double maxWeight = 0;
         double best1RM = 0;
+        int? bestReps;
 
         final sets = recordedExercise.setsData;
         if (sets != null && sets.isNotEmpty) {
           for (final set in sets) {
             if (set.weight != null && set.weight! > maxWeight) {
               maxWeight = set.weight!;
+              bestReps = set.reps;
             }
             if (set.weight != null && set.weight! > 0) {
               final reps = set.reps ?? 1;
@@ -192,6 +199,7 @@ class StatsCalculatorService {
         } else if (recordedExercise.maxWeight != null) {
           maxWeight = recordedExercise.maxWeight!;
           best1RM = maxWeight;
+          bestReps = null; // no reps data available
         }
 
         if (maxWeight > 0) {
@@ -199,6 +207,7 @@ class StatsCalculatorService {
             StrengthDataPoint(
               date: record.date,
               weight: maxWeight,
+              reps: bestReps,
               estimated1RM: best1RM,
             ),
           );
@@ -263,9 +272,11 @@ class StatsCalculatorService {
   /// 采用 70/30 分配模型：主肌群下属的次级肌群获得 70% 的训练容量，
   /// 辅助肌群获得 30%（稳定肌/协同肌）。
   /// 当某个肌群没有定义次级肌群时，其份额全部分配给主肌群下属。
+  /// When [bodyWeight] is provided (>0), bodyweight exercises use adjusted volume
   /// Returns map of secondary muscle group → total volume (reps × weight)
   Map<SecondaryMuscleGroup, double> calculateSecondaryMuscleVolumeDistribution(
     List<WorkoutRecord> records,
+    {double? bodyWeight}
   ) {
     final distribution = <SecondaryMuscleGroup, double>{};
 
@@ -274,7 +285,7 @@ class StatsCalculatorService {
         final exercise = recordedExercise.exercise;
         if (exercise == null) continue;
 
-        final volume = recordedExercise.totalVolume;
+        final volume = recordedExercise.bodyweightAdjustedVolume(bodyWeight);
         if (volume <= 0) continue;
 
         // 主肌群的子分类均分容量
@@ -312,7 +323,8 @@ class StatsCalculatorService {
 
   /// Calculate daily volume trend
   /// Returns map of date (normalized to midnight) to total volume
-  Map<DateTime, double> calculateDailyVolumeTrend(List<WorkoutRecord> records) {
+  /// When [bodyWeight] is provided (>0), bodyweight exercises use adjusted volume
+  Map<DateTime, double> calculateDailyVolumeTrend(List<WorkoutRecord> records, {double? bodyWeight}) {
     final result = <DateTime, double>{};
 
     for (final record in records) {
@@ -325,7 +337,7 @@ class StatsCalculatorService {
 
       final recordVolume = record.exercises.fold<double>(
         0.0,
-        (sum, e) => sum + e.totalVolume,
+        (sum, e) => sum + e.bodyweightAdjustedVolume(bodyWeight),
       );
       result[normalizedDate] = (result[normalizedDate] ?? 0) + recordVolume;
     }
