@@ -555,6 +555,259 @@ void main() {
         expect(service.calculateMuscleVolumeDistribution(records), isEmpty);
       });
     });
+
+    group('bodyweight volume integration', () {
+      test('returns totalVolume when bodyWeight is null', () {
+        final records = [
+          _createRecord(
+            id: '1',
+            exercises: [
+              _createRecordedExercise(
+                exerciseId: 'Pushups',
+                exercise: _createBodyweightExercise(
+                  id: 'Pushups',
+                  name: 'Pushups',
+                  muscle: PrimaryMuscleGroup.chest,
+                ),
+                setsData: [
+                  const SetData(setNumber: 1, reps: 10, weight: 0),
+                ],
+              ),
+            ],
+          ),
+        ];
+
+        final volume = service.calculateTotalVolume(records);
+        expect(volume, equals(0.0));
+      });
+
+      test('returns totalVolume when bodyWeight is 0', () {
+        final records = [
+          _createRecord(
+            id: '1',
+            exercises: [
+              _createRecordedExercise(
+                exerciseId: 'Pushups',
+                exercise: _createBodyweightExercise(
+                  id: 'Pushups',
+                  name: 'Pushups',
+                  muscle: PrimaryMuscleGroup.chest,
+                ),
+                setsData: [
+                  const SetData(setNumber: 1, reps: 10, weight: 0),
+                ],
+              ),
+            ],
+          ),
+        ];
+
+        final volume = service.calculateTotalVolume(records, bodyWeight: 0.0);
+        expect(volume, equals(0.0));
+      });
+
+      test('calculates adjusted volume for bodyweight exercise with bodyWeight', () {
+        final records = [
+          _createRecord(
+            id: '1',
+            exercises: [
+              _createRecordedExercise(
+                exerciseId: 'Pushups',
+                exercise: _createBodyweightExercise(
+                  id: 'Pushups',
+                  name: 'Pushups',
+                  muscle: PrimaryMuscleGroup.chest,
+                ),
+                setsData: [
+                  const SetData(setNumber: 1, reps: 10, weight: 0),
+                ],
+              ),
+            ],
+          ),
+        ];
+
+        // Pushups coefficient = 0.64, eqWeight = 70 × 0.64 = 44.8
+        // volume = 10 × (0 + 44.8) = 448.0
+        final volume = service.calculateTotalVolume(records, bodyWeight: 70.0);
+        expect(volume, closeTo(448.0, 0.01));
+      });
+
+      test('calculates adjusted volume for bodyweight exercise with added weight', () {
+        final records = [
+          _createRecord(
+            id: '1',
+            exercises: [
+              _createRecordedExercise(
+                exerciseId: 'Pullups',
+                exercise: _createBodyweightExercise(
+                  id: 'Pullups',
+                  name: 'Pullups',
+                  muscle: PrimaryMuscleGroup.back,
+                ),
+                setsData: [
+                  const SetData(setNumber: 1, reps: 8, weight: 10),
+                ],
+              ),
+            ],
+          ),
+        ];
+
+        // Pullups coefficient = 0.70, eqWeight = 70 × 0.70 = 49.0
+        // volume = 8 × (10 + 49.0) = 8 × 59.0 = 472.0
+        final volume = service.calculateTotalVolume(records, bodyWeight: 70.0);
+        expect(volume, closeTo(472.0, 0.01));
+      });
+
+      test('returns totalVolume for weighted exercise even with bodyWeight', () {
+        final records = [
+          _createRecord(
+            id: '1',
+            exercises: [
+              _createRecordedExercise(
+                exerciseId: 'ex1',
+                exercise: _createExercise(
+                  id: 'ex1',
+                  name: 'Bench Press',
+                  muscle: PrimaryMuscleGroup.chest,
+                ),
+                setsData: [
+                  const SetData(setNumber: 1, reps: 10, weight: 100),
+                ],
+              ),
+            ],
+          ),
+        ];
+
+        // Bench Press is barbell (NOT bodyweight) → uses totalVolume
+        final volume = service.calculateTotalVolume(records, bodyWeight: 70.0);
+        expect(volume, equals(1000.0));
+      });
+
+      test('bodyweight volume in muscle distribution', () {
+        final records = [
+          _createRecord(
+            id: '1',
+            exercises: [
+              _createRecordedExercise(
+                exerciseId: 'Bodyweight_Squat',
+                exercise: _createBodyweightExercise(
+                  id: 'Bodyweight_Squat',
+                  name: 'Bodyweight Squat',
+                  muscle: PrimaryMuscleGroup.legs,
+                ),
+                setsData: [
+                  const SetData(setNumber: 1, reps: 15, weight: 0),
+                ],
+              ),
+            ],
+          ),
+        ];
+
+        // Squat coefficient = 1.00, eqWeight = 70 × 1.00 = 70
+        // volume = 15 × (0 + 70) = 1050.0
+        final distribution = service.calculateMuscleVolumeDistribution(records, bodyWeight: 70.0);
+        expect(distribution[PrimaryMuscleGroup.legs], closeTo(1050.0, 0.01));
+      });
+
+      test('bodyweight volume in daily trend', () {
+        final records = [
+          _createRecord(
+            id: '1',
+            exercises: [
+              _createRecordedExercise(
+                exerciseId: 'Bodyweight_Squat',
+                exercise: _createBodyweightExercise(
+                  id: 'Bodyweight_Squat',
+                  name: 'Bodyweight Squat',
+                  muscle: PrimaryMuscleGroup.legs,
+                ),
+                setsData: [
+                  const SetData(setNumber: 1, reps: 15, weight: 0),
+                ],
+              ),
+            ],
+          ),
+        ];
+
+        // Squat coefficient = 1.00, volume = 15 × 70 = 1050.0
+        final trend = service.calculateDailyVolumeTrend(records, bodyWeight: 70.0);
+        expect(trend.length, equals(1));
+        expect(trend.values.first, closeTo(1050.0, 0.01));
+      });
+
+      test('bodyweight volume without exercise reference falls back to totalVolume', () {
+        final records = [
+          _createRecord(
+            id: '1',
+            exercises: [
+              _createRecordedExercise(
+                exerciseId: 'Pushups',
+                exercise: null, // No exercise reference loaded
+                setsData: [
+                  const SetData(setNumber: 1, reps: 10, weight: 0),
+                ],
+              ),
+            ],
+          ),
+        ];
+
+        // No exercise reference → can't determine bodyweight → totalVolume = 0
+        final volume = service.calculateTotalVolume(records, bodyWeight: 70.0);
+        expect(volume, equals(0.0));
+      });
+    });
+
+    group('calculateExerciseStrengthTrend reps tracking', () {
+      test('populates reps from heaviest set', () {
+        final records = [
+          _createRecord(
+            id: '1',
+            exercises: [
+              _createRecordedExercise(
+                exerciseId: 'ex1',
+                exercise: _createExercise(
+                  id: 'ex1',
+                  name: 'Bench Press',
+                  muscle: PrimaryMuscleGroup.chest,
+                ),
+                setsData: [
+                  const SetData(setNumber: 1, reps: 10, weight: 80),
+                  const SetData(setNumber: 2, reps: 6, weight: 100),
+                ],
+              ),
+            ],
+          ),
+        ];
+
+        final dataPoints = service.calculateExerciseStrengthTrend(records, 'Bench Press');
+        expect(dataPoints.length, equals(1));
+        expect(dataPoints[0].reps, equals(6));
+        expect(dataPoints[0].weight, equals(100.0));
+      });
+
+      test('reps is null when no setsData', () {
+        final records = [
+          _createRecord(
+            id: '1',
+            exercises: [
+              _createRecordedExercise(
+                exerciseId: 'ex1',
+                exercise: _createExercise(
+                  id: 'ex1',
+                  name: 'Bench Press',
+                  muscle: PrimaryMuscleGroup.chest,
+                ),
+                maxWeight: 100,
+              ),
+            ],
+          ),
+        ];
+
+        final dataPoints = service.calculateExerciseStrengthTrend(records, 'Bench Press');
+        expect(dataPoints.length, equals(1));
+        expect(dataPoints[0].reps, isNull);
+        expect(dataPoints[0].weight, equals(100.0));
+      });
+    });
   });
 }
 
@@ -606,6 +859,29 @@ Exercise _createExercise({
     primaryMuscle: muscle,
     secondaryMuscles: [],
     equipment: 'barbell',
+    level: 'intermediate',
+    recommendation: const ExerciseRecommendation(
+      recommendedSets: 3,
+      minReps: 8,
+      maxReps: 12,
+      restSeconds: 60,
+    ),
+  );
+}
+
+Exercise _createBodyweightExercise({
+  required String id,
+  required String name,
+  required PrimaryMuscleGroup muscle,
+  String equipment = 'body only',
+}) {
+  return Exercise(
+    id: id,
+    name: name,
+    nameEn: name,
+    primaryMuscle: muscle,
+    secondaryMuscles: [],
+    equipment: equipment,
     level: 'intermediate',
     recommendation: const ExerciseRecommendation(
       recommendedSets: 3,
