@@ -1,23 +1,36 @@
+import 'dart:math' as math;
+
 import 'package:workout_timer/models/workout_record.dart';
 import 'package:workout_timer/models/muscle_group.dart';
 
-/// 力量记录数据点
-class StrengthDataPoint {
+/// Estimated 1RM data point for a single exercise over time
+class Estimated1RMPoint {
   final DateTime date;
+  final double estimated1RM;
   final double weight;
   final int? reps;
-  final double estimated1RM;
 
-  const StrengthDataPoint({
+  const Estimated1RMPoint({
     required this.date,
+    required this.estimated1RM,
     required this.weight,
     this.reps,
-    required this.estimated1RM,
   });
 }
 
 /// Service for calculating workout statistics
 class StatsCalculatorService {
+  /// Estimate 1RM using Mayhew et al. (1992) exponential formula.
+  ///
+  /// Best classical formula for 10-15 rep range. Derived from 435 college
+  /// students. Error margin ±5-8kg at 12 reps.
+  ///
+  /// Formula: 1RM = 100w / (52.2 + 41.9 × e^(-0.055 × r))
+  static double estimate1RM(double weight, int reps) {
+    if (weight <= 0 || reps <= 0) return 0;
+    return 100 * weight / (52.2 + 41.9 * math.exp(-0.055 * reps));
+  }
+
   /// Calculate total volume (sets × reps × weight) for all records
   /// When [bodyWeight] is provided (>0), bodyweight exercises use adjusted volume
   double calculateTotalVolume(List<WorkoutRecord> records, {double? bodyWeight}) {
@@ -52,7 +65,6 @@ class StatsCalculatorService {
 
     for (final record in records) {
       for (final recordedExercise in record.exercises) {
-        // Skip exercises without loaded exercise reference
         final exercise = recordedExercise.exercise;
         if (exercise == null) continue;
 
@@ -65,170 +77,83 @@ class StatsCalculatorService {
     return distribution;
   }
 
-  /// Calculate weekly volume trend
-  /// Returns map of week start date (Monday) to total volume
-  /// When [bodyWeight] is provided (>0), bodyweight exercises use adjusted volume
-  Map<DateTime, double> calculateWeeklyVolumeTrend(
+  /// Calculate total completed sets per primary muscle group
+  Map<PrimaryMuscleGroup, int> calculateSetsPerMuscleGroup(
     List<WorkoutRecord> records,
-    int weeks,
-    {double? bodyWeight}
   ) {
-    final result = <DateTime, double>{};
+    final result = <PrimaryMuscleGroup, int>{};
 
-    if (weeks <= 0) return result;
-
-    // Get the current week's Monday
-    final now = DateTime.now();
-    final currentMonday = _getWeekStart(now);
-
-    // Initialize all weeks with 0 volume
-    for (int i = 0; i < weeks; i++) {
-      final weekStart = currentMonday.subtract(Duration(days: 7 * i));
-      result[weekStart] = 0.0;
-    }
-
-    // Aggregate volume by week
     for (final record in records) {
-      final recordWeekStart = _getWeekStart(record.date);
+      for (final recordedExercise in record.exercises) {
+        final exercise = recordedExercise.exercise;
+        if (exercise == null) continue;
 
-      // Only include if within the requested weeks range
-      if (result.containsKey(recordWeekStart)) {
-        final recordVolume = record.exercises.fold<double>(
-          0.0,
-          (sum, e) => sum + e.bodyweightAdjustedVolume(bodyWeight),
-        );
-        result[recordWeekStart] = (result[recordWeekStart] ?? 0) + recordVolume;
+        final muscle = exercise.primaryMuscle;
+        final sets = recordedExercise.setsData != null &&
+                recordedExercise.setsData!.isNotEmpty
+            ? recordedExercise.setsData!.length
+            : recordedExercise.completedSets;
+        result[muscle] = (result[muscle] ?? 0) + sets;
       }
     }
 
     return result;
   }
 
-  /// Calculate personal records per exercise (max weight)
-  Map<String, double> calculateMaxWeightsByExercise(
+  /// Calculate estimated 1RM trend over time for each exercise.
+  ///
+  /// For each exercise in each session, computes the Mayhew estimated 1RM for
+  /// every set and records the highest. Returns map of exercise name → list of
+  /// (date, estimated1RM) sorted by date.
+  ///
+  /// Exercises without per-set reps data are skipped (can't estimate 1RM
+  /// without reps).
+  Map<String, List<Estimated1RMPoint>> calculateEstimated1RMTrend(
     List<WorkoutRecord> records,
   ) {
-    final maxWeights = <String, double>{};
+    final result = <String, List<Estimated1RMPoint>>{};
 
     for (final record in records) {
-      for (final recordedExercise in record.exercises) {
-        final exerciseName = recordedExercise.name;
-        if (exerciseName.isEmpty) continue;
+      // Track best 1RM per exercise name in this session
+      final sessionBest = <String, Estimated1RMPoint>{};
 
-        final weight = recordedExercise.maxWeight;
-        if (weight == null || weight == 0) continue;
-
-        final currentMax = maxWeights[exerciseName];
-        if (currentMax == null || weight > currentMax) {
-          maxWeights[exerciseName] = weight;
-        }
-      }
-    }
-
-    return maxWeights;
-  }
-
-  /// Calculate estimated 1RM using Epley formula: weight × (1 + reps / 30)
-  /// Returns max estimated 1RM per exercise name across all records
-  Map<String, double> calculateEstimated1RM(List<WorkoutRecord> records) {
-    final estimated1RMs = <String, double>{};
-
-    for (final record in records) {
       for (final recordedExercise in record.exercises) {
         final name = recordedExercise.name;
-        final key = name.isNotEmpty ? name : 'exercise_${recordedExercise.exerciseId}';
-
-        // 从每组数据中计算最大预估1RM
-        final sets = recordedExercise.setsData;
-        if (sets != null && sets.isNotEmpty) {
-          for (final set in sets) {
-            if (set.weight == null || set.weight == 0) continue;
-            if (set.reps == null || set.reps! > 10) continue;
-            final reps = set.reps!;
-            // Epley 公式：weight × (1 + reps / 30)
-            final e1rm = set.weight! * (1 + reps / 30);
-            final currentMax = estimated1RMs[key];
-            if (currentMax == null || e1rm > currentMax) {
-              estimated1RMs[key] = e1rm;
-            }
-          }
-        } else if (recordedExercise.maxWeight != null &&
-            recordedExercise.maxWeight! > 0) {
-          // 回退：没有每组数据时，使用最大重量作为1RM的保守估计
-          // 注意：这会低估实际1RM（例如 80kg×8 实际1RM约103kg）
-          final currentMax = estimated1RMs[key];
-          if (currentMax == null || recordedExercise.maxWeight! > currentMax) {
-            estimated1RMs[key] = recordedExercise.maxWeight!;
-          }
-        }
-      }
-    }
-
-    return estimated1RMs;
-  }
-
-  /// Calculate strength trend for a specific exercise
-  /// Returns chronological list of data points (date → max weight + estimated 1RM)
-  List<StrengthDataPoint> calculateExerciseStrengthTrend(
-    List<WorkoutRecord> records,
-    String exerciseName,
-  ) {
-    final dataPoints = <StrengthDataPoint>[];
-
-    for (final record in records) {
-      for (final recordedExercise in record.exercises) {
-        if (recordedExercise.name != exerciseName) continue;
-
-        double maxWeight = 0;
-        double best1RM = 0;
-        int? bestReps;
+        if (name.isEmpty) continue;
 
         final sets = recordedExercise.setsData;
-        if (sets != null && sets.isNotEmpty) {
-          for (final set in sets) {
-            if (set.weight != null && set.weight! > maxWeight) {
-              maxWeight = set.weight!;
-              bestReps = set.reps;
-            }
-            if (set.weight != null && set.weight! > 0) {
-              final reps = set.reps ?? 1;
-              final e1rm = set.weight! * (1 + reps / 30);
-              if (e1rm > best1RM) best1RM = e1rm;
-            }
-          }
-        } else if (recordedExercise.maxWeight != null) {
-          maxWeight = recordedExercise.maxWeight!;
-          best1RM = maxWeight;
-          bestReps = null; // no reps data available
-        }
+        if (sets == null || sets.isEmpty) continue;
 
-        if (maxWeight > 0) {
-          dataPoints.add(
-            StrengthDataPoint(
+        for (final set in sets) {
+          if (set.weight == null || set.weight! <= 0) continue;
+          if (set.reps == null || set.reps! <= 0) continue;
+
+          final e1RM = estimate1RM(set.weight!, set.reps!);
+          final current = sessionBest[name];
+          if (current == null || e1RM > current.estimated1RM) {
+            sessionBest[name] = Estimated1RMPoint(
               date: record.date,
-              weight: maxWeight,
-              reps: bestReps,
-              estimated1RM: best1RM,
-            ),
-          );
+              estimated1RM: e1RM,
+              weight: set.weight!,
+              reps: set.reps,
+            );
+          }
         }
+      }
+
+      // Add session bests to result
+      for (final entry in sessionBest.entries) {
+        result.putIfAbsent(entry.key, () => []);
+        result[entry.key]!.add(entry.value);
       }
     }
 
-    // 按日期排序
-    dataPoints.sort((a, b) => a.date.compareTo(b.date));
+    // Sort each exercise's points by date
+    for (final points in result.values) {
+      points.sort((a, b) => a.date.compareTo(b.date));
+    }
 
-    return dataPoints;
-  }
-
-  /// Get the Monday of the week for a given date
-  DateTime _getWeekStart(DateTime date) {
-    final weekday = date.weekday; // 1 = Monday, 7 = Sunday
-    return DateTime(
-      date.year,
-      date.month,
-      date.day,
-    ).subtract(Duration(days: weekday - 1));
+    return result;
   }
 
   /// Calculate daily volume trend
@@ -238,7 +163,6 @@ class StatsCalculatorService {
     final result = <DateTime, double>{};
 
     for (final record in records) {
-      // Normalize date to midnight
       final normalizedDate = DateTime(
         record.date.year,
         record.date.month,
