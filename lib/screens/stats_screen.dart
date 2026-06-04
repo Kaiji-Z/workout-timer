@@ -10,7 +10,6 @@ import '../models/muscle_group.dart';
 import '../services/workout_repository.dart';
 import '../services/stats_calculator_service.dart';
 import '../bloc/record_provider.dart';
-import '../widgets/strength_trend_chart.dart';
 import '../widgets/volume_trend_charts.dart';
 import 'ai_analysis_screen.dart';
 import '../services/user_preferences_service.dart';
@@ -34,7 +33,6 @@ class _StatsScreenState extends State<StatsScreen>
   int _selectedMonth = DateTime.now().month;
   int _selectedYear = DateTime.now().year;
   List<dynamic>? _cachedAllRecords;
-  String? _selectedStrengthExercise;
   double _userBodyWeight = 0.0;
 
   static const _kMuscleColors = <PrimaryMuscleGroup, Color>{
@@ -63,7 +61,6 @@ class _StatsScreenState extends State<StatsScreen>
   Future<void> _loadData() async {
     try {
       _cachedAllRecords = null;
-      _selectedStrengthExercise = null;
       final recordProvider = context.read<RecordProvider>();
       // 确保记录已加载（首次进入时可能还未加载）
       if (recordProvider.recordCount == 0) {
@@ -834,7 +831,7 @@ class _StatsScreenState extends State<StatsScreen>
           _buildWeekSelector(theme),
           const SizedBox(height: 20),
 
-          // 概览 (频率 + 训练量)
+          // 概览 (频率 + 训练量 + 训练密度)
           _CollapsibleSection(
             title: '概览',
             theme: theme,
@@ -842,6 +839,8 @@ class _StatsScreenState extends State<StatsScreen>
               _buildFrequencyOverview(frequencyStats, theme),
               const SizedBox(height: 16),
               _buildVolumeOverview(volumeStats, theme, volumeChange: volumeChange),
+              const SizedBox(height: 12),
+              _buildDensityMetric(workoutRecords, theme),
             ],
           ),
           const SizedBox(height: 20),
@@ -866,13 +865,11 @@ class _StatsScreenState extends State<StatsScreen>
           ]),
           const SizedBox(height: 20),
 
-          // 进步追踪 (力量进步 + 常用动作)
+          // 进步追踪 (常用动作)
           _CollapsibleSection(
             title: '进步追踪',
             theme: theme,
             children: [
-              _buildStrengthProgressSection(workoutRecords, theme, showStrengthTrend: false),
-              const SizedBox(height: 16),
               _buildCommonExercisesChart(
                 _calculateCommonExercises(records),
                 theme,
@@ -881,29 +878,18 @@ class _StatsScreenState extends State<StatsScreen>
           ),
           const SizedBox(height: 20),
 
-          // 身体分析 (肌群容量 + 恢复状态)
+          // 身体分析 (每肌群组数 + 肌群容量 + 恢复状态)
           _CollapsibleSection(
             title: '身体分析',
             theme: theme,
             children: [
+              _buildSetsPerMuscleGroupChart(workoutRecords, theme),
+              const SizedBox(height: 20),
               _buildMuscleVolumeChart(workoutRecords, theme),
               const SizedBox(height: 16),
               _buildPrimaryRecoveryList(workoutRecords, theme),
             ],
           ),
-          const SizedBox(height: 20),
-
-          // 训练洞察
-          _buildSection('训练洞察', theme, [
-            _buildTrainingInsightsCard(
-              _calculateWeakMusclesData(records),
-              _calculateMuscleImbalance(workoutRecords),
-              _calculateStrengthBreakthroughs(workoutRecords, _newRecords),
-              _calculateOvertrainedMusclesData(records),
-              theme,
-            ),
-          ]),
-          const SizedBox(height: 20),
         ],
       ),
     );
@@ -946,7 +932,7 @@ class _StatsScreenState extends State<StatsScreen>
           _buildMonthGrid(monthlyCounts, theme),
           const SizedBox(height: 20),
 
-          // 概览 (频率 + 训练量)
+          // 概览 (频率 + 训练量 + 训练密度)
           _CollapsibleSection(
             title: '概览 ($_selectedMonth月)',
             theme: theme,
@@ -954,6 +940,8 @@ class _StatsScreenState extends State<StatsScreen>
               _buildFrequencyOverview(frequencyStats, theme),
               const SizedBox(height: 16),
               _buildVolumeOverview(volumeStats, theme, volumeChange: volumeChange),
+              const SizedBox(height: 12),
+              _buildDensityMetric(workoutRecords, theme),
             ],
           ),
           const SizedBox(height: 20),
@@ -966,12 +954,12 @@ class _StatsScreenState extends State<StatsScreen>
           ]),
           const SizedBox(height: 20),
 
-          // 进步追踪 (力量进步 + 常用动作)
+          // 进步追踪 (估算1RM趋势 + 常用动作)
           _CollapsibleSection(
             title: '进步追踪',
             theme: theme,
             children: [
-              _buildStrengthProgressSection(workoutRecords, theme),
+              _buildEstimated1RMTrend(workoutRecords, theme),
               const SizedBox(height: 16),
               _buildCommonExercisesChart(
                 _calculateCommonExercises(records),
@@ -981,28 +969,18 @@ class _StatsScreenState extends State<StatsScreen>
           ),
           const SizedBox(height: 20),
 
-          // 身体分析 (肌群容量 + 恢复状态)
+          // 身体分析 (每肌群组数 + 肌群容量 + 恢复状态)
           _CollapsibleSection(
             title: '身体分析',
             theme: theme,
             children: [
+              _buildSetsPerMuscleGroupChart(workoutRecords, theme),
+              const SizedBox(height: 20),
               _buildMuscleVolumeChart(workoutRecords, theme),
               const SizedBox(height: 16),
               _buildPrimaryRecoveryList(workoutRecords, theme),
             ],
           ),
-          const SizedBox(height: 20),
-
-          // 训练洞察
-          _buildSection('训练洞察', theme, [
-            _buildTrainingInsightsCard(
-              _calculateWeakMusclesData(records),
-              _calculateMuscleImbalance(workoutRecords),
-              _calculateStrengthBreakthroughs(workoutRecords, _newRecords),
-              _calculateOvertrainedMusclesData(records),
-              theme,
-            ),
-          ]),
         ],
       ),
     );
@@ -1611,24 +1589,7 @@ class _StatsScreenState extends State<StatsScreen>
     );
   }
 
-  // ==================== 新增图表数据计算方法 ====================
-
-  /// 计算肌肉分布数据
-  Map<PrimaryMuscleGroup, int> _calculateMuscleDistribution(
-    List<dynamic> records,
-  ) {
-    final distribution = <PrimaryMuscleGroup, int>{};
-
-    for (final record in records) {
-      if (record is WorkoutRecord && record.trainedMuscles.isNotEmpty) {
-        for (final muscle in record.trainedMuscles) {
-          distribution[muscle] = (distribution[muscle] ?? 0) + 1;
-        }
-      }
-    }
-
-    return distribution;
-  }
+  // ==================== 图表数据计算方法 ====================
 
   /// 计算常用动作数据（TOP 10）
   Map<String, int> _calculateCommonExercises(List<dynamic> records) {
@@ -1651,246 +1612,7 @@ class _StatsScreenState extends State<StatsScreen>
     return Map.fromEntries(sorted.take(10));
   }
 
-  /// 计算薄弱部位（训练次数最少或未训练的）
-  List<Map<String, dynamic>> _calculateWeakMusclesData(List<dynamic> records) {
-    final muscleDistribution = _calculateMuscleDistribution(records);
-    final allMuscles = PrimaryMuscleGroup.values;
-    final result = <Map<String, dynamic>>[];
-
-    for (final muscle in allMuscles) {
-      if (!muscleDistribution.containsKey(muscle)) {
-        result.add({
-          'muscle': muscle,
-          'displayName': muscle.displayName,
-          'count': 0,
-          'status': 'untrained',
-        });
-      }
-    }
-
-    if (muscleDistribution.isNotEmpty) {
-      final avgCount =
-          muscleDistribution.values.fold<int>(0, (sum, v) => sum + v) /
-          muscleDistribution.length;
-      for (final entry in muscleDistribution.entries) {
-        if (entry.value <= avgCount * 0.5) {
-          result.add({
-            'muscle': entry.key,
-            'displayName': entry.key.displayName,
-            'count': entry.value,
-            'status': 'weak',
-          });
-        }
-      }
-    }
-
-    return result;
-  }
-
-  /// 计算过度训练风险部位（连续3天以上训练同一肌群）
-  List<Map<String, dynamic>> _calculateOvertrainedMusclesData(
-    List<dynamic> records,
-  ) {
-    if (records.length < 2) return [];
-
-    final sortedRecords = List<WorkoutRecord>.from(
-      records.whereType<WorkoutRecord>(),
-    )..sort((a, b) => a.date.compareTo(b.date));
-
-    final result = <Map<String, dynamic>>[];
-
-    for (final muscle in PrimaryMuscleGroup.values) {
-      int maxConsecutive = 0;
-      int currentConsecutive = 0;
-      DateTime? lastDate;
-
-      for (final record in sortedRecords) {
-        if (record.trainedMuscles.contains(muscle)) {
-          if (lastDate == null) {
-            currentConsecutive = 1;
-          } else {
-            final diff = record.date.difference(lastDate).inDays;
-            if (diff == 1) {
-              currentConsecutive++;
-            } else if (diff > 1) {
-              currentConsecutive = 1;
-            }
-          }
-          lastDate = record.date;
-          if (currentConsecutive > maxConsecutive) {
-            maxConsecutive = currentConsecutive;
-          }
-        }
-      }
-
-      if (maxConsecutive >= 3) {
-        result.add({
-          'muscle': muscle,
-          'displayName': muscle.displayName,
-          'consecutiveDays': maxConsecutive,
-        });
-      }
-    }
-
-    return result;
-  }
-
-  /// 计算肌群不平衡（agonist/antagonist 比值偏离）
-  List<Map<String, dynamic>> _calculateMuscleImbalance(
-    List<WorkoutRecord> records,
-  ) {
-    if (records.isEmpty) return [];
-
-    final dist = _statsCalc.calculateMuscleVolumeDistribution(records, bodyWeight: _userBodyWeight);
-    if (dist.isEmpty) return [];
-
-    const imbalanceThreshold = 2.0;
-    final result = <Map<String, dynamic>>[];
-
-    final chestVol = dist[PrimaryMuscleGroup.chest] ?? 0;
-    final backVol = dist[PrimaryMuscleGroup.back] ?? 0;
-    if (chestVol > 0 && backVol > 0) {
-      final ratio = chestVol / backVol;
-      if (ratio >= imbalanceThreshold) {
-        result.add({
-          'label': '胸:背',
-          'ratioText': ratio.toStringAsFixed(1),
-          'biggerName': PrimaryMuscleGroup.chest.displayName,
-          'smallerName': PrimaryMuscleGroup.back.displayName,
-        });
-      } else if (1 / ratio >= imbalanceThreshold) {
-        result.add({
-          'label': '背:胸',
-          'ratioText': (1 / ratio).toStringAsFixed(1),
-          'biggerName': PrimaryMuscleGroup.back.displayName,
-          'smallerName': PrimaryMuscleGroup.chest.displayName,
-        });
-      }
-    } else if (chestVol > 0 && backVol == 0) {
-      result.add({
-        'label': '胸:背',
-        'ratioText': '∞',
-        'biggerName': PrimaryMuscleGroup.chest.displayName,
-        'smallerName': PrimaryMuscleGroup.back.displayName,
-      });
-    } else if (backVol > 0 && chestVol == 0) {
-      result.add({
-        'label': '背:胸',
-        'ratioText': '∞',
-        'biggerName': PrimaryMuscleGroup.back.displayName,
-        'smallerName': PrimaryMuscleGroup.chest.displayName,
-      });
-    }
-
-    final shouldersVol = dist[PrimaryMuscleGroup.shoulders] ?? 0;
-    final armsVol = dist[PrimaryMuscleGroup.arms] ?? 0;
-    if (shouldersVol > 0 && armsVol > 0) {
-      final ratio = shouldersVol / armsVol;
-      if (ratio >= imbalanceThreshold) {
-        result.add({
-          'label': '肩:手臂',
-          'ratioText': ratio.toStringAsFixed(1),
-          'biggerName': PrimaryMuscleGroup.shoulders.displayName,
-          'smallerName': PrimaryMuscleGroup.arms.displayName,
-        });
-      } else if (1 / ratio >= imbalanceThreshold) {
-        result.add({
-          'label': '手臂:肩',
-          'ratioText': (1 / ratio).toStringAsFixed(1),
-          'biggerName': PrimaryMuscleGroup.arms.displayName,
-          'smallerName': PrimaryMuscleGroup.shoulders.displayName,
-        });
-      }
-    }
-
-    final upperVol = chestVol + backVol + shouldersVol + armsVol;
-    final lowerVol = dist[PrimaryMuscleGroup.legs] ?? 0;
-    if (upperVol > 0 && lowerVol > 0) {
-      final ratio = upperVol / lowerVol;
-      if (ratio >= imbalanceThreshold) {
-        result.add({
-          'label': '上肢:下肢',
-          'ratioText': ratio.toStringAsFixed(1),
-          'biggerName': '上肢',
-          'smallerName': '下肢',
-        });
-      } else if (1 / ratio >= imbalanceThreshold) {
-        result.add({
-          'label': '下肢:上肢',
-          'ratioText': (1 / ratio).toStringAsFixed(1),
-          'biggerName': '下肢',
-          'smallerName': '上肢',
-        });
-      }
-    } else if (upperVol > 0 && lowerVol == 0) {
-      result.add({
-        'label': '上肢:下肢',
-        'ratioText': '∞',
-        'biggerName': '上肢',
-        'smallerName': '下肢',
-      });
-    } else if (lowerVol > 0 && upperVol == 0) {
-      result.add({
-        'label': '下肢:上肢',
-        'ratioText': '∞',
-        'biggerName': '下肢',
-        'smallerName': '上肢',
-      });
-    }
-
-    return result;
-  }
-
-  /// 计算当期力量突破（预估1RM 新 PR）
-  List<Map<String, dynamic>> _calculateStrengthBreakthroughs(
-    List<WorkoutRecord> currentRecords,
-    List<WorkoutRecord> allRecords,
-  ) {
-    if (currentRecords.isEmpty) return [];
-
-    final currentE1RM = _statsCalc.calculateEstimated1RM(currentRecords);
-    final allE1RM = _statsCalc.calculateEstimated1RM(allRecords);
-
-    final result = <Map<String, dynamic>>[];
-    for (final entry in currentE1RM.entries) {
-      final name = entry.key;
-      final currentVal = entry.value;
-      final allVal = allE1RM[name] ?? 0;
-
-      if (currentVal > 0 && currentVal >= allVal) {
-        if (currentRecords.length < allRecords.length || currentVal > allVal) {
-          result.add({
-            'exerciseName': name,
-            'currentE1RM': currentVal,
-            'previousE1RM': allVal < currentVal ? allVal : null,
-            'e1RMText': currentVal.toStringAsFixed(1),
-            'previousE1RMText': allVal < currentVal
-                ? allVal.toStringAsFixed(1)
-                : null,
-          });
-        }
-      }
-    }
-
-    result.sort((a, b) {
-      final aImprovement = (a['previousE1RM'] as double?) ?? 0;
-      final bImprovement = (b['previousE1RM'] as double?) ?? 0;
-      if (aImprovement == 0 && bImprovement == 0) {
-        return (b['currentE1RM'] as double).compareTo(
-          a['currentE1RM'] as double,
-        );
-      }
-      if (aImprovement == 0) return 1;
-      if (bImprovement == 0) return -1;
-      return ((b['currentE1RM'] as double) - (bImprovement)).compareTo(
-        (a['currentE1RM'] as double) - (aImprovement),
-      );
-    });
-
-    return result;
-  }
-
-  // ==================== 新增图表组件方法 ====================
+  // ==================== 新增统计组件 ====================
 
   /// 常用动作图表（水平条形图）
   Widget _buildCommonExercisesChart(
@@ -1986,479 +1708,6 @@ class _StatsScreenState extends State<StatsScreen>
           ),
         );
       }).toList(),
-    );
-  }
-
-  /// 训练洞察卡片（薄弱部位 + 肌群不平衡 + 力量突破 + 过度训练风险）
-  Widget _buildTrainingInsightsCard(
-    List<Map<String, dynamic>> weakMuscles,
-    List<Map<String, dynamic>> muscleImbalance,
-    List<Map<String, dynamic>> strengthBreakthroughs,
-    List<Map<String, dynamic>> overtrainedMuscles,
-    AppThemeData theme,
-  ) {
-    final hasAnyInsight =
-        weakMuscles.isNotEmpty ||
-        muscleImbalance.isNotEmpty ||
-        strengthBreakthroughs.isNotEmpty ||
-        overtrainedMuscles.isNotEmpty;
-
-    if (!hasAnyInsight) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Text(
-            '训练均衡，继续保持！',
-            style: TextStyle(
-              color: theme.secondaryTextColor,
-              fontFamily: '.SF Pro Text',
-            ),
-          ),
-        ),
-      );
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (strengthBreakthroughs.isNotEmpty) ...[
-          Row(
-            children: [
-              Icon(Icons.emoji_events, size: 16, color: theme.accentColor),
-              const SizedBox(width: 6),
-              Text(
-                '力量突破',
-                style: TextStyle(
-                  fontFamily: '.SF Pro Text',
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: theme.accentColor,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
-            runSpacing: 6,
-            children: strengthBreakthroughs.map((m) {
-              final hasPrevious = m['previousE1RMText'] != null;
-              final label = hasPrevious
-                  ? '${m['exerciseName']} ${m['previousE1RMText']}→${m['e1RMText']}kg'
-                  : '${m['exerciseName']} ${m['e1RMText']}kg';
-              return Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: theme.accentColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: theme.accentColor.withValues(alpha: 0.3),
-                  ),
-                ),
-                child: Text(
-                  label,
-                  style: TextStyle(
-                    fontFamily: '.SF Pro Text',
-                    fontSize: 11,
-                    color: theme.accentColor,
-                  ),
-                ),
-              );
-            }).toList(),
-          ),
-          const SizedBox(height: 16),
-        ],
-        if (weakMuscles.isNotEmpty) ...[
-          Row(
-            children: [
-              Icon(Icons.trending_down, size: 16, color: theme.errorColor),
-              const SizedBox(width: 6),
-              Text(
-                '薄弱部位',
-                style: TextStyle(
-                  fontFamily: '.SF Pro Text',
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: theme.errorColor,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
-            runSpacing: 6,
-            children: weakMuscles.map((m) {
-              final status = m['status'] as String;
-              final label = status == 'untrained'
-                  ? '${m['displayName']} (未训练)'
-                  : '${m['displayName']} (${m['count']}次)';
-              return Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: theme.errorColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: theme.errorColor.withValues(alpha: 0.3),
-                  ),
-                ),
-                child: Text(
-                  label,
-                  style: TextStyle(
-                    fontFamily: '.SF Pro Text',
-                    fontSize: 11,
-                    color: theme.errorColor,
-                  ),
-                ),
-              );
-            }).toList(),
-          ),
-          const SizedBox(height: 16),
-        ],
-        if (muscleImbalance.isNotEmpty) ...[
-          Row(
-            children: [
-              Icon(Icons.balance, size: 16, color: theme.primaryColor),
-              const SizedBox(width: 6),
-              Text(
-                '肌群不平衡',
-                style: TextStyle(
-                  fontFamily: '.SF Pro Text',
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: theme.primaryColor,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
-            runSpacing: 6,
-            children: muscleImbalance.map((m) {
-              return Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: theme.primaryColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: theme.primaryColor.withValues(alpha: 0.3)),
-                ),
-                child: Text(
-                  '${m['label']} ${m['ratioText']}:1',
-                  style: TextStyle(
-                    fontFamily: '.SF Pro Text',
-                    fontSize: 11,
-                    color: theme.primaryColor,
-                  ),
-                ),
-              );
-            }).toList(),
-          ),
-          const SizedBox(height: 16),
-        ],
-        if (overtrainedMuscles.isNotEmpty) ...[
-          Row(
-            children: [
-              Icon(Icons.warning, size: 16, color: theme.errorColor),
-              const SizedBox(width: 6),
-              Text(
-                '过度训练风险',
-                style: TextStyle(
-                  fontFamily: '.SF Pro Text',
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: theme.errorColor,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
-            runSpacing: 6,
-            children: overtrainedMuscles.map((m) {
-              return Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: theme.errorColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: theme.errorColor.withValues(alpha: 0.3),
-                  ),
-                ),
-                child: Text(
-                  '${m['displayName']} (连续${m['consecutiveDays']}天)',
-                  style: TextStyle(
-                    fontFamily: '.SF Pro Text',
-                    fontSize: 11,
-                    color: theme.errorColor,
-                  ),
-                ),
-              );
-            }).toList(),
-          ),
-        ],
-      ],
-    );
-  }
-
-  // ==================== 新增统计组件 ====================
-
-  /// 力量进步 section - PR榜单 + 预估1RM
-  Widget _buildStrengthProgressSection(
-    List<WorkoutRecord> records,
-    AppThemeData theme, {
-    bool showStrengthTrend = true,
-  }) {
-    final maxWeights = _statsCalc.calculateMaxWeightsByExercise(records);
-    final estimated1RMs = _statsCalc.calculateEstimated1RM(records);
-
-    if (maxWeights.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Text(
-            '暂无力量数据',
-            style: TextStyle(
-              color: theme.secondaryTextColor,
-              fontFamily: '.SF Pro Text',
-            ),
-          ),
-        ),
-      );
-    }
-
-    // Sort by weight descending, take top 8
-    final sortedPRs = maxWeights.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
-    final top8PRs = sortedPRs.take(8).toList();
-
-    // Sort by 1RM descending, take top 5
-    final sorted1RMs = estimated1RMs.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
-    final top5_1RMs = sorted1RMs.take(5).toList();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // PR榜单标题
-        Row(
-          children: [
-            Icon(Icons.emoji_events, size: 16, color: theme.accentColor),
-            const SizedBox(width: 6),
-            Text(
-              'PR 榜单',
-              style: TextStyle(
-                fontFamily: '.SF Pro Text',
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: theme.textColor,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        // PR列表
-        ...top8PRs.asMap().entries.map((entry) {
-          final index = entry.key;
-          final pr = entry.value;
-          final rank = index + 1;
-          final exerciseName = pr.key.length > 12
-              ? '${pr.key.substring(0, 12)}...'
-              : pr.key;
-          final isTop = rank == 1;
-
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: Row(
-              children: [
-                // 排名
-                Container(
-                  width: 24,
-                  height: 24,
-                  decoration: BoxDecoration(
-                    color: isTop
-                        ? theme.accentColor.withValues(alpha: 0.2)
-                        : theme.textColor.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
-                    border: isTop
-                        ? Border.all(color: theme.accentColor)
-                        : null,
-                  ),
-                  child: Center(
-                    child: isTop
-                        ? Icon(Icons.emoji_events, size: 12, color: theme.accentColor)
-                        : Text(
-                            '$rank',
-                            style: TextStyle(
-                              fontFamily: '.SF Pro Text',
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                              color: theme.secondaryTextColor,
-                            ),
-                          ),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                // 动作名称
-                Expanded(
-                  child: Text(
-                    exerciseName,
-                    style: TextStyle(
-                      fontFamily: '.SF Pro Text',
-                      fontSize: 12,
-                      color: theme.textColor,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                // 重量
-                Text(
-                  '${pr.value.toStringAsFixed(1)} kg',
-                  style: TextStyle(
-                    fontFamily: '.SF Pro Display',
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: isTop ? theme.accentColor : theme.textColor,
-                  ),
-                ),
-              ],
-            ),
-          );
-        }),
-        const SizedBox(height: 16),
-        // 分隔线
-        Divider(color: theme.textColor.withValues(alpha: 0.1)),
-        const SizedBox(height: 16),
-        // 预估1RM
-        Row(
-          children: [
-            Icon(Icons.fitness_center, size: 16, color: theme.secondaryColor),
-            const SizedBox(width: 6),
-            Text(
-              '预估极限重量 (1RM)',
-              style: TextStyle(
-                fontFamily: '.SF Pro Text',
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: theme.textColor,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        Wrap(
-          spacing: 12,
-          runSpacing: 8,
-          children: top5_1RMs.map((e1rm) {
-            final name = e1rm.key.length > 12
-                ? '${e1rm.key.substring(0, 12)}...'
-                : e1rm.key;
-            return Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(
-                color: theme.accentColor.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: theme.accentColor.withValues(alpha: 0.2),
-                ),
-              ),
-              child: Text(
-                '$name: ${e1rm.value.toStringAsFixed(1)}kg',
-                style: TextStyle(
-                  fontFamily: '.SF Pro Text',
-                  fontSize: 11,
-                  color: theme.accentColor,
-                ),
-              ),
-            );
-          }).toList(),
-        ),
-        const SizedBox(height: 16),
-        Divider(color: theme.textColor.withValues(alpha: 0.1)),
-        const SizedBox(height: 16),
-        // 力量趋势图
-        if (showStrengthTrend && top8PRs.isNotEmpty) ...[
-          Row(
-            children: [
-              Icon(Icons.show_chart, size: 16, color: theme.accentColor),
-              const SizedBox(width: 6),
-              Text(
-                '力量趋势',
-                style: TextStyle(
-                  fontFamily: '.SF Pro Text',
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: theme.textColor,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          // Exercise selector chips
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: top8PRs.map((pr) {
-                final isSelected = pr.key == (_selectedStrengthExercise ?? top8PRs.first.key);
-                return Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _selectedStrengthExercise = pr.key;
-                      });
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? theme.accentColor
-                            : theme.accentColor.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: isSelected
-                              ? theme.accentColor
-                              : theme.accentColor.withValues(alpha: 0.3),
-                        ),
-                      ),
-                      child: Text(
-                        pr.key.length > 12 ? '${pr.key.substring(0, 12)}...' : pr.key,
-                        style: TextStyle(
-                          fontFamily: '.SF Pro Text',
-                          fontSize: 11,
-                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                          color: isSelected ? Colors.white : theme.textColor,
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
-          const SizedBox(height: 12),
-          StrengthTrendChart(
-            dataPoints: _statsCalc.calculateExerciseStrengthTrend(
-              records,
-              _selectedStrengthExercise ?? top8PRs.first.key,
-            ),
-            exerciseName: _selectedStrengthExercise ?? top8PRs.first.key,
-          ),
-        ],
-      ],
     );
   }
 
@@ -2694,6 +1943,393 @@ class _StatsScreenState extends State<StatsScreen>
             );
           }).toList(),
         ),
+      ],
+    );
+  }
+
+  // ==================== 新增统计组件 ====================
+
+  /// 训练密度指标（组/分钟）
+  Widget _buildDensityMetric(
+    List<WorkoutRecord> records,
+    AppThemeData theme,
+  ) {
+    if (records.isEmpty) return const SizedBox.shrink();
+
+    final density = _statsCalc.calculateDensity(records);
+    final totalSets = records.fold<int>(0, (sum, r) => sum + r.totalSets);
+    final totalMinutes =
+        records.fold<int>(0, (sum, r) => sum + r.durationSeconds) / 60.0;
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: theme.accentColor.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: theme.accentColor.withValues(alpha: 0.2)),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.speed, size: 20, color: theme.accentColor),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '训练密度',
+                  style: TextStyle(
+                    fontFamily: '.SF Pro Text',
+                    fontSize: 11,
+                    color: theme.secondaryTextColor,
+                  ),
+                ),
+                Text(
+                  '${density.toStringAsFixed(1)} 组/分钟',
+                  style: TextStyle(
+                    fontFamily: '.SF Pro Display',
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: theme.textColor,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Text(
+            '$totalSets组 / ${totalMinutes.toStringAsFixed(0)}分钟',
+            style: TextStyle(
+              fontFamily: '.SF Pro Text',
+              fontSize: 11,
+              color: theme.secondaryTextColor,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 估算1RM趋势（top 5 动作的估算1RM变化）
+  ///
+  /// 使用 Mayhew 指数公式从 weight×reps 估算 1RM，消除重量/次数
+  /// tradeoff 的歧义，让进步趋势可比。
+  Widget _buildEstimated1RMTrend(
+    List<WorkoutRecord> records,
+    AppThemeData theme,
+  ) {
+    final trend = _statsCalc.calculateEstimated1RMTrend(records);
+
+    if (trend.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Text(
+            '暂无1RM数据',
+            style: TextStyle(
+              color: theme.secondaryTextColor,
+              fontFamily: '.SF Pro Text',
+            ),
+          ),
+        ),
+      );
+    }
+
+    // Sort by number of sessions descending, take top 5
+    final sorted = trend.entries.toList()
+      ..sort((a, b) => b.value.length.compareTo(a.value.length));
+    final top5 = sorted.take(5).toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // 标题
+        Row(
+          children: [
+            Icon(Icons.trending_up, size: 16, color: theme.accentColor),
+            const SizedBox(width: 6),
+            Text(
+              '估算1RM趋势',
+              style: TextStyle(
+                fontFamily: '.SF Pro Text',
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: theme.textColor,
+              ),
+            ),
+            const SizedBox(width: 6),
+            Text(
+              'Mayhew',
+              style: TextStyle(
+                fontFamily: '.SF Pro Text',
+                fontSize: 10,
+                color: theme.secondaryTextColor,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        ...top5.map((entry) {
+          final name = entry.key;
+          final points = entry.value;
+          final displayName = name.length > 10
+              ? '${name.substring(0, 10)}...'
+              : name;
+
+          // Need at least 2 points to show progression
+          if (points.length < 2) {
+            final e1RM = points.first.estimated1RM.toStringAsFixed(1);
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Row(
+                children: [
+                  SizedBox(
+                    width: 80,
+                    child: Text(
+                      displayName,
+                      style: TextStyle(
+                        fontFamily: '.SF Pro Text',
+                        fontSize: 11,
+                        color: theme.textColor,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  Expanded(
+                    child: Text(
+                      '$e1RM kg',
+                      style: TextStyle(
+                        fontFamily: '.SF Pro Display',
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: theme.textColor,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    '${points.length}次记录',
+                    style: TextStyle(
+                      fontFamily: '.SF Pro Text',
+                      fontSize: 10,
+                      color: theme.secondaryTextColor,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          final first = points.first;
+          final last = points.last;
+          final change =
+              ((last.estimated1RM - first.estimated1RM) / first.estimated1RM) *
+                  100;
+          final weeks = last.date.difference(first.date).inDays / 7.0;
+
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 80,
+                  child: Text(
+                    displayName,
+                    style: TextStyle(
+                      fontFamily: '.SF Pro Text',
+                      fontSize: 11,
+                      color: theme.textColor,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                Expanded(
+                  child: Text(
+                    '${first.estimated1RM.toStringAsFixed(1)} → ${last.estimated1RM.toStringAsFixed(1)} kg',
+                    style: TextStyle(
+                      fontFamily: '.SF Pro Display',
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: theme.textColor,
+                    ),
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: (change >= 0 ? theme.successColor : theme.errorColor)
+                        .withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    '${change >= 0 ? '+' : ''}${change.toStringAsFixed(1)}%'
+                    '${weeks > 0 ? ' / ${weeks.toStringAsFixed(0)}周' : ''}',
+                    style: TextStyle(
+                      fontFamily: '.SF Pro Text',
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                      color: change >= 0 ? theme.successColor : theme.errorColor,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }),
+      ],
+    );
+  }
+
+  /// 每肌群组数（水平条形图 + MEV 参考线）
+  Widget _buildSetsPerMuscleGroupChart(
+    List<WorkoutRecord> records,
+    AppThemeData theme,
+  ) {
+    final setsPerMuscle = _statsCalc.calculateSetsPerMuscleGroup(records);
+
+    if (setsPerMuscle.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Text(
+            '暂无肌群组数数据',
+            style: TextStyle(
+              color: theme.secondaryTextColor,
+              fontFamily: '.SF Pro Text',
+            ),
+          ),
+        ),
+      );
+    }
+
+    // Sort by sets descending
+    final sorted = setsPerMuscle.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
+    final maxSets = sorted.first.value;
+    // MEV reference: 10 sets/week (Schoenfeld 2017)
+    const mevReference = 10;
+    final referenceSets = maxSets > mevReference ? maxSets.toDouble() : mevReference * 1.2;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(Icons.bar_chart, size: 16, color: theme.accentColor),
+            const SizedBox(width: 6),
+            Text(
+              '每肌群组数',
+              style: TextStyle(
+                fontFamily: '.SF Pro Text',
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: theme.textColor,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Text(
+          '参考线: MEV 10组/周 (Schoenfeld 2017)',
+          style: TextStyle(
+            fontFamily: '.SF Pro Text',
+            fontSize: 10,
+            color: theme.secondaryTextColor,
+          ),
+        ),
+        const SizedBox(height: 12),
+        ...sorted.map((entry) {
+          final muscle = entry.key;
+          final sets = entry.value;
+          final percentage = referenceSets > 0 ? sets / referenceSets : 0.0;
+          final color = _kMuscleColors[muscle] ?? theme.accentColor;
+          final isAboveMEV = sets >= mevReference;
+
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 40,
+                  child: Text(
+                    muscle.displayName,
+                    style: TextStyle(
+                      fontFamily: '.SF Pro Text',
+                      fontSize: 11,
+                      color: theme.textColor,
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      final barWidth = constraints.maxWidth;
+                      final mevX = (mevReference / referenceSets) * barWidth;
+
+                      return Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          // Background bar
+                          Container(
+                            height: 20,
+                            decoration: BoxDecoration(
+                              color: theme.textColor.withValues(alpha: 0.08),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                          // MEV reference line
+                          if (mevX <= barWidth)
+                            Positioned(
+                              left: mevX - 1,
+                              top: -2,
+                              child: Container(
+                                width: 2,
+                                height: 24,
+                                color: theme.secondaryTextColor
+                                    .withValues(alpha: 0.5),
+                              ),
+                            ),
+                          // Actual bar
+                          FractionallySizedBox(
+                            widthFactor: percentage.clamp(0.02, 1.0),
+                            child: Container(
+                              height: 20,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    color,
+                                    color.withValues(alpha: 0.7),
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(width: 8),
+                SizedBox(
+                  width: 36,
+                  child: Text(
+                    '$sets组',
+                    style: TextStyle(
+                      fontFamily: '.SF Pro Text',
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: isAboveMEV ? color : theme.secondaryTextColor,
+                    ),
+                    textAlign: TextAlign.right,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }),
       ],
     );
   }
