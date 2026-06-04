@@ -509,7 +509,7 @@ feat: everything
 - **bloc/ naming**: Directory uses Provider (ChangeNotifier), not BLoC pattern
 - **No dependency injection**: Services instantiated inside providers
 - **Mixed comments**: Code uses both English and Chinese comments
-- **Large screen files**: `stats_screen.dart` (1545 lines), `exercise_selection_screen.dart` (811 lines), `ai_analysis_screen.dart` (1163 lines) — consider splitting
+- **Large screen files**: `stats_screen.dart` (2549 lines), `exercise_selection_screen.dart` (811 lines), `ai_analysis_screen.dart` (1163 lines) — consider splitting
 
 ---
 
