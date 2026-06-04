@@ -13,6 +13,7 @@ import '../bloc/record_provider.dart';
 import '../widgets/strength_trend_chart.dart';
 import '../widgets/volume_trend_charts.dart';
 import 'ai_analysis_screen.dart';
+import '../services/user_preferences_service.dart';
 
 class StatsScreen extends StatefulWidget {
   const StatsScreen({super.key});
@@ -34,6 +35,7 @@ class _StatsScreenState extends State<StatsScreen>
   int _selectedYear = DateTime.now().year;
   List<dynamic>? _cachedAllRecords;
   String? _selectedStrengthExercise;
+  double _userBodyWeight = 0.0;
 
   static const _kMuscleColors = <PrimaryMuscleGroup, Color>{
     PrimaryMuscleGroup.chest: Color(0xFFE69F00), // orange
@@ -69,10 +71,22 @@ class _StatsScreenState extends State<StatsScreen>
       }
       final sessions = await _repository.getAllSessions();
       if (!mounted) return;
+
+      // Load user body weight for bodyweight volume calculation
+      double bodyWeight = 0.0;
+      try {
+        final prefsService = UserPreferencesService();
+        final prefs = await prefsService.loadPreferences();
+        bodyWeight = prefs.bodyWeight;
+      } catch (e) {
+        debugPrint('Error loading body weight for stats: $e');
+      }
+
       setState(() {
         _oldSessions = sessions;
         _newRecords = recordProvider.records;
         _isLoading = false;
+        _userBodyWeight = bodyWeight;
       });
     } catch (e) {
       debugPrint('Error loading data: $e');
@@ -348,11 +362,27 @@ class _StatsScreenState extends State<StatsScreen>
       }
     }
 
+    // Calculate actual sessions per week based on the time span
+    final dates = uniqueDays.map((d) {
+      final parts = d.split('-');
+      return DateTime(int.parse(parts[0]), int.parse(parts[1]), int.parse(parts[2]));
+    }).toList();
+    dates.sort();
+
+    final double avgSessionsPerWeek;
+    if (dates.length >= 2) {
+      final spanDays = dates.last.difference(dates.first).inDays + 1;
+      final spanWeeks = spanDays / 7.0;
+      avgSessionsPerWeek = spanWeeks > 0 ? records.length / spanWeeks : records.length.toDouble();
+    } else {
+      // Single day of data — can't compute meaningful weekly average
+      avgSessionsPerWeek = records.length.toDouble();
+    }
+
     return {
       'sessionCount': records.length,
       'workoutDays': uniqueDays.length,
-      'avgSessionsPerWeek':
-          records.length / (uniqueDays.isNotEmpty ? uniqueDays.length / 7 : 1),
+      'avgSessionsPerWeek': avgSessionsPerWeek,
       'muscleFrequency': muscleFrequency,
     };
   }
@@ -387,9 +417,12 @@ class _StatsScreenState extends State<StatsScreen>
   String formatDuration(int seconds) {
     final hours = seconds ~/ 3600;
     final minutes = (seconds % 3600) ~/ 60;
+    final secs = seconds % 60;
 
     if (hours > 0) {
       return '${hours}h ${minutes}m';
+    } else if (secs > 0) {
+      return '${minutes}m ${secs}s';
     } else {
       return '${minutes}m';
     }
@@ -741,7 +774,7 @@ class _StatsScreenState extends State<StatsScreen>
           // 训练量趋势（周）
           _buildSection('训练量趋势', theme, [
             DailyVolumeChart(
-              data: _statsCalc.calculateDailyVolumeTrend(workoutRecords),
+              data: _statsCalc.calculateDailyVolumeTrend(workoutRecords, bodyWeight: _userBodyWeight),
             ),
           ]),
           const SizedBox(height: 20),
@@ -838,7 +871,7 @@ class _StatsScreenState extends State<StatsScreen>
           // 训练量趋势（月）
           _buildSection('训练量趋势', theme, [
             DailyVolumeChart(
-              data: _statsCalc.calculateDailyVolumeTrend(workoutRecords),
+              data: _statsCalc.calculateDailyVolumeTrend(workoutRecords, bodyWeight: _userBodyWeight),
             ),
           ]),
           const SizedBox(height: 20),
@@ -1584,7 +1617,7 @@ class _StatsScreenState extends State<StatsScreen>
   ) {
     if (records.isEmpty) return [];
 
-    final dist = _statsCalc.calculateMuscleVolumeDistribution(records);
+    final dist = _statsCalc.calculateMuscleVolumeDistribution(records, bodyWeight: _userBodyWeight);
     if (dist.isEmpty) return [];
 
     const imbalanceThreshold = 2.0;
@@ -2310,7 +2343,7 @@ class _StatsScreenState extends State<StatsScreen>
     List<WorkoutRecord> records,
     AppThemeData theme,
   ) {
-    final distribution = _statsCalc.calculateMuscleVolumeDistribution(records);
+    final distribution = _statsCalc.calculateMuscleVolumeDistribution(records, bodyWeight: _userBodyWeight);
 
     if (distribution.isEmpty) {
       return Center(
