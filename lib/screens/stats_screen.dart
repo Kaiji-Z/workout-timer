@@ -888,12 +888,7 @@ class _StatsScreenState extends State<StatsScreen>
             children: [
               _buildMuscleVolumeChart(workoutRecords, theme),
               const SizedBox(height: 16),
-              _buildSecondaryMuscleVolumeChart(workoutRecords, theme),
-              const SizedBox(height: 16),
-              _buildSecondaryRecoveryStatusList(
-                _calculateSecondaryRecoveryData(workoutRecords),
-                theme,
-              ),
+              _buildPrimaryRecoveryList(workoutRecords, theme),
             ],
           ),
           const SizedBox(height: 20),
@@ -993,12 +988,7 @@ class _StatsScreenState extends State<StatsScreen>
             children: [
               _buildMuscleVolumeChart(workoutRecords, theme),
               const SizedBox(height: 16),
-              _buildSecondaryMuscleVolumeChart(workoutRecords, theme),
-              const SizedBox(height: 16),
-              _buildSecondaryRecoveryStatusList(
-                _calculateSecondaryRecoveryData(workoutRecords),
-                theme,
-              ),
+              _buildPrimaryRecoveryList(workoutRecords, theme),
             ],
           ),
           const SizedBox(height: 20),
@@ -2606,38 +2596,27 @@ class _StatsScreenState extends State<StatsScreen>
     return '${volume.toStringAsFixed(0)} kg';
   }
 
-  /// Calculate secondary muscle recovery data grouped by primary muscle
-  Map<PrimaryMuscleGroup, List<Map<String, dynamic>>>
-  _calculateSecondaryRecoveryData(List<WorkoutRecord> records) {
-    final secondaryRecovery = _statsCalc.calculateSecondaryMuscleRecovery(
-      records,
-    );
-    final grouped = <PrimaryMuscleGroup, List<Map<String, dynamic>>>{};
-
-    for (final entry in secondaryRecovery.entries) {
-      final primary = entry.key.primaryMuscle;
-      grouped.putIfAbsent(primary, () => []);
-      grouped[primary]!.add({
-        'muscle': entry.key,
-        'displayName': entry.key.displayName,
-        'days': entry.value,
-      });
-    }
-
-    // Sort sub-muscles by days within each group
-    for (final group in grouped.values) {
-      group.sort((a, b) => (a['days'] as int).compareTo(b['days'] as int));
-    }
-
-    return grouped;
-  }
-
-  /// Recovery status list with secondary muscles (refactored)
-  Widget _buildSecondaryRecoveryStatusList(
-    Map<PrimaryMuscleGroup, List<Map<String, dynamic>>> groupedData,
+  /// 主肌群恢复天数（简化版：只显示6个主肌群）
+  Widget _buildPrimaryRecoveryList(
+    List<WorkoutRecord> records,
     AppThemeData theme,
   ) {
-    if (groupedData.isEmpty) {
+    // 计算每个主肌群的最后训练日期
+    final lastTrained = <PrimaryMuscleGroup, DateTime>{};
+    final now = DateTime.now();
+
+    for (final record in records) {
+      for (final exercise in record.exercises) {
+        final ex = exercise.exercise;
+        if (ex == null) continue;
+        final muscle = ex.primaryMuscle;
+        if (lastTrained[muscle] == null || record.date.isAfter(lastTrained[muscle]!)) {
+          lastTrained[muscle] = record.date;
+        }
+      }
+    }
+
+    if (lastTrained.isEmpty) {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -2652,141 +2631,15 @@ class _StatsScreenState extends State<StatsScreen>
       );
     }
 
-    // Sort primary muscle groups by their min recovery days
-    final sortedGroups = groupedData.entries.toList()
-      ..sort((a, b) {
-        final minDaysA = a.value.fold<int>(
-          999,
-          (min, e) => (e['days'] as int) < min ? e['days'] as int : min,
-        );
-        final minDaysB = b.value.fold<int>(
-          999,
-          (min, e) => (e['days'] as int) < min ? e['days'] as int : min,
-        );
-        return minDaysA.compareTo(minDaysB);
-      });
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: sortedGroups.map((groupEntry) {
-        final primaryMuscle = groupEntry.key;
-        final subMuscles = groupEntry.value;
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Primary muscle group header
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: theme.accentColor.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: Text(
-                primaryMuscle.displayName,
-                style: TextStyle(
-                  fontFamily: '.SF Pro Text',
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: theme.accentColor,
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            // Sub-muscle chips
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: subMuscles.map((subData) {
-                final days = subData['days'] as int;
-                Color chipColor;
-                IconData icon;
-
-                if (days >= 3) {
-                  chipColor = theme.successColor;
-                  icon = Icons.check_circle;
-                } else if (days >= 1) {
-                  chipColor = theme.accentColor;
-                  icon = Icons.access_time;
-                } else {
-                  chipColor = theme.errorColor;
-                  icon = Icons.warning;
-                }
-
-                return Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: chipColor.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: chipColor.withValues(alpha: 0.3)),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(icon, size: 12, color: chipColor),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${subData['displayName']} $days天',
-                        style: TextStyle(
-                          fontFamily: '.SF Pro Text',
-                          fontSize: 11,
-                          fontWeight: FontWeight.w500,
-                          color: chipColor,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: 12),
-          ],
-        );
-      }).toList(),
-    );
-  }
-
-  /// 次级肌群容量分布
-  Widget _buildSecondaryMuscleVolumeChart(
-    List<WorkoutRecord> records,
-    AppThemeData theme,
-  ) {
-    final distribution = _statsCalc.calculateSecondaryMuscleVolumeDistribution(
-      records,
-      bodyWeight: _userBodyWeight,
-    );
-
-    if (distribution.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Text(
-            '暂无次级肌群数据',
-            style: TextStyle(
-              color: theme.secondaryTextColor,
-              fontFamily: '.SF Pro Text',
-            ),
-          ),
-        ),
-      );
-    }
-
-    final totalVolume = distribution.values.fold<double>(0, (sum, v) => sum + v);
-    final sortedEntries = distribution.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
-
-    // Take top 8, group rest into "其他"
-    final topEntries = sortedEntries.take(8).toList();
-    final otherVolume = sortedEntries.skip(8).fold<double>(0, (sum, e) => sum + e.value);
+    // 按恢复天数排序（最久没练的在前）
+    final sorted = lastTrained.entries.toList()
+      ..sort((a, b) => now.difference(b.value).inDays.compareTo(now.difference(a.value).inDays));
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '次级肌群容量',
+          '恢复状态',
           style: TextStyle(
             fontFamily: '.SF Pro Text',
             fontSize: 13,
@@ -2795,97 +2648,52 @@ class _StatsScreenState extends State<StatsScreen>
           ),
         ),
         const SizedBox(height: 12),
-        ...topEntries.map((entry) {
-          final percentage = totalVolume > 0 ? (entry.value / totalVolume * 100) : 0.0;
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: Row(
-              children: [
-                SizedBox(
-                  width: 80,
-                  child: Text(
-                    entry.key.displayName,
+        Wrap(
+          spacing: 10,
+          runSpacing: 10,
+          children: sorted.map((entry) {
+            final days = now.difference(entry.value).inDays;
+            final muscle = entry.key;
+
+            Color chipColor;
+            IconData icon;
+            if (days >= 3) {
+              chipColor = theme.successColor;
+              icon = Icons.check_circle;
+            } else if (days >= 1) {
+              chipColor = theme.accentColor;
+              icon = Icons.access_time;
+            } else {
+              chipColor = theme.errorColor;
+              icon = Icons.warning;
+            }
+
+            return Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: chipColor.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: chipColor.withValues(alpha: 0.3)),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(icon, size: 14, color: chipColor),
+                  const SizedBox(width: 6),
+                  Text(
+                    '${muscle.displayName} $days天',
                     style: TextStyle(
                       fontFamily: '.SF Pro Text',
-                      fontSize: 11,
-                      color: theme.textColor,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(4),
-                    child: LinearProgressIndicator(
-                      value: totalVolume > 0 ? entry.value / totalVolume : 0,
-                      backgroundColor: theme.textColor.withValues(alpha: 0.08),
-                      valueColor: AlwaysStoppedAnimation<Color>(theme.accentColor),
-                      minHeight: 8,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: chipColor,
                     ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                SizedBox(
-                  width: 45,
-                  child: Text(
-                    '${percentage.toStringAsFixed(1)}%',
-                    style: TextStyle(
-                      fontFamily: '.SF Pro Text',
-                      fontSize: 10,
-                      color: theme.secondaryTextColor,
-                    ),
-                    textAlign: TextAlign.end,
-                  ),
-                ),
-              ],
-            ),
-          );
-        }),
-        if (otherVolume > 0)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: Row(
-              children: [
-                SizedBox(
-                  width: 80,
-                  child: Text(
-                    '其他',
-                    style: TextStyle(
-                      fontFamily: '.SF Pro Text',
-                      fontSize: 11,
-                      color: theme.secondaryTextColor,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(4),
-                    child: LinearProgressIndicator(
-                      value: totalVolume > 0 ? otherVolume / totalVolume : 0,
-                      backgroundColor: theme.textColor.withValues(alpha: 0.08),
-                      valueColor: AlwaysStoppedAnimation<Color>(theme.secondaryTextColor),
-                      minHeight: 8,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                SizedBox(
-                  width: 45,
-                  child: Text(
-                    '${(totalVolume > 0 ? otherVolume / totalVolume * 100 : 0).toStringAsFixed(1)}%',
-                    style: TextStyle(
-                      fontFamily: '.SF Pro Text',
-                      fontSize: 10,
-                      color: theme.secondaryTextColor,
-                    ),
-                    textAlign: TextAlign.end,
-                  ),
-                ),
-              ],
-            ),
-          ),
+                ],
+              ),
+            );
+          }).toList(),
+        ),
       ],
     );
   }
