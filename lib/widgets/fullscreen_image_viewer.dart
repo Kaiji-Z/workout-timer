@@ -315,6 +315,7 @@ class _FullscreenImageViewerState extends State<FullscreenImageViewer>
                     child: Row(
                       children: [
                         IconButton(
+                          tooltip: '关闭',
                           icon: Icon(Icons.close, color: Colors.white),
                           onPressed: () => Navigator.pop(context),
                         ),

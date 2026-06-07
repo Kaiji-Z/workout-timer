@@ -117,6 +117,7 @@ class _ExerciseSelectorState extends State<ExerciseSelector> {
           prefixIcon: Icon(Icons.search, color: theme.secondaryTextColor),
           suffixIcon: _searchQuery.isNotEmpty
               ? IconButton(
+                  tooltip: '清除搜索',
                   icon: Icon(Icons.clear, color: theme.secondaryTextColor),
                   onPressed: () {
                     _searchController.clear();
@@ -1196,6 +1197,7 @@ class _FullscreenImageGalleryState extends State<_FullscreenImageGallery>
                 child: Row(
                   children: [
                     IconButton(
+                      tooltip: '关闭',
                       icon: Icon(Icons.close, color: theme.onAccentColor),
                       onPressed: () => Navigator.pop(context),
                     ),

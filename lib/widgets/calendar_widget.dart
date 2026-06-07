@@ -98,6 +98,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
       children: [
         // 上个月
         IconButton(
+          tooltip: '上个月',
           onPressed: () {
             setState(() {
               _currentMonth = DateTime(
@@ -119,6 +120,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
 
         // 下个月
         IconButton(
+          tooltip: '下个月',
           onPressed: () {
             setState(() {
               _currentMonth = DateTime(
