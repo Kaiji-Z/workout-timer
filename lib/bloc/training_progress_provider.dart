@@ -4,8 +4,6 @@ import '../models/set_data.dart';
 import '../models/workout_plan.dart';
 import '../models/workout_record.dart';
 
-
-
 /// 训练进度状态管理
 /// 用于跟踪按计划训练时的进度
 class TrainingProgressProvider extends ChangeNotifier {
@@ -16,7 +14,8 @@ class TrainingProgressProvider extends ChangeNotifier {
   int _currentSetInExercise = 0;
   Map<String, int> _completedSets = {}; // exerciseId -> count
   Map<String, double?> _exerciseWeights = {}; // exerciseId -> max weight
-  final Map<String, List<SetData>> _exerciseSetsData = {}; // exerciseId -> per-set data
+  final Map<String, List<SetData>> _exerciseSetsData =
+      {}; // exerciseId -> per-set data
   bool _isExpanded = false; // UI expansion state
   DateTime? _startTime;
 
@@ -37,7 +36,8 @@ class TrainingProgressProvider extends ChangeNotifier {
   /// 获取下一个动作
   PlanExercise? getNextExercise() {
     if (_currentPlan == null || _currentPlan!.exercises.isEmpty) return null;
-    if (_currentExerciseIndex >= _currentPlan!.exercises.length - 1) return null;
+    if (_currentExerciseIndex >= _currentPlan!.exercises.length - 1)
+      return null;
     return _currentPlan!.exercises[_currentExerciseIndex + 1];
   }
 
@@ -48,7 +48,7 @@ class TrainingProgressProvider extends ChangeNotifier {
   int get totalCompletedSets {
     return _completedSets.values.fold(0, (sum, count) => sum + count);
   }
-  
+
   /// 获取所有动作的完成组数映射
   Map<String, int> get completedSets => Map.unmodifiable(_completedSets);
 
@@ -163,7 +163,8 @@ class TrainingProgressProvider extends ChangeNotifier {
         _currentSetInExercise = 0;
         // 初始化下一个动作的完成组数（如果尚未初始化）
         final nextExercise = currentExercise;
-        if (nextExercise != null && !_completedSets.containsKey(nextExercise.exerciseId)) {
+        if (nextExercise != null &&
+            !_completedSets.containsKey(nextExercise.exerciseId)) {
           _completedSets[nextExercise.exerciseId] = 0;
         }
       }
@@ -213,13 +214,15 @@ class TrainingProgressProvider extends ChangeNotifier {
         final maxWeight = setsData != null && setsData.isNotEmpty
             ? getMaxWeight(planExercise.exerciseId)
             : _exerciseWeights[planExercise.exerciseId];
-        recordedExercises.add(RecordedExercise(
-          exerciseId: planExercise.exerciseId,
-          exercise: planExercise.exercise,
-          completedSets: completedSets,
-          maxWeight: maxWeight,
-          setsData: setsData,
-        ));
+        recordedExercises.add(
+          RecordedExercise(
+            exerciseId: planExercise.exerciseId,
+            exercise: planExercise.exercise,
+            completedSets: completedSets,
+            maxWeight: maxWeight,
+            setsData: setsData,
+          ),
+        );
       }
     }
 

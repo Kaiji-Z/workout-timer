@@ -1,6 +1,6 @@
 /// 健身术语中英文对照表
 /// Fitness Vocabulary - English to Chinese Translation
-/// 
+///
 /// 这个文件包含所有健身相关术语的中英文对照
 /// 用于翻译运动名称和健身术语
 
@@ -25,7 +25,7 @@ const Map<String, String> fitnessVocabulary = {
   'ez-bar': '曲杆',
   'ez bar': '曲杆',
   'ez-barbell': '曲杆',
-  
+
   // ==================== 动作类型 Exercise Types ====================
   'bench press': '卧推',
   'benchpress': '卧推',
@@ -91,7 +91,7 @@ const Map<String, String> fitnessVocabulary = {
   'power clean': '爆发力翻举',
   'power snatch': '爆发力抓举',
   'sumo': '相扑',
-  
+
   // ==================== 身体部位 Body Parts ====================
   'chest': '胸',
   'back': '背',
@@ -134,7 +134,7 @@ const Map<String, String> fitnessVocabulary = {
   'lower back': '下背部',
   'middle back': '中背部',
   'upper back': '上背部',
-  
+
   // ==================== 方向/位置 Direction/Position ====================
   'incline': '上斜',
   'decline': '下斜',
@@ -170,7 +170,7 @@ const Map<String, String> fitnessVocabulary = {
   'overhead': '过顶',
   'behind neck': '颈后',
   'behind back': '背后',
-  
+
   // ==================== 特殊动作名称 Special Exercise Names ====================
   'arnold': '阿诺德',
   'preacher': '牧师凳',
@@ -201,7 +201,7 @@ const Map<String, String> fitnessVocabulary = {
   'kipping': '摆浪',
   'rope': '爬绳',
   'battle': '战绳',
-  
+
   // ==================== 难度/类型 Difficulty/Type ====================
   'beginner': '初级',
   'intermediate': '中级',
@@ -217,7 +217,7 @@ const Map<String, String> fitnessVocabulary = {
   'plyometric': '增强式',
   'assisted': '辅助',
   'weighted': '负重',
-  
+
   // ==================== 常见词 Common Words ====================
   'circles': '画圈',
   'stretches': '拉伸',
@@ -231,7 +231,7 @@ const Map<String, String> fitnessVocabulary = {
   'hops': '跳',
   'climb': '爬',
   'crawl': '爬行',
-  
+
   // ==================== 器械和位置补充 Equipment & Position Extras ====================
   'bench': '长凳',
   'board': '板',
@@ -250,7 +250,7 @@ const Map<String, String> fitnessVocabulary = {
   'chains': '链条',
   'weight': '重量',
   'weights': '重量',
-  
+
   // ==================== 身体部位补充 Body Parts Extras ====================
   'ankle': '脚踝',
   'heel': '脚跟',
@@ -278,7 +278,7 @@ const Map<String, String> fitnessVocabulary = {
   'groin': '腹股沟',
   'tibialis': '胫骨前肌',
   'anterior': '前侧',
-  
+
   // ==================== 方向和位置补充 Direction/Position Extras ====================
   'bent': '弯曲',
   'hang': '悬挂',
@@ -300,7 +300,7 @@ const Map<String, String> fitnessVocabulary = {
   'bottoms up': '倒置',
   'guillotine': '断头台',
   'anti-gravity': '反重力',
-  
+
   // ==================== 动作描述补充 Action Descriptions ====================
   'air': '空气',
   'air bike': '空中蹬车',
@@ -326,7 +326,7 @@ const Map<String, String> fitnessVocabulary = {
   'stance': '站距',
   'stiff': '直腿',
   'wind': '风速',
-  
+
   // ==================== 其他常用动作词汇 Other Common Terms ====================
   'push': '推',
   'pull': '拉',
@@ -622,14 +622,14 @@ const Map<String, String> fitnessVocabulary = {
 /// 将英文运动名称翻译成中文
 String translateExerciseName(String englishName) {
   if (englishName.isEmpty) return englishName;
-  
+
   String result = englishName;
   final lowerName = englishName.toLowerCase();
-  
+
   // 按长度排序，优先匹配更长的词组
   final sortedTerms = fitnessVocabulary.keys.toList()
     ..sort((a, b) => b.length.compareTo(a.length));
-  
+
   // 逐个替换词汇
   for (final term in sortedTerms) {
     if (lowerName.contains(term)) {
@@ -639,19 +639,19 @@ String translateExerciseName(String englishName) {
       );
     }
   }
-  
+
   // 清理多余空格和标点
   result = result
       .replaceAll(RegExp(r'\s+'), ' ')
       .replaceAll(RegExp(r'-+'), '-')
       .replaceAll(RegExp(r'\s*-\s*'), '-')
       .trim();
-  
+
   // 移除中文后的复数s
   result = result.replaceAllMapped(
     RegExp(r'([\u4e00-\u9fa5])s(\s|,|\-|$)'),
     (match) => '${match.group(1)}${match.group(2)}',
   );
-  
+
   return result;
 }
