@@ -19,23 +19,24 @@ class MatchResult {
   });
 
   factory MatchResult.success({required Exercise exercise}) => MatchResult._(
-        status: MatchStatus.success,
-        exercise: exercise,
-        candidates: const [],
-      );
+    status: MatchStatus.success,
+    exercise: exercise,
+    candidates: const [],
+  );
 
-  factory MatchResult.candidates({required List<Exercise> candidates}) => MatchResult._(
+  factory MatchResult.candidates({required List<Exercise> candidates}) =>
+      MatchResult._(
         status: MatchStatus.candidates,
         exercise: null,
         candidates: candidates,
       );
 
   factory MatchResult.failure({required String error}) => MatchResult._(
-        status: MatchStatus.failure,
-        exercise: null,
-        candidates: const [],
-        error: error,
-      );
+    status: MatchStatus.failure,
+    exercise: null,
+    candidates: const [],
+    error: error,
+  );
 
   bool get isSuccess => status == MatchStatus.success;
   bool get hasCandidates => status == MatchStatus.candidates;
@@ -104,7 +105,8 @@ class ExerciseMatcherService {
     'dumbbellinclinepress': 'incline dumbbellpress',
   };
 
-  ExerciseMatcherService({required List<Exercise> exercises}) : _exercises = exercises {
+  ExerciseMatcherService({required List<Exercise> exercises})
+    : _exercises = exercises {
     _buildIndex();
   }
 
@@ -112,19 +114,19 @@ class ExerciseMatcherService {
     _nameEnMap = {};
     _nameZhMap = {};
     _normalizedIndex = {};
-    
+
     for (final exercise in _exercises) {
       // Index by normalized nameEn
       final normalizedEn = _normalize(exercise.nameEn);
       _nameEnMap[normalizedEn] = exercise;
       _normalizedIndex[normalizedEn] = exercise;
-      
+
       // Also index by sorted words (handles word order differences)
       final sortedWords = _normalizeAndSort(exercise.nameEn);
       if (sortedWords != normalizedEn) {
         _normalizedIndex[sortedWords] = exercise;
       }
-      
+
       // Index by nameZh if available
       if (exercise.nameZh != null && exercise.nameZh!.isNotEmpty) {
         final normalizedZh = _normalize(exercise.nameZh!);
@@ -169,7 +171,11 @@ class ExerciseMatcherService {
       options: FuzzyOptions(
         keys: [
           WeightedKey(name: 'nameEn', getter: (e) => e.nameEn, weight: 1.0),
-          WeightedKey(name: 'nameZh', getter: (e) => e.nameZh ?? '', weight: 0.8),
+          WeightedKey(
+            name: 'nameZh',
+            getter: (e) => e.nameZh ?? '',
+            weight: 0.8,
+          ),
         ],
         threshold: 0.4,
         findAllMatches: true,
@@ -183,7 +189,7 @@ class ExerciseMatcherService {
 
     if (result.isNotEmpty) {
       final topCandidates = result.take(5).map((r) => r.item).toList();
-      
+
       // FIXED: fuzzy score is a DISTANCE score (lower = better match)
       // score < 0.15 = high confidence match (almost exact)
       // score < 0.4 = reasonable match
@@ -191,13 +197,14 @@ class ExerciseMatcherService {
       if (result.first.score < 0.15) {
         return MatchResult.success(exercise: result.first.item);
       }
-      
+
       return MatchResult.candidates(candidates: topCandidates);
     }
 
     // Step 6: No matches found
     return MatchResult.failure(
-        error: 'No matching exercise found for "$inputName"');
+      error: 'No matching exercise found for "$inputName"',
+    );
   }
 
   /// Check if normalized input matches any synonym
@@ -206,7 +213,7 @@ class ExerciseMatcherService {
     if (_synonyms.containsKey(normalizedInput)) {
       return _synonyms[normalizedInput];
     }
-    
+
     // Try removing common prefixes/suffixes for partial matches
     // e.g., "standingdumbbellcalfraise" -> check "dumbbellcalfraise"
     final variations = _generateInputVariations(normalizedInput);
@@ -215,22 +222,29 @@ class ExerciseMatcherService {
         return _synonyms[variation];
       }
     }
-    
+
     return null;
   }
 
   /// Generate variations of input for more flexible matching
   List<String> _generateInputVariations(String input) {
     final variations = <String>[];
-    
+
     // Remove common prefixes
-    const prefixes = ['standing', 'seated', 'lying', 'onearm', 'twoarm', 'alternating'];
+    const prefixes = [
+      'standing',
+      'seated',
+      'lying',
+      'onearm',
+      'twoarm',
+      'alternating',
+    ];
     for (final prefix in prefixes) {
       if (input.startsWith(prefix)) {
         variations.add(input.substring(prefix.length));
       }
     }
-    
+
     // Also try the input as-is with common suffixes removed
     const suffixes = ['s', 'es'];
     for (final suffix in suffixes) {
@@ -238,20 +252,21 @@ class ExerciseMatcherService {
         variations.add(input.substring(0, input.length - suffix.length));
       }
     }
-    
+
     return variations;
   }
 
   /// Normalize and sort words for word-order-insensitive matching
   String _normalizeAndSort(String s) {
-    final words = s
-        .toLowerCase()
-        .replaceAll(RegExp(r'[-_/\(\)]'), ' ')
-        .trim()
-        .split(RegExp(r'\s+'))
-        .where((w) => w.isNotEmpty)
-        .toList()
-      ..sort();
+    final words =
+        s
+            .toLowerCase()
+            .replaceAll(RegExp(r'[-_/\(\)]'), ' ')
+            .trim()
+            .split(RegExp(r'\s+'))
+            .where((w) => w.isNotEmpty)
+            .toList()
+          ..sort();
     return words.join('');
   }
 

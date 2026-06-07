@@ -158,11 +158,21 @@ class DatabaseHelper {
       ''');
 
       // 创建索引以提高查询性能
-      await txn.execute('CREATE INDEX idx_exercises_primary_muscle ON $tableExercises(primary_muscle)');
-      await txn.execute('CREATE INDEX idx_plan_exercises_plan_id ON $tablePlanExercises(plan_id)');
-      await txn.execute('CREATE INDEX idx_calendar_plans_date ON $tableCalendarPlans(date)');
-      await txn.execute('CREATE INDEX idx_workout_records_date ON $tableWorkoutRecords(date)');
-      await txn.execute('CREATE INDEX idx_record_exercises_record_id ON $tableRecordExercises(record_id)');
+      await txn.execute(
+        'CREATE INDEX idx_exercises_primary_muscle ON $tableExercises(primary_muscle)',
+      );
+      await txn.execute(
+        'CREATE INDEX idx_plan_exercises_plan_id ON $tablePlanExercises(plan_id)',
+      );
+      await txn.execute(
+        'CREATE INDEX idx_calendar_plans_date ON $tableCalendarPlans(date)',
+      );
+      await txn.execute(
+        'CREATE INDEX idx_workout_records_date ON $tableWorkoutRecords(date)',
+      );
+      await txn.execute(
+        'CREATE INDEX idx_record_exercises_record_id ON $tableRecordExercises(record_id)',
+      );
 
       // 创建 favorite_exercises 表
       await txn.execute('''
@@ -264,11 +274,21 @@ class DatabaseHelper {
         ''');
 
         // 创建索引
-        await txn.execute('CREATE INDEX idx_exercises_primary_muscle ON $tableExercises(primary_muscle)');
-        await txn.execute('CREATE INDEX idx_plan_exercises_plan_id ON $tablePlanExercises(plan_id)');
-        await txn.execute('CREATE INDEX idx_calendar_plans_date ON $tableCalendarPlans(date)');
-        await txn.execute('CREATE INDEX idx_workout_records_date ON $tableWorkoutRecords(date)');
-        await txn.execute('CREATE INDEX idx_record_exercises_record_id ON $tableRecordExercises(record_id)');
+        await txn.execute(
+          'CREATE INDEX idx_exercises_primary_muscle ON $tableExercises(primary_muscle)',
+        );
+        await txn.execute(
+          'CREATE INDEX idx_plan_exercises_plan_id ON $tablePlanExercises(plan_id)',
+        );
+        await txn.execute(
+          'CREATE INDEX idx_calendar_plans_date ON $tableCalendarPlans(date)',
+        );
+        await txn.execute(
+          'CREATE INDEX idx_workout_records_date ON $tableWorkoutRecords(date)',
+        );
+        await txn.execute(
+          'CREATE INDEX idx_record_exercises_record_id ON $tableRecordExercises(record_id)',
+        );
 
         // 注意：原有的 workout_sessions 表保持不变，用户数据不会丢失
       });
@@ -276,12 +296,16 @@ class DatabaseHelper {
 
     if (oldVersion < 3) {
       // 从v2升级到v3：添加per_set_data列用于详细记录
-      await db.execute('ALTER TABLE $tableRecordExercises ADD COLUMN per_set_data TEXT');
+      await db.execute(
+        'ALTER TABLE $tableRecordExercises ADD COLUMN per_set_data TEXT',
+      );
     }
 
     if (oldVersion < 4) {
       // 从v3升级到v4：添加unmatched_name列用于未匹配的自定义动作
-      await db.execute('ALTER TABLE $tablePlanExercises ADD COLUMN unmatched_name TEXT');
+      await db.execute(
+        'ALTER TABLE $tablePlanExercises ADD COLUMN unmatched_name TEXT',
+      );
     }
 
     if (oldVersion < 5) {
@@ -381,12 +405,7 @@ class DatabaseHelper {
     List<Object?>? whereArgs,
   }) async {
     Database db = await instance.database;
-    return await db.update(
-      table,
-      values,
-      where: where,
-      whereArgs: whereArgs,
-    );
+    return await db.update(table, values, where: where, whereArgs: whereArgs);
   }
 
   /// 通用删除方法
@@ -396,15 +415,14 @@ class DatabaseHelper {
     List<Object?>? whereArgs,
   }) async {
     Database db = await instance.database;
-    return await db.delete(
-      table,
-      where: where,
-      whereArgs: whereArgs,
-    );
+    return await db.delete(table, where: where, whereArgs: whereArgs);
   }
 
   /// 执行原始SQL查询
-  Future<List<Map<String, dynamic>>> rawQuery(String sql, [List<Object?>? arguments]) async {
+  Future<List<Map<String, dynamic>>> rawQuery(
+    String sql, [
+    List<Object?>? arguments,
+  ]) async {
     Database db = await instance.database;
     return await db.rawQuery(sql, arguments);
   }
@@ -416,7 +434,10 @@ class DatabaseHelper {
   }
 
   /// 批量插入
-  Future<void> batchInsert(String table, List<Map<String, dynamic>> values) async {
+  Future<void> batchInsert(
+    String table,
+    List<Map<String, dynamic>> values,
+  ) async {
     Database db = await instance.database;
     Batch batch = db.batch();
     for (var value in values) {

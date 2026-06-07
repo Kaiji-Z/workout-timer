@@ -50,7 +50,10 @@ class DataTransferService {
   /// 返回导出文件路径
   Future<String> exportAndShare() async {
     final jsonStr = await exportToJson();
-    final timestamp = DateTime.now().toIso8601String().replaceAll(':', '-').substring(0, 19);
+    final timestamp = DateTime.now()
+        .toIso8601String()
+        .replaceAll(':', '-')
+        .substring(0, 19);
     final fileName = 'workout_timer_backup_$timestamp.json';
 
     // 优先保存到 Downloads 目录
@@ -66,10 +69,7 @@ class DataTransferService {
 
     // 同时弹出系统分享面板（用户可以额外发到微信等）
     if (!kIsWeb) {
-      await Share.shareXFiles(
-        [XFile(savedPath)],
-        text: '撸铁计时器数据备份',
-      );
+      await Share.shareXFiles([XFile(savedPath)], text: '撸铁计时器数据备份');
     }
 
     return savedPath;
@@ -133,12 +133,14 @@ class DataTransferService {
           final name = entity.path.split('/').last;
           if (name.startsWith('workout_timer_backup_')) {
             final stat = await entity.stat();
-            backups.add(BackupFileInfo(
-              path: entity.path,
-              fileName: name,
-              modifiedTime: stat.modified,
-              sizeBytes: stat.size,
-            ));
+            backups.add(
+              BackupFileInfo(
+                path: entity.path,
+                fileName: name,
+                modifiedTime: stat.modified,
+                sizeBytes: stat.size,
+              ),
+            );
           }
         }
       }
@@ -210,10 +212,12 @@ class DataTransferService {
   /// 会先清空现有数据再导入（全量替换）
   /// 返回导入的记录总数
   Future<int> importFromJson(String jsonStr) async {
-    final Map<String, dynamic> data = jsonDecode(jsonStr) as Map<String, dynamic>;
+    final Map<String, dynamic> data =
+        jsonDecode(jsonStr) as Map<String, dynamic>;
 
     // 验证格式
-    if (!data.containsKey('version') || !data.containsKey(DatabaseHelper.tableWorkoutSessions)) {
+    if (!data.containsKey('version') ||
+        !data.containsKey(DatabaseHelper.tableWorkoutSessions)) {
       throw const FormatException('无效的备份文件格式');
     }
 
@@ -232,8 +236,9 @@ class DataTransferService {
         if (rows == null || rows.isEmpty) continue;
 
         for (final row in rows) {
-          final Map<String, dynamic> rowMap =
-              _jsonSafeToMap(row as Map<String, dynamic>);
+          final Map<String, dynamic> rowMap = _jsonSafeToMap(
+            row as Map<String, dynamic>,
+          );
           await txn.insert(table, rowMap);
           totalImported++;
         }
@@ -293,7 +298,8 @@ class BackupFileInfo {
   /// 格式化文件大小
   String get sizeText {
     if (sizeBytes < 1024) return '$sizeBytes B';
-    if (sizeBytes < 1024 * 1024) return '${(sizeBytes / 1024).toStringAsFixed(1)} KB';
+    if (sizeBytes < 1024 * 1024)
+      return '${(sizeBytes / 1024).toStringAsFixed(1)} KB';
     return '${(sizeBytes / (1024 * 1024)).toStringAsFixed(1)} MB';
   }
 }

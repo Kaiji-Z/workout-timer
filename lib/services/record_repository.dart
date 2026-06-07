@@ -25,20 +25,14 @@ class RecordRepository {
 
     await database.transaction((txn) async {
       // 插入记录主表
-      await txn.insert(
-        DatabaseHelper.tableWorkoutRecords,
-        record.toMap(),
-      );
+      await txn.insert(DatabaseHelper.tableWorkoutRecords, record.toMap());
 
       // 插入记录动作详情
       for (var exercise in record.exercises) {
-        await txn.insert(
-          DatabaseHelper.tableRecordExercises,
-          {
-            'id': _uuid.v4(),
-            ...exercise.toMap(record.id),
-          },
-        );
+        await txn.insert(DatabaseHelper.tableRecordExercises, {
+          'id': _uuid.v4(),
+          ...exercise.toMap(record.id),
+        });
       }
     });
 
@@ -72,13 +66,10 @@ class RecordRepository {
 
       // 插入新的记录动作
       for (var exercise in record.exercises) {
-        await txn.insert(
-          DatabaseHelper.tableRecordExercises,
-          {
-            'id': _uuid.v4(),
-            ...exercise.toMap(record.id),
-          },
-        );
+        await txn.insert(DatabaseHelper.tableRecordExercises, {
+          'id': _uuid.v4(),
+          ...exercise.toMap(record.id),
+        });
       }
     });
 
@@ -104,7 +95,10 @@ class RecordRepository {
   }
 
   /// 根据ID获取记录
-  Future<WorkoutRecord?> getRecordById(String id, {List<Exercise>? exercises}) async {
+  Future<WorkoutRecord?> getRecordById(
+    String id, {
+    List<Exercise>? exercises,
+  }) async {
     if (!_isDatabaseAvailable) {
       return null;
     }
@@ -132,7 +126,9 @@ class RecordRepository {
     List<Exercise>? exercises,
   }) async {
     if (!_isDatabaseAvailable) {
-      debugPrint('Database not available on web - returning empty records list');
+      debugPrint(
+        'Database not available on web - returning empty records list',
+      );
       return [];
     }
     final database = await _db.database;
@@ -226,7 +222,10 @@ class RecordRepository {
   }
 
   /// 计算统计数据
-  Map<String, dynamic> _calculateStats(List<WorkoutRecord> records, String period) {
+  Map<String, dynamic> _calculateStats(
+    List<WorkoutRecord> records,
+    String period,
+  ) {
     if (records.isEmpty) {
       return {
         'period': period,
@@ -269,10 +268,13 @@ class RecordRepository {
     }
     final database = await _db.database;
 
-    final results = await database.rawQuery('''
+    final results = await database.rawQuery(
+      '''
       SELECT trained_muscles FROM ${DatabaseHelper.tableWorkoutRecords}
       WHERE date >= ? AND date <= ? AND trained_muscles IS NOT NULL
-    ''', [from.toIso8601String(), to.toIso8601String()]);
+    ''',
+      [from.toIso8601String(), to.toIso8601String()],
+    );
 
     final Map<PrimaryMuscleGroup, int> distribution = {};
 
@@ -308,14 +310,17 @@ class RecordRepository {
     }
     final database = await _db.database;
 
-    final results = await database.rawQuery('''
+    final results = await database.rawQuery(
+      '''
       SELECT plan_id, plan_name, COUNT(*) as use_count
       FROM ${DatabaseHelper.tableWorkoutRecords}
       WHERE plan_id IS NOT NULL AND plan_name IS NOT NULL
       GROUP BY plan_id, plan_name
       ORDER BY MAX(date) DESC
       LIMIT ?
-    ''', [limit ?? 5]);
+    ''',
+      [limit ?? 5],
+    );
 
     return results.map((row) {
       return <String, dynamic>{
@@ -334,7 +339,9 @@ class RecordRepository {
     final database = await _db.database;
 
     final count = Sqflite.firstIntValue(
-      await database.rawQuery('SELECT COUNT(*) FROM ${DatabaseHelper.tableWorkoutRecords}'),
+      await database.rawQuery(
+        'SELECT COUNT(*) FROM ${DatabaseHelper.tableWorkoutRecords}',
+      ),
     );
 
     return count ?? 0;
@@ -347,14 +354,14 @@ class RecordRepository {
       return 0.0;
     }
     final records = await getRecordsByDateRange(from, to);
-    
+
     double totalVolume = 0.0;
     for (var record in records) {
       for (var exercise in record.exercises) {
         totalVolume += exercise.totalVolume;
       }
     }
-    
+
     return totalVolume;
   }
 }
