@@ -64,6 +64,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
+          tooltip: '关闭',
           icon: Icon(Icons.close, color: theme.textColor),
           onPressed: () => Navigator.pop(context),
         ),
@@ -701,6 +702,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               IconButton(
+                tooltip: '减少组数',
                 onPressed: planExercise.effectiveSets > 1
                     ? () => _updateExerciseSets(
                         index,
@@ -728,6 +730,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
                 ),
               ),
               IconButton(
+                tooltip: '增加组数',
                 onPressed: planExercise.effectiveSets < 10
                     ? () => _updateExerciseSets(
                         index,

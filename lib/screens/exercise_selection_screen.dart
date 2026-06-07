@@ -163,6 +163,7 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
       backgroundColor: Colors.transparent,
       elevation: 0,
       leading: IconButton(
+        tooltip: '返回',
         icon: Icon(Icons.arrow_back, color: theme.textColor),
         onPressed: () => Navigator.pop(context),
       ),
@@ -212,6 +213,7 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
             prefixIcon: Icon(Icons.search, color: theme.secondaryTextColor),
             suffixIcon: _searchQuery.isNotEmpty
                 ? IconButton(
+                    tooltip: '清除搜索',
                     icon: Icon(Icons.clear, color: theme.secondaryTextColor),
                     onPressed: () {
                       _searchController.clear();
