@@ -79,9 +79,9 @@ class ThemeProvider extends ChangeNotifier {
       case AppThemeType.coralOrange:
         return 'coralOrange';
       case AppThemeType.mintGreen:
-        return 'mintGreen';
+        return 'amberGold'; // Legacy: remapped
       case AppThemeType.rosePink:
-        return 'rosePink';
+        return 'coralOrange'; // Legacy: remapped
       case AppThemeType.skyBlue:
         return 'skyBlue';
     }
@@ -95,9 +95,9 @@ class ThemeProvider extends ChangeNotifier {
       case 'coralOrange':
         return AppThemeType.coralOrange;
       case 'mintGreen':
-        return AppThemeType.mintGreen;
+        return AppThemeType.amberGold; // Legacy: mintGreen → amberGold
       case 'rosePink':
-        return AppThemeType.rosePink;
+        return AppThemeType.coralOrange; // Legacy: rosePink → coralOrange
       case 'skyBlue':
         return AppThemeType.skyBlue;
       // Legacy theme names - map to new themes
@@ -109,10 +109,10 @@ class ThemeProvider extends ChangeNotifier {
         return AppThemeType.coralOrange;
       case 'vitalityGreen':
       case 'iphone5cGreen':
-        return AppThemeType.mintGreen;
+        return AppThemeType.skyBlue; // Was mintGreen, now skyBlue
       case 'vitalityPink':
       case 'iphone5cPink':
-        return AppThemeType.rosePink;
+        return AppThemeType.coralOrange; // Was rosePink, now coralOrange
       case 'vitalityBlue':
       case 'iphone5cBlue':
       case 'iphone5cWhite':
@@ -121,7 +121,7 @@ class ThemeProvider extends ChangeNotifier {
       case 'arcticFlow':
         return AppThemeType.skyBlue;
       case 'vitalFlow':
-        return AppThemeType.mintGreen;
+        return AppThemeType.skyBlue; // Was mintGreen, now skyBlue
       case 'neonTempus':
       case 'electricPulse':
         return AppThemeType.skyBlue;
