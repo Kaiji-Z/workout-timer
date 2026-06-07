@@ -225,7 +225,7 @@ class _CompletedMedalDisplayState extends State<CompletedMedalDisplay>
             style: Theme.of(context).textTheme.bodyMedium!.copyWith(
               fontSize: 13,
               fontWeight: FontWeight.w500,
-              color: const Color(0xCCFFFFFF),
+              color: widget.theme.onAccentColor.withValues(alpha: 0.8),
             ),
           ),
         ],
