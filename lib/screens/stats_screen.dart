@@ -11,6 +11,7 @@ import '../services/workout_repository.dart';
 import '../services/stats_calculator_service.dart';
 import '../bloc/record_provider.dart';
 import '../widgets/volume_trend_charts.dart';
+import '../animations/animation_primitives.dart';
 import 'ai_analysis_screen.dart';
 import '../services/user_preferences_service.dart';
 import '../animations/page_transitions.dart';
@@ -586,33 +587,37 @@ class _StatsScreenState extends State<StatsScreen>
         Expanded(
           child: _buildMetricCard(
             '训练次数',
-            '${stats['sessionCount']}',
+            '',
             '次',
             Icons.fitness_center,
             theme.primaryColor,
             theme,
+            numValue: (stats['sessionCount'] as num).toDouble(),
           ),
         ),
         const SizedBox(width: 12),
         Expanded(
           child: _buildMetricCard(
             '训练天数',
-            '${stats['workoutDays']}',
+            '',
             '天',
             Icons.calendar_today,
             theme.secondaryColor,
             theme,
+            numValue: (stats['workoutDays'] as num).toDouble(),
           ),
         ),
         const SizedBox(width: 12),
         Expanded(
           child: _buildMetricCard(
             '周均训练',
-            '${(stats['avgSessionsPerWeek'] as double).toStringAsFixed(1)} 次',
+            '',
             '次',
             Icons.trending_up,
             theme.accentColor,
             theme,
+            numValue: stats['avgSessionsPerWeek'] as double,
+            decimalPlaces: 1,
           ),
         ),
       ],
@@ -662,11 +667,12 @@ class _StatsScreenState extends State<StatsScreen>
             Expanded(
               child: _buildMetricCard(
                 '总组数',
-                '${stats['totalSets']}',
+                '',
                 '组',
                 Icons.repeat,
                 theme.primaryColor,
                 theme,
+                numValue: (stats['totalSets'] as num).toDouble(),
               ),
             ),
             const SizedBox(width: 12),
@@ -747,8 +753,10 @@ class _StatsScreenState extends State<StatsScreen>
     String unit,
     IconData icon,
     Color color,
-    AppThemeData theme,
-  ) {
+    AppThemeData theme, {
+    double? numValue,
+    int decimalPlaces = 0,
+  }) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
       decoration: BoxDecoration(
@@ -761,15 +769,25 @@ class _StatsScreenState extends State<StatsScreen>
         children: [
           Icon(icon, color: color, size: 20),
           const SizedBox(height: 6),
-          Text(
-            value,
-            style: Theme.of(context).textTheme.titleLarge!.copyWith(
-              fontWeight: FontWeight.w700,
-              color: theme.textColor,
+          if (numValue != null)
+            CountUp(
+              target: numValue,
+              decimalPlaces: decimalPlaces,
+              style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                fontWeight: FontWeight.w700,
+                color: theme.textColor,
+              ),
+            )
+          else
+            Text(
+              value,
+              style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                fontWeight: FontWeight.w700,
+                color: theme.textColor,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
           Text(
             label,
             style: Theme.of(context).textTheme.bodySmall!.copyWith(
