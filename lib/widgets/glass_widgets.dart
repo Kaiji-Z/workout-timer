@@ -334,7 +334,7 @@ class FlatBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: BoxDecoration(
-        color: backgroundColor ?? const Color(0xFFFFA726),
+        color: backgroundColor ?? theme.accentColor.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(AppDimensions.radiusChip),
       ),
       child: Row(
