@@ -394,7 +394,11 @@ class _StatsScreenState extends State<StatsScreen>
     // Calculate actual sessions per week based on the time span
     final dates = uniqueDays.map((d) {
       final parts = d.split('-');
-      return DateTime(int.parse(parts[0]), int.parse(parts[1]), int.parse(parts[2]));
+      return DateTime(
+        int.parse(parts[0]),
+        int.parse(parts[1]),
+        int.parse(parts[2]),
+      );
     }).toList();
     dates.sort();
 
@@ -402,7 +406,9 @@ class _StatsScreenState extends State<StatsScreen>
     if (dates.length >= 2) {
       final spanDays = dates.last.difference(dates.first).inDays + 1;
       final spanWeeks = spanDays / 7.0;
-      avgSessionsPerWeek = spanWeeks > 0 ? records.length / spanWeeks : records.length.toDouble();
+      avgSessionsPerWeek = spanWeeks > 0
+          ? records.length / spanWeeks
+          : records.length.toDouble();
     } else {
       // Single day of data — can't compute meaningful weekly average
       avgSessionsPerWeek = records.length.toDouble();
@@ -474,14 +480,12 @@ class _StatsScreenState extends State<StatsScreen>
               margin: const EdgeInsets.only(right: 12),
               decoration: BoxDecoration(
                 gradient: LinearGradient(colors: theme.timerGradientColors),
-                borderRadius: BorderRadius.circular(2),
+                borderRadius: BorderRadius.circular(AppDimensions.radiusXxs),
               ),
             ),
             Text(
               '训练统计',
-              style: TextStyle(
-                fontFamily: '.SF Pro Display',
-                fontSize: 18,
+              style: Theme.of(context).textTheme.headlineMedium!.copyWith(
                 fontWeight: FontWeight.w700,
                 letterSpacing: -0.5,
                 color: theme.textColor,
@@ -495,9 +499,7 @@ class _StatsScreenState extends State<StatsScreen>
             icon: Icon(Icons.psychology, size: 20, color: theme.accentColor),
             label: Text(
               'AI 分析',
-              style: TextStyle(
-                fontFamily: '.SF Pro Text',
-                fontSize: 14,
+              style: Theme.of(context).textTheme.labelLarge!.copyWith(
                 fontWeight: FontWeight.w600,
                 color: theme.accentColor,
               ),
@@ -510,11 +512,9 @@ class _StatsScreenState extends State<StatsScreen>
           indicatorWeight: 2,
           labelColor: theme.textColor,
           unselectedLabelColor: theme.secondaryTextColor,
-          labelStyle: TextStyle(
-            fontFamily: '.SF Pro Text',
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-          ),
+          labelStyle: Theme.of(
+            context,
+          ).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.w600),
           tabs: const [
             Tab(text: '周视图'),
             Tab(text: '月视图'),
@@ -551,8 +551,7 @@ class _StatsScreenState extends State<StatsScreen>
       children: [
         Text(
           title,
-          style: TextStyle(
-            fontFamily: '.SF Pro Text',
+          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
             fontSize: 13,
             fontWeight: FontWeight.w600,
             color: theme.secondaryTextColor,
@@ -561,13 +560,13 @@ class _StatsScreenState extends State<StatsScreen>
         ),
         const SizedBox(height: 12),
         Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppDimensions.screenPadding),
           decoration: BoxDecoration(
             color: theme.surfaceColor.withValues(alpha: 0.9),
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
             boxShadow: [
               BoxShadow(
-                color: theme.textColor.withValues(alpha: 0.08),
+                color: theme.shadowColor,
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -627,14 +626,28 @@ class _StatsScreenState extends State<StatsScreen>
 
   /// Calculate volume change percentage between current and previous period
   /// Returns null if no comparison is available
-  double? _calculateVolumeChange(List<dynamic> currentRecords, List<dynamic> previousRecords) {
-    final currentWorkoutRecords = currentRecords.whereType<WorkoutRecord>().toList();
-    final previousWorkoutRecords = previousRecords.whereType<WorkoutRecord>().toList();
+  double? _calculateVolumeChange(
+    List<dynamic> currentRecords,
+    List<dynamic> previousRecords,
+  ) {
+    final currentWorkoutRecords = currentRecords
+        .whereType<WorkoutRecord>()
+        .toList();
+    final previousWorkoutRecords = previousRecords
+        .whereType<WorkoutRecord>()
+        .toList();
 
-    if (currentWorkoutRecords.isEmpty || previousWorkoutRecords.isEmpty) return null;
+    if (currentWorkoutRecords.isEmpty || previousWorkoutRecords.isEmpty)
+      return null;
 
-    final currentVolume = _statsCalc.calculateTotalVolume(currentWorkoutRecords, bodyWeight: _userBodyWeight);
-    final previousVolume = _statsCalc.calculateTotalVolume(previousWorkoutRecords, bodyWeight: _userBodyWeight);
+    final currentVolume = _statsCalc.calculateTotalVolume(
+      currentWorkoutRecords,
+      bodyWeight: _userBodyWeight,
+    );
+    final previousVolume = _statsCalc.calculateTotalVolume(
+      previousWorkoutRecords,
+      bodyWeight: _userBodyWeight,
+    );
 
     if (previousVolume == 0) return null;
 
@@ -642,7 +655,11 @@ class _StatsScreenState extends State<StatsScreen>
   }
 
   /// 训练量概览
-  Widget _buildVolumeOverview(Map<String, dynamic> stats, AppThemeData theme, {double? volumeChange}) {
+  Widget _buildVolumeOverview(
+    Map<String, dynamic> stats,
+    AppThemeData theme, {
+    double? volumeChange,
+  }) {
     return Column(
       children: [
         Row(
@@ -675,7 +692,7 @@ class _StatsScreenState extends State<StatsScreen>
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             color: theme.accentColor.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -697,34 +714,37 @@ class _StatsScreenState extends State<StatsScreen>
               ),
             ],
           ),
-         ),
-         if (volumeChange != null)
-           Padding(
-             padding: const EdgeInsets.only(top: 8),
-             child: Row(
-               mainAxisAlignment: MainAxisAlignment.center,
-               children: [
-                 Icon(
-                   volumeChange >= 0 ? Icons.trending_up : Icons.trending_down,
-                   size: 14,
-                   color: volumeChange >= 0 ? theme.successColor : theme.errorColor,
-                 ),
-                 const SizedBox(width: 4),
-                 Text(
-                   '${volumeChange >= 0 ? '+' : ''}${volumeChange.toStringAsFixed(1)}% vs 上期',
-                   style: TextStyle(
-                     fontFamily: '.SF Pro Text',
-                     fontSize: 11,
-                     color: volumeChange >= 0 ? theme.successColor : theme.errorColor,
-                     fontWeight: FontWeight.w500,
-                   ),
-                 ),
-               ],
-             ),
-           ),
-       ],
-     );
-   }
+        ),
+        if (volumeChange != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  volumeChange >= 0 ? Icons.trending_up : Icons.trending_down,
+                  size: 14,
+                  color: volumeChange >= 0
+                      ? theme.successColor
+                      : theme.errorColor,
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  '${volumeChange >= 0 ? '+' : ''}${volumeChange.toStringAsFixed(1)}% vs 上期',
+                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                    fontSize: 11,
+                    color: volumeChange >= 0
+                        ? theme.successColor
+                        : theme.errorColor,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
 
   Widget _buildMetricCard(
     String label,
@@ -738,7 +758,7 @@ class _StatsScreenState extends State<StatsScreen>
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -748,9 +768,7 @@ class _StatsScreenState extends State<StatsScreen>
           const SizedBox(height: 6),
           Text(
             value,
-            style: TextStyle(
-              fontFamily: '.SF Pro Display',
-              fontSize: 16,
+            style: Theme.of(context).textTheme.titleLarge!.copyWith(
               fontWeight: FontWeight.w700,
               color: theme.textColor,
             ),
@@ -759,8 +777,7 @@ class _StatsScreenState extends State<StatsScreen>
           ),
           Text(
             label,
-            style: TextStyle(
-              fontFamily: '.SF Pro Text',
+            style: Theme.of(context).textTheme.bodySmall!.copyWith(
               fontSize: 10,
               color: theme.secondaryTextColor,
             ),
@@ -778,17 +795,13 @@ class _StatsScreenState extends State<StatsScreen>
       children: [
         Text(
           value,
-          style: TextStyle(
-            fontFamily: '.SF Pro Display',
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: theme.accentColor,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleLarge!.copyWith(color: theme.accentColor),
         ),
         Text(
           label,
-          style: TextStyle(
-            fontFamily: '.SF Pro Text',
+          style: Theme.of(context).textTheme.bodySmall!.copyWith(
             fontSize: 11,
             color: theme.secondaryTextColor,
           ),
@@ -814,7 +827,9 @@ class _StatsScreenState extends State<StatsScreen>
     final dailySets = _getDailySets(records, true);
 
     // 计算周环比变化
-    final previousWeekRecords = _filterByWeek(_selectedWeekStart.subtract(const Duration(days: 7)));
+    final previousWeekRecords = _filterByWeek(
+      _selectedWeekStart.subtract(const Duration(days: 7)),
+    );
     final volumeChange = _calculateVolumeChange(records, previousWeekRecords);
 
     return SingleChildScrollView(
@@ -838,7 +853,11 @@ class _StatsScreenState extends State<StatsScreen>
             children: [
               _buildFrequencyOverview(frequencyStats, theme),
               const SizedBox(height: 16),
-              _buildVolumeOverview(volumeStats, theme, volumeChange: volumeChange),
+              _buildVolumeOverview(
+                volumeStats,
+                theme,
+                volumeChange: volumeChange,
+              ),
               const SizedBox(height: 12),
               _buildDensityMetric(workoutRecords, theme),
             ],
@@ -860,7 +879,10 @@ class _StatsScreenState extends State<StatsScreen>
           // 训练量趋势（周）
           _buildSection('训练量趋势', theme, [
             DailyVolumeChart(
-              data: _statsCalc.calculateDailyVolumeTrend(workoutRecords, bodyWeight: _userBodyWeight),
+              data: _statsCalc.calculateDailyVolumeTrend(
+                workoutRecords,
+                bodyWeight: _userBodyWeight,
+              ),
             ),
           ]),
           const SizedBox(height: 20),
@@ -939,7 +961,11 @@ class _StatsScreenState extends State<StatsScreen>
             children: [
               _buildFrequencyOverview(frequencyStats, theme),
               const SizedBox(height: 16),
-              _buildVolumeOverview(volumeStats, theme, volumeChange: volumeChange),
+              _buildVolumeOverview(
+                volumeStats,
+                theme,
+                volumeChange: volumeChange,
+              ),
               const SizedBox(height: 12),
               _buildDensityMetric(workoutRecords, theme),
             ],
@@ -949,7 +975,10 @@ class _StatsScreenState extends State<StatsScreen>
           // 训练量趋势（月）
           _buildSection('训练量趋势', theme, [
             DailyVolumeChart(
-              data: _statsCalc.calculateDailyVolumeTrend(workoutRecords, bodyWeight: _userBodyWeight),
+              data: _statsCalc.calculateDailyVolumeTrend(
+                workoutRecords,
+                bodyWeight: _userBodyWeight,
+              ),
             ),
           ]),
           const SizedBox(height: 20),
@@ -1003,13 +1032,13 @@ class _StatsScreenState extends State<StatsScreen>
         );
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppDimensions.screenPadding),
       decoration: BoxDecoration(
         color: theme.surfaceColor.withValues(alpha: 0.9),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
         boxShadow: [
           BoxShadow(
-            color: theme.textColor.withValues(alpha: 0.08),
+            color: theme.shadowColor,
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -1029,20 +1058,13 @@ class _StatsScreenState extends State<StatsScreen>
                 children: [
                   Text(
                     '${weekStart.month}月 ${weekStart.day}日 - ${weekDays.last.month}月 ${weekDays.last.day}日',
-                    style: TextStyle(
-                      fontFamily: '.SF Pro Display',
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: theme.textColor,
-                    ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.titleLarge!.copyWith(color: theme.textColor),
                   ),
                   Text(
                     '${weekStart.year}年',
-                    style: TextStyle(
-                      fontFamily: '.SF Pro Text',
-                      fontSize: 12,
-                      color: theme.secondaryTextColor,
-                    ),
+                    style: Theme.of(context).textTheme.bodySmall!,
                   ),
                 ],
               ),
@@ -1056,12 +1078,11 @@ class _StatsScreenState extends State<StatsScreen>
                         padding: const EdgeInsets.symmetric(horizontal: 4),
                         child: Text(
                           '今天',
-                          style: TextStyle(
-                            fontFamily: '.SF Pro Text',
-                            fontSize: 12,
-                            color: theme.accentColor,
-                            fontWeight: FontWeight.w500,
-                          ),
+                          style: Theme.of(context).textTheme.bodySmall!
+                              .copyWith(
+                                fontWeight: FontWeight.w500,
+                                color: theme.accentColor,
+                              ),
                         ),
                       ),
                     ),
@@ -1074,8 +1095,8 @@ class _StatsScreenState extends State<StatsScreen>
                           : theme.secondaryTextColor.withValues(alpha: 0.3),
                     ),
                   ),
-                 ],
-               ),
+                ],
+              ),
             ],
           ),
           const SizedBox(height: 16),
@@ -1096,8 +1117,7 @@ class _StatsScreenState extends State<StatsScreen>
                   children: [
                     Text(
                       dayNames[index],
-                      style: TextStyle(
-                        fontFamily: '.SF Pro Text',
+                      style: Theme.of(context).textTheme.bodySmall!.copyWith(
                         fontSize: 11,
                         color: theme.secondaryTextColor,
                       ),
@@ -1112,7 +1132,9 @@ class _StatsScreenState extends State<StatsScreen>
                             : hasWorkout
                             ? theme.primaryColor.withValues(alpha: 0.2)
                             : Colors.transparent,
-                        borderRadius: BorderRadius.circular(18),
+                        borderRadius: BorderRadius.circular(
+                          AppDimensions.radiusChip,
+                        ),
                         border: isToday
                             ? null
                             : Border.all(
@@ -1125,18 +1147,17 @@ class _StatsScreenState extends State<StatsScreen>
                       child: Center(
                         child: Text(
                           '${day.day}',
-                          style: TextStyle(
-                            fontFamily: '.SF Pro Display',
-                            fontSize: 14,
-                            fontWeight: isToday
-                                ? FontWeight.w700
-                                : FontWeight.w500,
-                            color: isToday
-                                ? theme.surfaceColor
-                                : hasWorkout
-                                ? theme.primaryColor
-                                : theme.textColor,
-                          ),
+                          style: Theme.of(context).textTheme.labelLarge!
+                              .copyWith(
+                                fontWeight: isToday
+                                    ? FontWeight.w700
+                                    : FontWeight.w500,
+                                color: isToday
+                                    ? theme.surfaceColor
+                                    : hasWorkout
+                                    ? theme.primaryColor
+                                    : theme.textColor,
+                              ),
                         ),
                       ),
                     ),
@@ -1156,10 +1177,10 @@ class _StatsScreenState extends State<StatsScreen>
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: theme.surfaceColor.withValues(alpha: 0.9),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
         boxShadow: [
           BoxShadow(
-            color: theme.textColor.withValues(alpha: 0.08),
+            color: theme.shadowColor,
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -1174,12 +1195,9 @@ class _StatsScreenState extends State<StatsScreen>
           ),
           Text(
             '$_selectedYear 年',
-            style: TextStyle(
-              fontFamily: '.SF Pro Display',
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: theme.textColor,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.headlineMedium!.copyWith(color: theme.textColor),
           ),
           if (!_isCurrentMonth())
             GestureDetector(
@@ -1188,11 +1206,9 @@ class _StatsScreenState extends State<StatsScreen>
                 padding: const EdgeInsets.symmetric(horizontal: 4),
                 child: Text(
                   '今天',
-                  style: TextStyle(
-                    fontFamily: '.SF Pro Text',
-                    fontSize: 12,
-                    color: theme.accentColor,
+                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
                     fontWeight: FontWeight.w500,
+                    color: theme.accentColor,
                   ),
                 ),
               ),
@@ -1233,13 +1249,13 @@ class _StatsScreenState extends State<StatsScreen>
     final maxCount = counts.values.fold(0, (max, e) => e > max ? e : max);
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppDimensions.screenPadding),
       decoration: BoxDecoration(
         color: theme.surfaceColor.withValues(alpha: 0.9),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
         boxShadow: [
           BoxShadow(
-            color: theme.textColor.withValues(alpha: 0.08),
+            color: theme.shadowColor,
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -1284,7 +1300,7 @@ class _StatsScreenState extends State<StatsScreen>
                   color: Colors.transparent,
                   child: InkWell(
                     onTap: isFuture ? null : () => _selectMonth(month),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
                     child: Container(
                       decoration: BoxDecoration(
                         gradient: isSelected
@@ -1306,7 +1322,9 @@ class _StatsScreenState extends State<StatsScreen>
                                 alpha: 0.1 + intensity * 0.3,
                               )
                             : theme.textColor.withValues(alpha: 0.05),
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(
+                          AppDimensions.radiusLg,
+                        ),
                         border: isSelected
                             ? null
                             : Border.all(
@@ -1315,43 +1333,41 @@ class _StatsScreenState extends State<StatsScreen>
                                     : theme.textColor.withValues(alpha: 0.1),
                               ),
                       ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          monthNames[index],
-                          style: TextStyle(
-                            fontFamily: '.SF Pro Text',
-                            fontSize: 12,
-                            fontWeight: isSelected
-                                ? FontWeight.w600
-                                : FontWeight.w500,
-                            color: isSelected
-                                ? theme.surfaceColor
-                                : isFuture
-                                ? theme.secondaryTextColor.withValues(
-                                    alpha: 0.3,
-                                  )
-                                : theme.textColor,
-                          ),
-                        ),
-                        if (count > 0) ...[
-                          const SizedBox(height: 2),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
                           Text(
-                            '$count',
-                            style: TextStyle(
-                              fontFamily: '.SF Pro Display',
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                              color: isSelected
-                                  ? theme.surfaceColor
-                                  : theme.primaryColor,
-                            ),
+                            monthNames[index],
+                            style: Theme.of(context).textTheme.bodySmall!
+                                .copyWith(
+                                  fontWeight: isSelected
+                                      ? FontWeight.w600
+                                      : FontWeight.w500,
+                                  color: isSelected
+                                      ? theme.surfaceColor
+                                      : isFuture
+                                      ? theme.secondaryTextColor.withValues(
+                                          alpha: 0.3,
+                                        )
+                                      : theme.textColor,
+                                ),
                           ),
+                          if (count > 0) ...[
+                            const SizedBox(height: 2),
+                            Text(
+                              '$count',
+                              style: Theme.of(context).textTheme.labelLarge!
+                                  .copyWith(
+                                    fontWeight: FontWeight.w700,
+                                    color: isSelected
+                                        ? theme.surfaceColor
+                                        : theme.primaryColor,
+                                  ),
+                            ),
+                          ],
                         ],
-                      ],
+                      ),
                     ),
-                  ),
                   ),
                 );
               },
@@ -1376,10 +1392,7 @@ class _StatsScreenState extends State<StatsScreen>
           const SizedBox(height: 16),
           Text(
             '暂无训练数据',
-            style: TextStyle(
-              fontFamily: '.SF Pro Display',
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
+            style: Theme.of(context).textTheme.titleLarge!.copyWith(
               color: theme.textColor,
               letterSpacing: 1,
             ),
@@ -1387,9 +1400,7 @@ class _StatsScreenState extends State<StatsScreen>
           const SizedBox(height: 8),
           Text(
             '完成几次训练后这里会显示统计信息',
-            style: TextStyle(
-              fontFamily: '.SF Pro Text',
-              fontSize: 14,
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
               color: theme.secondaryTextColor.withValues(alpha: 0.6),
             ),
           ),
@@ -1412,13 +1423,12 @@ class _StatsScreenState extends State<StatsScreen>
     if (maxDuration == 0) {
       return Center(
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppDimensions.screenPadding),
           child: Text(
             '暂无训练数据',
-            style: TextStyle(
-              color: theme.secondaryTextColor,
-              fontFamily: '.SF Pro Text',
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium!.copyWith(color: theme.secondaryTextColor),
           ),
         ),
       );
@@ -1437,14 +1447,13 @@ class _StatsScreenState extends State<StatsScreen>
                 gradient: LinearGradient(
                   colors: [theme.primaryColor, theme.secondaryColor],
                 ),
-                borderRadius: BorderRadius.circular(2),
+                borderRadius: BorderRadius.circular(AppDimensions.radiusXxs),
               ),
             ),
             const SizedBox(width: 6),
             Text(
               '时长/组数',
-              style: TextStyle(
-                fontFamily: '.SF Pro Text',
+              style: Theme.of(context).textTheme.bodySmall!.copyWith(
                 fontSize: 11,
                 color: theme.secondaryTextColor,
               ),
@@ -1500,7 +1509,9 @@ class _StatsScreenState extends State<StatsScreen>
                                       ? null
                                       : theme.textColor.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(
-                                    isWeekView ? 4 : 2,
+                                    isWeekView
+                                        ? AppDimensions.radiusSm
+                                        : AppDimensions.radiusXxs,
                                   ),
                                 ),
                               ),
@@ -1517,21 +1528,29 @@ class _StatsScreenState extends State<StatsScreen>
                                           Text(
                                             formatDuration(duration),
                                             textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                              fontFamily: '.SF Pro Text',
-                                              fontSize: isWeekView ? 11 : 9,
-                                              color: theme.secondaryTextColor,
-                                            ),
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodySmall!
+                                                .copyWith(
+                                                  fontSize: isWeekView ? 11 : 9,
+                                                  color:
+                                                      theme.secondaryTextColor,
+                                                ),
                                           ),
                                           if (setCount > 0)
                                             Text(
                                               '$setCount 组',
                                               textAlign: TextAlign.center,
-                                              style: TextStyle(
-                                                fontFamily: '.SF Pro Text',
-                                                fontSize: isWeekView ? 10 : 8,
-                                                color: theme.secondaryTextColor,
-                                              ),
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .bodySmall!
+                                                  .copyWith(
+                                                    fontSize: isWeekView
+                                                        ? 10
+                                                        : 8,
+                                                    color: theme
+                                                        .secondaryTextColor,
+                                                  ),
                                             ),
                                         ],
                                       ),
@@ -1573,8 +1592,7 @@ class _StatsScreenState extends State<StatsScreen>
                           : (showLabel ? '$key' : ''),
                       textAlign: TextAlign.center,
                       overflow: TextOverflow.visible,
-                      style: TextStyle(
-                        fontFamily: '.SF Pro Text',
+                      style: Theme.of(context).textTheme.bodySmall!.copyWith(
                         fontSize: isWeekView ? 10 : 9,
                         color: theme.secondaryTextColor,
                       ),
@@ -1622,13 +1640,12 @@ class _StatsScreenState extends State<StatsScreen>
     if (exercises.isEmpty) {
       return Center(
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppDimensions.screenPadding),
           child: Text(
             '暂无动作数据',
-            style: TextStyle(
-              color: theme.secondaryTextColor,
-              fontFamily: '.SF Pro Text',
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium!.copyWith(color: theme.secondaryTextColor),
           ),
         ),
       );
@@ -1654,8 +1671,7 @@ class _StatsScreenState extends State<StatsScreen>
                 width: 100,
                 child: Text(
                   displayName,
-                  style: TextStyle(
-                    fontFamily: '.SF Pro Text',
+                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
                     fontSize: 11,
                     color: theme.textColor,
                   ),
@@ -1669,7 +1685,9 @@ class _StatsScreenState extends State<StatsScreen>
                       height: 20,
                       decoration: BoxDecoration(
                         color: theme.textColor.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(4),
+                        borderRadius: BorderRadius.circular(
+                          AppDimensions.radiusSm,
+                        ),
                       ),
                     ),
                     FractionallySizedBox(
@@ -1683,7 +1701,9 @@ class _StatsScreenState extends State<StatsScreen>
                               theme.accentColor.withValues(alpha: 0.7),
                             ],
                           ),
-                          borderRadius: BorderRadius.circular(4),
+                          borderRadius: BorderRadius.circular(
+                            AppDimensions.radiusSm,
+                          ),
                         ),
                       ),
                     ),
@@ -1695,8 +1715,7 @@ class _StatsScreenState extends State<StatsScreen>
                 width: 30,
                 child: Text(
                   '${entry.value}次',
-                  style: TextStyle(
-                    fontFamily: '.SF Pro Text',
+                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
                     color: theme.accentColor,
@@ -1716,18 +1735,20 @@ class _StatsScreenState extends State<StatsScreen>
     List<WorkoutRecord> records,
     AppThemeData theme,
   ) {
-    final distribution = _statsCalc.calculateMuscleVolumeDistribution(records, bodyWeight: _userBodyWeight);
+    final distribution = _statsCalc.calculateMuscleVolumeDistribution(
+      records,
+      bodyWeight: _userBodyWeight,
+    );
 
     if (distribution.isEmpty) {
       return Center(
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppDimensions.screenPadding),
           child: Text(
             '暂无训练数据',
-            style: TextStyle(
-              color: theme.secondaryTextColor,
-              fontFamily: '.SF Pro Text',
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium!.copyWith(color: theme.secondaryTextColor),
           ),
         ),
       );
@@ -1764,8 +1785,7 @@ class _StatsScreenState extends State<StatsScreen>
         // Center text showing total volume
         Text(
           _formatVolume(totalVolume),
-          style: TextStyle(
-            fontFamily: '.SF Pro Display',
+          style: Theme.of(context).textTheme.headlineMedium!.copyWith(
             fontSize: 20,
             fontWeight: FontWeight.w700,
             color: theme.textColor,
@@ -1773,66 +1793,72 @@ class _StatsScreenState extends State<StatsScreen>
         ),
         Text(
           '总容量',
-          style: TextStyle(
-            fontFamily: '.SF Pro Text',
+          style: Theme.of(context).textTheme.bodySmall!.copyWith(
             fontSize: 11,
             color: theme.secondaryTextColor,
           ),
         ),
         const SizedBox(height: 20),
         // Legend - group small segments (<5%) into "其他"
-        Builder(builder: (context) {
-          const kSmallThreshold = 0.05;
-          final legendItems = <MapEntry<String, Color?>>[];
-          double otherPercentage = 0;
+        Builder(
+          builder: (context) {
+            const kSmallThreshold = 0.05;
+            final legendItems = <MapEntry<String, Color?>>[];
+            double otherPercentage = 0;
 
-          for (final entry in sortedEntries) {
-            final pct = totalVolume > 0 ? entry.value / totalVolume : 0.0;
-            if (pct < kSmallThreshold) {
-              otherPercentage += pct;
-            } else {
-              legendItems.add(MapEntry(
-                '${entry.key.displayName} ${(pct * 100).toStringAsFixed(1)}%',
-                _kMuscleColors[entry.key],
-              ));
+            for (final entry in sortedEntries) {
+              final pct = totalVolume > 0 ? entry.value / totalVolume : 0.0;
+              if (pct < kSmallThreshold) {
+                otherPercentage += pct;
+              } else {
+                legendItems.add(
+                  MapEntry(
+                    '${entry.key.displayName} ${(pct * 100).toStringAsFixed(1)}%',
+                    _kMuscleColors[entry.key],
+                  ),
+                );
+              }
             }
-          }
-          if (otherPercentage > 0) {
-            legendItems.add(MapEntry(
-              '其他 ${(otherPercentage * 100).toStringAsFixed(1)}%',
-              theme.secondaryTextColor,
-            ));
-          }
-
-          return Wrap(
-            spacing: 12,
-            runSpacing: 8,
-            children: legendItems.map((item) {
-              return Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 12,
-                    height: 12,
-                    decoration: BoxDecoration(
-                      color: item.value ?? theme.secondaryTextColor,
-                      borderRadius: BorderRadius.circular(3),
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    item.key,
-                    style: TextStyle(
-                      fontFamily: '.SF Pro Text',
-                      fontSize: 11,
-                      color: theme.textColor,
-                    ),
-                  ),
-                ],
+            if (otherPercentage > 0) {
+              legendItems.add(
+                MapEntry(
+                  '其他 ${(otherPercentage * 100).toStringAsFixed(1)}%',
+                  theme.secondaryTextColor,
+                ),
               );
-            }).toList(),
-          );
-        }),
+            }
+
+            return Wrap(
+              spacing: 12,
+              runSpacing: 8,
+              children: legendItems.map((item) {
+                return Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 12,
+                      height: 12,
+                      decoration: BoxDecoration(
+                        color: item.value ?? theme.secondaryTextColor,
+                        borderRadius: BorderRadius.circular(
+                          AppDimensions.radiusXxs,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      item.key,
+                      style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                        fontSize: 11,
+                        color: theme.textColor,
+                      ),
+                    ),
+                  ],
+                );
+              }).toList(),
+            );
+          },
+        ),
       ],
     );
   }
@@ -1859,7 +1885,8 @@ class _StatsScreenState extends State<StatsScreen>
         final ex = exercise.exercise;
         if (ex == null) continue;
         final muscle = ex.primaryMuscle;
-        if (lastTrained[muscle] == null || record.date.isAfter(lastTrained[muscle]!)) {
+        if (lastTrained[muscle] == null ||
+            record.date.isAfter(lastTrained[muscle]!)) {
           lastTrained[muscle] = record.date;
         }
       }
@@ -1868,13 +1895,12 @@ class _StatsScreenState extends State<StatsScreen>
     if (lastTrained.isEmpty) {
       return Center(
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppDimensions.screenPadding),
           child: Text(
             '暂无恢复数据',
-            style: TextStyle(
-              color: theme.secondaryTextColor,
-              fontFamily: '.SF Pro Text',
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium!.copyWith(color: theme.secondaryTextColor),
           ),
         ),
       );
@@ -1882,15 +1908,19 @@ class _StatsScreenState extends State<StatsScreen>
 
     // 按恢复天数排序（最久没练的在前）
     final sorted = lastTrained.entries.toList()
-      ..sort((a, b) => now.difference(b.value).inDays.compareTo(now.difference(a.value).inDays));
+      ..sort(
+        (a, b) => now
+            .difference(b.value)
+            .inDays
+            .compareTo(now.difference(a.value).inDays),
+      );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           '恢复状态',
-          style: TextStyle(
-            fontFamily: '.SF Pro Text',
+          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
             fontSize: 13,
             fontWeight: FontWeight.w600,
             color: theme.secondaryTextColor,
@@ -1921,7 +1951,7 @@ class _StatsScreenState extends State<StatsScreen>
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
                 color: chipColor.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
                 border: Border.all(color: chipColor.withValues(alpha: 0.3)),
               ),
               child: Row(
@@ -1931,9 +1961,7 @@ class _StatsScreenState extends State<StatsScreen>
                   const SizedBox(width: 6),
                   Text(
                     '${muscle.displayName} $days天',
-                    style: TextStyle(
-                      fontFamily: '.SF Pro Text',
-                      fontSize: 12,
+                    style: Theme.of(context).textTheme.bodySmall!.copyWith(
                       fontWeight: FontWeight.w500,
                       color: chipColor,
                     ),
@@ -1950,10 +1978,7 @@ class _StatsScreenState extends State<StatsScreen>
   // ==================== 新增统计组件 ====================
 
   /// 训练密度指标（组/分钟）
-  Widget _buildDensityMetric(
-    List<WorkoutRecord> records,
-    AppThemeData theme,
-  ) {
+  Widget _buildDensityMetric(List<WorkoutRecord> records, AppThemeData theme) {
     if (records.isEmpty) return const SizedBox.shrink();
 
     final density = _statsCalc.calculateDensity(records);
@@ -1965,7 +1990,7 @@ class _StatsScreenState extends State<StatsScreen>
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: theme.accentColor.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
         border: Border.all(color: theme.accentColor.withValues(alpha: 0.2)),
       ),
       child: Row(
@@ -1978,17 +2003,14 @@ class _StatsScreenState extends State<StatsScreen>
               children: [
                 Text(
                   '训练密度',
-                  style: TextStyle(
-                    fontFamily: '.SF Pro Text',
+                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
                     fontSize: 11,
                     color: theme.secondaryTextColor,
                   ),
                 ),
                 Text(
                   '${density.toStringAsFixed(1)} 组/分钟',
-                  style: TextStyle(
-                    fontFamily: '.SF Pro Display',
-                    fontSize: 16,
+                  style: Theme.of(context).textTheme.titleLarge!.copyWith(
                     fontWeight: FontWeight.w700,
                     color: theme.textColor,
                   ),
@@ -1998,8 +2020,7 @@ class _StatsScreenState extends State<StatsScreen>
           ),
           Text(
             '$totalSets组 / ${totalMinutes.toStringAsFixed(0)}分钟',
-            style: TextStyle(
-              fontFamily: '.SF Pro Text',
+            style: Theme.of(context).textTheme.bodySmall!.copyWith(
               fontSize: 11,
               color: theme.secondaryTextColor,
             ),
@@ -2022,13 +2043,12 @@ class _StatsScreenState extends State<StatsScreen>
     if (trend.isEmpty) {
       return Center(
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppDimensions.screenPadding),
           child: Text(
             '暂无1RM数据',
-            style: TextStyle(
-              color: theme.secondaryTextColor,
-              fontFamily: '.SF Pro Text',
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium!.copyWith(color: theme.secondaryTextColor),
           ),
         ),
       );
@@ -2049,8 +2069,7 @@ class _StatsScreenState extends State<StatsScreen>
             const SizedBox(width: 6),
             Text(
               '估算1RM趋势',
-              style: TextStyle(
-                fontFamily: '.SF Pro Text',
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
                 color: theme.textColor,
@@ -2059,8 +2078,7 @@ class _StatsScreenState extends State<StatsScreen>
             const SizedBox(width: 6),
             Text(
               'Mayhew',
-              style: TextStyle(
-                fontFamily: '.SF Pro Text',
+              style: Theme.of(context).textTheme.bodySmall!.copyWith(
                 fontSize: 10,
                 color: theme.secondaryTextColor,
               ),
@@ -2086,8 +2104,7 @@ class _StatsScreenState extends State<StatsScreen>
                     width: 80,
                     child: Text(
                       displayName,
-                      style: TextStyle(
-                        fontFamily: '.SF Pro Text',
+                      style: Theme.of(context).textTheme.bodySmall!.copyWith(
                         fontSize: 11,
                         color: theme.textColor,
                       ),
@@ -2097,9 +2114,7 @@ class _StatsScreenState extends State<StatsScreen>
                   Expanded(
                     child: Text(
                       '$e1RM kg',
-                      style: TextStyle(
-                        fontFamily: '.SF Pro Display',
-                        fontSize: 12,
+                      style: Theme.of(context).textTheme.bodySmall!.copyWith(
                         fontWeight: FontWeight.w600,
                         color: theme.textColor,
                       ),
@@ -2107,8 +2122,7 @@ class _StatsScreenState extends State<StatsScreen>
                   ),
                   Text(
                     '${points.length}次记录',
-                    style: TextStyle(
-                      fontFamily: '.SF Pro Text',
+                    style: Theme.of(context).textTheme.bodySmall!.copyWith(
                       fontSize: 10,
                       color: theme.secondaryTextColor,
                     ),
@@ -2122,7 +2136,7 @@ class _StatsScreenState extends State<StatsScreen>
           final last = points.last;
           final change =
               ((last.estimated1RM - first.estimated1RM) / first.estimated1RM) *
-                  100;
+              100;
           final weeks = last.date.difference(first.date).inDays / 7.0;
 
           return Padding(
@@ -2133,8 +2147,7 @@ class _StatsScreenState extends State<StatsScreen>
                   width: 80,
                   child: Text(
                     displayName,
-                    style: TextStyle(
-                      fontFamily: '.SF Pro Text',
+                    style: Theme.of(context).textTheme.bodySmall!.copyWith(
                       fontSize: 11,
                       color: theme.textColor,
                     ),
@@ -2144,9 +2157,7 @@ class _StatsScreenState extends State<StatsScreen>
                 Expanded(
                   child: Text(
                     '${first.estimated1RM.toStringAsFixed(1)} → ${last.estimated1RM.toStringAsFixed(1)} kg',
-                    style: TextStyle(
-                      fontFamily: '.SF Pro Display',
-                      fontSize: 12,
+                    style: Theme.of(context).textTheme.bodySmall!.copyWith(
                       fontWeight: FontWeight.w600,
                       color: theme.textColor,
                     ),
@@ -2160,16 +2171,17 @@ class _StatsScreenState extends State<StatsScreen>
                   decoration: BoxDecoration(
                     color: (change >= 0 ? theme.successColor : theme.errorColor)
                         .withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
                   ),
                   child: Text(
                     '${change >= 0 ? '+' : ''}${change.toStringAsFixed(1)}%'
                     '${weeks > 0 ? ' / ${weeks.toStringAsFixed(0)}周' : ''}',
-                    style: TextStyle(
-                      fontFamily: '.SF Pro Text',
+                    style: Theme.of(context).textTheme.bodySmall!.copyWith(
                       fontSize: 10,
                       fontWeight: FontWeight.w600,
-                      color: change >= 0 ? theme.successColor : theme.errorColor,
+                      color: change >= 0
+                          ? theme.successColor
+                          : theme.errorColor,
                     ),
                   ),
                 ),
@@ -2191,13 +2203,12 @@ class _StatsScreenState extends State<StatsScreen>
     if (setsPerMuscle.isEmpty) {
       return Center(
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppDimensions.screenPadding),
           child: Text(
             '暂无肌群组数数据',
-            style: TextStyle(
-              color: theme.secondaryTextColor,
-              fontFamily: '.SF Pro Text',
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium!.copyWith(color: theme.secondaryTextColor),
           ),
         ),
       );
@@ -2210,7 +2221,9 @@ class _StatsScreenState extends State<StatsScreen>
     final maxSets = sorted.first.value;
     // MEV reference: 10 sets/week (Schoenfeld 2017)
     const mevReference = 10;
-    final referenceSets = maxSets > mevReference ? maxSets.toDouble() : mevReference * 1.2;
+    final referenceSets = maxSets > mevReference
+        ? maxSets.toDouble()
+        : mevReference * 1.2;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -2221,8 +2234,7 @@ class _StatsScreenState extends State<StatsScreen>
             const SizedBox(width: 6),
             Text(
               '每肌群组数',
-              style: TextStyle(
-                fontFamily: '.SF Pro Text',
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
                 color: theme.textColor,
@@ -2233,8 +2245,7 @@ class _StatsScreenState extends State<StatsScreen>
         const SizedBox(height: 4),
         Text(
           '参考线: MEV 10组/周 (Schoenfeld 2017)',
-          style: TextStyle(
-            fontFamily: '.SF Pro Text',
+          style: Theme.of(context).textTheme.bodySmall!.copyWith(
             fontSize: 10,
             color: theme.secondaryTextColor,
           ),
@@ -2255,8 +2266,7 @@ class _StatsScreenState extends State<StatsScreen>
                   width: 40,
                   child: Text(
                     muscle.displayName,
-                    style: TextStyle(
-                      fontFamily: '.SF Pro Text',
+                    style: Theme.of(context).textTheme.bodySmall!.copyWith(
                       fontSize: 11,
                       color: theme.textColor,
                     ),
@@ -2275,8 +2285,10 @@ class _StatsScreenState extends State<StatsScreen>
                           Container(
                             height: 20,
                             decoration: BoxDecoration(
-                              color: theme.textColor.withValues(alpha: 0.08),
-                              borderRadius: BorderRadius.circular(4),
+                              color: theme.shadowColor,
+                              borderRadius: BorderRadius.circular(
+                                AppDimensions.radiusSm,
+                              ),
                             ),
                           ),
                           // MEV reference line
@@ -2287,8 +2299,9 @@ class _StatsScreenState extends State<StatsScreen>
                               child: Container(
                                 width: 2,
                                 height: 24,
-                                color: theme.secondaryTextColor
-                                    .withValues(alpha: 0.5),
+                                color: theme.secondaryTextColor.withValues(
+                                  alpha: 0.5,
+                                ),
                               ),
                             ),
                           // Actual bar
@@ -2298,12 +2311,11 @@ class _StatsScreenState extends State<StatsScreen>
                               height: 20,
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(
-                                  colors: [
-                                    color,
-                                    color.withValues(alpha: 0.7),
-                                  ],
+                                  colors: [color, color.withValues(alpha: 0.7)],
                                 ),
-                                borderRadius: BorderRadius.circular(4),
+                                borderRadius: BorderRadius.circular(
+                                  AppDimensions.radiusSm,
+                                ),
                               ),
                             ),
                           ),
@@ -2317,8 +2329,7 @@ class _StatsScreenState extends State<StatsScreen>
                   width: 36,
                   child: Text(
                     '$sets组',
-                    style: TextStyle(
-                      fontFamily: '.SF Pro Text',
+                    style: Theme.of(context).textTheme.bodySmall!.copyWith(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
                       color: isAboveMEV ? color : theme.secondaryTextColor,
@@ -2410,10 +2421,10 @@ class _CollapsibleSection extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 0),
       decoration: BoxDecoration(
         color: theme.surfaceColor,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
         boxShadow: [
           BoxShadow(
-            color: theme.textColor.withValues(alpha: 0.08),
+            color: theme.shadowColor,
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -2430,10 +2441,8 @@ class _CollapsibleSection extends StatelessWidget {
           ),
           title: Text(
             title,
-            style: TextStyle(
-              fontFamily: '.SF Pro Text',
+            style: Theme.of(context).textTheme.titleLarge!.copyWith(
               fontSize: 15,
-              fontWeight: FontWeight.w600,
               color: theme.textColor,
             ),
           ),

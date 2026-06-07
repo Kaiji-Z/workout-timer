@@ -10,6 +10,7 @@ import '../models/weekly_plan_import.dart';
 import '../services/ai_prompt_service.dart';
 import '../services/user_preferences_service.dart';
 import '../bloc/plan_provider.dart';
+import '../utils/dimensions.dart';
 import '../widgets/glass_widgets.dart';
 
 class AIPlanWizardScreen extends StatefulWidget {
@@ -117,17 +118,14 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
               margin: const EdgeInsets.only(right: 12),
               decoration: BoxDecoration(
                 gradient: LinearGradient(colors: theme.timerGradientColors),
-                borderRadius: BorderRadius.circular(2),
+                borderRadius: BorderRadius.circular(AppDimensions.radiusXxs),
               ),
             ),
             Text(
               'AI 计划生成器',
-              style: TextStyle(
-                fontFamily: '.SF Pro Display',
-                fontSize: 18,
+              style: Theme.of(context).textTheme.headlineMedium!.copyWith(
                 fontWeight: FontWeight.w700,
                 letterSpacing: -0.5,
-                color: theme.textColor,
               ),
             ),
           ],
@@ -138,10 +136,9 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
               onPressed: _previousStep,
               child: Text(
                 '上一步',
-                style: TextStyle(
-                  fontFamily: '.SF Pro Text',
-                  color: theme.accentColor,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.labelLarge!.copyWith(color: theme.accentColor),
               ),
             ),
         ],
@@ -212,14 +209,14 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
           ),
           child: Center(
             child: isActive && _currentStep > number - 1
-                ? const Icon(Icons.check, color: Colors.white, size: 18)
+                ? Icon(Icons.check, color: theme.onAccentColor, size: 18)
                 : Text(
                     '$number',
-                    style: TextStyle(
-                      fontFamily: '.SF Pro Text',
-                      fontSize: 14,
+                    style: Theme.of(context).textTheme.labelLarge!.copyWith(
                       fontWeight: FontWeight.w600,
-                      color: isActive ? Colors.white : theme.secondaryTextColor,
+                      color: isActive
+                          ? theme.onAccentColor
+                          : theme.secondaryTextColor,
                     ),
                   ),
           ),
@@ -227,9 +224,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
         const SizedBox(height: 4),
         Text(
           label,
-          style: TextStyle(
-            fontFamily: '.SF Pro Text',
-            fontSize: 12,
+          style: Theme.of(context).textTheme.bodySmall!.copyWith(
             color: isActive ? theme.textColor : theme.secondaryTextColor,
           ),
         ),
@@ -258,7 +253,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
           margin: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: theme.textColor.withValues(alpha: 0.05),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
           ),
           child: Row(
             children: [
@@ -290,21 +285,19 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
               _pageController.jumpToPage(0);
             });
           },
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 12),
             decoration: BoxDecoration(
               color: isActive ? theme.accentColor : Colors.transparent,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
             ),
             child: Center(
               child: Text(
                 label,
-                style: TextStyle(
-                  fontFamily: '.SF Pro Text',
-                  fontSize: 14,
+                style: Theme.of(context).textTheme.labelLarge!.copyWith(
                   fontWeight: FontWeight.w600,
-                  color: isActive ? Colors.white : theme.textColor,
+                  color: isActive ? theme.onAccentColor : theme.textColor,
                 ),
               ),
             ),
@@ -327,21 +320,16 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
         children: [
           Text(
             '个人训练资料',
-            style: TextStyle(
-              fontFamily: '.SF Pro Display',
-              fontSize: 24,
-              fontWeight: FontWeight.w700,
-              color: theme.textColor,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.headlineLarge!.copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 8),
           Text(
             '请回答以下问题，帮助AI生成最适合您的训练计划',
-            style: TextStyle(
-              fontFamily: '.SF Pro Text',
-              fontSize: 14,
-              color: theme.secondaryTextColor,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium!.copyWith(color: theme.secondaryTextColor),
           ),
           const SizedBox(height: 24),
 
@@ -416,21 +404,16 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
         children: [
           Text(
             '导入AI分析计划',
-            style: TextStyle(
-              fontFamily: '.SF Pro Display',
-              fontSize: 24,
-              fontWeight: FontWeight.w700,
-              color: theme.textColor,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.headlineLarge!.copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 8),
           Text(
             '将AI返回的JSON计划粘贴到下方，预览后直接导入',
-            style: TextStyle(
-              fontFamily: '.SF Pro Text',
-              fontSize: 14,
-              color: theme.secondaryTextColor,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium!.copyWith(color: theme.secondaryTextColor),
           ),
           const SizedBox(height: 24),
           TextField(
@@ -463,7 +446,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: theme.errorBackgroundColor,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
                 border: Border.all(color: theme.errorColor),
               ),
               child: Row(
@@ -473,11 +456,9 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
                   Expanded(
                     child: Text(
                       _parseError!,
-                      style: TextStyle(
-                        fontFamily: '.SF Pro Text',
-                        fontSize: 14,
-                        color: theme.errorColor,
-                      ),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodyMedium!.copyWith(color: theme.errorColor),
                     ),
                   ),
                 ],
@@ -534,12 +515,9 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
       children: [
         Text(
           title,
-          style: TextStyle(
-            fontFamily: '.SF Pro Text',
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: theme.textColor,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 8),
         Wrap(
@@ -551,7 +529,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
               color: Colors.transparent,
               child: InkWell(
                 onTap: () => onChanged(entry.value),
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(AppDimensions.radiusChip),
                 child: Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16,
@@ -561,7 +539,9 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
                     color: isSelected
                         ? theme.accentColor
                         : theme.accentColor.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(
+                      AppDimensions.radiusChip,
+                    ),
                     border: Border.all(
                       color: isSelected
                           ? theme.accentColor
@@ -570,11 +550,13 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
                   ),
                   child: Text(
                     entry.key,
-                    style: TextStyle(
-                      fontFamily: '.SF Pro Text',
-                      fontSize: 14,
-                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                      color: isSelected ? Colors.white : theme.accentColor,
+                    style: Theme.of(context).textTheme.labelLarge!.copyWith(
+                      fontWeight: isSelected
+                          ? FontWeight.w600
+                          : FontWeight.w500,
+                      color: isSelected
+                          ? theme.onAccentColor
+                          : theme.accentColor,
                     ),
                   ),
                 ),
@@ -598,12 +580,9 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
       children: [
         Text(
           title,
-          style: TextStyle(
-            fontFamily: '.SF Pro Text',
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: theme.textColor,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 8),
         Wrap(
@@ -623,7 +602,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
                   }
                   onChanged(newValues);
                 },
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(AppDimensions.radiusChip),
                 child: Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16,
@@ -633,7 +612,9 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
                     color: isSelected
                         ? theme.accentColor
                         : theme.accentColor.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(
+                      AppDimensions.radiusChip,
+                    ),
                     border: Border.all(
                       color: isSelected
                           ? theme.accentColor
@@ -642,11 +623,13 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
                   ),
                   child: Text(
                     option,
-                    style: TextStyle(
-                      fontFamily: '.SF Pro Text',
-                      fontSize: 14,
-                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                      color: isSelected ? Colors.white : theme.accentColor,
+                    style: Theme.of(context).textTheme.labelLarge!.copyWith(
+                      fontWeight: isSelected
+                          ? FontWeight.w600
+                          : FontWeight.w500,
+                      color: isSelected
+                          ? theme.onAccentColor
+                          : theme.accentColor,
                     ),
                   ),
                 ),
@@ -667,32 +650,24 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
         children: [
           Text(
             '生成AI提示词',
-            style: TextStyle(
-              fontFamily: '.SF Pro Display',
-              fontSize: 24,
-              fontWeight: FontWeight.w700,
-              color: theme.textColor,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.headlineLarge!.copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 8),
           Text(
             '设置开始日期并生成提示词，复制到AI应用获取训练计划',
-            style: TextStyle(
-              fontFamily: '.SF Pro Text',
-              fontSize: 14,
-              color: theme.secondaryTextColor,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium!.copyWith(color: theme.secondaryTextColor),
           ),
           const SizedBox(height: 24),
 
           Text(
             '开始日期',
-            style: TextStyle(
-              fontFamily: '.SF Pro Text',
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: theme.textColor,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 8),
           Material(
@@ -710,12 +685,12 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
                         useMaterial3: true,
                         colorScheme: ColorScheme.light(
                           primary: theme.accentColor,
-                          onPrimary: Colors.white,
+                          onPrimary: theme.onAccentColor,
                           secondary: theme.accentColor,
                           surface: theme.surfaceColor,
                           onSurface: theme.textColor,
                           error: theme.errorColor,
-                          onError: Colors.white,
+                          onError: theme.onAccentColor,
                         ),
                       ),
                       child: child!,
@@ -726,15 +701,18 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
                   setState(() => _startDate = date);
                 }
               },
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
                 decoration: BoxDecoration(
                   color: theme.surfaceColor,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
+                      color: theme.textColor.withValues(alpha: 0.05),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
@@ -745,11 +723,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
                   children: [
                     Text(
                       '${_startDate.year}年${_startDate.month}月${_startDate.day}日',
-                      style: TextStyle(
-                        fontFamily: '.SF Pro Text',
-                        fontSize: 16,
-                        color: theme.textColor,
-                      ),
+                      style: Theme.of(context).textTheme.bodyLarge!,
                     ),
                     Icon(
                       Icons.calendar_today,
@@ -773,22 +747,19 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
           if (_generatedPrompt != null) ...[
             Text(
               '生成的提示词',
-              style: TextStyle(
-                fontFamily: '.SF Pro Text',
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: theme.textColor,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
             Container(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(AppDimensions.screenPadding),
               decoration: BoxDecoration(
                 color: theme.surfaceColor,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
+                    color: theme.textColor.withValues(alpha: 0.05),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -797,11 +768,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
               child: SingleChildScrollView(
                 child: Text(
                   _generatedPrompt!,
-                  style: TextStyle(
-                    fontFamily: '.SF Pro Text',
-                    fontSize: 14,
-                    color: theme.textColor,
-                  ),
+                  style: Theme.of(context).textTheme.bodyMedium!,
                 ),
               ),
             ),
@@ -816,11 +783,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
 
             Text(
               '将此提示词复制到豆包/千问等AI应用，获取JSON后返回粘贴',
-              style: TextStyle(
-                fontFamily: '.SF Pro Text',
-                fontSize: 12,
-                color: theme.secondaryTextColor,
-              ),
+              style: Theme.of(context).textTheme.bodySmall!,
               textAlign: TextAlign.center,
             ),
           ],
@@ -868,21 +831,16 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
         children: [
           Text(
             '粘贴AI返回的JSON',
-            style: TextStyle(
-              fontFamily: '.SF Pro Display',
-              fontSize: 24,
-              fontWeight: FontWeight.w700,
-              color: theme.textColor,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.headlineLarge!.copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 8),
           Text(
             '将AI生成的JSON粘贴到下方文本框',
-            style: TextStyle(
-              fontFamily: '.SF Pro Text',
-              fontSize: 14,
-              color: theme.secondaryTextColor,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium!.copyWith(color: theme.secondaryTextColor),
           ),
           const SizedBox(height: 24),
 
@@ -919,7 +877,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: theme.errorBackgroundColor,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
                 border: Border.all(color: theme.errorColor),
               ),
               child: Row(
@@ -929,11 +887,9 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
                   Expanded(
                     child: Text(
                       _parseError!,
-                      style: TextStyle(
-                        fontFamily: '.SF Pro Text',
-                        fontSize: 14,
-                        color: theme.errorColor,
-                      ),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodyMedium!.copyWith(color: theme.errorColor),
                     ),
                   ),
                 ],
@@ -991,11 +947,9 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
             const SizedBox(height: 16),
             Text(
               '请先解析JSON以预览训练计划',
-              style: TextStyle(
-                fontFamily: '.SF Pro Text',
-                fontSize: 16,
-                color: theme.secondaryTextColor,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge!.copyWith(color: theme.secondaryTextColor),
             ),
           ],
         ),
@@ -1012,19 +966,14 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
               children: [
                 Text(
                   '预览训练计划',
-                  style: TextStyle(
-                    fontFamily: '.SF Pro Display',
-                    fontSize: 24,
+                  style: Theme.of(context).textTheme.headlineLarge!.copyWith(
                     fontWeight: FontWeight.w700,
-                    color: theme.textColor,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   '计划名称: ${_parsedPlan!.name}',
-                  style: TextStyle(
-                    fontFamily: '.SF Pro Text',
-                    fontSize: 14,
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                     color: theme.secondaryTextColor,
                   ),
                 ),
@@ -1056,7 +1005,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
       margin: const EdgeInsets.only(bottom: 12),
       color: theme.surfaceColor,
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppDimensions.screenPadding),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -1065,18 +1014,11 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
               children: [
                 Text(
                   '第${day.dayOfWeek}天 - $dayName',
-                  style: TextStyle(
-                    fontFamily: '.SF Pro Text',
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: theme.textColor,
-                  ),
+                  style: Theme.of(context).textTheme.titleLarge!,
                 ),
                 Text(
                   day.exercises.isEmpty ? '休息日' : '${day.exercises.length}个动作',
-                  style: TextStyle(
-                    fontFamily: '.SF Pro Text',
-                    fontSize: 14,
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                     color: theme.secondaryTextColor,
                   ),
                 ),
@@ -1086,11 +1028,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
               const SizedBox(height: 8),
               Text(
                 '目标肌群: ${day.targetMuscles.join(", ")}',
-                style: TextStyle(
-                  fontFamily: '.SF Pro Text',
-                  fontSize: 12,
-                  color: theme.secondaryTextColor,
-                ),
+                style: Theme.of(context).textTheme.bodySmall!,
               ),
             ],
             const SizedBox(height: 12),
@@ -1119,11 +1057,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
             flex: 3,
             child: Text(
               exercise.exerciseName,
-              style: TextStyle(
-                fontFamily: '.SF Pro Text',
-                fontSize: 14,
-                color: theme.textColor,
-              ),
+              style: Theme.of(context).textTheme.bodyMedium!,
             ),
           ),
           Row(
@@ -1151,12 +1085,9 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
                 alignment: Alignment.center,
                 child: Text(
                   '$currentSets',
-                  style: TextStyle(
-                    fontFamily: '.SF Pro Text',
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: theme.textColor,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.w600),
                 ),
               ),
               IconButton(
@@ -1174,14 +1105,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
                 },
               ),
               const SizedBox(width: 4),
-              Text(
-                '组',
-                style: TextStyle(
-                  fontFamily: '.SF Pro Text',
-                  fontSize: 12,
-                  color: theme.secondaryTextColor,
-                ),
-              ),
+              Text('组', style: Theme.of(context).textTheme.bodySmall!),
             ],
           ),
         ],
@@ -1321,20 +1245,19 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
               backgroundColor: isEnabled
                   ? theme.accentColor
                   : theme.textColor.withValues(alpha: 0.1),
-              foregroundColor: Colors.white,
+              foregroundColor: theme.onAccentColor,
               padding: const EdgeInsets.symmetric(vertical: 16),
               elevation: 0,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
               ),
             ),
             child: Text(
               buttonText,
-              style: TextStyle(
-                fontFamily: '.SF Pro Text',
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: isEnabled ? Colors.white : theme.secondaryTextColor,
+              style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                color: isEnabled
+                    ? theme.onAccentColor
+                    : theme.secondaryTextColor,
               ),
             ),
           ),

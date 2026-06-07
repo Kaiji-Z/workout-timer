@@ -6,6 +6,7 @@ import '../services/notification_sound_service.dart';
 import '../services/data_transfer_service.dart';
 import '../theme/theme_provider.dart';
 import '../theme/app_theme.dart';
+import '../utils/dimensions.dart';
 import 'user_preferences_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -112,14 +113,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
               margin: const EdgeInsets.only(right: 12),
               decoration: BoxDecoration(
                 gradient: LinearGradient(colors: theme.timerGradientColors),
-                borderRadius: BorderRadius.circular(2),
+                borderRadius: BorderRadius.circular(AppDimensions.radiusXxs),
               ),
             ),
             Text(
               '设置',
-              style: TextStyle(
-                fontFamily: '.SF Pro Display',
-                fontSize: 18,
+              style: Theme.of(context).textTheme.headlineMedium!.copyWith(
                 fontWeight: FontWeight.w700,
                 letterSpacing: -0.5,
                 color: theme.textColor,
@@ -154,17 +153,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ListTile(
                     title: Text(
                       '通知铃声',
-                      style: TextStyle(
-                        fontFamily: '.SF Pro Text',
-                        color: theme.textColor,
-                      ),
+                      style: TextStyle(color: theme.textColor),
                     ),
                     subtitle: Text(
                       _soundService.getSoundDisplayName(_selectedSound),
-                      style: TextStyle(
-                        fontFamily: '.SF Pro Text',
-                        color: theme.secondaryTextColor,
-                      ),
+                      style: TextStyle(color: theme.secondaryTextColor),
                     ),
                     trailing: Icon(
                       Icons.chevron_right,
@@ -212,19 +205,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 Divider(color: theme.dividerColor, height: 1),
                 ListTile(
-                  title: Text(
-                    '主题',
-                    style: TextStyle(
-                      fontFamily: '.SF Pro Text',
-                      color: theme.textColor,
-                    ),
-                  ),
+                  title: Text('主题', style: TextStyle(color: theme.textColor)),
                   subtitle: Text(
                     theme.nameZh,
-                    style: TextStyle(
-                      fontFamily: '.SF Pro Text',
-                      color: theme.secondaryTextColor,
-                    ),
+                    style: TextStyle(color: theme.secondaryTextColor),
                   ),
                   trailing: Icon(
                     Icons.chevron_right,
@@ -241,7 +225,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _buildSectionHeader('自定义提醒消息', theme),
           _buildSettingsCard(
             theme: theme,
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(AppDimensions.screenPadding),
             child: TextField(
               controller: _messageController,
               style: TextStyle(color: theme.textColor),
@@ -249,15 +233,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
               onSubmitted: (_) => _saveSettings(),
               decoration: InputDecoration(
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
                   borderSide: BorderSide(color: theme.borderColor),
                 ),
                 enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
                   borderSide: BorderSide(color: theme.borderColor),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
                   borderSide: BorderSide(color: theme.primaryColor),
                 ),
                 hintText: '输入提醒消息',
@@ -277,40 +261,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
               children: [
                 ListTile(
                   leading: Icon(Icons.upload_file, color: theme.accentColor),
-                  title: Text(
-                    '导出数据',
-                    style: TextStyle(
-                      fontFamily: '.SF Pro Text',
-                      color: theme.textColor,
-                    ),
-                  ),
+                  title: Text('导出数据', style: TextStyle(color: theme.textColor)),
                   subtitle: Text(
                     '导出全部训练记录、计划等数据为文件',
-                    style: TextStyle(
-                      fontFamily: '.SF Pro Text',
-                      fontSize: 12,
-                      color: theme.secondaryTextColor,
-                    ),
+                    style: Theme.of(context).textTheme.bodySmall!,
                   ),
                   onTap: () => _exportData(theme),
                 ),
                 Divider(color: theme.dividerColor, height: 1),
                 ListTile(
                   leading: Icon(Icons.download, color: theme.accentColor),
-                  title: Text(
-                    '导入数据',
-                    style: TextStyle(
-                      fontFamily: '.SF Pro Text',
-                      color: theme.textColor,
-                    ),
-                  ),
+                  title: Text('导入数据', style: TextStyle(color: theme.textColor)),
                   subtitle: Text(
                     '从备份文件恢复全部数据（会覆盖现有数据）',
-                    style: TextStyle(
-                      fontFamily: '.SF Pro Text',
-                      fontSize: 12,
-                      color: theme.secondaryTextColor,
-                    ),
+                    style: Theme.of(context).textTheme.bodySmall!,
                   ),
                   onTap: () => _importData(theme),
                 ),
@@ -320,7 +284,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     '清除所有历史记录',
                     style: TextStyle(color: theme.accentColor),
                   ),
-                  trailing: Icon(Icons.delete_outline, color: theme.accentColor),
+                  trailing: Icon(
+                    Icons.delete_outline,
+                    color: theme.accentColor,
+                  ),
                   onTap: () => _clearHistory(theme),
                 ),
               ],
@@ -333,20 +300,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _buildSettingsCard(
             theme: theme,
             child: ListTile(
-              title: Text(
-                '训练偏好',
-                style: TextStyle(
-                  fontFamily: '.SF Pro Text',
-                  color: theme.textColor,
-                ),
-              ),
+              title: Text('训练偏好', style: TextStyle(color: theme.textColor)),
               subtitle: Text(
                 '设置训练目标、经验水平等，AI功能将自动读取',
-                style: TextStyle(
-                  fontFamily: '.SF Pro Text',
-                  fontSize: 12,
-                  color: theme.secondaryTextColor,
-                ),
+                style: Theme.of(context).textTheme.bodySmall!,
               ),
               trailing: Icon(
                 Icons.chevron_right,
@@ -399,9 +356,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => Center(
-        child: CircularProgressIndicator(color: theme.accentColor),
-      ),
+      builder: (context) =>
+          Center(child: CircularProgressIndicator(color: theme.accentColor)),
     );
 
     try {
@@ -409,9 +365,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     } catch (e) {
       debugPrint('导出失败: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('导出失败: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('导出失败: $e')));
       }
     } finally {
       if (mounted) {
@@ -426,9 +382,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => Center(
-        child: CircularProgressIndicator(color: theme.accentColor),
-      ),
+      builder: (context) =>
+          Center(child: CircularProgressIndicator(color: theme.accentColor)),
     );
 
     final localBackups = await _dataTransferService.discoverLocalBackups();
@@ -471,9 +426,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => Center(
-        child: CircularProgressIndicator(color: theme.accentColor),
-      ),
+      builder: (context) =>
+          Center(child: CircularProgressIndicator(color: theme.accentColor)),
     );
 
     try {
@@ -490,17 +444,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
       Navigator.pop(context); // 关闭加载提示
 
       if (count > 0) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('导入成功，共恢复 $count 条记录')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('导入成功，共恢复 $count 条记录')));
       }
     } catch (e) {
       debugPrint('导入失败: $e');
       if (mounted) {
         Navigator.pop(context); // 关闭加载提示
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('导入失败: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('导入失败: $e')));
       }
     }
   }
@@ -527,39 +481,33 @@ class _SettingsScreenState extends State<SettingsScreen> {
               if (localBackups.isNotEmpty) ...[
                 Text(
                   '发现本地备份',
-                  style: TextStyle(
-                    fontFamily: '.SF Pro Text',
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                     color: theme.secondaryTextColor,
+                    letterSpacing: 1,
                   ),
                 ),
                 const SizedBox(height: 8),
-                ...localBackups.map((backup) => ListTile(
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 8),
-                  title: Text(
-                    _formatBackupName(backup.fileName),
-                    style: TextStyle(
-                      fontFamily: '.SF Pro Text',
-                      fontSize: 14,
-                      color: theme.textColor,
+                ...localBackups.map(
+                  (backup) => ListTile(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+                    title: Text(
+                      _formatBackupName(backup.fileName),
+                      style: Theme.of(context).textTheme.bodyMedium!,
                     ),
-                  ),
-                  subtitle: Text(
-                    '${backup.sizeText} · ${_formatDate(backup.modifiedTime)}',
-                    style: TextStyle(
-                      fontFamily: '.SF Pro Text',
-                      fontSize: 12,
-                      color: theme.secondaryTextColor,
+                    subtitle: Text(
+                      '${backup.sizeText} · ${_formatDate(backup.modifiedTime)}',
+                      style: Theme.of(context).textTheme.bodySmall!,
                     ),
+                    trailing: Icon(
+                      Icons.restore,
+                      color: theme.accentColor,
+                      size: 20,
+                    ),
+                    onTap: () => Navigator.pop(context, backup.path),
                   ),
-                  trailing: Icon(
-                    Icons.restore,
-                    color: theme.accentColor,
-                    size: 20,
-                  ),
-                  onTap: () => Navigator.pop(context, backup.path),
-                )),
+                ),
                 const SizedBox(height: 8),
                 Divider(color: theme.dividerColor, height: 1),
                 const SizedBox(height: 4),
@@ -568,20 +516,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ListTile(
                 contentPadding: const EdgeInsets.symmetric(horizontal: 8),
                 leading: Icon(Icons.folder_open, color: theme.accentColor),
-                title: Text(
-                  '手动选择文件',
-                  style: TextStyle(
-                    fontFamily: '.SF Pro Text',
-                    color: theme.textColor,
-                  ),
-                ),
+                title: Text('手动选择文件', style: TextStyle(color: theme.textColor)),
                 subtitle: Text(
                   '从其他位置选择 JSON 备份文件',
-                  style: TextStyle(
-                    fontFamily: '.SF Pro Text',
-                    fontSize: 12,
-                    color: theme.secondaryTextColor,
-                  ),
+                  style: Theme.of(context).textTheme.bodySmall!,
                 ),
                 onTap: () => Navigator.pop(context, 'file_picker'),
               ),
@@ -630,11 +568,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         backgroundColor: theme.surfaceColor.withValues(alpha: 0.95),
         title: Text(
           '选择铃声',
-          style: TextStyle(
-            fontFamily: '.SF Pro Display',
-            fontWeight: FontWeight.w600,
-            color: theme.textColor,
-          ),
+          style: TextStyle(fontWeight: FontWeight.w600, color: theme.textColor),
         ),
         content: RadioGroup<String>(
           groupValue: _selectedSound,
@@ -652,10 +586,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               return RadioListTile<String>(
                 title: Text(
                   _soundService.getSoundDisplayName(sound),
-                  style: TextStyle(
-                    fontFamily: '.SF Pro Text',
-                    color: theme.textColor,
-                  ),
+                  style: TextStyle(color: theme.textColor),
                 ),
                 value: sound,
                 activeColor: theme.accentColor,
@@ -678,8 +609,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       padding: const EdgeInsets.only(bottom: 12),
       child: Text(
         title,
-        style: TextStyle(
-          fontFamily: '.SF Pro Text',
+        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
           fontSize: 13,
           fontWeight: FontWeight.w600,
           color: theme.secondaryTextColor,
@@ -698,7 +628,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       padding: padding ?? const EdgeInsets.symmetric(vertical: 4),
       decoration: BoxDecoration(
         color: theme.surfaceColor,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
         boxShadow: [
           BoxShadow(
             color: theme.dividerColor.withValues(alpha: 0.15),
@@ -718,7 +648,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     AppThemeData theme,
   ) {
     // 根据深色/浅色模式确定关闭态颜色
-    final bool isDark = theme.surfaceColor == const Color(0xFF1E1E2E);
+    final bool isDark = theme.isDark;
     final Color inactiveTrack = isDark
         ? theme.surfaceColor.withValues(alpha: 0.4)
         : theme.dividerColor;
@@ -730,10 +660,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         : theme.dividerColor;
 
     return SwitchListTile(
-      title: Text(
-        title,
-        style: TextStyle(fontFamily: '.SF Pro Text', color: theme.textColor),
-      ),
+      title: Text(title, style: TextStyle(color: theme.textColor)),
       value: value,
       onChanged: onChanged,
       activeThumbColor: theme.surfaceColor,
@@ -766,102 +693,102 @@ class _SettingsScreenState extends State<SettingsScreen> {
       context: context,
       backgroundColor: Colors.transparent,
       builder: (context) => Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppDimensions.screenPadding),
         decoration: BoxDecoration(
           color: themeProvider.currentTheme.surfaceColor.withValues(
             alpha: 0.95,
           ),
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+          borderRadius: const BorderRadius.vertical(
+            top: Radius.circular(AppDimensions.radiusChip),
+          ),
         ),
         child: SingleChildScrollView(
           child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              '选择主题',
-              style: TextStyle(
-                fontFamily: '.SF Pro Display',
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-                color: themeProvider.currentTheme.textColor,
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '选择主题',
+                style: Theme.of(context).textTheme.headlineMedium!.copyWith(
+                  fontSize: 20,
+                  color: themeProvider.currentTheme.textColor,
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
-            ...allThemes.map((theme) {
-              final isSelected = themeProvider.currentTheme.name == theme.name;
-              return ListTile(
-                leading: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Gradient color swatch preview
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        gradient: LinearGradient(
-                          colors: [theme.primaryColor, theme.secondaryColor],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        border: isSelected
-                            ? Border.all(color: theme.accentColor, width: 2.5)
-                            : null,
-                        boxShadow: isSelected
-                            ? [
-                                BoxShadow(
-                                  color: theme.accentColor.withValues(
-                                    alpha: 0.3,
+              const SizedBox(height: 16),
+              ...allThemes.map((theme) {
+                final isSelected =
+                    themeProvider.currentTheme.name == theme.name;
+                return ListTile(
+                  leading: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Gradient color swatch preview
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(
+                            AppDimensions.radiusChip,
+                          ),
+                          gradient: LinearGradient(
+                            colors: [theme.primaryColor, theme.secondaryColor],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          border: isSelected
+                              ? Border.all(color: theme.accentColor, width: 2.5)
+                              : null,
+                          boxShadow: isSelected
+                              ? [
+                                  BoxShadow(
+                                    color: theme.accentColor.withValues(
+                                      alpha: 0.3,
+                                    ),
+                                    blurRadius: 8,
                                   ),
-                                  blurRadius: 8,
-                                ),
-                              ]
+                                ]
+                              : null,
+                        ),
+                        child: isSelected
+                            ? Icon(
+                                Icons.check,
+                                color: theme.onAccentColor,
+                                size: 20,
+                              )
                             : null,
                       ),
-                      child: isSelected
-                          ? const Icon(
-                              Icons.check,
-                              color: Colors.white,
-                              size: 20,
-                            )
-                          : null,
+                      const SizedBox(width: 12),
+                      // Theme icon
+                      Icon(theme.icon, color: theme.primaryColor),
+                    ],
+                  ),
+                  title: Text(
+                    theme.nameZh,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w500,
+                      color: themeProvider.currentTheme.textColor,
                     ),
-                    const SizedBox(width: 12),
-                    // Theme icon
-                    Icon(theme.icon, color: theme.primaryColor),
-                  ],
-                ),
-                title: Text(
-                  theme.nameZh,
-                  style: TextStyle(
-                    fontFamily: '.SF Pro Text',
-                    fontWeight: FontWeight.w500,
-                    color: themeProvider.currentTheme.textColor,
                   ),
-                ),
-                subtitle: Text(
-                  theme.description,
-                  style: TextStyle(
-                    fontFamily: '.SF Pro Text',
-                    fontSize: 12,
-                    color: themeProvider.currentTheme.secondaryTextColor,
+                  subtitle: Text(
+                    theme.description,
+                    style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                      color: themeProvider.currentTheme.secondaryTextColor,
+                    ),
                   ),
-                ),
 
-                onTap: () {
-                  final themeType = AppThemeType.values.firstWhere(
-                    (t) => getThemeData(t).name == theme.name,
-                    orElse: () => AppThemeType.amberGold,
-                  );
-                  themeProvider.setTheme(themeType);
-                  Navigator.pop(context);
-                },
-              );
-            }),
-            const SizedBox(height: 16),
-          ],
-        ),
+                  onTap: () {
+                    final themeType = AppThemeType.values.firstWhere(
+                      (t) => getThemeData(t).name == theme.name,
+                      orElse: () => AppThemeType.amberGold,
+                    );
+                    themeProvider.setTheme(themeType);
+                    Navigator.pop(context);
+                  },
+                );
+              }),
+              const SizedBox(height: 16),
+            ],
+          ),
         ),
       ),
     );

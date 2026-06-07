@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../services/user_preferences_service.dart';
 import '../theme/theme_provider.dart';
 import '../theme/app_theme.dart';
+import '../utils/dimensions.dart';
 
 class UserPreferencesScreen extends StatefulWidget {
   const UserPreferencesScreen({super.key});
@@ -154,14 +155,12 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
               margin: const EdgeInsets.only(right: 12),
               decoration: BoxDecoration(
                 gradient: LinearGradient(colors: theme.timerGradientColors),
-                borderRadius: BorderRadius.circular(2),
+                borderRadius: BorderRadius.circular(AppDimensions.radiusXxs),
               ),
             ),
             Text(
               '训练偏好',
-              style: TextStyle(
-                fontFamily: '.SF Pro Display',
-                fontSize: 18,
+              style: Theme.of(context).textTheme.headlineMedium!.copyWith(
                 fontWeight: FontWeight.w700,
                 letterSpacing: -0.5,
                 color: theme.textColor,
@@ -173,7 +172,7 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
       body: _isLoading
           ? Center(child: CircularProgressIndicator(color: theme.accentColor))
           : SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(AppDimensions.screenPadding),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -182,17 +181,15 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
                   _buildGlassCard(
                     theme: theme,
                     child: Padding(
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(
+                        AppDimensions.screenPadding,
+                      ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             '用于计算徒手动作的训练容量（如引体向上、俯卧撑等）',
-                            style: TextStyle(
-                              fontFamily: '.SF Pro Text',
-                              fontSize: 12,
-                              color: theme.secondaryTextColor,
-                            ),
+                            style: Theme.of(context).textTheme.bodySmall!,
                           ),
                           const SizedBox(height: 12),
                           Row(
@@ -211,26 +208,33 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
                                   ],
                                   decoration: InputDecoration(
                                     hintText: '例如 70',
-                                    hintStyle: TextStyle(
-                                      fontFamily: '.SF Pro Text',
-                                      fontSize: 14,
-                                      color: theme.secondaryTextColor
-                                          .withValues(alpha: 0.5),
-                                    ),
+                                    hintStyle: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium!
+                                        .copyWith(
+                                          color: theme.secondaryTextColor
+                                              .withValues(alpha: 0.5),
+                                        ),
                                     border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(12),
+                                      borderRadius: BorderRadius.circular(
+                                        AppDimensions.radiusLg,
+                                      ),
                                       borderSide: BorderSide(
                                         color: theme.borderColor,
                                       ),
                                     ),
                                     enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(12),
+                                      borderRadius: BorderRadius.circular(
+                                        AppDimensions.radiusLg,
+                                      ),
                                       borderSide: BorderSide(
                                         color: theme.borderColor,
                                       ),
                                     ),
                                     focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(12),
+                                      borderRadius: BorderRadius.circular(
+                                        AppDimensions.radiusLg,
+                                      ),
                                       borderSide: BorderSide(
                                         color: theme.accentColor,
                                         width: 2,
@@ -241,17 +245,14 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
                                       vertical: 14,
                                     ),
                                     suffixText: 'kg',
-                                    suffixStyle: TextStyle(
-                                      fontFamily: '.SF Pro Text',
-                                      fontSize: 14,
-                                      color: theme.secondaryTextColor,
-                                    ),
+                                    suffixStyle: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium!
+                                        .copyWith(
+                                          color: theme.secondaryTextColor,
+                                        ),
                                   ),
-                                  style: TextStyle(
-                                    fontFamily: '.SF Pro Text',
-                                    fontSize: 16,
-                                    color: theme.textColor,
-                                  ),
+                                  style: Theme.of(context).textTheme.bodyLarge!,
                                   onChanged: (value) {
                                     final weight = double.tryParse(value);
                                     _updateBodyWeight(weight ?? 0.0);
@@ -409,8 +410,7 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
       padding: const EdgeInsets.only(bottom: 12),
       child: Text(
         title,
-        style: TextStyle(
-          fontFamily: '.SF Pro Text',
+        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
           fontSize: 13,
           fontWeight: FontWeight.w600,
           color: theme.secondaryTextColor,
@@ -426,19 +426,19 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
     EdgeInsetsGeometry? padding,
   }) {
     // 深色模式下使用更低的透明度
-    final isDark = theme.surfaceColor == const Color(0xFF1E1E2E);
+    final isDark = theme.isDark;
     final bgAlpha = isDark ? 0.08 : 0.12;
     final borderAlpha = isDark ? 0.20 : 0.30;
 
     return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
         child: Container(
           padding: padding ?? const EdgeInsets.symmetric(vertical: 4),
           decoration: BoxDecoration(
             color: theme.surfaceColor.withValues(alpha: bgAlpha),
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
             border: Border.all(
               color: theme.surfaceColor.withValues(alpha: borderAlpha),
               width: 1,
@@ -460,14 +460,14 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusChip),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           decoration: BoxDecoration(
             color: isSelected
                 ? theme.accentColor
                 : theme.accentColor.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(AppDimensions.radiusChip),
             border: Border.all(
               color: isSelected
                   ? theme.accentColor
@@ -477,10 +477,7 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
           ),
           child: Text(
             label,
-            style: TextStyle(
-              fontFamily: '.SF Pro Text',
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
+            style: Theme.of(context).textTheme.labelLarge!.copyWith(
               color: isSelected ? theme.surfaceColor : theme.accentColor,
             ),
           ),
@@ -499,14 +496,14 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusChip),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           decoration: BoxDecoration(
             color: isSelected
                 ? theme.accentColor.withValues(alpha: 0.15)
                 : theme.accentColor.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(AppDimensions.radiusChip),
             border: Border.all(
               color: isSelected
                   ? theme.accentColor.withValues(alpha: 0.5)
@@ -514,25 +511,22 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
               width: 1,
             ),
           ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (isSelected) ...[
-              Icon(Icons.check, size: 16, color: theme.accentColor),
-              const SizedBox(width: 6),
-            ],
-            Text(
-              label,
-              style: TextStyle(
-                fontFamily: '.SF Pro Text',
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: theme.accentColor,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (isSelected) ...[
+                Icon(Icons.check, size: 16, color: theme.accentColor),
+                const SizedBox(width: 6),
+              ],
+              Text(
+                label,
+                style: Theme.of(
+                  context,
+                ).textTheme.labelLarge!.copyWith(color: theme.accentColor),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
       ),
     );
   }
