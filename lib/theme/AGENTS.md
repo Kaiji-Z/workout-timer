@@ -1,29 +1,30 @@
 # AGENTS.md - Theme System
 
-**Updated:** 2026-03-27
+**Updated:** 2026-06-07
 
 ## OVERVIEW
 
-Flat Vitality theme system with 5 preset themes using warm gradients and deep indigo accents. Supports dark mode via `AppThemeData.dark` getter. Implements AppThemeType enum with shared_preferences persistence.
+Flat Vitality theme system with 3 preset themes (amberGold, coralOrange, skyBlue) using warm gradients and deep indigo accents. Supports dark mode via `AppThemeData.dark` getter and `isDark` field. Implements AppThemeType enum with shared_preferences persistence. Legacy theme names (mintGreen, rosePink, vitalityGreen, etc.) are mapped to the 3 active themes for backward compatibility.
 
 ## FILES
 
 | File | Lines | Purpose |
 |------|-------|---------|
-| `app_theme.dart` | 383 | Theme data models, 5 theme definitions, dark mode getter |
-| `theme_provider.dart` | - | Theme state management with dark mode persistence |
+| `app_theme.dart` | ~410 | Theme data models, 3 theme definitions, dark mode getter, full TextTheme |
+| `theme_provider.dart` | ~132 | Theme state management with dark mode persistence, legacy name mapping |
 
 ## WHERE TO LOOK
 
 | Task | Location |
 |------|----------|
-| Theme definitions | `app_theme.dart:212-358` (5 preset themes) |
-| Dark theme getter | `app_theme.dart:79-118` (`AppThemeData.dark`) |
-| Theme type enum | `app_theme.dart:4-10` (`AppThemeType`) |
-| ThemeData conversion | `app_theme.dart:73-193` (`toThemeData()`) |
-| All themes list | `app_theme.dart:377-383` (`allThemes`) |
-| Theme data model | `app_theme.dart:21-64` (`AppThemeData` class) |
-| Theme getter | `app_theme.dart:361-374` (`getThemeData()`) |
+| Theme definitions | `app_theme.dart` (`amberGoldTheme`, `coralOrangeTheme`, `skyBlueTheme`) |
+| Dark theme getter | `app_theme.dart` (`AppThemeData.dark`) |
+| Theme type enum | `app_theme.dart` (`AppThemeType` — includes legacy values for compat) |
+| ThemeData conversion | `app_theme.dart` (`toThemeData()` — full 10-level TextTheme) |
+| All themes list | `app_theme.dart` (`allThemes` — 3 entries) |
+| Theme data model | `app_theme.dart` (`AppThemeData` class with `isDark`, `onAccentColor`, `shadowColor`, `dragHandleColor`) |
+| Theme getter | `app_theme.dart` (`getThemeData()` — maps legacy names to active themes) |
+| Legacy name mapping | `theme_provider.dart` (`_typeToThemeName()`, `_themeNameToType()`) |
 | Dark mode toggle | `theme_provider.dart` (`isDarkMode`, `setDarkMode()`) |
 
 ## THEMES
@@ -32,9 +33,9 @@ Flat Vitality theme system with 5 preset themes using warm gradients and deep in
 |-------|--------------|--------|-----------|
 | `amberGold` | #FFB74D → #FFA726 | #1A237E | Derived via `.dark` getter |
 | `coralOrange` | #FF8A65 → #FF7043 | #1A237E | Derived via `.dark` getter |
-| `mintGreen` | #81C784 → #66BB6A | #1A237E | Derived via `.dark` getter |
-| `rosePink` | #F48FB1 → #EC407A | #1A237E | Derived via `.dark` getter |
 | `skyBlue` | #64B5F6 → #42A5F5 | #0D47A1 | Derived via `.dark` getter |
+
+**Legacy mapping**: `mintGreen` → `amberGold`, `rosePink` → `coralOrange`, `vitalityGreen`/`iphone5cGreen`/`vitalFlow` → `skyBlue`, `vitalityPink`/`iphone5cPink` → `coralOrange`.
 
 ## DARK MODE COLORS
 
@@ -51,7 +52,7 @@ Flat Vitality theme system with 5 preset themes using warm gradients and deep in
 | Divider | #E0E0E0 | #3A3A4A |
 | Accent | #1A237E | #1A237E (unchanged) |
 
-Dark mode uses `HSLColor.fromAHSL()` to darken primary/secondary while preserving hue. The `toThemeData()` method auto-detects dark mode via `surfaceColor == Color(0xFF1E1E2E)`.
+Dark mode uses `HSLColor.fromAHSL()` to darken primary/secondary while preserving hue. The `toThemeData()` method auto-detects dark mode via the `isDark` boolean field.
 
 ## CONVENTIONS
 
@@ -88,8 +89,11 @@ Dark mode uses `HSLColor.fromAHSL()` to darken primary/secondary while preservin
 | Pattern | Why Bad | Instead |
 |---------|---------|---------|
 | Direct color usage | Breaks theming | Use AppThemeData fields |
-| `Colors.white` / `Colors.black` | Breaks dark mode | Use `theme.surfaceColor` / `theme.textColor` |
+| `Colors.white` / `Colors.black` | Breaks dark mode | Use `theme.surfaceColor` / `theme.textColor` / `theme.onAccentColor` |
 | Hardcoded dark colors | Wrong in light mode | Use `ThemeProvider.currentTheme` |
 | Ignoring accent consistency | Confusing UI | Always use accentColor for interactive elements |
 | Wrong alpha values | Inconsistent transparency | Use established alpha patterns (0.15, 0.3, 0.4, 0.5) |
-| Checking `Theme.of(context).brightness` | Fragile | Use `theme.surfaceColor == Color(0xFF1E1E2E)` |
+| Checking `Theme.of(context).brightness` | Fragile | Use `theme.isDark` boolean field |
+| Hardcoded `fontFamily: '.SF Pro'` | Bypasses TextTheme | Use `Theme.of(context).textTheme.*` levels |
+| Hardcoded `BorderRadius.circular(n)` | Inconsistent radii | Use `AppDimensions.radiusXxx` tokens |
+| Hardcoded `EdgeInsets.all(16)` | Magic number | Use `AppDimensions.screenPadding` |
