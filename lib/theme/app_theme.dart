@@ -45,6 +45,10 @@ class AppThemeData {
   final Color errorBackgroundColor; // 错误背景
   final Color dividerColor; // 分割线
 
+  /// Whether this theme is a dark variant.
+  /// Replaces fragile `surfaceColor == Color(0xFF1E1E2E)` checks.
+  final bool isDark;
+
   const AppThemeData({
     required this.name,
     required this.nameZh,
@@ -65,7 +69,19 @@ class AppThemeData {
     this.successColor = const Color(0xFF4CAF50),
     this.errorBackgroundColor = const Color(0xFFF5E6E6),
     this.dividerColor = const Color(0xFFE0E0E0),
+    this.isDark = false,
   });
+
+  // ── Design-system convenience getters ──────────────────────────────────
+  /// Color painted ON TOP of accentColor (icons/text inside accent buttons).
+  /// Always white — the deep indigo accent is dark enough in both modes.
+  Color get onAccentColor => Colors.white;
+
+  /// Soft shadow color for cards and floating elements.
+  Color get shadowColor => textColor.withValues(alpha: 0.12);
+
+  /// Drag-handle / chip background color (derived from divider).
+  Color get dragHandleColor => dividerColor;
 
   // 兼容性 getter
   Color get backgroundColor => primaryColor;
@@ -114,13 +130,13 @@ class AppThemeData {
       successColor: const Color(0xFF66BB6A),
       errorBackgroundColor: const Color(0xFF3E2723),
       dividerColor: const Color(0xFF3A3A4A),
+      isDark: true,
     );
   }
 
   /// 转换为 Flutter ThemeData
   ThemeData toThemeData() {
-    // 通过 surfaceColor 判断是否为深色模式
-    final bool isDark = surfaceColor == const Color(0xFF1E1E2E);
+    // Use the explicit isDark field instead of fragile color comparison
     final brightness = isDark ? Brightness.dark : Brightness.light;
 
     return ThemeData(
@@ -315,65 +331,9 @@ const coralOrangeTheme = AppThemeData(
   ],
 );
 
-/// Theme: Mint Green
-/// 薄荷绿 - 深蓝强调
-const mintGreenTheme = AppThemeData(
-  name: 'mintGreen',
-  nameZh: '薄荷绿',
-  description: '清新自然',
-  icon: Icons.eco_rounded,
-  // Background
-  primaryColor: Color(0xFF81C784),
-  secondaryColor: Color(0xFF66BB6A),
-  // Accent
-  accentColor: _kProgressRingColor,
-  // Surface
-  surfaceColor: Color(0xFFFFFFFF),
-  cardColor: Color(0xFFFFFFFF),
-  // Text
-  textColor: Color(0xFF212121),
-  secondaryTextColor: Color(0xFF757575),
-  // Progress
-  progressRingColor: _kProgressRingColor,
-  progressBgColor: Color(0x33FFFFFF),
-  progressStrokeWidth: 10.0,
-  // Decorative
-  decorativeCircleColors: [
-    Color(0x40FFFFFF),
-    Color(0x30FFFFFF),
-    Color(0x20FFFFFF),
-  ],
-);
-
-/// Theme: Rose Pink
-/// 玫瑰粉 - 深蓝强调
-const rosePinkTheme = AppThemeData(
-  name: 'rosePink',
-  nameZh: '玫瑰粉',
-  description: '甜美活力',
-  icon: Icons.favorite_rounded,
-  // Background
-  primaryColor: Color(0xFFF48FB1),
-  secondaryColor: Color(0xFFEC407A),
-  // Accent
-  accentColor: _kProgressRingColor,
-  // Surface
-  surfaceColor: Color(0xFFFFFFFF),
-  cardColor: Color(0xFFFFFFFF),
-  // Text
-  textColor: Color(0xFF212121),
-  secondaryTextColor: Color(0xFF757575),
-  // Progress
-  progressRingColor: _kProgressRingColor,
-  progressBgColor: Color(0x33FFFFFF),
-  progressStrokeWidth: 10.0,
-  // Decorative
-  decorativeCircleColors: [
-    Color(0x40FFFFFF),
-    Color(0x30FFFFFF),
-    Color(0x20FFFFFF),
-  ],
-);
+// NOTE: mintGreen and rosePink themes were removed (reduced from 5 to 3).
+// Users who had these selected are auto-mapped via theme_provider.dart:
+//   mintGreen → amberGold, rosePink → coralOrange
 
 /// Theme: Sky Blue
 /// 天空蓝 - 更深的蓝强调
@@ -413,9 +373,9 @@ AppThemeData getThemeData(AppThemeType type) {
     case AppThemeType.coralOrange:
       return coralOrangeTheme;
     case AppThemeType.mintGreen:
-      return mintGreenTheme;
+      return amberGoldTheme; // Legacy: mintGreen mapped to amberGold
     case AppThemeType.rosePink:
-      return rosePinkTheme;
+      return coralOrangeTheme; // Legacy: rosePink mapped to coralOrange
     case AppThemeType.skyBlue:
       return skyBlueTheme;
   }
@@ -425,7 +385,5 @@ AppThemeData getThemeData(AppThemeType type) {
 const allThemes = [
   amberGoldTheme, // Default - 参考图风格
   coralOrangeTheme,
-  mintGreenTheme,
-  rosePinkTheme,
   skyBlueTheme,
 ];
