@@ -116,9 +116,10 @@ lib/
 │   ├── bulk_exercise_data_dialog.dart # Bulk import dialog
 │   ├── fullscreen_image_viewer.dart    # Image viewer
 │   ├── glass_widgets.dart    # CircularControlButton, PressableMixin, Flat Vitality UI
+│   ├── ui_components.dart    # SheetDragHandle, SectionHeader, InfoBanner, EmptyState
 │   ├── circular_progress_painter.dart # Progress ring painter
 │   └── completed_medal_display.dart   # Completed workout medal
-├── theme/                    # Flat Vitality theme (5 themes)
+├── theme/                    # Flat Vitality theme (3 themes: amberGold, coralOrange, skyBlue)
 │   ├── app_theme.dart        # Theme data models
 │   └── theme_provider.dart   # Theme state + persistence
 ├── services/                 # Database, notifications, repositories
@@ -134,8 +135,8 @@ lib/
 │   ├── workout_repository.dart   # Session data
 │   ├── plan_repository.dart      # Plan CRUD
 │   └── record_repository.dart    # Record CRUD
-├── utils/                    # Color utilities, vocabulary
-│   └── dimensions.dart       # AppDimensions: nav bar sizes, spacing, responsive helpers
+├── utils/                    # Design tokens, vocabulary
+│   └── dimensions.dart       # AppDimensions: radius tokens (8 levels), screenPadding, nav bar sizes, responsive helpers
 └── data/                     # Static exercise data (JSON)
 ```
 
@@ -298,6 +299,9 @@ test/
 │   ├── stats_calculator_service_test.dart
 │   ├── database_migration_test.dart           # v2→v3 migration (sqflite_ffi)
 │   └── ai_prompt_service_test.dart
+├── theme/
+│   ├── design_tokens_test.dart               # Token existence + isDark field tests
+│   └── compliance_guardrail_test.dart        # Source-scan: no hardcoded values outside exempt files
 ├── widgets/
 │   └── ai_plan_wizard_screen_test.dart
 └── integration/
