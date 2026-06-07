@@ -96,6 +96,10 @@ class _AnimatedCardState extends State<AnimatedCard>
 
   @override
   Widget build(BuildContext context) {
+    // When no onTap is provided, render child without gesture detection
+    if (widget.onTap == null) {
+      return widget.child;
+    }
     return GestureDetector(
       onTapDown: (_) => _setPressed(true),
       onTapUp: (_) => _setPressed(false),
