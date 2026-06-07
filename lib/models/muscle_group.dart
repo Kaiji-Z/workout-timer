@@ -5,41 +5,41 @@ library;
 
 /// 主要肌肉部位（6大类）
 enum PrimaryMuscleGroup {
-  chest,      // 胸
-  back,       // 背
-  shoulders,  // 肩
-  arms,       // 手臂
-  legs,       // 腿
-  core,       // 核心
+  chest, // 胸
+  back, // 背
+  shoulders, // 肩
+  arms, // 手臂
+  legs, // 腿
+  core, // 核心
 }
 
 /// 次要肌肉部位（15个子分类）
 enum SecondaryMuscleGroup {
   // 胸部
-  upperChest,    // 上胸
-  middleChest,   // 中胸
-  lowerChest,    // 下胸
+  upperChest, // 上胸
+  middleChest, // 中胸
+  lowerChest, // 下胸
   // 背部
-  lats,          // 背阔肌
-  upperBack,     // 上背/斜方肌
-  rhomboids,     // 菱形肌
-  lowerBack,     // 下背
+  lats, // 背阔肌
+  upperBack, // 上背/斜方肌
+  rhomboids, // 菱形肌
+  lowerBack, // 下背
   // 肩部
-  frontDelt,     // 前束
-  sideDelt,      // 中束
-  rearDelt,      // 后束
+  frontDelt, // 前束
+  sideDelt, // 中束
+  rearDelt, // 后束
   // 手臂
-  biceps,        // 二头肌
-  triceps,       // 三头肌
-  forearms,      // 前臂
+  biceps, // 二头肌
+  triceps, // 三头肌
+  forearms, // 前臂
   // 腿部
-  quads,         // 股四头肌
-  hamstrings,    // 腘绳肌
-  glutes,        // 臀肌
-  calves,        // 小腿
+  quads, // 股四头肌
+  hamstrings, // 腘绳肌
+  glutes, // 臀肌
+  calves, // 小腿
   // 核心
-  abs,           // 腹直肌
-  obliques,      // 腹外斜肌
+  abs, // 腹直肌
+  obliques, // 腹外斜肌
 }
 
 /// 主要肌肉部位扩展方法
@@ -116,35 +116,32 @@ extension PrimaryMuscleGroupExtension on PrimaryMuscleGroup {
           SecondaryMuscleGroup.calves,
         ];
       case PrimaryMuscleGroup.core:
-        return [
-          SecondaryMuscleGroup.abs,
-          SecondaryMuscleGroup.obliques,
-        ];
+        return [SecondaryMuscleGroup.abs, SecondaryMuscleGroup.obliques];
     }
   }
 
   /// 从字符串解析（支持 free-exercise-db 格式）
-static PrimaryMuscleGroup? fromString(String value) {
-switch (value.toLowerCase()) {
-case 'chest':
-return PrimaryMuscleGroup.chest;
+  static PrimaryMuscleGroup? fromString(String value) {
+    switch (value.toLowerCase()) {
+      case 'chest':
+        return PrimaryMuscleGroup.chest;
       case 'back':
       case 'middle back':
       case 'lats':
       case 'lower back':
       case 'traps':
       case 'upper back':
-return PrimaryMuscleGroup.back;
-case 'shoulders':
-case 'shoulder':
-return PrimaryMuscleGroup.shoulders;
-case 'arms':
+        return PrimaryMuscleGroup.back;
+      case 'shoulders':
+      case 'shoulder':
+        return PrimaryMuscleGroup.shoulders;
+      case 'arms':
       case 'arm':
       case 'biceps':
       case 'triceps':
       case 'forearms':
-return PrimaryMuscleGroup.arms;
-case 'legs':
+        return PrimaryMuscleGroup.arms;
+      case 'legs':
       case 'leg':
       case 'quadriceps':
       case 'quads':
@@ -153,15 +150,15 @@ case 'legs':
       case 'calves':
       case 'adductors':
       case 'abductors':
-return PrimaryMuscleGroup.legs;
-case 'core':
-case 'abs':
-case 'abdominals':
-return PrimaryMuscleGroup.core;
-default:
-return null;
-}
-}
+        return PrimaryMuscleGroup.legs;
+      case 'core':
+      case 'abs':
+      case 'abdominals':
+        return PrimaryMuscleGroup.core;
+      default:
+        return null;
+    }
+  }
 }
 
 /// 次要肌肉部位扩展方法

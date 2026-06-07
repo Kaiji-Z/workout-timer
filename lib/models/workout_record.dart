@@ -36,7 +36,8 @@ class RecordedExercise {
 
   /// 计算总训练容量
   double get totalVolume =>
-      setsData?.fold<double>(0.0, (sum, s) => sum + s.volume) ?? (completedSets * (maxWeight ?? 0));
+      setsData?.fold<double>(0.0, (sum, s) => sum + s.volume) ??
+      (completedSets * (maxWeight ?? 0));
 
   /// 计算体重调整后的训练容量
   ///
@@ -62,11 +63,15 @@ class RecordedExercise {
     List<SetData>? setsData;
     if (json['sets_data'] != null) {
       final List<dynamic> setsList = jsonDecode(json['sets_data'] as String);
-      setsData = setsList.map((s) => SetData.fromMap(s as Map<String, dynamic>)).toList();
+      setsData = setsList
+          .map((s) => SetData.fromMap(s as Map<String, dynamic>))
+          .toList();
     }
     return RecordedExercise(
-      exerciseId: json['exerciseId'] as String? ?? json['exercise_id'] as String? ?? '',
-      completedSets: json['completedSets'] as int? ?? json['completed_sets'] as int? ?? 0,
+      exerciseId:
+          json['exerciseId'] as String? ?? json['exercise_id'] as String? ?? '',
+      completedSets:
+          json['completedSets'] as int? ?? json['completed_sets'] as int? ?? 0,
       maxWeight: json['maxWeight'] as double? ?? json['max_weight'] as double?,
       setsData: setsData,
     );
@@ -78,16 +83,23 @@ class RecordedExercise {
       'exerciseId': exerciseId,
       'completedSets': completedSets,
       'maxWeight': maxWeight,
-      'sets_data': setsData != null ? jsonEncode(setsData!.map((s) => s.toMap()).toList()) : null,
+      'sets_data': setsData != null
+          ? jsonEncode(setsData!.map((s) => s.toMap()).toList())
+          : null,
     };
   }
 
   /// 从数据库Map解析
-  factory RecordedExercise.fromMap(Map<String, dynamic> map, {Exercise? exercise}) {
+  factory RecordedExercise.fromMap(
+    Map<String, dynamic> map, {
+    Exercise? exercise,
+  }) {
     List<SetData>? setsData;
     if (map['per_set_data'] != null) {
       final List<dynamic> setsList = jsonDecode(map['per_set_data'] as String);
-      setsData = setsList.map((s) => SetData.fromMap(s as Map<String, dynamic>)).toList();
+      setsData = setsList
+          .map((s) => SetData.fromMap(s as Map<String, dynamic>))
+          .toList();
     }
     return RecordedExercise(
       exerciseId: map['exercise_id'] as String,
@@ -105,7 +117,9 @@ class RecordedExercise {
       'exercise_id': exerciseId,
       'completed_sets': completedSets,
       'max_weight': maxWeight,
-      'per_set_data': setsData != null ? jsonEncode(setsData!.map((s) => s.toMap()).toList()) : null,
+      'per_set_data': setsData != null
+          ? jsonEncode(setsData!.map((s) => s.toMap()).toList())
+          : null,
     };
   }
 
@@ -136,11 +150,7 @@ class RecordedExercise {
 
     final migratedSetsData = List.generate(
       completedSets,
-      (index) => SetData(
-        setNumber: index + 1,
-        reps: null,
-        weight: maxWeight,
-      ),
+      (index) => SetData(setNumber: index + 1, reps: null, weight: maxWeight),
     );
 
     return RecordedExercise(
@@ -162,7 +172,8 @@ class RecordedExercise {
   int get hashCode => exerciseId.hashCode;
 
   @override
-  String toString() => 'RecordedExercise(exerciseId: $exerciseId, sets: $completedSets, weight: $maxWeight)';
+  String toString() =>
+      'RecordedExercise(exerciseId: $exerciseId, sets: $completedSets, weight: $maxWeight)';
 }
 
 /// 训练记录
@@ -262,7 +273,10 @@ class WorkoutRecord {
       date: json['date'] != null
           ? DateTime.parse(json['date'] as String)
           : DateTime.now(),
-      durationSeconds: json['durationSeconds'] as int? ?? json['duration_seconds'] as int? ?? 0,
+      durationSeconds:
+          json['durationSeconds'] as int? ??
+          json['duration_seconds'] as int? ??
+          0,
       trainedMuscles: trainedMuscles,
       exercises: exercises,
       planId: json['planId'] as String? ?? json['plan_id'] as String?,
@@ -290,7 +304,10 @@ class WorkoutRecord {
   }
 
   /// 从数据库Map解析
-  factory WorkoutRecord.fromMap(Map<String, dynamic> map, {List<RecordedExercise>? exercises}) {
+  factory WorkoutRecord.fromMap(
+    Map<String, dynamic> map, {
+    List<RecordedExercise>? exercises,
+  }) {
     // 解析训练部位
     List<PrimaryMuscleGroup> trainedMuscles = [];
     if (map['trained_muscles'] != null) {
@@ -322,7 +339,9 @@ class WorkoutRecord {
       'id': id,
       'date': date.toIso8601String(),
       'duration_seconds': durationSeconds,
-      'trained_muscles': trainedMuscles.isEmpty ? null : jsonEncode(trainedMuscles.map((m) => m.name).toList()),
+      'trained_muscles': trainedMuscles.isEmpty
+          ? null
+          : jsonEncode(trainedMuscles.map((m) => m.name).toList()),
       'plan_id': planId,
       'plan_name': planName,
       'total_sets': totalSets,
@@ -365,5 +384,6 @@ class WorkoutRecord {
   int get hashCode => id.hashCode;
 
   @override
-  String toString() => 'WorkoutRecord(id: $id, date: $dateText, duration: $durationText, sets: $totalSets)';
+  String toString() =>
+      'WorkoutRecord(id: $id, date: $dateText, duration: $durationText, sets: $totalSets)';
 }

@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 /// Represents a single set in a workout exercise.
-/// 
+///
 /// Tracks the set number, reps completed, and weight used.
 /// Supports serialization for database storage.
 class SetData {
@@ -9,25 +9,21 @@ class SetData {
   final int? reps;
   final double? weight;
 
-  const SetData({
-    required this.setNumber,
-    this.reps,
-    this.weight,
-  });
+  const SetData({required this.setNumber, this.reps, this.weight});
 
   /// Converts the set data to a map for database storage.
   Map<String, dynamic> toMap() => {
-        'set_number': setNumber,
-        'reps': reps,
-        'weight': weight,
-      };
+    'set_number': setNumber,
+    'reps': reps,
+    'weight': weight,
+  };
 
   /// Creates a SetData from a map (database row).
   factory SetData.fromMap(Map<String, dynamic> map) => SetData(
-        setNumber: map['set_number'] as int? ?? 1,
-        reps: map['reps'] as int?,
-        weight: (map['weight'] as num?)?.toDouble(),
-      );
+    setNumber: map['set_number'] as int? ?? 1,
+    reps: map['reps'] as int?,
+    weight: (map['weight'] as num?)?.toDouble(),
+  );
 
   /// Converts the set data to a JSON string.
   String toJson() => jsonEncode(toMap());
@@ -37,7 +33,7 @@ class SetData {
       SetData.fromMap(jsonDecode(jsonString) as Map<String, dynamic>);
 
   /// Returns a user-friendly display string for the set.
-  /// 
+  ///
   /// Examples:
   /// - Both null: "Set 3"
   /// - Only reps: "12 reps"
@@ -55,19 +51,15 @@ class SetData {
   double get volume => (reps ?? 0) * (weight ?? 0);
 
   /// Creates a copy of this SetData with optionally overridden fields.
-  SetData copyWith({
-    int? setNumber,
-    int? reps,
-    double? weight,
-  }) =>
-      SetData(
-        setNumber: setNumber ?? this.setNumber,
-        reps: reps ?? this.reps,
-        weight: weight ?? this.weight,
-      );
+  SetData copyWith({int? setNumber, int? reps, double? weight}) => SetData(
+    setNumber: setNumber ?? this.setNumber,
+    reps: reps ?? this.reps,
+    weight: weight ?? this.weight,
+  );
 
   @override
-  String toString() => 'SetData(setNumber: $setNumber, reps: $reps, weight: $weight)';
+  String toString() =>
+      'SetData(setNumber: $setNumber, reps: $reps, weight: $weight)';
 
   @override
   bool operator ==(Object other) =>
