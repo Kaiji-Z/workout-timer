@@ -23,24 +23,20 @@ class PlanRepository {
 
     await database.transaction((txn) async {
       // 插入计划主表
-      await txn.insert(
-        DatabaseHelper.tableWorkoutPlans,
-        plan.toMap(),
-      );
+      await txn.insert(DatabaseHelper.tableWorkoutPlans, plan.toMap());
 
       // 插入计划动作关联表
       for (var exercise in plan.exercises) {
-        await txn.insert(
-          DatabaseHelper.tablePlanExercises,
-          {
-            'id': _uuid.v4(),
-            ...exercise.toMap(plan.id),
-          },
-        );
+        await txn.insert(DatabaseHelper.tablePlanExercises, {
+          'id': _uuid.v4(),
+          ...exercise.toMap(plan.id),
+        });
       }
     });
 
-    debugPrint('Created plan: ${plan.name} with ${plan.exercises.length} exercises');
+    debugPrint(
+      'Created plan: ${plan.name} with ${plan.exercises.length} exercises',
+    );
     return plan.id;
   }
 
@@ -56,10 +52,7 @@ class PlanRepository {
       // 更新计划主表
       await txn.update(
         DatabaseHelper.tableWorkoutPlans,
-        {
-          ...plan.toMap(),
-          'updated_at': DateTime.now().toIso8601String(),
-        },
+        {...plan.toMap(), 'updated_at': DateTime.now().toIso8601String()},
         where: 'id = ?',
         whereArgs: [plan.id],
       );
@@ -73,13 +66,10 @@ class PlanRepository {
 
       // 插入新的关联动作
       for (var exercise in plan.exercises) {
-        await txn.insert(
-          DatabaseHelper.tablePlanExercises,
-          {
-            'id': _uuid.v4(),
-            ...exercise.toMap(plan.id),
-          },
-        );
+        await txn.insert(DatabaseHelper.tablePlanExercises, {
+          'id': _uuid.v4(),
+          ...exercise.toMap(plan.id),
+        });
       }
     });
 
@@ -105,7 +95,10 @@ class PlanRepository {
   }
 
   /// 根据ID获取计划
-  Future<WorkoutPlan?> getPlanById(String id, {List<Exercise>? exercises}) async {
+  Future<WorkoutPlan?> getPlanById(
+    String id, {
+    List<Exercise>? exercises,
+  }) async {
     if (!_isDatabaseAvailable) {
       return null;
     }
@@ -193,15 +186,12 @@ class PlanRepository {
     );
 
     if (existing.isEmpty) {
-      await database.insert(
-        DatabaseHelper.tableCalendarPlans,
-        {
-          'id': _uuid.v4(),
-          'date': dateStr,
-          'plan_id': planId,
-          'created_at': DateTime.now().toIso8601String(),
-        },
-      );
+      await database.insert(DatabaseHelper.tableCalendarPlans, {
+        'id': _uuid.v4(),
+        'date': dateStr,
+        'plan_id': planId,
+        'created_at': DateTime.now().toIso8601String(),
+      });
       debugPrint('Assigned plan $planId to ${date.toIso8601String()}');
     }
   }
@@ -213,7 +203,9 @@ class PlanRepository {
     List<DateTime> dates,
   ) async {
     if (!_isDatabaseAvailable) {
-      debugPrint('Database not available on web - batchCreatePlansWithCalendar skipped');
+      debugPrint(
+        'Database not available on web - batchCreatePlansWithCalendar skipped',
+      );
       return [];
     }
 
@@ -234,38 +226,31 @@ class PlanRepository {
         final date = dates[i];
 
         // 插入计划
-        await txn.insert(
-          DatabaseHelper.tableWorkoutPlans,
-          plan.toMap(),
-        );
+        await txn.insert(DatabaseHelper.tableWorkoutPlans, plan.toMap());
 
         // 插入计划动作
         for (var exercise in plan.exercises) {
-          await txn.insert(
-            DatabaseHelper.tablePlanExercises,
-            {
-              'id': _uuid.v4(),
-              ...exercise.toMap(plan.id),
-            },
-          );
+          await txn.insert(DatabaseHelper.tablePlanExercises, {
+            'id': _uuid.v4(),
+            ...exercise.toMap(plan.id),
+          });
         }
 
         // 分配到日历
-        await txn.insert(
-          DatabaseHelper.tableCalendarPlans,
-          {
-            'id': _uuid.v4(),
-            'date': date.toIso8601String(),
-            'plan_id': plan.id,
-            'created_at': DateTime.now().toIso8601String(),
-          },
-        );
+        await txn.insert(DatabaseHelper.tableCalendarPlans, {
+          'id': _uuid.v4(),
+          'date': date.toIso8601String(),
+          'plan_id': plan.id,
+          'created_at': DateTime.now().toIso8601String(),
+        });
 
         createdIds.add(plan.id);
       }
     });
 
-    debugPrint('Batch created ${createdIds.length} plans with calendar assignments');
+    debugPrint(
+      'Batch created ${createdIds.length} plans with calendar assignments',
+    );
     return createdIds;
   }
 
@@ -287,7 +272,10 @@ class PlanRepository {
   }
 
   /// 获取某日期的计划列表
-  Future<List<WorkoutPlan>> getPlansForDate(DateTime date, {List<Exercise>? exercises}) async {
+  Future<List<WorkoutPlan>> getPlansForDate(
+    DateTime date, {
+    List<Exercise>? exercises,
+  }) async {
     if (!_isDatabaseAvailable) {
       return [];
     }
@@ -295,12 +283,15 @@ class PlanRepository {
 
     final dateStr = date.toIso8601String();
 
-    final results = await database.rawQuery('''
+    final results = await database.rawQuery(
+      '''
       SELECT p.* FROM ${DatabaseHelper.tableWorkoutPlans} p
       INNER JOIN ${DatabaseHelper.tableCalendarPlans} c ON p.id = c.plan_id
       WHERE c.date = ?
       ORDER BY c.created_at ASC
-    ''', [dateStr]);
+    ''',
+      [dateStr],
+    );
 
     final plans = <WorkoutPlan>[];
     for (var map in results) {

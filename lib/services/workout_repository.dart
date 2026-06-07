@@ -31,7 +31,9 @@ class WorkoutRepository {
 
   Future<List<WorkoutSession>> getAllSessions() async {
     if (!_isDatabaseAvailable) {
-      debugPrint('Database not available on web - returning empty sessions list');
+      debugPrint(
+        'Database not available on web - returning empty sessions list',
+      );
       return [];
     }
     try {
@@ -71,11 +73,14 @@ class WorkoutRepository {
   // Optional: Get total stats
   Future<Map<String, int>> getTotalStats() async {
     final sessions = await getAllSessions();
-    final totalSets = sessions.fold<int>(0, (sum, session) => sum + session.totalSets);
-    final totalTimeMs = sessions.fold<int>(0, (sum, session) => sum + session.totalRestTimeMs);
-    return {
-      'totalSets': totalSets,
-      'totalTimeMs': totalTimeMs,
-    };
+    final totalSets = sessions.fold<int>(
+      0,
+      (sum, session) => sum + session.totalSets,
+    );
+    final totalTimeMs = sessions.fold<int>(
+      0,
+      (sum, session) => sum + session.totalRestTimeMs,
+    );
+    return {'totalSets': totalSets, 'totalTimeMs': totalTimeMs};
   }
 }

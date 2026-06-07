@@ -33,7 +33,10 @@ class StatsCalculatorService {
 
   /// Calculate total volume (sets × reps × weight) for all records
   /// When [bodyWeight] is provided (>0), bodyweight exercises use adjusted volume
-  double calculateTotalVolume(List<WorkoutRecord> records, {double? bodyWeight}) {
+  double calculateTotalVolume(
+    List<WorkoutRecord> records, {
+    double? bodyWeight,
+  }) {
     double totalVolume = 0.0;
     for (final record in records) {
       for (final exercise in record.exercises) {
@@ -58,9 +61,9 @@ class StatsCalculatorService {
   /// Calculate muscle group distribution with volume
   /// When [bodyWeight] is provided (>0), bodyweight exercises use adjusted volume
   Map<PrimaryMuscleGroup, double> calculateMuscleVolumeDistribution(
-    List<WorkoutRecord> records,
-    {double? bodyWeight}
-  ) {
+    List<WorkoutRecord> records, {
+    double? bodyWeight,
+  }) {
     final distribution = <PrimaryMuscleGroup, double>{};
 
     for (final record in records) {
@@ -89,7 +92,8 @@ class StatsCalculatorService {
         if (exercise == null) continue;
 
         final muscle = exercise.primaryMuscle;
-        final sets = recordedExercise.setsData != null &&
+        final sets =
+            recordedExercise.setsData != null &&
                 recordedExercise.setsData!.isNotEmpty
             ? recordedExercise.setsData!.length
             : recordedExercise.completedSets;
@@ -159,7 +163,10 @@ class StatsCalculatorService {
   /// Calculate daily volume trend
   /// Returns map of date (normalized to midnight) to total volume
   /// When [bodyWeight] is provided (>0), bodyweight exercises use adjusted volume
-  Map<DateTime, double> calculateDailyVolumeTrend(List<WorkoutRecord> records, {double? bodyWeight}) {
+  Map<DateTime, double> calculateDailyVolumeTrend(
+    List<WorkoutRecord> records, {
+    double? bodyWeight,
+  }) {
     final result = <DateTime, double>{};
 
     for (final record in records) {
