@@ -3,10 +3,7 @@ class WeeklyPlanImport {
   final String name;
   final List<DailyPlanImport> days;
 
-  const WeeklyPlanImport({
-    required this.name,
-    required this.days,
-  });
+  const WeeklyPlanImport({required this.name, required this.days});
 
   /// Parse from JSON with graceful handling of missing fields
   factory WeeklyPlanImport.fromJson(Map<String, dynamic> json) {
@@ -20,18 +17,12 @@ class WeeklyPlanImport {
           .toList();
     }
 
-    return WeeklyPlanImport(
-      name: json['name'] as String? ?? '',
-      days: days,
-    );
+    return WeeklyPlanImport(name: json['name'] as String? ?? '', days: days);
   }
 
   /// Convert to JSON
   Map<String, dynamic> toJson() {
-    return {
-      'name': name,
-      'days': days.map((d) => d.toJson()).toList(),
-    };
+    return {'name': name, 'days': days.map((d) => d.toJson()).toList()};
   }
 
   @override
@@ -117,10 +108,7 @@ class ExerciseEntryImport {
   final String exerciseName; // English name for matching
   final int targetSets;
 
-  const ExerciseEntryImport({
-    required this.exerciseName,
-    this.targetSets = 3,
-  });
+  const ExerciseEntryImport({required this.exerciseName, this.targetSets = 3});
 
   /// Parse from JSON with graceful handling of missing fields
   factory ExerciseEntryImport.fromJson(Map<String, dynamic> json) {
@@ -132,10 +120,7 @@ class ExerciseEntryImport {
 
   /// Convert to JSON
   Map<String, dynamic> toJson() {
-    return {
-      'exerciseName': exerciseName,
-      'targetSets': targetSets,
-    };
+    return {'exerciseName': exerciseName, 'targetSets': targetSets};
   }
 
   @override

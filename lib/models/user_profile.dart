@@ -27,7 +27,10 @@ class UserProfile {
       experience: map['experience'] as String? ?? 'beginner',
       equipment: map['equipment'] as String? ?? 'bodyweight',
       focusAreas: map['focus_areas'] != null
-          ? (map['focus_areas'] as String).split(',').where((s) => s.isNotEmpty).toList()
+          ? (map['focus_areas'] as String)
+                .split(',')
+                .where((s) => s.isNotEmpty)
+                .toList()
           : [],
       startDate: map['start_date'] != null
           ? DateTime.parse(map['start_date'] as String)
@@ -92,14 +95,14 @@ class UserProfile {
 
   @override
   int get hashCode => Object.hash(
-        goal,
-        weeklyFrequency,
-        sessionDuration,
-        experience,
-        equipment,
-        Object.hashAll(focusAreas),
-        startDate,
-      );
+    goal,
+    weeklyFrequency,
+    sessionDuration,
+    experience,
+    equipment,
+    Object.hashAll(focusAreas),
+    startDate,
+  );
 
   @override
   String toString() =>

@@ -788,12 +788,15 @@ class ExerciseData {
   static List<Exercise> getBuiltInExercises() {
     return builtInExercises.map((data) {
       // 解析主要肌肉部位
-      final primaryMuscle = PrimaryMuscleGroupExtension.fromString(
-        data['primaryMuscle'] as String,
-      ) ?? PrimaryMuscleGroup.chest;
+      final primaryMuscle =
+          PrimaryMuscleGroupExtension.fromString(
+            data['primaryMuscle'] as String,
+          ) ??
+          PrimaryMuscleGroup.chest;
 
       // 解析次要肌肉部位
-      final secondaryMusclesList = data['secondaryMuscles'] as List<dynamic>? ?? [];
+      final secondaryMusclesList =
+          data['secondaryMuscles'] as List<dynamic>? ?? [];
       final secondaryMuscles = secondaryMusclesList
           .map((s) => _parseSecondaryMuscle(s as String))
           .whereType<SecondaryMuscleGroup>()
@@ -855,7 +858,9 @@ class ExerciseData {
   static Future<void> importToDatabase(dynamic db) async {
     // 检查是否已导入
     final count = Sqflite.firstIntValue(
-      await db.rawQuery('SELECT COUNT(*) FROM ${DatabaseHelper.tableExercises}'),
+      await db.rawQuery(
+        'SELECT COUNT(*) FROM ${DatabaseHelper.tableExercises}',
+      ),
     );
     if (count != null && count > 0) {
       return; // 已有数据，跳过导入
@@ -865,42 +870,42 @@ class ExerciseData {
     Batch batch = db.batch();
     for (var exerciseData in builtInExercises) {
       // 解析主要肌肉部位
-    final primaryMuscle = PrimaryMuscleGroupExtension.fromString(
-      exerciseData['primaryMuscle'] as String,
-    ) ?? PrimaryMuscleGroup.chest;
+      final primaryMuscle =
+          PrimaryMuscleGroupExtension.fromString(
+            exerciseData['primaryMuscle'] as String,
+          ) ??
+          PrimaryMuscleGroup.chest;
 
-    // 根据难度设置推荐参数
-    final level = exerciseData['level'] as String? ?? 'beginner';
-    int recommendedSets = 3;
-    int minReps = 10;
-    int maxReps = 15;
-    int restSeconds = 60;
+      // 根据难度设置推荐参数
+      final level = exerciseData['level'] as String? ?? 'beginner';
+      int recommendedSets = 3;
+      int minReps = 10;
+      int maxReps = 15;
+      int restSeconds = 60;
 
-    switch (level) {
-      case 'beginner':
-        recommendedSets = 3;
-        minReps = 10;
-        maxReps = 15;
-        restSeconds = 60;
-        break;
-      case 'intermediate':
-        recommendedSets = 4;
-        minReps = 8;
-        maxReps = 12;
-        restSeconds = 90;
-        break;
-      case 'advanced':
-      case 'expert':
-        recommendedSets = 5;
-        minReps = 6;
-        maxReps = 10;
-        restSeconds = 120;
-        break;
-    }
+      switch (level) {
+        case 'beginner':
+          recommendedSets = 3;
+          minReps = 10;
+          maxReps = 15;
+          restSeconds = 60;
+          break;
+        case 'intermediate':
+          recommendedSets = 4;
+          minReps = 8;
+          maxReps = 12;
+          restSeconds = 90;
+          break;
+        case 'advanced':
+        case 'expert':
+          recommendedSets = 5;
+          minReps = 6;
+          maxReps = 10;
+          restSeconds = 120;
+          break;
+      }
 
-    batch.insert(
-      DatabaseHelper.tableExercises,
-      {
+      batch.insert(DatabaseHelper.tableExercises, {
         'id': exerciseData['id'],
         'name': exerciseData['name'],
         'name_en': exerciseData['nameEn'],
@@ -913,10 +918,9 @@ class ExerciseData {
         'recommended_max_reps': maxReps,
         'rest_seconds': restSeconds,
         'image_url': getExerciseImageUrl(exerciseData['id'] as String),
-      },
-    );
-  }
-  await batch.commit(noResult: true);
+      });
+    }
+    await batch.commit(noResult: true);
   }
 
   /// 按肌肉部位筛选动作
@@ -945,15 +949,12 @@ class ExerciseData {
   }
 
   /// 按难度筛选
-  static List<Exercise> filterByLevel(
-    List<Exercise> exercises,
-    String level,
-  ) {
-return exercises.where((e) => e.level == level).toList();
+  static List<Exercise> filterByLevel(List<Exercise> exercises, String level) {
+    return exercises.where((e) => e.level == level).toList();
   }
 
   /// 获取完整的动作列表（优先使用ExerciseService加载的数据）
-  /// 
+  ///
   /// 如果ExerciseService已加载数据，返回完整的800+动作
   /// 否则返回内置的67个精选动作作为备用
   static List<Exercise> getFullExerciseList() {
@@ -964,7 +965,7 @@ return exercises.where((e) => e.level == level).toList();
   }
 
   /// 异步加载并获取完整的动作列表
-  /// 
+  ///
   /// 会自动调用ExerciseService.loadExercises()加载数据
   static Future<List<Exercise>> loadAndGetFullExerciseList() async {
     if (!ExerciseService.isLoaded) {

@@ -35,8 +35,10 @@ class PlanExercise {
   /// 从JSON解析
   factory PlanExercise.fromJson(Map<String, dynamic> json) {
     return PlanExercise(
-      exerciseId: json['exerciseId'] as String? ?? json['exercise_id'] as String? ?? '',
-      targetSets: json['targetSets'] as int? ?? json['target_sets'] as int? ?? 3,
+      exerciseId:
+          json['exerciseId'] as String? ?? json['exercise_id'] as String? ?? '',
+      targetSets:
+          json['targetSets'] as int? ?? json['target_sets'] as int? ?? 3,
       customSets: json['customSets'] as int? ?? json['custom_sets'] as int?,
       order: json['order'] as int? ?? json['exercise_order'] as int? ?? 0,
       unmatchedName: json['unmatchedName'] as String?,
@@ -100,14 +102,17 @@ class PlanExercise {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    return other is PlanExercise && other.exerciseId == exerciseId && other.order == order;
+    return other is PlanExercise &&
+        other.exerciseId == exerciseId &&
+        other.order == order;
   }
 
   @override
   int get hashCode => Object.hash(exerciseId, order);
 
   @override
-  String toString() => 'PlanExercise(exerciseId: $exerciseId, sets: $effectiveSets, order: $order)';
+  String toString() =>
+      'PlanExercise(exerciseId: $exerciseId, sets: $effectiveSets, order: $order)';
 }
 
 /// 训练计划
@@ -193,7 +198,10 @@ class WorkoutPlan {
   }
 
   /// 从数据库Map解析
-  factory WorkoutPlan.fromMap(Map<String, dynamic> map, {List<PlanExercise>? exercises}) {
+  factory WorkoutPlan.fromMap(
+    Map<String, dynamic> map, {
+    List<PlanExercise>? exercises,
+  }) {
     // 解析目标肌肉部位
     List<PrimaryMuscleGroup> targetMuscles = [];
     if (map['target_muscles'] != null) {
@@ -262,5 +270,6 @@ class WorkoutPlan {
   int get hashCode => id.hashCode;
 
   @override
-  String toString() => 'WorkoutPlan(id: $id, name: $name, exercises: ${exercises.length}, totalSets: $totalSets)';
+  String toString() =>
+      'WorkoutPlan(id: $id, name: $name, exercises: ${exercises.length}, totalSets: $totalSets)';
 }
