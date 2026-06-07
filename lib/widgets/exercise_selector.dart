@@ -98,15 +98,9 @@ class _ExerciseSelectorState extends State<ExerciseSelector> {
   Widget _buildSearchBar(AppThemeData theme) {
     return Container(
       decoration: BoxDecoration(
-        color: theme.surfaceColor,
+        color: theme.surfaceColorRaised,
         borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-        boxShadow: [
-          BoxShadow(
-            color: theme.textColor.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        boxShadow: AppElevation.resting(theme.shadowColor),
       ),
       child: TextField(
         controller: _searchController,
@@ -346,13 +340,7 @@ class _ExerciseSelectorState extends State<ExerciseSelector> {
                       borderRadius: BorderRadius.circular(
                         AppDimensions.radiusXl,
                       ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: theme.textColor.withValues(alpha: 0.05),
-                          blurRadius: 4,
-                          offset: const Offset(0, 1),
-                        ),
-                      ],
+                      boxShadow: AppElevation.resting(theme.shadowColor),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -451,13 +439,7 @@ class _ExerciseListItem extends StatelessWidget {
           color: isSelected ? theme.accentColor : Colors.transparent,
           width: isSelected ? 1.5 : 0,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: theme.textColor.withValues(alpha: 0.03),
-            blurRadius: 4,
-            offset: const Offset(0, 1),
-          ),
-        ],
+        boxShadow: AppElevation.resting(theme.shadowColor),
       ),
       child: ListTile(
         leading: Material(

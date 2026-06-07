@@ -174,15 +174,9 @@ class TimerWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       decoration: BoxDecoration(
-        color: theme.surfaceColor.withValues(alpha: 0.9),
+        color: theme.surfaceColorRaised,
         borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
-        boxShadow: [
-          BoxShadow(
-            color: theme.shadowColor,
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        boxShadow: AppElevation.raised(theme.shadowColor),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -330,13 +324,7 @@ class _PresetChip extends StatelessWidget {
                   ? theme.accentColor
                   : theme.surfaceColor.withValues(alpha: 0.9),
               borderRadius: BorderRadius.circular(AppDimensions.radiusChip),
-              boxShadow: [
-                BoxShadow(
-                  color: theme.shadowColor,
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
+              boxShadow: AppElevation.resting(theme.shadowColor),
             ),
             child: Text(
               label,
