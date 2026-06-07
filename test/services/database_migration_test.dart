@@ -102,9 +102,7 @@ void main() {
       );
 
       // Verify per_set_data column exists
-      final columns = await db.rawQuery(
-        "PRAGMA table_info(record_exercises)",
-      );
+      final columns = await db.rawQuery("PRAGMA table_info(record_exercises)");
       final columnNames = columns.map((c) => c['name'] as String).toList();
 
       expect(columnNames, contains('per_set_data'));
@@ -227,7 +225,9 @@ void main() {
       expect(columnNames, isNot(contains('per_set_data')));
 
       // Simulate migration to v3
-      await db.execute('ALTER TABLE record_exercises ADD COLUMN per_set_data TEXT');
+      await db.execute(
+        'ALTER TABLE record_exercises ADD COLUMN per_set_data TEXT',
+      );
 
       // Verify per_set_data column now exists
       columns = await db.rawQuery("PRAGMA table_info(record_exercises)");
@@ -308,7 +308,9 @@ void main() {
       });
 
       // Run migration
-      await db.execute('ALTER TABLE record_exercises ADD COLUMN per_set_data TEXT');
+      await db.execute(
+        'ALTER TABLE record_exercises ADD COLUMN per_set_data TEXT',
+      );
 
       // Verify old record has null per_set_data
       final exercises = await db.query('record_exercises');

@@ -73,12 +73,15 @@ void main() {
       expect(await favoritesService.isFavorite('nonexistent'), isFalse);
     });
 
-    test('isFavorite returns false for exercise that was unfavorited', () async {
-      await favoritesService.toggleFavorite('exercise_1');
-      await favoritesService.toggleFavorite('exercise_1');
+    test(
+      'isFavorite returns false for exercise that was unfavorited',
+      () async {
+        await favoritesService.toggleFavorite('exercise_1');
+        await favoritesService.toggleFavorite('exercise_1');
 
-      expect(await favoritesService.isFavorite('exercise_1'), isFalse);
-    });
+        expect(await favoritesService.isFavorite('exercise_1'), isFalse);
+      },
+    );
 
     test('getFavoriteIds excludes unfavorited exercises', () async {
       await favoritesService.toggleFavorite('exercise_1');

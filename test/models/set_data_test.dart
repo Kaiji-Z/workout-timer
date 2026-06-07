@@ -5,11 +5,7 @@ void main() {
   group('SetData', () {
     group('toMap/fromMap roundtrip', () {
       test('preserves all fields correctly', () {
-        final setData = SetData(
-          setNumber: 3,
-          reps: 12,
-          weight: 45.5,
-        );
+        final setData = SetData(setNumber: 3, reps: 12, weight: 45.5);
 
         final map = setData.toMap();
         final restored = SetData.fromMap(map);
@@ -20,11 +16,7 @@ void main() {
       });
 
       test('handles null values', () {
-        final setData = SetData(
-          setNumber: 1,
-          reps: null,
-          weight: null,
-        );
+        final setData = SetData(setNumber: 1, reps: null, weight: null);
 
         final map = setData.toMap();
         final restored = SetData.fromMap(map);
@@ -35,11 +27,7 @@ void main() {
       });
 
       test('handles only reps set', () {
-        final setData = SetData(
-          setNumber: 2,
-          reps: 15,
-          weight: null,
-        );
+        final setData = SetData(setNumber: 2, reps: 15, weight: null);
 
         final map = setData.toMap();
         final restored = SetData.fromMap(map);
@@ -50,11 +38,7 @@ void main() {
       });
 
       test('handles only weight set', () {
-        final setData = SetData(
-          setNumber: 4,
-          reps: null,
-          weight: 60.0,
-        );
+        final setData = SetData(setNumber: 4, reps: null, weight: 60.0);
 
         final map = setData.toMap();
         final restored = SetData.fromMap(map);
@@ -65,10 +49,7 @@ void main() {
       });
 
       test('defaults setNumber to 1 when missing in map', () {
-        final map = <String, dynamic>{
-          'reps': 10,
-          'weight': 30.0,
-        };
+        final map = <String, dynamic>{'reps': 10, 'weight': 30.0};
 
         final restored = SetData.fromMap(map);
 
@@ -93,11 +74,7 @@ void main() {
 
     group('toJson/fromJson roundtrip', () {
       test('preserves all fields correctly', () {
-        final setData = SetData(
-          setNumber: 5,
-          reps: 8,
-          weight: 100.0,
-        );
+        final setData = SetData(setNumber: 5, reps: 8, weight: 100.0);
 
         final json = setData.toJson();
         final restored = SetData.fromJson(json);
@@ -108,11 +85,7 @@ void main() {
       });
 
       test('handles null values', () {
-        final setData = SetData(
-          setNumber: 1,
-          reps: null,
-          weight: null,
-        );
+        final setData = SetData(setNumber: 1, reps: null, weight: null);
 
         final json = setData.toJson();
         final restored = SetData.fromJson(json);
@@ -232,11 +205,7 @@ void main() {
 
       test('updates all fields', () {
         final original = SetData(setNumber: 1, reps: 10, weight: 50.0);
-        final copy = original.copyWith(
-          setNumber: 4,
-          reps: 8,
-          weight: 100.0,
-        );
+        final copy = original.copyWith(setNumber: 4, reps: 8, weight: 100.0);
 
         expect(copy.setNumber, 4);
         expect(copy.reps, 8);
