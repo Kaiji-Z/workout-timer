@@ -6,6 +6,7 @@ import '../theme/theme_provider.dart';
 import '../theme/app_theme.dart';
 import '../utils/dimensions.dart';
 import 'glass_widgets.dart';
+import 'semantics_helpers.dart';
 
 /// Warm Vitality 风格计时器组件
 ///
@@ -99,12 +100,15 @@ class TimerWidget extends StatelessWidget {
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                _formatTime(timer.remainingSeconds),
-                style: Theme.of(context).textTheme.headlineLarge!.copyWith(
-                  fontSize: 52,
-                  fontWeight: FontWeight.w700,
-                  color: theme.textColor,
+              LiveTimer(
+                value: '剩余 ${timer.remainingSeconds} 秒',
+                child: Text(
+                  _formatTime(timer.remainingSeconds),
+                  style: Theme.of(context).textTheme.headlineLarge!.copyWith(
+                    fontSize: 52,
+                    fontWeight: FontWeight.w700,
+                    color: theme.textColor,
+                  ),
                 ),
               ),
               const SizedBox(height: 8),
