@@ -5,6 +5,7 @@ import '../models/set_data.dart';
 import '../models/exercise.dart';
 import '../services/bodyweight_coefficient_service.dart';
 import '../theme/theme_provider.dart';
+import '../utils/dimensions.dart';
 
 /// 单组训练数据记录悬浮对话框 - Flat Vitality 设计风格
 ///
@@ -105,7 +106,9 @@ class _SetRecordDialogState extends State<SetRecordDialog> {
 
     return Dialog(
       backgroundColor: theme.surfaceColor,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppDimensions.radiusChip),
+      ),
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -115,8 +118,7 @@ class _SetRecordDialogState extends State<SetRecordDialog> {
             // 标题：动作名称 + 组号
             Text(
               widget.exerciseName,
-              style: TextStyle(
-                fontFamily: '.SF Pro Display',
+              style: Theme.of(context).textTheme.headlineLarge!.copyWith(
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
                 color: theme.textColor,
@@ -125,19 +127,16 @@ class _SetRecordDialogState extends State<SetRecordDialog> {
             const SizedBox(height: 4),
             Text(
               '第${widget.setNumber}组',
-              style: TextStyle(
-                fontFamily: '.SF Pro Text',
-                fontSize: 14,
-                color: theme.secondaryTextColor,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium!.copyWith(color: theme.secondaryTextColor),
             ),
             const SizedBox(height: 24),
 
             // 次数选择器
             Text(
               '次数',
-              style: TextStyle(
-                fontFamily: '.SF Pro Text',
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
                 color: theme.textColor,
@@ -148,7 +147,7 @@ class _SetRecordDialogState extends State<SetRecordDialog> {
               height: 100,
               decoration: BoxDecoration(
                 color: theme.surfaceColor,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
               ),
               child: CupertinoPicker(
                 itemExtent: 40,
@@ -165,14 +164,12 @@ class _SetRecordDialogState extends State<SetRecordDialog> {
                   return Center(
                     child: Text(
                       '$reps 次',
-                      style: TextStyle(
-                        fontFamily: '.SF Pro Text',
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: reps == _selectedReps
-                            ? theme.textColor
-                            : theme.secondaryTextColor,
-                      ),
+                      style: Theme.of(context).textTheme.headlineMedium!
+                          .copyWith(
+                            color: reps == _selectedReps
+                                ? theme.textColor
+                                : theme.secondaryTextColor,
+                          ),
                     ),
                   );
                 }),
@@ -189,7 +186,7 @@ class _SetRecordDialogState extends State<SetRecordDialog> {
                 ),
                 decoration: BoxDecoration(
                   color: theme.accentColor.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
                 ),
                 child: Row(
                   children: [
@@ -202,9 +199,7 @@ class _SetRecordDialogState extends State<SetRecordDialog> {
                     Expanded(
                       child: Text(
                         '体重 ${_bodyWeight!.toStringAsFixed(0)}kg × ${(_coefficient * 100).toStringAsFixed(0)}% = ${(_bodyWeight! * _coefficient).toStringAsFixed(1)}kg',
-                        style: TextStyle(
-                          fontFamily: '.SF Pro Text',
-                          fontSize: 12,
+                        style: Theme.of(context).textTheme.bodySmall!.copyWith(
                           color: theme.accentColor,
                         ),
                       ),
@@ -218,8 +213,7 @@ class _SetRecordDialogState extends State<SetRecordDialog> {
             // 重量输入
             Text(
               _isBodyweight ? '附加重量 (kg)' : '重量 (kg)',
-              style: TextStyle(
-                fontFamily: '.SF Pro Text',
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
                 color: theme.textColor,
@@ -234,17 +228,15 @@ class _SetRecordDialogState extends State<SetRecordDialog> {
               ),
               decoration: InputDecoration(
                 hintText: _isBodyweight ? '0 = 纯自重' : '0',
-                hintStyle: TextStyle(
-                  fontFamily: '.SF Pro Text',
-                  fontSize: 16,
+                hintStyle: Theme.of(context).textTheme.bodyLarge!.copyWith(
                   color: theme.secondaryTextColor.withValues(alpha: 0.5),
                 ),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
                   borderSide: BorderSide(color: theme.borderColor),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
                   borderSide: BorderSide(color: theme.accentColor, width: 2),
                 ),
                 contentPadding: const EdgeInsets.symmetric(
@@ -252,11 +244,9 @@ class _SetRecordDialogState extends State<SetRecordDialog> {
                   vertical: 14,
                 ),
               ),
-              style: TextStyle(
-                fontFamily: '.SF Pro Text',
-                fontSize: 16,
-                color: theme.textColor,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge!.copyWith(color: theme.textColor),
               textInputAction: TextInputAction.done,
               onSubmitted: (_) => _save(),
             ),
@@ -274,15 +264,15 @@ class _SetRecordDialogState extends State<SetRecordDialog> {
                     style: TextButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(
+                          AppDimensions.radiusLg,
+                        ),
                       ),
                     ),
                     child: Text(
                       '跳过',
-                      style: TextStyle(
-                        fontFamily: '.SF Pro Text',
+                      style: Theme.of(context).textTheme.titleLarge!.copyWith(
                         fontSize: 15,
-                        fontWeight: FontWeight.w600,
                         color: theme.secondaryTextColor,
                       ),
                     ),
@@ -295,20 +285,20 @@ class _SetRecordDialogState extends State<SetRecordDialog> {
                     onPressed: _save,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: theme.accentColor,
-                      foregroundColor: Colors.white,
+                      foregroundColor: theme.onAccentColor,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       elevation: 0,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(
+                          AppDimensions.radiusLg,
+                        ),
                       ),
                     ),
                     child: Text(
                       '保存',
-                      style: TextStyle(
-                        fontFamily: '.SF Pro Text',
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                      ),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.titleLarge!.copyWith(fontSize: 15),
                     ),
                   ),
                 ),

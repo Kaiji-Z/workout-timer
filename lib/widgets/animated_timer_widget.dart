@@ -95,11 +95,8 @@ class _AnimatedTimerDisplayState extends State<AnimatedTimerDisplay> {
             child: Text(
               timeText,
               key: ValueKey(timeText),
-              style: TextStyle(
-                fontFamily: '.SF Pro Display',
+              style: Theme.of(context).textTheme.displayLarge!.copyWith(
                 fontSize: widget.size * 0.18,
-                fontWeight: FontWeight.w700,
-                color: widget.theme.textColor,
                 letterSpacing: -2,
               ),
             ),
@@ -107,10 +104,8 @@ class _AnimatedTimerDisplayState extends State<AnimatedTimerDisplay> {
           const SizedBox(height: 4),
           Text(
             widget.label,
-            style: TextStyle(
-              fontFamily: '.SF Pro Text',
+            style: Theme.of(context).textTheme.labelLarge!.copyWith(
               fontSize: widget.size * 0.045,
-              fontWeight: FontWeight.w500,
               color: widget.theme.secondaryTextColor,
               letterSpacing: 0.5,
             ),

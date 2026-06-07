@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import '../theme/theme_provider.dart';
 import '../theme/app_theme.dart';
+import '../utils/dimensions.dart';
 import 'package:provider/provider.dart';
 
 /// iOS 26 风格时间选择器
@@ -104,17 +105,23 @@ class _DurationPickerState extends State<DurationPicker> {
       height: screenHeight * 0.45,
       decoration: BoxDecoration(
         // iOS 26 风格：液态玻璃底部 sheet
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: const BorderRadius.vertical(
+          top: Radius.circular(AppDimensions.radiusChip),
+        ),
       ),
       child: ClipRRect(
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: const BorderRadius.vertical(
+          top: Radius.circular(AppDimensions.radiusChip),
+        ),
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
           child: Container(
             decoration: BoxDecoration(
               // 半透明材质 - 浅色风格
               color: theme.surfaceColor.withValues(alpha: 0.92),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(AppDimensions.radiusChip),
+              ),
               border: Border.all(
                 color: theme.surfaceColor.withValues(alpha: 0.5),
                 width: 0.5,
@@ -129,7 +136,9 @@ class _DurationPickerState extends State<DurationPicker> {
                   height: 5,
                   decoration: BoxDecoration(
                     color: theme.dividerColor,
-                    borderRadius: BorderRadius.circular(2.5),
+                    borderRadius: BorderRadius.circular(
+                      AppDimensions.radiusXxs,
+                    ),
                   ),
                 ),
                 // Header
@@ -185,9 +194,7 @@ class _DurationPickerState extends State<DurationPicker> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         border: Border(
-          bottom: BorderSide(
-            color: theme.borderColor.withValues(alpha: 0.5),
-          ),
+          bottom: BorderSide(color: theme.borderColor.withValues(alpha: 0.5)),
         ),
       ),
       child: Row(
@@ -199,10 +206,8 @@ class _DurationPickerState extends State<DurationPicker> {
             onPressed: () => Navigator.pop(context),
             child: Text(
               '取消',
-              style: TextStyle(
-                fontFamily: '.SF Pro Text',
+              style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                 fontSize: 17,
-                fontWeight: FontWeight.w400,
                 color: theme.primaryColor,
               ),
             ),
@@ -210,10 +215,8 @@ class _DurationPickerState extends State<DurationPicker> {
           // 标题
           Text(
             widget.title,
-            style: TextStyle(
-              fontFamily: '.SF Pro Display',
+            style: Theme.of(context).textTheme.titleLarge!.copyWith(
               fontSize: 17,
-              fontWeight: FontWeight.w600,
               color: theme.textColor,
             ),
           ),
@@ -223,10 +226,8 @@ class _DurationPickerState extends State<DurationPicker> {
             onPressed: _onConfirm,
             child: Text(
               '确定',
-              style: TextStyle(
-                fontFamily: '.SF Pro Text',
+              style: Theme.of(context).textTheme.titleLarge!.copyWith(
                 fontSize: 17,
-                fontWeight: FontWeight.w600,
                 color: theme.primaryColor,
               ),
             ),
@@ -246,8 +247,7 @@ class _DurationPickerState extends State<DurationPicker> {
             padding: const EdgeInsets.symmetric(vertical: 12),
             child: Text(
               '已选择: ${_formatDuration(_totalSeconds)}',
-              style: TextStyle(
-                fontFamily: '.SF Pro Display',
+              style: Theme.of(context).textTheme.titleLarge!.copyWith(
                 fontSize: 15,
                 fontWeight: FontWeight.w500,
                 color: theme.secondaryTextColor,
@@ -266,13 +266,13 @@ class _DurationPickerState extends State<DurationPicker> {
       color: Colors.transparent,
       child: InkWell(
         onTap: _onConfirm,
-        borderRadius: BorderRadius.circular(26),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusPill),
         child: Container(
           width: double.infinity,
           height: 52,
           decoration: BoxDecoration(
             color: theme.primaryColor,
-            borderRadius: BorderRadius.circular(26),
+            borderRadius: BorderRadius.circular(AppDimensions.radiusPill),
             boxShadow: [
               BoxShadow(
                 color: theme.primaryColor.withValues(alpha: 0.25),
@@ -284,11 +284,9 @@ class _DurationPickerState extends State<DurationPicker> {
           child: Center(
             child: Text(
               '确认',
-              style: TextStyle(
-                fontFamily: '.SF Pro Text',
+              style: Theme.of(context).textTheme.titleLarge!.copyWith(
                 fontSize: 17,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
+                color: theme.onAccentColor,
                 letterSpacing: -0.3,
               ),
             ),
@@ -306,7 +304,7 @@ class _DurationPickerState extends State<DurationPicker> {
     required Function(int) onChanged,
   }) {
     // iPhone 5c 主题统一使用浅色风格
-    
+
     return Stack(
       children: [
         // Selection indicator - iOS 26 风格
@@ -317,7 +315,7 @@ class _DurationPickerState extends State<DurationPicker> {
             decoration: BoxDecoration(
               // 液态玻璃选择器背景
               color: theme.primaryColor.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
               border: Border.all(
                 color: theme.primaryColor.withValues(alpha: 0.2),
                 width: 0.5,
@@ -337,8 +335,7 @@ class _DurationPickerState extends State<DurationPicker> {
             return Center(
               child: Text(
                 '$value$suffix',
-                style: TextStyle(
-                  fontFamily: '.SF Pro Display',
+                style: Theme.of(context).textTheme.headlineLarge!.copyWith(
                   fontSize: 22,
                   fontWeight: FontWeight.w500,
                   color: theme.textColor,
