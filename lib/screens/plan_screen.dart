@@ -14,6 +14,7 @@ import '../widgets/exercise_selector.dart';
 import 'plan_form_screen.dart';
 import 'ai_plan_wizard_screen.dart';
 import '../theme/app_theme.dart';
+import '../animations/page_transitions.dart';
 
 /// 计划页面 - Flat Vitality 设计
 ///
@@ -64,8 +65,8 @@ class _PlanScreenState extends State<PlanScreen> {
             onPressed: () async {
               final result = await Navigator.push<bool>(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => const AIPlanWizardScreen(),
+                FadeUpPageRoute(
+                  page: const AIPlanWizardScreen(),
                 ),
               );
               if (result == true && mounted) {
@@ -311,7 +312,7 @@ class _PlanScreenState extends State<PlanScreen> {
   void _navigateToCreatePlan() async {
     final result = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const PlanFormScreen()),
+      FadeUpPageRoute(page: const PlanFormScreen()),
     );
 
     if (result == true) {
@@ -587,9 +588,8 @@ class _PlanScreenState extends State<PlanScreen> {
                                           Navigator.pop(context);
                                           Navigator.push<bool>(
                                             context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  PlanFormScreen(plan: plan),
+                                            FadeUpPageRoute(
+                                              page: PlanFormScreen(plan: plan),
                                             ),
                                           ).then((result) {
                                             if (result == true && mounted) {

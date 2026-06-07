@@ -295,15 +295,9 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
     return Container(
       padding: const EdgeInsets.all(AppDimensions.screenPadding),
       decoration: BoxDecoration(
-        color: theme.surfaceColor,
+        color: theme.surfaceColorRaised,
         borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
-        boxShadow: [
-          BoxShadow(
-            color: theme.textColor.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        boxShadow: AppElevation.resting(theme.shadowColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -385,19 +379,13 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
           width: double.infinity,
           padding: const EdgeInsets.symmetric(vertical: 20),
           decoration: BoxDecoration(
-            color: theme.surfaceColor,
+            color: theme.surfaceColorRaised,
             borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
             border: Border.all(
               color: theme.accentColor.withValues(alpha: 0.3),
               width: 2,
             ),
-            boxShadow: [
-              BoxShadow(
-                color: theme.textColor.withValues(alpha: 0.05),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
+            boxShadow: AppElevation.resting(theme.shadowColor),
           ),
           child: Column(
             children: [
@@ -554,15 +542,9 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
           const SizedBox(height: 8),
           Container(
             decoration: BoxDecoration(
-              color: theme.surfaceColor,
+              color: theme.surfaceColorRaised,
               borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-              boxShadow: [
-                BoxShadow(
-                  color: theme.textColor.withValues(alpha: 0.05),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
+              boxShadow: AppElevation.resting(theme.shadowColor),
             ),
             child: TextField(
               controller: _nameController,
@@ -586,15 +568,9 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
           Container(
             padding: const EdgeInsets.all(AppDimensions.screenPadding),
             decoration: BoxDecoration(
-              color: theme.surfaceColor,
+              color: theme.surfaceColorRaised,
               borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
-              boxShadow: [
-                BoxShadow(
-                  color: theme.textColor.withValues(alpha: 0.05),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
+              boxShadow: AppElevation.resting(theme.shadowColor),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -672,15 +648,9 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: theme.surfaceColor,
+        color: theme.surfaceColorRaised,
         borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-        boxShadow: [
-          BoxShadow(
-            color: theme.textColor.withValues(alpha: 0.03),
-            blurRadius: 4,
-            offset: const Offset(0, 1),
-          ),
-        ],
+        boxShadow: AppElevation.resting(theme.shadowColor),
       ),
       child: Row(
         children: [

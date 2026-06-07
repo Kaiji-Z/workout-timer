@@ -13,6 +13,7 @@ import '../bloc/record_provider.dart';
 import '../widgets/volume_trend_charts.dart';
 import 'ai_analysis_screen.dart';
 import '../services/user_preferences_service.dart';
+import '../animations/page_transitions.dart';
 
 class StatsScreen extends StatefulWidget {
   const StatsScreen({super.key});
@@ -562,15 +563,9 @@ class _StatsScreenState extends State<StatsScreen>
         Container(
           padding: const EdgeInsets.all(AppDimensions.screenPadding),
           decoration: BoxDecoration(
-            color: theme.surfaceColor.withValues(alpha: 0.9),
+            color: theme.surfaceColorRaised,
             borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
-            boxShadow: [
-              BoxShadow(
-                color: theme.shadowColor,
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
+            boxShadow: AppElevation.raised(theme.shadowColor),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1034,15 +1029,9 @@ class _StatsScreenState extends State<StatsScreen>
     return Container(
       padding: const EdgeInsets.all(AppDimensions.screenPadding),
       decoration: BoxDecoration(
-        color: theme.surfaceColor.withValues(alpha: 0.9),
+        color: theme.surfaceColorRaised,
         borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
-        boxShadow: [
-          BoxShadow(
-            color: theme.shadowColor,
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        boxShadow: AppElevation.raised(theme.shadowColor),
       ),
       child: Column(
         children: [
@@ -1176,15 +1165,9 @@ class _StatsScreenState extends State<StatsScreen>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: theme.surfaceColor.withValues(alpha: 0.9),
+        color: theme.surfaceColorRaised,
         borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
-        boxShadow: [
-          BoxShadow(
-            color: theme.shadowColor,
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        boxShadow: AppElevation.raised(theme.shadowColor),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -1251,15 +1234,9 @@ class _StatsScreenState extends State<StatsScreen>
     return Container(
       padding: const EdgeInsets.all(AppDimensions.screenPadding),
       decoration: BoxDecoration(
-        color: theme.surfaceColor.withValues(alpha: 0.9),
+        color: theme.surfaceColorRaised,
         borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
-        boxShadow: [
-          BoxShadow(
-            color: theme.shadowColor,
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        boxShadow: AppElevation.raised(theme.shadowColor),
       ),
       // 使用 LayoutBuilder 计算精确高度，避免 shrinkWrap 产生多余空白行
       child: LayoutBuilder(
@@ -2389,8 +2366,8 @@ class _StatsScreenState extends State<StatsScreen>
 
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => AIAnalysisScreen(
+      FadeUpPageRoute(
+        page: AIAnalysisScreen(
           periodType: periodType,
           startDate: startDate,
           endDate: endDate,
@@ -2420,15 +2397,9 @@ class _CollapsibleSection extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 0),
       decoration: BoxDecoration(
-        color: theme.surfaceColor,
+        color: theme.surfaceColorRaised,
         borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
-        boxShadow: [
-          BoxShadow(
-            color: theme.shadowColor,
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        boxShadow: AppElevation.raised(theme.shadowColor),
       ),
       child: Theme(
         data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
