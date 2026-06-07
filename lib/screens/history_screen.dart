@@ -11,6 +11,7 @@ import '../theme/app_theme.dart';
 import '../utils/dimensions.dart';
 import '../animations/list_animations.dart';
 import '../animations/page_transitions.dart';
+import '../animations/animation_primitives.dart';
 import 'record_detail_screen.dart';
 
 class HistoryScreen extends StatefulWidget {
@@ -313,11 +314,8 @@ class _RecordCard extends StatelessWidget {
         child: Icon(Icons.delete, color: theme.textColor),
       ),
       onDismissed: (direction) => onDelete(),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
+      child: AnimatedCard(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
           child: Container(
             margin: const EdgeInsets.only(bottom: 12),
             padding: const EdgeInsets.all(AppDimensions.screenPadding),
@@ -481,7 +479,6 @@ class _RecordCard extends StatelessWidget {
             ),
           ),
         ),
-      ),
     );
   }
 }

@@ -5,6 +5,7 @@ import '../theme/theme_provider.dart';
 import 'muscle_selector.dart';
 import '../theme/app_theme.dart';
 import '../utils/dimensions.dart';
+import '../animations/animation_primitives.dart';
 
 /// 计划卡片 - Flat Vitality 设计
 ///
@@ -33,15 +34,12 @@ class PlanCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().currentTheme;
 
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
-        child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-          decoration: BoxDecoration(
-            color: theme.surfaceColorRaised,
+    return AnimatedCard(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        decoration: BoxDecoration(
+          color: theme.surfaceColorRaised,
             borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
             boxShadow: AppElevation.raised(theme.shadowColor),
           ),
@@ -180,7 +178,6 @@ class PlanCard extends StatelessWidget {
             ],
           ),
         ),
-      ),
     );
   }
 
