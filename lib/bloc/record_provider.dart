@@ -30,7 +30,8 @@ class RecordProvider extends ChangeNotifier {
 
     try {
       // 加载完整动作列表（873个，与计划创建时使用同一份数据）
-      final exercises = _cachedExercises ??= await ExerciseData.loadAndGetFullExerciseList();
+      final exercises = _cachedExercises ??=
+          await ExerciseData.loadAndGetFullExerciseList();
 
       // 加载记录
       _records = await _repository.getAllRecords(
@@ -132,7 +133,8 @@ class RecordProvider extends ChangeNotifier {
       final recordDate = DateTime(r.date.year, r.date.month, r.date.day);
       final fromDate = DateTime(from.year, from.month, from.day);
       final toDate = DateTime(to.year, to.month, to.day);
-      return (recordDate.isAfter(fromDate) || recordDate.isAtSameMomentAs(fromDate)) &&
+      return (recordDate.isAfter(fromDate) ||
+              recordDate.isAtSameMomentAs(fromDate)) &&
           (recordDate.isBefore(toDate) || recordDate.isAtSameMomentAs(toDate));
     }).toList();
   }

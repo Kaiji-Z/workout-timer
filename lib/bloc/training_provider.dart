@@ -254,7 +254,9 @@ class TrainingProvider extends ChangeNotifier {
 
     _state = TrainingState.resting;
     // Update _restStartTime so web fallback calculates correctly from now
-    _restStartTime = DateTime.now().subtract(Duration(seconds: _restDuration - _restRemaining));
+    _restStartTime = DateTime.now().subtract(
+      Duration(seconds: _restDuration - _restRemaining),
+    );
     _startRestTimer();
 
     if (_canUsePlatformServices) {

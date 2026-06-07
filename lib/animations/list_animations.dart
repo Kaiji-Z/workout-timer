@@ -29,26 +29,33 @@ class _StaggeredListViewState extends State<StaggeredListView>
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: widget.itemDuration + 
+      duration:
+          widget.itemDuration +
           widget.staggerDelay * (widget.children.length - 1),
       vsync: this,
     );
-    
+
     _animations = List.generate(widget.children.length, (index) {
-      final start = index * widget.staggerDelay.inMilliseconds /
+      final start =
+          index *
+          widget.staggerDelay.inMilliseconds /
           _controller.duration!.inMilliseconds;
-      final end = (start * _controller.duration!.inMilliseconds +
+      final end =
+          (start * _controller.duration!.inMilliseconds +
               widget.itemDuration.inMilliseconds) /
           _controller.duration!.inMilliseconds;
       return Tween<double>(begin: 0.0, end: 1.0).animate(
         CurvedAnimation(
           parent: _controller,
-          curve: Interval(start.clamp(0.0, 1.0), end.clamp(0.0, 1.0),
-              curve: Curves.easeOut),
+          curve: Interval(
+            start.clamp(0.0, 1.0),
+            end.clamp(0.0, 1.0),
+            curve: Curves.easeOut,
+          ),
         ),
       );
     });
-    
+
     _controller.forward();
   }
 
@@ -110,15 +117,9 @@ class _FadeInItemState extends State<FadeInItem>
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      duration: widget.duration,
-      vsync: this,
-    );
-    _animation = CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeOut,
-    );
-    
+    _controller = AnimationController(duration: widget.duration, vsync: this);
+    _animation = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
+
     Future.delayed(widget.delay, () {
       if (mounted) _controller.forward();
     });
@@ -173,15 +174,12 @@ class _SlideInItemState extends State<SlideInItem>
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      duration: widget.duration,
-      vsync: this,
-    );
+    _controller = AnimationController(duration: widget.duration, vsync: this);
     _animation = CurvedAnimation(
       parent: _controller,
       curve: Curves.easeOutCubic,
     );
-    
+
     Future.delayed(widget.delay, () {
       if (mounted) _controller.forward();
     });
@@ -221,7 +219,6 @@ class _SlideInItemState extends State<SlideInItem>
   }
 }
 
-
 /// 列表项入场动画包装器
 /// 简单的淡入上滑动画效果
 class ListAnimation extends StatelessWidget {
@@ -240,7 +237,7 @@ class ListAnimation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-return FadeInItem(
+    return FadeInItem(
       delay: delay + Duration(milliseconds: index * 50),
       duration: duration,
       child: child,

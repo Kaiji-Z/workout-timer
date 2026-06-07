@@ -10,11 +10,9 @@ import '../services/plan_repository.dart';
 
 import '../data/exercise_data.dart';
 
-
 /// 训练计划状态管理
 class PlanProvider extends ChangeNotifier {
   final PlanRepository _repository = PlanRepository();
-
 
   List<WorkoutPlan> _plans = [];
   final Map<String, List<WorkoutPlan>> _calendarPlans = {}; // Key: 'yyyy-MM-dd'
@@ -68,7 +66,9 @@ class PlanProvider extends ChangeNotifier {
       planMap.forEach((date, planIds) {
         final key = _dateToKey(date);
         // 只存储planId列表，实际计划数据从_plans中获取
-        _calendarPlans[key] = _plans.where((p) => planIds.contains(p.id)).toList();
+        _calendarPlans[key] = _plans
+            .where((p) => planIds.contains(p.id))
+            .toList();
       });
 
       notifyListeners();
@@ -80,57 +80,57 @@ class PlanProvider extends ChangeNotifier {
   /// 创建计划
   Future<void> createPlan(WorkoutPlan plan) async {
     try {
-    await _repository.createPlan(plan);
-    _plans.insert(0, plan);
-    notifyListeners();
+      await _repository.createPlan(plan);
+      _plans.insert(0, plan);
+      notifyListeners();
     } catch (e) {
-    _error = e.toString();
-    debugPrint('Error creating plan: $e');
-    notifyListeners();
-    rethrow;
+      _error = e.toString();
+      debugPrint('Error creating plan: $e');
+      notifyListeners();
+      rethrow;
     }
   }
 
   /// 更新计划
   Future<void> updatePlan(WorkoutPlan plan) async {
     try {
-    await _repository.updatePlan(plan);
+      await _repository.updatePlan(plan);
 
-    final index = _plans.indexWhere((p) => p.id == plan.id);
-    if (index != -1) {
-      _plans[index] = plan;
-    }
+      final index = _plans.indexWhere((p) => p.id == plan.id);
+      if (index != -1) {
+        _plans[index] = plan;
+      }
 
-    notifyListeners();
+      notifyListeners();
     } catch (e) {
-    _error = e.toString();
-    debugPrint('Error updating plan: $e');
-    notifyListeners();
-    rethrow;
+      _error = e.toString();
+      debugPrint('Error updating plan: $e');
+      notifyListeners();
+      rethrow;
     }
   }
 
   /// 删除计划
   Future<void> deletePlan(String planId) async {
     try {
-    await _repository.deletePlan(planId);
-    _plans.removeWhere((p) => p.id == planId);
+      await _repository.deletePlan(planId);
+      _plans.removeWhere((p) => p.id == planId);
 
-    // 从日历中移除
-    _calendarPlans.forEach((key, plans) {
-      plans.removeWhere((p) => p.id == planId);
-    });
+      // 从日历中移除
+      _calendarPlans.forEach((key, plans) {
+        plans.removeWhere((p) => p.id == planId);
+      });
 
-    if (_selectedPlan?.id == planId) {
+      if (_selectedPlan?.id == planId) {
         _selectedPlan = null;
       }
 
-    notifyListeners();
+      notifyListeners();
     } catch (e) {
-    _error = e.toString();
-    debugPrint('Error deleting plan: $e');
-    notifyListeners();
-    rethrow;
+      _error = e.toString();
+      debugPrint('Error deleting plan: $e');
+      notifyListeners();
+      rethrow;
     }
   }
 
@@ -143,32 +143,32 @@ class PlanProvider extends ChangeNotifier {
   /// 安排计划到日期
   Future<void> assignPlanToDate(String planId, DateTime date) async {
     try {
-    await _repository.assignPlanToDate(planId, date);
+      await _repository.assignPlanToDate(planId, date);
 
-    final plan = _plans.where((p) => p.id == planId).firstOrNull;
-    if (plan != null) {
-      final key = _dateToKey(date);
-      _calendarPlans.putIfAbsent(key, () => []).add(plan);
-      notifyListeners();
-    }
+      final plan = _plans.where((p) => p.id == planId).firstOrNull;
+      if (plan != null) {
+        final key = _dateToKey(date);
+        _calendarPlans.putIfAbsent(key, () => []).add(plan);
+        notifyListeners();
+      }
     } catch (e) {
-    debugPrint('Error assigning plan to date: $e');
-    rethrow;
+      debugPrint('Error assigning plan to date: $e');
+      rethrow;
     }
   }
 
   /// 从日期移除计划
   Future<void> removePlanFromDate(String planId, DateTime date) async {
     try {
-    await _repository.removePlanFromDate(planId, date);
+      await _repository.removePlanFromDate(planId, date);
 
-    final key = _dateToKey(date);
-    _calendarPlans[key]?.removeWhere((p) => p.id == planId);
+      final key = _dateToKey(date);
+      _calendarPlans[key]?.removeWhere((p) => p.id == planId);
 
-    notifyListeners();
+      notifyListeners();
     } catch (e) {
-    debugPrint('Error removing plan from date: $e');
-    rethrow;
+      debugPrint('Error removing plan from date: $e');
+      rethrow;
     }
   }
 
@@ -200,25 +200,31 @@ class PlanProvider extends ChangeNotifier {
         final List<PlanExercise> matchedExercises = [];
 
         for (final exerciseEntry in dayPlan.exercises) {
-          final result = await matcher.matchExercise(exerciseEntry.exerciseName);
+          final result = await matcher.matchExercise(
+            exerciseEntry.exerciseName,
+          );
 
           if (result.isSuccess && result.exercise != null) {
             // 匹配成功：创建带完整详情的PlanExercise
-            matchedExercises.add(PlanExercise(
-              exerciseId: result.exercise!.id,
-              exercise: result.exercise,
-              targetSets: exerciseEntry.targetSets,
-              order: matchedExercises.length,
-            ));
+            matchedExercises.add(
+              PlanExercise(
+                exerciseId: result.exercise!.id,
+                exercise: result.exercise,
+                targetSets: exerciseEntry.targetSets,
+                order: matchedExercises.length,
+              ),
+            );
           } else {
             // 匹配失败：创建"无详情"的PlanExercise，保留原始名称
-            matchedExercises.add(PlanExercise(
-              exerciseId: 'unmatched_${const Uuid().v4()}',
-              exercise: null,
-              unmatchedName: exerciseEntry.exerciseName,
-              targetSets: exerciseEntry.targetSets,
-              order: matchedExercises.length,
-            ));
+            matchedExercises.add(
+              PlanExercise(
+                exerciseId: 'unmatched_${const Uuid().v4()}',
+                exercise: null,
+                unmatchedName: exerciseEntry.exerciseName,
+                targetSets: exerciseEntry.targetSets,
+                order: matchedExercises.length,
+              ),
+            );
             debugPrint('未匹配动作已保留为"无详情": ${exerciseEntry.exerciseName}');
           }
         }
@@ -244,7 +250,10 @@ class PlanProvider extends ChangeNotifier {
       }
 
       // 批量创建并分配到日历
-      final createdIds = await _repository.batchCreatePlansWithCalendar(plans, dates);
+      final createdIds = await _repository.batchCreatePlansWithCalendar(
+        plans,
+        dates,
+      );
 
       // 添加到本地状态
       _plans.insertAll(0, plans);
