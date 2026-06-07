@@ -107,6 +107,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
+          tooltip: '关闭',
           icon: Icon(Icons.close, color: theme.textColor),
           onPressed: () => Navigator.pop(context),
         ),
@@ -1052,6 +1053,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               IconButton(
+                tooltip: '减少',
                 icon: Icon(
                   Icons.remove_circle_outline,
                   color: theme.accentColor,
@@ -1079,6 +1081,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
                 ),
               ),
               IconButton(
+                tooltip: '增加',
                 icon: Icon(
                   Icons.add_circle_outline,
                   color: theme.accentColor,

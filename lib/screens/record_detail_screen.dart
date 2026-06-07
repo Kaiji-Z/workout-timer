@@ -67,6 +67,7 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
+          tooltip: '返回',
           icon: Icon(Icons.arrow_back, color: theme.textColor),
           onPressed: () => _onBackPressed(),
         ),

@@ -1040,6 +1040,7 @@ class _StatsScreenState extends State<StatsScreen>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               IconButton(
+                tooltip: '上一周',
                 onPressed: () => _navigateWeek(-1),
                 icon: Icon(Icons.chevron_left, color: theme.textColor),
               ),
@@ -1076,6 +1077,7 @@ class _StatsScreenState extends State<StatsScreen>
                       ),
                     ),
                   IconButton(
+                    tooltip: '下一周',
                     onPressed: canGoNext ? () => _navigateWeek(1) : null,
                     icon: Icon(
                       Icons.chevron_right,
@@ -1173,6 +1175,7 @@ class _StatsScreenState extends State<StatsScreen>
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           IconButton(
+            tooltip: '上一年',
             onPressed: () => _navigateYear(-1),
             icon: Icon(Icons.chevron_left, color: theme.textColor),
           ),
@@ -1197,6 +1200,7 @@ class _StatsScreenState extends State<StatsScreen>
               ),
             ),
           IconButton(
+            tooltip: '下一年',
             onPressed: _selectedYear < DateTime.now().year
                 ? () => _navigateYear(1)
                 : null,
