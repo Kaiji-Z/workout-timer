@@ -85,7 +85,10 @@ void main() {
         ],
       );
 
-      expect(recorded.bodyweightAdjustedVolume(bodyWeight), closeTo(1344.0, 0.01));
+      expect(
+        recorded.bodyweightAdjustedVolume(bodyWeight),
+        closeTo(1344.0, 0.01),
+      );
     });
 
     // ----------------------------------------------------------
@@ -108,7 +111,10 @@ void main() {
 
       // Pullups coeff=0.70, eqWeight=70*0.70=49
       // 3 × 8 × 49 = 1176
-      expect(recorded.bodyweightAdjustedVolume(bodyWeight), closeTo(1176.0, 0.01));
+      expect(
+        recorded.bodyweightAdjustedVolume(bodyWeight),
+        closeTo(1176.0, 0.01),
+      );
       expect(
         recorded.bodyweightAdjustedVolume(bodyWeight),
         isNot(equals(recorded.totalVolume)),
@@ -153,71 +159,69 @@ void main() {
     // ----------------------------------------------------------
     // T4: Mixed WorkoutRecord — bodyweight + weighted exercises
     // ----------------------------------------------------------
-    test(
-      'WorkoutRecord with mixed exercises computes volume correctly',
-      () {
-        final record = WorkoutRecord(
-          id: 'test-record-001',
-          date: DateTime(2026, 6, 3),
-          durationSeconds: 3600,
-          trainedMuscles: [PrimaryMuscleGroup.chest, PrimaryMuscleGroup.back],
-          exercises: [
-            // Bodyweight: pushups, 3 sets × 10 reps, weight=0
-            RecordedExercise(
-              exerciseId: pushups.id,
-              exercise: pushups,
-              completedSets: 3,
-              setsData: [
-                SetData(setNumber: 1, reps: 10, weight: 0),
-                SetData(setNumber: 2, reps: 10, weight: 0),
-                SetData(setNumber: 3, reps: 10, weight: 0),
-              ],
-            ),
-            // Weighted: bench press, 3 sets × 10 reps × 50kg
-            RecordedExercise(
-              exerciseId: benchPress.id,
-              exercise: benchPress,
-              completedSets: 3,
-              setsData: [
-                SetData(setNumber: 1, reps: 10, weight: 50),
-                SetData(setNumber: 2, reps: 10, weight: 50),
-                SetData(setNumber: 3, reps: 10, weight: 50),
-              ],
-            ),
-          ],
-          totalSets: 6,
-          createdAt: DateTime(2026, 6, 3),
-        );
+    test('WorkoutRecord with mixed exercises computes volume correctly', () {
+      final record = WorkoutRecord(
+        id: 'test-record-001',
+        date: DateTime(2026, 6, 3),
+        durationSeconds: 3600,
+        trainedMuscles: [PrimaryMuscleGroup.chest, PrimaryMuscleGroup.back],
+        exercises: [
+          // Bodyweight: pushups, 3 sets × 10 reps, weight=0
+          RecordedExercise(
+            exerciseId: pushups.id,
+            exercise: pushups,
+            completedSets: 3,
+            setsData: [
+              SetData(setNumber: 1, reps: 10, weight: 0),
+              SetData(setNumber: 2, reps: 10, weight: 0),
+              SetData(setNumber: 3, reps: 10, weight: 0),
+            ],
+          ),
+          // Weighted: bench press, 3 sets × 10 reps × 50kg
+          RecordedExercise(
+            exerciseId: benchPress.id,
+            exercise: benchPress,
+            completedSets: 3,
+            setsData: [
+              SetData(setNumber: 1, reps: 10, weight: 50),
+              SetData(setNumber: 2, reps: 10, weight: 50),
+              SetData(setNumber: 3, reps: 10, weight: 50),
+            ],
+          ),
+        ],
+        totalSets: 6,
+        createdAt: DateTime(2026, 6, 3),
+      );
 
-        // Pushups: coeff=0.64, eqWeight=44.8
-        // adjusted = 3 × 10 × 44.8 = 1344
-        expect(
-          record.exercises[0].bodyweightAdjustedVolume(bodyWeight),
-          closeTo(1344.0, 0.01),
-        );
+      // Pushups: coeff=0.64, eqWeight=44.8
+      // adjusted = 3 × 10 × 44.8 = 1344
+      expect(
+        record.exercises[0].bodyweightAdjustedVolume(bodyWeight),
+        closeTo(1344.0, 0.01),
+      );
 
-        // Bench press: weighted, so bodyweightAdjustedVolume == totalVolume
-        // totalVolume = 3 × 10 × 50 = 1500
-        expect(record.exercises[1].totalVolume, 1500.0);
-        expect(
-          record.exercises[1].bodyweightAdjustedVolume(bodyWeight),
-          1500.0,
-        );
+      // Bench press: weighted, so bodyweightAdjustedVolume == totalVolume
+      // totalVolume = 3 × 10 × 50 = 1500
+      expect(record.exercises[1].totalVolume, 1500.0);
+      expect(record.exercises[1].bodyweightAdjustedVolume(bodyWeight), 1500.0);
 
-        // Sum of all bodyweightAdjustedVolume: 1344 + 1500 = 2844
-        final totalAdjusted = record.exercises
-            .fold<double>(0.0, (sum, e) => sum + e.bodyweightAdjustedVolume(bodyWeight));
-        expect(totalAdjusted, closeTo(2844.0, 0.01));
+      // Sum of all bodyweightAdjustedVolume: 1344 + 1500 = 2844
+      final totalAdjusted = record.exercises.fold<double>(
+        0.0,
+        (sum, e) => sum + e.bodyweightAdjustedVolume(bodyWeight),
+      );
+      expect(totalAdjusted, closeTo(2844.0, 0.01));
 
-        // Sum of all totalVolume (without bodyweight adjustment): 0 + 1500 = 1500
-        final totalRaw = record.exercises
-            .fold<double>(0.0, (sum, e) => sum + e.totalVolume);
-        expect(totalRaw, 1500.0);
+      // Sum of all totalVolume (without bodyweight adjustment): 0 + 1500 = 1500
+      final totalRaw = record.exercises.fold<double>(
+        0.0,
+        (sum, e) => sum + e.totalVolume,
+      );
+      expect(totalRaw, 1500.0);
 
-        // Bodyweight exercises contribute extra volume
-        expect(totalAdjusted, greaterThan(totalRaw));
-      },
-    );
+      // Bodyweight exercises contribute extra volume
+      expect(totalAdjusted, greaterThan(totalRaw));
+    });
 
     // ----------------------------------------------------------
     // T5: Bodyweight with additional weight (weighted vest)
@@ -254,7 +258,10 @@ void main() {
 
       // coeff=0.85, eqWeight=70*0.85+10=69.5
       // 3 × 10 × 69.5 = 2085
-      expect(recorded.bodyweightAdjustedVolume(bodyWeight), closeTo(2085.0, 0.01));
+      expect(
+        recorded.bodyweightAdjustedVolume(bodyWeight),
+        closeTo(2085.0, 0.01),
+      );
 
       // Raw totalVolume = 3 × 10 × 10 = 300
       expect(recorded.totalVolume, 300.0);
@@ -323,8 +330,10 @@ void main() {
         expect(totalAdjusted, closeTo(5670.0, 0.01));
 
         // Raw totalVolume: all weight=0 → 0
-        final totalRaw = record.exercises
-            .fold<double>(0.0, (sum, e) => sum + e.totalVolume);
+        final totalRaw = record.exercises.fold<double>(
+          0.0,
+          (sum, e) => sum + e.totalVolume,
+        );
         expect(totalRaw, 0.0);
 
         // All exercises are bodyweight
@@ -371,11 +380,14 @@ void main() {
       );
 
       final json = original.toJson();
-      final restored = RecordedExercise.fromJson(json).copyWith(
-        exercise: pushups,
-      );
+      final restored = RecordedExercise.fromJson(
+        json,
+      ).copyWith(exercise: pushups);
 
-      expect(restored.bodyweightAdjustedVolume(bodyWeight), closeTo(1344.0, 0.01));
+      expect(
+        restored.bodyweightAdjustedVolume(bodyWeight),
+        closeTo(1344.0, 0.01),
+      );
       expect(
         restored.bodyweightAdjustedVolume(bodyWeight),
         original.bodyweightAdjustedVolume(bodyWeight),
@@ -409,9 +421,7 @@ void main() {
         exerciseId: pushups.id,
         exercise: pushups,
         completedSets: 1,
-        setsData: [
-          SetData(setNumber: 1, reps: 10, weight: 0),
-        ],
+        setsData: [SetData(setNumber: 1, reps: 10, weight: 0)],
       );
 
       // 60kg: 10 × (60*0.64) = 384

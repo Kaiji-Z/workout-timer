@@ -69,9 +69,7 @@ void main() {
         exerciseId: bodyweightExercise.id,
         exercise: bodyweightExercise,
         completedSets: 1,
-        setsData: [
-          SetData(setNumber: 1, reps: 10, weight: 0),
-        ],
+        setsData: [SetData(setNumber: 1, reps: 10, weight: 0)],
       );
 
       // No bodyweight data → fallback to raw volume (0)
@@ -84,9 +82,7 @@ void main() {
         exerciseId: bodyweightExercise.id,
         exercise: bodyweightExercise,
         completedSets: 1,
-        setsData: [
-          SetData(setNumber: 1, reps: 10, weight: 0),
-        ],
+        setsData: [SetData(setNumber: 1, reps: 10, weight: 0)],
       );
 
       // null bodyWeight → fallback to raw volume (0)

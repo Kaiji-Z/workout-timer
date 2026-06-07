@@ -120,7 +120,10 @@ void main() {
         focusAreas: [],
         startDate: DateTime(2026, 1, 1),
       );
-      expect(service.generatePrompt(profile), contains('**Goal**: Muscle Building'));
+      expect(
+        service.generatePrompt(profile),
+        contains('**Goal**: Muscle Building'),
+      );
     });
 
     test('formats fat_loss', () {
@@ -172,7 +175,10 @@ void main() {
         focusAreas: [],
         startDate: DateTime(2026, 1, 1),
       );
-      expect(service.generatePrompt(profile), contains('**Goal**: custom_goal'));
+      expect(
+        service.generatePrompt(profile),
+        contains('**Goal**: custom_goal'),
+      );
     });
   });
 
@@ -187,7 +193,10 @@ void main() {
         focusAreas: [],
         startDate: DateTime(2026, 1, 1),
       );
-      expect(service.generatePrompt(profile), contains('**Experience Level**: Beginner'));
+      expect(
+        service.generatePrompt(profile),
+        contains('**Experience Level**: Beginner'),
+      );
     });
 
     test('formats intermediate', () {
@@ -200,7 +209,10 @@ void main() {
         focusAreas: [],
         startDate: DateTime(2026, 1, 1),
       );
-      expect(service.generatePrompt(profile), contains('**Experience Level**: Intermediate'));
+      expect(
+        service.generatePrompt(profile),
+        contains('**Experience Level**: Intermediate'),
+      );
     });
 
     test('formats advanced', () {
@@ -213,7 +225,10 @@ void main() {
         focusAreas: [],
         startDate: DateTime(2026, 1, 1),
       );
-      expect(service.generatePrompt(profile), contains('**Experience Level**: Advanced'));
+      expect(
+        service.generatePrompt(profile),
+        contains('**Experience Level**: Advanced'),
+      );
     });
 
     test('returns unknown experience as-is', () {
@@ -226,7 +241,10 @@ void main() {
         focusAreas: [],
         startDate: DateTime(2026, 1, 1),
       );
-      expect(service.generatePrompt(profile), contains('**Experience Level**: expert'));
+      expect(
+        service.generatePrompt(profile),
+        contains('**Experience Level**: expert'),
+      );
     });
   });
 
@@ -241,7 +259,10 @@ void main() {
         focusAreas: [],
         startDate: DateTime(2026, 1, 1),
       );
-      expect(service.generatePrompt(profile), contains('**Equipment Access**: Full Gym'));
+      expect(
+        service.generatePrompt(profile),
+        contains('**Equipment Access**: Full Gym'),
+      );
     });
 
     test('formats home_dumbbell', () {
@@ -254,7 +275,10 @@ void main() {
         focusAreas: [],
         startDate: DateTime(2026, 1, 1),
       );
-      expect(service.generatePrompt(profile), contains('**Equipment Access**: Home Dumbbells'));
+      expect(
+        service.generatePrompt(profile),
+        contains('**Equipment Access**: Home Dumbbells'),
+      );
     });
 
     test('formats bodyweight', () {
@@ -267,7 +291,10 @@ void main() {
         focusAreas: [],
         startDate: DateTime(2026, 1, 1),
       );
-      expect(service.generatePrompt(profile), contains('**Equipment Access**: Bodyweight Only'));
+      expect(
+        service.generatePrompt(profile),
+        contains('**Equipment Access**: Bodyweight Only'),
+      );
     });
 
     test('returns unknown equipment as-is', () {
@@ -280,7 +307,10 @@ void main() {
         focusAreas: [],
         startDate: DateTime(2026, 1, 1),
       );
-      expect(service.generatePrompt(profile), contains('**Equipment Access**: kettlebell'));
+      expect(
+        service.generatePrompt(profile),
+        contains('**Equipment Access**: kettlebell'),
+      );
     });
   });
 
@@ -295,7 +325,10 @@ void main() {
         focusAreas: ['chest', 'back', 'shoulders'],
         startDate: DateTime(2026, 1, 1),
       );
-      expect(service.generatePrompt(profile), contains('**Focus Areas**: Chest, Back, Shoulders'));
+      expect(
+        service.generatePrompt(profile),
+        contains('**Focus Areas**: Chest, Back, Shoulders'),
+      );
     });
 
     test('formats single focus area', () {
@@ -308,7 +341,10 @@ void main() {
         focusAreas: ['legs'],
         startDate: DateTime(2026, 1, 1),
       );
-      expect(service.generatePrompt(profile), contains('**Focus Areas**: Legs'));
+      expect(
+        service.generatePrompt(profile),
+        contains('**Focus Areas**: Legs'),
+      );
     });
 
     test('handles empty focus areas', () {
@@ -321,7 +357,10 @@ void main() {
         focusAreas: [],
         startDate: DateTime(2026, 1, 1),
       );
-      expect(service.generatePrompt(profile), contains('**Focus Areas**: None specified'));
+      expect(
+        service.generatePrompt(profile),
+        contains('**Focus Areas**: None specified'),
+      );
     });
 
     test('formats all muscle groups', () {
@@ -348,7 +387,10 @@ void main() {
         focusAreas: ['calves'],
         startDate: DateTime(2026, 1, 1),
       );
-      expect(service.generatePrompt(profile), contains('**Focus Areas**: calves'));
+      expect(
+        service.generatePrompt(profile),
+        contains('**Focus Areas**: calves'),
+      );
     });
   });
 }

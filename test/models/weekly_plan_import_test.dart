@@ -15,7 +15,10 @@ void main() {
       expect(plan.days[0].dayOfWeek, equals(1));
       expect(plan.days[0].targetMuscles, equals(['chest']));
       expect(plan.days[0].exercises.length, equals(1));
-      expect(plan.days[0].exercises[0].exerciseName, equals('Barbell Bench Press'));
+      expect(
+        plan.days[0].exercises[0].exerciseName,
+        equals('Barbell Bench Press'),
+      );
       expect(plan.days[0].exercises[0].targetSets, equals(4));
     });
 
@@ -108,8 +111,7 @@ void main() {
 
   group('ExerciseEntryImport', () {
     test('parses valid exercise entry', () {
-      const jsonString =
-          '{"exerciseName":"Deadlift","targetSets":5}';
+      const jsonString = '{"exerciseName":"Deadlift","targetSets":5}';
       final json = jsonDecode(jsonString) as Map<String, dynamic>;
       final exercise = ExerciseEntryImport.fromJson(json);
 

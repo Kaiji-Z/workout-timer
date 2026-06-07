@@ -36,10 +36,7 @@ void main() {
         startDate: startDate,
       );
 
-      final modified = profile.copyWith(
-        goal: 'fat_loss',
-        sessionDuration: 45,
-      );
+      final modified = profile.copyWith(goal: 'fat_loss', sessionDuration: 45);
 
       expect(modified.goal, 'fat_loss');
       expect(modified.weeklyFrequency, 4); // preserved

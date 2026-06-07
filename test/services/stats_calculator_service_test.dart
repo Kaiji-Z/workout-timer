@@ -44,28 +44,31 @@ void main() {
         expect(volume, equals(2000.0));
       });
 
-      test('calculates total volume without setsData (uses completedSets × maxWeight)', () {
-        final records = [
-          _createRecord(
-            id: '1',
-            exercises: [
-              _createRecordedExercise(
-                exerciseId: 'ex1',
-                exercise: _createExercise(
-                  id: 'ex1',
-                  name: 'Squat',
-                  muscle: PrimaryMuscleGroup.legs,
+      test(
+        'calculates total volume without setsData (uses completedSets × maxWeight)',
+        () {
+          final records = [
+            _createRecord(
+              id: '1',
+              exercises: [
+                _createRecordedExercise(
+                  exerciseId: 'ex1',
+                  exercise: _createExercise(
+                    id: 'ex1',
+                    name: 'Squat',
+                    muscle: PrimaryMuscleGroup.legs,
+                  ),
+                  completedSets: 3,
+                  maxWeight: 200,
                 ),
-                completedSets: 3,
-                maxWeight: 200,
-              ),
-            ],
-          ),
-        ];
+              ],
+            ),
+          ];
 
-        final volume = service.calculateTotalVolume(records);
-        expect(volume, equals(600.0));
-      });
+          final volume = service.calculateTotalVolume(records);
+          expect(volume, equals(600.0));
+        },
+      );
 
       test('calculates total volume with mixed data', () {
         final records = [
@@ -171,11 +174,7 @@ void main() {
 
       test('returns 0 when total duration is 0', () {
         final records = [
-          _createRecord(
-            id: '1',
-            durationSeconds: 0,
-            totalSets: 10,
-          ),
+          _createRecord(id: '1', durationSeconds: 0, totalSets: 10),
         ];
 
         final density = service.calculateDensity(records);
@@ -245,9 +244,7 @@ void main() {
               _createRecordedExercise(
                 exerciseId: 'ex1',
                 exercise: null, // No exercise loaded
-                setsData: [
-                  const SetData(setNumber: 1, reps: 10, weight: 100),
-                ],
+                setsData: [const SetData(setNumber: 1, reps: 10, weight: 100)],
               ),
               _createRecordedExercise(
                 exerciseId: 'ex2',
@@ -256,9 +253,7 @@ void main() {
                   name: 'Squat',
                   muscle: PrimaryMuscleGroup.legs,
                 ),
-                setsData: [
-                  const SetData(setNumber: 1, reps: 10, weight: 200),
-                ],
+                setsData: [const SetData(setNumber: 1, reps: 10, weight: 200)],
               ),
             ],
           ),
@@ -346,9 +341,7 @@ void main() {
               _createRecordedExercise(
                 exerciseId: 'ex1',
                 exercise: null,
-                setsData: [
-                  const SetData(setNumber: 1, reps: 10, weight: 80),
-                ],
+                setsData: [const SetData(setNumber: 1, reps: 10, weight: 80)],
               ),
               _createRecordedExercise(
                 exerciseId: 'ex2',
@@ -357,9 +350,7 @@ void main() {
                   name: 'Press',
                   muscle: PrimaryMuscleGroup.shoulders,
                 ),
-                setsData: [
-                  const SetData(setNumber: 1, reps: 10, weight: 50),
-                ],
+                setsData: [const SetData(setNumber: 1, reps: 10, weight: 50)],
               ),
             ],
           ),
@@ -539,9 +530,7 @@ void main() {
                   name: 'Squat',
                   muscle: PrimaryMuscleGroup.legs,
                 ),
-                setsData: [
-                  const SetData(setNumber: 1, reps: 12, weight: 60),
-                ],
+                setsData: [const SetData(setNumber: 1, reps: 12, weight: 60)],
               ),
             ],
           ),
@@ -556,9 +545,7 @@ void main() {
                   name: 'Squat',
                   muscle: PrimaryMuscleGroup.legs,
                 ),
-                setsData: [
-                  const SetData(setNumber: 1, reps: 12, weight: 65),
-                ],
+                setsData: [const SetData(setNumber: 1, reps: 12, weight: 65)],
               ),
             ],
           ),
@@ -589,9 +576,7 @@ void main() {
                   name: 'Bench',
                   muscle: PrimaryMuscleGroup.chest,
                 ),
-                setsData: [
-                  const SetData(setNumber: 1, reps: 10, weight: 60),
-                ],
+                setsData: [const SetData(setNumber: 1, reps: 10, weight: 60)],
               ),
               _createRecordedExercise(
                 exerciseId: 'ex2',
@@ -600,9 +585,7 @@ void main() {
                   name: 'Row',
                   muscle: PrimaryMuscleGroup.back,
                 ),
-                setsData: [
-                  const SetData(setNumber: 1, reps: 10, weight: 70),
-                ],
+                setsData: [const SetData(setNumber: 1, reps: 10, weight: 70)],
               ),
             ],
           ),
@@ -678,9 +661,7 @@ void main() {
               _createRecordedExercise(
                 exerciseId: 'ex1',
                 exercise: null,
-                setsData: [
-                  const SetData(setNumber: 1, reps: 10, weight: 80),
-                ],
+                setsData: [const SetData(setNumber: 1, reps: 10, weight: 80)],
               ),
             ],
           ),
@@ -705,9 +686,7 @@ void main() {
                   name: 'Curl',
                   muscle: PrimaryMuscleGroup.arms,
                 ),
-                setsData: [
-                  const SetData(setNumber: 1, reps: 15, weight: 20),
-                ],
+                setsData: [const SetData(setNumber: 1, reps: 15, weight: 20)],
               ),
               _createRecordedExercise(
                 exerciseId: 'ex1',
@@ -716,9 +695,7 @@ void main() {
                   name: 'Curl',
                   muscle: PrimaryMuscleGroup.arms,
                 ),
-                setsData: [
-                  const SetData(setNumber: 1, reps: 8, weight: 30),
-                ],
+                setsData: [const SetData(setNumber: 1, reps: 8, weight: 30)],
               ),
             ],
           ),
@@ -734,9 +711,7 @@ void main() {
     group('null safety', () {
       test('handles records with empty exercises list', () {
         // WorkoutRecord.exercises is non-nullable, so this tests empty exercises
-        final records = [
-          _createRecord(id: '1', exercises: [], totalSets: 0),
-        ];
+        final records = [_createRecord(id: '1', exercises: [], totalSets: 0)];
 
         expect(service.calculateTotalVolume(records), equals(0.0));
         expect(service.calculateDensity(records), equals(0.0));
@@ -768,9 +743,7 @@ void main() {
                   name: 'Pushups',
                   muscle: PrimaryMuscleGroup.chest,
                 ),
-                setsData: [
-                  const SetData(setNumber: 1, reps: 10, weight: 0),
-                ],
+                setsData: [const SetData(setNumber: 1, reps: 10, weight: 0)],
               ),
             ],
           ),
@@ -792,9 +765,7 @@ void main() {
                   name: 'Pushups',
                   muscle: PrimaryMuscleGroup.chest,
                 ),
-                setsData: [
-                  const SetData(setNumber: 1, reps: 10, weight: 0),
-                ],
+                setsData: [const SetData(setNumber: 1, reps: 10, weight: 0)],
               ),
             ],
           ),
@@ -804,82 +775,96 @@ void main() {
         expect(volume, equals(0.0));
       });
 
-      test('calculates adjusted volume for bodyweight exercise with bodyWeight', () {
-        final records = [
-          _createRecord(
-            id: '1',
-            exercises: [
-              _createRecordedExercise(
-                exerciseId: 'Pushups',
-                exercise: _createBodyweightExercise(
-                  id: 'Pushups',
-                  name: 'Pushups',
-                  muscle: PrimaryMuscleGroup.chest,
+      test(
+        'calculates adjusted volume for bodyweight exercise with bodyWeight',
+        () {
+          final records = [
+            _createRecord(
+              id: '1',
+              exercises: [
+                _createRecordedExercise(
+                  exerciseId: 'Pushups',
+                  exercise: _createBodyweightExercise(
+                    id: 'Pushups',
+                    name: 'Pushups',
+                    muscle: PrimaryMuscleGroup.chest,
+                  ),
+                  setsData: [const SetData(setNumber: 1, reps: 10, weight: 0)],
                 ),
-                setsData: [
-                  const SetData(setNumber: 1, reps: 10, weight: 0),
-                ],
-              ),
-            ],
-          ),
-        ];
+              ],
+            ),
+          ];
 
-        // Pushups coefficient = 0.64, eqWeight = 70 × 0.64 = 44.8
-        // volume = 10 × (0 + 44.8) = 448.0
-        final volume = service.calculateTotalVolume(records, bodyWeight: 70.0);
-        expect(volume, closeTo(448.0, 0.01));
-      });
+          // Pushups coefficient = 0.64, eqWeight = 70 × 0.64 = 44.8
+          // volume = 10 × (0 + 44.8) = 448.0
+          final volume = service.calculateTotalVolume(
+            records,
+            bodyWeight: 70.0,
+          );
+          expect(volume, closeTo(448.0, 0.01));
+        },
+      );
 
-      test('calculates adjusted volume for bodyweight exercise with added weight', () {
-        final records = [
-          _createRecord(
-            id: '1',
-            exercises: [
-              _createRecordedExercise(
-                exerciseId: 'Pullups',
-                exercise: _createBodyweightExercise(
-                  id: 'Pullups',
-                  name: 'Pullups',
-                  muscle: PrimaryMuscleGroup.back,
+      test(
+        'calculates adjusted volume for bodyweight exercise with added weight',
+        () {
+          final records = [
+            _createRecord(
+              id: '1',
+              exercises: [
+                _createRecordedExercise(
+                  exerciseId: 'Pullups',
+                  exercise: _createBodyweightExercise(
+                    id: 'Pullups',
+                    name: 'Pullups',
+                    muscle: PrimaryMuscleGroup.back,
+                  ),
+                  setsData: [const SetData(setNumber: 1, reps: 8, weight: 10)],
                 ),
-                setsData: [
-                  const SetData(setNumber: 1, reps: 8, weight: 10),
-                ],
-              ),
-            ],
-          ),
-        ];
+              ],
+            ),
+          ];
 
-        // Pullups coefficient = 0.70, eqWeight = 70 × 0.70 = 49.0
-        // volume = 8 × (10 + 49.0) = 8 × 59.0 = 472.0
-        final volume = service.calculateTotalVolume(records, bodyWeight: 70.0);
-        expect(volume, closeTo(472.0, 0.01));
-      });
+          // Pullups coefficient = 0.70, eqWeight = 70 × 0.70 = 49.0
+          // volume = 8 × (10 + 49.0) = 8 × 59.0 = 472.0
+          final volume = service.calculateTotalVolume(
+            records,
+            bodyWeight: 70.0,
+          );
+          expect(volume, closeTo(472.0, 0.01));
+        },
+      );
 
-      test('returns totalVolume for weighted exercise even with bodyWeight', () {
-        final records = [
-          _createRecord(
-            id: '1',
-            exercises: [
-              _createRecordedExercise(
-                exerciseId: 'ex1',
-                exercise: _createExercise(
-                  id: 'ex1',
-                  name: 'Bench Press',
-                  muscle: PrimaryMuscleGroup.chest,
+      test(
+        'returns totalVolume for weighted exercise even with bodyWeight',
+        () {
+          final records = [
+            _createRecord(
+              id: '1',
+              exercises: [
+                _createRecordedExercise(
+                  exerciseId: 'ex1',
+                  exercise: _createExercise(
+                    id: 'ex1',
+                    name: 'Bench Press',
+                    muscle: PrimaryMuscleGroup.chest,
+                  ),
+                  setsData: [
+                    const SetData(setNumber: 1, reps: 10, weight: 100),
+                  ],
                 ),
-                setsData: [
-                  const SetData(setNumber: 1, reps: 10, weight: 100),
-                ],
-              ),
-            ],
-          ),
-        ];
+              ],
+            ),
+          ];
 
-        // Bench Press is barbell (NOT bodyweight) → uses totalVolume
-        final volume = service.calculateTotalVolume(records, bodyWeight: 70.0);
-        expect(volume, equals(1000.0));
-      });
+          // Bench Press is barbell (NOT bodyweight) → uses totalVolume
+          final volume = service.calculateTotalVolume(
+            records,
+            bodyWeight: 70.0,
+          );
+          expect(volume, equals(1000.0));
+        },
+      );
 
       test('bodyweight volume in muscle distribution', () {
         final records = [
@@ -893,9 +878,7 @@ void main() {
                   name: 'Bodyweight Squat',
                   muscle: PrimaryMuscleGroup.legs,
                 ),
-                setsData: [
-                  const SetData(setNumber: 1, reps: 15, weight: 0),
-                ],
+                setsData: [const SetData(setNumber: 1, reps: 15, weight: 0)],
               ),
             ],
           ),
@@ -903,7 +886,10 @@ void main() {
 
         // Squat coefficient = 1.00, eqWeight = 70 × 1.00 = 70
         // volume = 15 × (0 + 70) = 1050.0
-        final distribution = service.calculateMuscleVolumeDistribution(records, bodyWeight: 70.0);
+        final distribution = service.calculateMuscleVolumeDistribution(
+          records,
+          bodyWeight: 70.0,
+        );
         expect(distribution[PrimaryMuscleGroup.legs], closeTo(1050.0, 0.01));
       });
 
@@ -919,40 +905,45 @@ void main() {
                   name: 'Bodyweight Squat',
                   muscle: PrimaryMuscleGroup.legs,
                 ),
-                setsData: [
-                  const SetData(setNumber: 1, reps: 15, weight: 0),
-                ],
+                setsData: [const SetData(setNumber: 1, reps: 15, weight: 0)],
               ),
             ],
           ),
         ];
 
         // Squat coefficient = 1.00, volume = 15 × 70 = 1050.0
-        final trend = service.calculateDailyVolumeTrend(records, bodyWeight: 70.0);
+        final trend = service.calculateDailyVolumeTrend(
+          records,
+          bodyWeight: 70.0,
+        );
         expect(trend.length, equals(1));
         expect(trend.values.first, closeTo(1050.0, 0.01));
       });
 
-      test('bodyweight volume without exercise reference falls back to totalVolume', () {
-        final records = [
-          _createRecord(
-            id: '1',
-            exercises: [
-              _createRecordedExercise(
-                exerciseId: 'Pushups',
-                exercise: null, // No exercise reference loaded
-                setsData: [
-                  const SetData(setNumber: 1, reps: 10, weight: 0),
-                ],
-              ),
-            ],
-          ),
-        ];
+      test(
+        'bodyweight volume without exercise reference falls back to totalVolume',
+        () {
+          final records = [
+            _createRecord(
+              id: '1',
+              exercises: [
+                _createRecordedExercise(
+                  exerciseId: 'Pushups',
+                  exercise: null, // No exercise reference loaded
+                  setsData: [const SetData(setNumber: 1, reps: 10, weight: 0)],
+                ),
+              ],
+            ),
+          ];
 
-        // No exercise reference → can't determine bodyweight → totalVolume = 0
-        final volume = service.calculateTotalVolume(records, bodyWeight: 70.0);
-        expect(volume, equals(0.0));
-      });
+          // No exercise reference → can't determine bodyweight → totalVolume = 0
+          final volume = service.calculateTotalVolume(
+            records,
+            bodyWeight: 70.0,
+          );
+          expect(volume, equals(0.0));
+        },
+      );
     });
   });
 }

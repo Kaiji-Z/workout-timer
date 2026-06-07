@@ -84,7 +84,10 @@ void main() {
         final result = await service.matchExercise('Bench');
 
         // Partial match should return candidates or failure
-        expect(result.isSuccess || result.hasCandidates || result.isFailure, isTrue);
+        expect(
+          result.isSuccess || result.hasCandidates || result.isFailure,
+          isTrue,
+        );
       });
 
       test('limits candidates to top 5', () async {
@@ -96,8 +99,7 @@ void main() {
             nameEn: 'Bench Press Variation $i',
           ),
         );
-        final bigService =
-            ExerciseMatcherService(exercises: manyExercises);
+        final bigService = ExerciseMatcherService(exercises: manyExercises);
 
         final result = await bigService.matchExercise('Bench Press');
 
@@ -177,7 +179,7 @@ void main() {
         expect(results, isEmpty);
       });
 
- test('handles fuzzy matches in batch', () async {
+      test('handles fuzzy matches in batch', () async {
         final results = await service.matchAll([
           'Barbel Bench Press',
           'Barbel Row',
@@ -187,12 +189,12 @@ void main() {
         expect(results.length, 3);
         expect(results[0].isSuccess, isTrue); // Exact match
         expect(results[1].isSuccess, isTrue); // Exact match
-        
+
         // For fuzzy matches, expect either success or candidates (not just candidates)
         // High confidence fuzzy match (score < 0.15) returns success directly
         expect(results[1].isSuccess, isTrue);
         expect(results[1].exercise!.id, 'barbell_row');
-        
+
         expect(results[2].isFailure, isTrue); // Unknown
       });
     });

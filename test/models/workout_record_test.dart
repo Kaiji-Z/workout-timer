@@ -254,9 +254,7 @@ void main() {
           exerciseId: 'ex-001',
           completedSets: 3,
           maxWeight: 50.0,
-          setsData: [
-            SetData(setNumber: 1, reps: 10, weight: 45.0),
-          ],
+          setsData: [SetData(setNumber: 1, reps: 10, weight: 45.0)],
         );
 
         final copy = original.copyWith(maxWeight: 55.0);
@@ -331,25 +329,31 @@ void main() {
     });
 
     group('migration', () {
-      test('needsMigration returns true for legacy record with null setsData', () {
-        final legacy = RecordedExercise(
-          exerciseId: 'test',
-          completedSets: 3,
-          maxWeight: 60.0,
-          setsData: null,
-        );
-        expect(legacy.needsMigration, isTrue);
-      });
+      test(
+        'needsMigration returns true for legacy record with null setsData',
+        () {
+          final legacy = RecordedExercise(
+            exerciseId: 'test',
+            completedSets: 3,
+            maxWeight: 60.0,
+            setsData: null,
+          );
+          expect(legacy.needsMigration, isTrue);
+        },
+      );
 
-      test('needsMigration returns true for legacy record with empty setsData', () {
-        final legacy = RecordedExercise(
-          exerciseId: 'test',
-          completedSets: 3,
-          maxWeight: 60.0,
-          setsData: [],
-        );
-        expect(legacy.needsMigration, isTrue);
-      });
+      test(
+        'needsMigration returns true for legacy record with empty setsData',
+        () {
+          final legacy = RecordedExercise(
+            exerciseId: 'test',
+            completedSets: 3,
+            maxWeight: 60.0,
+            setsData: [],
+          );
+          expect(legacy.needsMigration, isTrue);
+        },
+      );
 
       test('needsMigration returns false for modern record with setsData', () {
         final modern = RecordedExercise(

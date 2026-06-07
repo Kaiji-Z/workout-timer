@@ -11,7 +11,10 @@ final List<Exercise> sampleExercises = [
     name: '杠铃卧推',
     nameEn: 'Barbell Bench Press',
     primaryMuscle: PrimaryMuscleGroup.chest,
-    secondaryMuscles: [SecondaryMuscleGroup.triceps, SecondaryMuscleGroup.frontDelt],
+    secondaryMuscles: [
+      SecondaryMuscleGroup.triceps,
+      SecondaryMuscleGroup.frontDelt,
+    ],
     equipment: 'barbell',
     level: 'intermediate',
     recommendation: const ExerciseRecommendation(
