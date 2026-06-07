@@ -9,9 +9,7 @@ class TimerScreen extends StatelessWidget {
     // 使用主题背景，移除自定义背景
     return const Scaffold(
       backgroundColor: Colors.transparent,
-      body: SafeArea(
-        child: TrainingWidget(),
-      ),
+      body: SafeArea(child: TrainingWidget()),
     );
   }
 }
