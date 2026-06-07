@@ -15,6 +15,7 @@ import 'bloc/record_provider.dart';
 import 'bloc/training_progress_provider.dart';
 import 'theme/theme_provider.dart';
 import 'theme/app_theme.dart';
+import 'utils/dimensions.dart';
 import 'services/notification_service.dart';
 import 'services/exercise_service.dart';
 import 'services/timer_service.dart';
@@ -254,10 +255,12 @@ class _MainNavigationState extends State<MainNavigation> {
               height: 70,
               decoration: BoxDecoration(
                 color: appTheme.surfaceColor,
-                borderRadius: BorderRadius.circular(25), // All 4 corners
+                borderRadius: BorderRadius.circular(
+                  AppDimensions.navBarRadius,
+                ), // All 4 corners
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.1),
+                    color: appTheme.shadowColor,
                     blurRadius: 15,
                     offset: const Offset(0, 4),
                   ),
@@ -332,18 +335,14 @@ class _MainNavigationState extends State<MainNavigation> {
           color: Colors.transparent,
           child: InkWell(
             onTap: () => setState(() => _currentIndex = index),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),
               padding: const EdgeInsets.symmetric(vertical: 10),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
-                    isSelected ? activeIcon : icon,
-                    color: color,
-                    size: 24,
-                  ),
+                  Icon(isSelected ? activeIcon : icon, color: color, size: 24),
                   const SizedBox(height: 2),
                   Text(
                     label,
@@ -395,16 +394,14 @@ class _MainNavigationState extends State<MainNavigation> {
               ),
               boxShadow: [
                 BoxShadow(
-                  color: isSelected
-                      ? Colors.black.withValues(alpha: 0.2)
-                      : Colors.black.withValues(alpha: 0.1),
+                  color: appTheme.shadowColor,
                   blurRadius: isSelected ? 20 : 10,
                   offset: const Offset(0, 8),
                 ),
               ],
             ),
             child: Center(
-              child: Icon(Icons.timer, color: Colors.white, size: 32),
+              child: Icon(Icons.timer, color: appTheme.onAccentColor, size: 32),
             ),
           ),
         ),
