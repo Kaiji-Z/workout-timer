@@ -254,17 +254,11 @@ class _MainNavigationState extends State<MainNavigation> {
             Container(
               height: 70,
               decoration: BoxDecoration(
-                color: appTheme.surfaceColor,
+                color: appTheme.surfaceColorRaised,
                 borderRadius: BorderRadius.circular(
                   AppDimensions.navBarRadius,
                 ), // All 4 corners
-                boxShadow: [
-                  BoxShadow(
-                    color: appTheme.shadowColor,
-                    blurRadius: 15,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
+                boxShadow: AppElevation.raised(appTheme.shadowColor),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -392,13 +386,7 @@ class _MainNavigationState extends State<MainNavigation> {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: appTheme.shadowColor,
-                  blurRadius: isSelected ? 20 : 10,
-                  offset: const Offset(0, 8),
-                ),
-              ],
+              boxShadow: AppElevation.floating(appTheme.shadowColor),
             ),
             child: Center(
               child: Icon(Icons.timer, color: appTheme.onAccentColor, size: 32),

@@ -708,15 +708,9 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
                   vertical: 14,
                 ),
                 decoration: BoxDecoration(
-                  color: theme.surfaceColor,
+                  color: theme.surfaceColorRaised,
                   borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-                  boxShadow: [
-                    BoxShadow(
-                      color: theme.textColor.withValues(alpha: 0.05),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
+                  boxShadow: AppElevation.resting(theme.shadowColor),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -755,15 +749,9 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
             Container(
               padding: const EdgeInsets.all(AppDimensions.screenPadding),
               decoration: BoxDecoration(
-                color: theme.surfaceColor,
+                color: theme.surfaceColorRaised,
                 borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-                boxShadow: [
-                  BoxShadow(
-                    color: theme.textColor.withValues(alpha: 0.05),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
+                boxShadow: AppElevation.resting(theme.shadowColor),
               ),
               child: SingleChildScrollView(
                 child: Text(
