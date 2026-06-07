@@ -21,16 +21,14 @@ void main() {
     testWidgets('starts from step 1 (个人资料) in default mode', (tester) async {
       final themeProvider = ThemeProvider();
       await themeProvider.initialize();
-      
+
       await tester.pumpWidget(
         MultiProvider(
           providers: [
             ChangeNotifierProvider.value(value: themeProvider),
             ChangeNotifierProvider(create: (_) => PlanProvider()),
           ],
-          child: const MaterialApp(
-            home: const AIPlanWizardScreen(),
-          ),
+          child: const MaterialApp(home: const AIPlanWizardScreen()),
         ),
       );
 
@@ -43,16 +41,14 @@ void main() {
     testWidgets('shows 新建计划 and 导入分析 tabs', (tester) async {
       final themeProvider = ThemeProvider();
       await themeProvider.initialize();
-      
+
       await tester.pumpWidget(
         MultiProvider(
           providers: [
             ChangeNotifierProvider.value(value: themeProvider),
             ChangeNotifierProvider(create: (_) => PlanProvider()),
           ],
-          child: const MaterialApp(
-            home: const AIPlanWizardScreen(),
-          ),
+          child: const MaterialApp(home: const AIPlanWizardScreen()),
         ),
       );
 
@@ -66,16 +62,14 @@ void main() {
     testWidgets('switches to 导入分析 tab on tap', (tester) async {
       final themeProvider = ThemeProvider();
       await themeProvider.initialize();
-      
+
       await tester.pumpWidget(
         MultiProvider(
           providers: [
             ChangeNotifierProvider.value(value: themeProvider),
             ChangeNotifierProvider(create: (_) => PlanProvider()),
           ],
-          child: const MaterialApp(
-            home: const AIPlanWizardScreen(),
-          ),
+          child: const MaterialApp(home: const AIPlanWizardScreen()),
         ),
       );
 

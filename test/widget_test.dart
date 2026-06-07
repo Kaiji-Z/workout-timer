@@ -9,13 +9,15 @@ import 'package:workout_timer/theme/theme_provider.dart';
 import 'package:workout_timer/widgets/training_widget.dart';
 
 void main() {
-  testWidgets('TrainingWidget shows training screen', (WidgetTester tester) async {
+  testWidgets('TrainingWidget shows training screen', (
+    WidgetTester tester,
+  ) async {
     // Create providers
     final themeProvider = ThemeProvider();
     final planProvider = PlanProvider();
     final trainingProvider = TrainingProvider();
     final progressProvider = TrainingProgressProvider();
-    
+
     await tester.pumpWidget(
       MultiProvider(
         providers: [

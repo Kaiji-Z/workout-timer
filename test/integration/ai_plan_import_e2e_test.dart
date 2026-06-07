@@ -34,7 +34,6 @@ Exercise _createTestExercise({
 
 void main() {
   group('AI Plan Import E2E Tests', () {
-    
     group('UserProfile Model', () {
       test('creates profile with all required fields', () {
         final profile = UserProfile(
@@ -46,7 +45,7 @@ void main() {
           focusAreas: ['chest', 'back'],
           startDate: DateTime(2024, 1, 1),
         );
-        
+
         expect(profile.goal, 'muscle_building');
         expect(profile.weeklyFrequency, 4);
         expect(profile.sessionDuration, 60);
@@ -54,7 +53,7 @@ void main() {
         expect(profile.equipment, 'gym');
         expect(profile.focusAreas, ['chest', 'back']);
       });
-      
+
       test('serializes and deserializes correctly', () {
         final profile = UserProfile(
           goal: 'strength',
@@ -65,10 +64,10 @@ void main() {
           focusAreas: ['legs'],
           startDate: DateTime(2024, 3, 15),
         );
-        
+
         final map = profile.toMap();
         final restored = UserProfile.fromMap(map);
-        
+
         expect(restored.goal, profile.goal);
         expect(restored.weeklyFrequency, profile.weeklyFrequency);
         expect(restored.sessionDuration, profile.sessionDuration);
@@ -77,7 +76,7 @@ void main() {
         expect(restored.focusAreas, profile.focusAreas);
       });
     });
-    
+
     group('AIPromptService', () {
       test('generates prompt with all profile fields', () {
         final service = AIPromptService();
@@ -90,9 +89,9 @@ void main() {
           focusAreas: ['chest', 'back'],
           startDate: DateTime(2024, 1, 1),
         );
-        
+
         final prompt = service.generatePrompt(profile);
-        
+
         expect(prompt.contains('Muscle Building'), isTrue);
         expect(prompt.contains('4'), isTrue);
         expect(prompt.contains('60 minutes'), isTrue);
@@ -100,7 +99,7 @@ void main() {
         expect(prompt.contains('Full Gym'), isTrue);
         expect(prompt.contains('Chest, Back'), isTrue);
       });
-      
+
       test('handles empty focus areas', () {
         final service = AIPromptService();
         final profile = UserProfile(
@@ -112,12 +111,12 @@ void main() {
           focusAreas: [],
           startDate: DateTime(2024, 1, 1),
         );
-        
+
         final prompt = service.generatePrompt(profile);
-        
+
         expect(prompt.contains('None specified'), isTrue);
       });
-      
+
       test('includes JSON format specification', () {
         final service = AIPromptService();
         final profile = UserProfile(
@@ -129,15 +128,15 @@ void main() {
           focusAreas: [],
           startDate: DateTime(2024, 1, 1),
         );
-        
+
         final prompt = service.generatePrompt(profile);
-        
+
         expect(prompt.contains('dayOfWeek'), isTrue);
         expect(prompt.contains('exerciseName'), isTrue);
         expect(prompt.contains('targetSets'), isTrue);
       });
     });
-    
+
     group('WeeklyPlanImport Model', () {
       test('parses valid JSON', () {
         const jsonString = '''
@@ -162,10 +161,10 @@ void main() {
           ]
         }
         ''';
-        
+
         final jsonMap = jsonDecode(jsonString) as Map<String, dynamic>;
         final plan = WeeklyPlanImport.fromJson(jsonMap);
-        
+
         expect(plan.name, 'Test Plan');
         expect(plan.days.length, 2);
         expect(plan.days[0].dayOfWeek, 1);
@@ -173,17 +172,17 @@ void main() {
         expect(plan.days[0].exercises[0].exerciseName, 'Barbell Bench Press');
         expect(plan.days[0].exercises[0].targetSets, 4);
       });
-      
+
       test('handles empty days', () {
         const jsonString = '{"name": "Empty Plan", "days": []}';
         final jsonMap = jsonDecode(jsonString) as Map<String, dynamic>;
-        
+
         final plan = WeeklyPlanImport.fromJson(jsonMap);
-        
+
         expect(plan.name, 'Empty Plan');
         expect(plan.days.isEmpty, isTrue);
       });
-      
+
       test('clamps invalid dayOfWeek values', () {
         const jsonString = '''
         {
@@ -195,13 +194,13 @@ void main() {
         }
         ''';
         final jsonMap = jsonDecode(jsonString) as Map<String, dynamic>;
-        
+
         final plan = WeeklyPlanImport.fromJson(jsonMap);
-        
+
         expect(plan.days[0].dayOfWeek, 1); // Clamped from 0 to 1
         expect(plan.days[1].dayOfWeek, 7); // Clamped from 10 to 7
       });
-      
+
       test('defaults targetSets to 3 when not provided', () {
         const jsonString = '''
         {
@@ -218,23 +217,26 @@ void main() {
         }
         ''';
         final jsonMap = jsonDecode(jsonString) as Map<String, dynamic>;
-        
+
         final plan = WeeklyPlanImport.fromJson(jsonMap);
-        
+
         expect(plan.days[0].exercises[0].targetSets, 3);
       });
     });
-    
+
     group('ExerciseMatcherService', () {
       late ExerciseMatcherService matcher;
-      
+
       setUp(() {
         final exercises = [
           _createTestExercise(
             id: 'barbell_bench_press',
             nameEn: 'Barbell Bench Press',
             primaryMuscle: PrimaryMuscleGroup.chest,
-            secondaryMuscles: [SecondaryMuscleGroup.triceps, SecondaryMuscleGroup.frontDelt],
+            secondaryMuscles: [
+              SecondaryMuscleGroup.triceps,
+              SecondaryMuscleGroup.frontDelt,
+            ],
             equipment: 'barbell',
           ),
           _createTestExercise(
@@ -254,27 +256,27 @@ void main() {
         ];
         matcher = ExerciseMatcherService(exercises: exercises);
       });
-      
+
       test('matches exact exercise name', () async {
         final result = await matcher.matchExercise('Barbell Bench Press');
-        
+
         expect(result.isSuccess, isTrue);
         expect(result.exercise?.id, 'barbell_bench_press');
       });
-      
+
       test('matches case-insensitively', () async {
         final result = await matcher.matchExercise('barbell bench press');
-        
+
         expect(result.isSuccess, isTrue);
         expect(result.exercise?.id, 'barbell_bench_press');
       });
-      
+
       test('matches normalized names (hyphens, underscores)', () async {
         final result = await matcher.matchExercise('Barbell-Bench_Press');
-        
+
         expect(result.isSuccess, isTrue);
       });
-      
+
       test('returns candidates for partial match', () async {
         // Use a more specific partial match that should return candidates
         final result = await matcher.matchExercise('Bench Press');
@@ -282,30 +284,33 @@ void main() {
         expect(result.isSuccess || result.hasCandidates, isTrue);
         if (result.hasCandidates) {
           // Should return at least one candidate with "Bench" in the name
-          expect(result.candidates.any((e) => e.nameEn.contains('Bench')), isTrue);
+          expect(
+            result.candidates.any((e) => e.nameEn.contains('Bench')),
+            isTrue,
+          );
         }
       });
-      
+
       test('returns failure for unknown exercise', () async {
         final result = await matcher.matchExercise('Unknown Exercise XYZ 123');
-        
+
         expect(result.isFailure, isTrue);
       });
-      
+
       test('batch matches multiple names', () async {
         final results = await matcher.matchAll([
           'Barbell Bench Press',
           'Pull-up',
           'Unknown Exercise',
         ]);
-        
+
         expect(results.length, 3);
         expect(results[0].isSuccess, isTrue);
         expect(results[1].isSuccess, isTrue);
         expect(results[2].isFailure, isTrue);
       });
     });
-    
+
     group('Integration: Full Flow', () {
       test('user profile to prompt generation', () {
         // Step 1: Create user profile
@@ -318,11 +323,11 @@ void main() {
           focusAreas: ['chest', 'back', 'legs'],
           startDate: DateTime(2024, 1, 8), // Monday
         );
-        
+
         // Step 2: Generate prompt
         final promptService = AIPromptService();
         final prompt = promptService.generatePrompt(profile);
-        
+
         // Verify prompt contains all necessary information
         expect(prompt.isNotEmpty, isTrue);
         expect(prompt.contains('Muscle Building'), isTrue);
@@ -334,7 +339,7 @@ void main() {
         expect(prompt.contains('Back'), isTrue);
         expect(prompt.contains('Legs'), isTrue);
       });
-      
+
       test('JSON parsing to exercise matching', () async {
         // Step 1: Parse AI-generated JSON
         const jsonString = '''
@@ -352,10 +357,10 @@ void main() {
           ]
         }
         ''';
-        
+
         final jsonMap = jsonDecode(jsonString) as Map<String, dynamic>;
         final plan = WeeklyPlanImport.fromJson(jsonMap);
-        
+
         // Step 2: Match exercises
         final exercises = [
           _createTestExercise(
@@ -371,16 +376,16 @@ void main() {
             equipment: 'dumbbell',
           ),
         ];
-        
+
         final matcher = ExerciseMatcherService(exercises: exercises);
-        
+
         final exerciseNames = plan.days
             .expand((day) => day.exercises)
             .map((e) => e.exerciseName)
             .toList();
-        
+
         final results = await matcher.matchAll(exerciseNames);
-        
+
         // Verify all exercises matched
         expect(results.every((r) => r.isSuccess), isTrue);
       });
