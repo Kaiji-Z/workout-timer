@@ -46,17 +46,15 @@ class _PlanScreenState extends State<PlanScreen> {
               margin: const EdgeInsets.only(right: 12),
               decoration: BoxDecoration(
                 gradient: LinearGradient(colors: theme.timerGradientColors),
-                borderRadius: BorderRadius.circular(2),
+                borderRadius: BorderRadius.circular(AppDimensions.radiusXxs),
               ),
             ),
             Text(
               '训练计划',
-              style: TextStyle(
-                fontFamily: '.SF Pro Display',
+              style: Theme.of(context).textTheme.headlineLarge!.copyWith(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
                 letterSpacing: -0.5,
-                color: theme.textColor,
               ),
             ),
           ],
@@ -81,9 +79,7 @@ class _PlanScreenState extends State<PlanScreen> {
                 const SizedBox(width: 4),
                 Text(
                   'AI训练计划',
-                  style: TextStyle(
-                    fontFamily: '.SF Pro Text',
-                    fontSize: 14,
+                  style: Theme.of(context).textTheme.labelLarge!.copyWith(
                     fontWeight: FontWeight.w600,
                     color: theme.accentColor,
                   ),
@@ -146,23 +142,16 @@ class _PlanScreenState extends State<PlanScreen> {
             children: [
               Text(
                 isToday ? '今日计划' : '$dateStr 的计划',
-                style: TextStyle(
-                  fontFamily: '.SF Pro Text',
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: theme.textColor,
-                ),
+                style: Theme.of(context).textTheme.titleLarge!,
               ),
               if (plansForDate.isNotEmpty)
                 TextButton(
                   onPressed: () => _showAddPlanToDateSheet(planProvider),
                   child: Text(
                     '+ 添加',
-                    style: TextStyle(
-                      fontFamily: '.SF Pro Text',
-                      fontSize: 14,
-                      color: theme.accentColor,
-                    ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodyMedium!.copyWith(color: theme.accentColor),
                   ),
                 ),
             ],
@@ -186,12 +175,14 @@ class _PlanScreenState extends State<PlanScreen> {
                     alignment: Alignment.centerRight,
                     padding: const EdgeInsets.only(right: 20),
                     decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.circular(16),
+                      color: theme.errorColor,
+                      borderRadius: BorderRadius.circular(
+                        AppDimensions.radiusXl,
+                      ),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.delete_outline,
-                      color: Colors.white,
+                      color: theme.onAccentColor,
                       size: 24,
                     ),
                   ),
@@ -210,9 +201,9 @@ class _PlanScreenState extends State<PlanScreen> {
                           ),
                           TextButton(
                             onPressed: () => Navigator.pop(context, true),
-                            child: const Text(
+                            child: Text(
                               '移除',
-                              style: TextStyle(color: Colors.red),
+                              style: TextStyle(color: theme.errorColor),
                             ),
                           ),
                         ],
@@ -253,18 +244,15 @@ class _PlanScreenState extends State<PlanScreen> {
                 backgroundColor: theme.accentColor,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
                 ),
                 elevation: 0,
               ),
               child: Text(
                 '📚 我的计划库',
-                style: TextStyle(
-                  fontFamily: '.SF Pro Text',
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge!.copyWith(color: theme.onAccentColor),
               ),
             ),
           ),
@@ -278,13 +266,13 @@ class _PlanScreenState extends State<PlanScreen> {
       color: Colors.transparent,
       child: InkWell(
         onTap: () => _showAddPlanToDateSheet(context.read<PlanProvider>()),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
         child: Container(
           margin: const EdgeInsets.symmetric(horizontal: 16),
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
             color: theme.surfaceColor,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
             border: Border.all(
               color: theme.accentColor.withValues(alpha: 0.3),
               style: BorderStyle.solid,
@@ -301,9 +289,7 @@ class _PlanScreenState extends State<PlanScreen> {
                 const SizedBox(height: 8),
                 Text(
                   '添加今日计划',
-                  style: TextStyle(
-                    fontFamily: '.SF Pro Text',
-                    fontSize: 14,
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                     color: theme.secondaryTextColor,
                   ),
                 ),
@@ -363,7 +349,9 @@ class _PlanScreenState extends State<PlanScreen> {
       isScrollControlled: true,
       backgroundColor: theme.surfaceColor,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(AppDimensions.radiusSheet),
+        ),
       ),
       builder: (context) {
         return DraggableScrollableSheet(
@@ -383,19 +371,19 @@ class _PlanScreenState extends State<PlanScreen> {
                       width: 40,
                       height: 4,
                       decoration: BoxDecoration(
-                        color: Colors.grey[300],
-                        borderRadius: BorderRadius.circular(2),
+                        color: theme.dividerColor,
+                        borderRadius: BorderRadius.circular(
+                          AppDimensions.radiusXxs,
+                        ),
                       ),
                     ),
                   ),
                   const SizedBox(height: 16),
                   Text(
                     '选择计划添加到 ${_selectedDate.month}月${_selectedDate.day}日',
-                    style: const TextStyle(
-                      fontFamily: '.SF Pro Display',
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.headlineLarge!.copyWith(fontSize: 18),
                   ),
                   const SizedBox(height: 16),
                   Flexible(
@@ -410,14 +398,14 @@ class _PlanScreenState extends State<PlanScreen> {
                             width: 40,
                             height: 40,
                             decoration: BoxDecoration(
-                              color: Theme.of(
-                                context,
-                              ).primaryColor.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(8),
+                              color: theme.accentColor.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(
+                                AppDimensions.radiusMd,
+                              ),
                             ),
                             child: Icon(
                               Icons.fitness_center,
-                              color: Theme.of(context).primaryColor,
+                              color: theme.accentColor,
                             ),
                           ),
                           title: Text(plan.name),
@@ -441,11 +429,13 @@ class _PlanScreenState extends State<PlanScreen> {
                       icon: const Icon(Icons.add),
                       label: const Text('创建新计划'),
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: Theme.of(context).primaryColor,
-                        side: BorderSide(color: Theme.of(context).primaryColor),
+                        foregroundColor: theme.accentColor,
+                        side: BorderSide(color: theme.accentColor),
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(
+                            AppDimensions.radiusLg,
+                          ),
                         ),
                       ),
                     ),
@@ -467,7 +457,9 @@ class _PlanScreenState extends State<PlanScreen> {
       isScrollControlled: true,
       backgroundColor: theme.surfaceColor,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(AppDimensions.radiusSheet),
+        ),
       ),
       builder: (context) {
         return DraggableScrollableSheet(
@@ -487,19 +479,19 @@ class _PlanScreenState extends State<PlanScreen> {
                       width: 40,
                       height: 4,
                       decoration: BoxDecoration(
-                        color: Colors.grey[300],
-                        borderRadius: BorderRadius.circular(2),
+                        color: theme.dividerColor,
+                        borderRadius: BorderRadius.circular(
+                          AppDimensions.radiusXxs,
+                        ),
                       ),
                     ),
                   ),
                   const SizedBox(height: 16),
                   Text(
                     '我的计划库',
-                    style: const TextStyle(
-                      fontFamily: '.SF Pro Display',
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.headlineLarge!.copyWith(fontSize: 18),
                   ),
                   const SizedBox(height: 16),
                   Flexible(
@@ -516,7 +508,9 @@ class _PlanScreenState extends State<PlanScreen> {
                               children: [
                                 InkWell(
                                   onTap: () => _showPlanDetail(plan),
-                                  borderRadius: BorderRadius.circular(8),
+                                  borderRadius: BorderRadius.circular(
+                                    AppDimensions.radiusMd,
+                                  ),
                                   child: Padding(
                                     padding: const EdgeInsets.symmetric(
                                       horizontal: 16,
@@ -530,18 +524,16 @@ class _PlanScreenState extends State<PlanScreen> {
                                           width: 40,
                                           height: 40,
                                           decoration: BoxDecoration(
-                                            color: Theme.of(context)
-                                                .primaryColor
-                                                .withValues(alpha: 0.1),
+                                            color: theme.accentColor.withValues(
+                                              alpha: 0.1,
+                                            ),
                                             borderRadius: BorderRadius.circular(
-                                              8,
+                                              AppDimensions.radiusMd,
                                             ),
                                           ),
                                           child: Icon(
                                             Icons.fitness_center,
-                                            color: Theme.of(
-                                              context,
-                                            ).primaryColor,
+                                            color: theme.accentColor,
                                           ),
                                         ),
                                         const SizedBox(width: 12),
@@ -553,24 +545,26 @@ class _PlanScreenState extends State<PlanScreen> {
                                             children: [
                                               Text(
                                                 plan.name,
-                                                style: TextStyle(
-                                                  fontFamily: '.SF Pro Text',
-                                                  fontSize: 15,
-                                                  fontWeight: FontWeight.w500,
-                                                ),
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .labelLarge!
+                                                    .copyWith(fontSize: 15),
                                                 maxLines: 2,
                                                 overflow: TextOverflow.ellipsis,
                                               ),
                                               const SizedBox(height: 2),
                                               Text(
                                                 plan.targetMusclesText,
-                                                style: TextStyle(
-                                                  fontFamily: '.SF Pro Text',
-                                                  fontSize: 13,
-                                                  color: Theme.of(context)
-                                                      .primaryColor
-                                                      .withValues(alpha: 0.6),
-                                                ),
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .bodyMedium!
+                                                    .copyWith(
+                                                      fontSize: 13,
+                                                      color: theme.accentColor
+                                                          .withValues(
+                                                            alpha: 0.6,
+                                                          ),
+                                                    ),
                                               ),
                                             ],
                                           ),
@@ -623,11 +617,13 @@ class _PlanScreenState extends State<PlanScreen> {
                                         icon: Icon(
                                           Icons.delete_outline,
                                           size: 16,
-                                          color: Colors.red,
+                                          color: theme.errorColor,
                                         ),
                                         label: Text(
                                           '删除',
-                                          style: TextStyle(color: Colors.red),
+                                          style: TextStyle(
+                                            color: theme.errorColor,
+                                          ),
                                         ),
                                         style: TextButton.styleFrom(
                                           padding: const EdgeInsets.symmetric(
@@ -659,11 +655,13 @@ class _PlanScreenState extends State<PlanScreen> {
                       icon: const Icon(Icons.add),
                       label: const Text('创建新计划'),
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: Theme.of(context).primaryColor,
-                        side: BorderSide(color: Theme.of(context).primaryColor),
+                        foregroundColor: theme.accentColor,
+                        side: BorderSide(color: theme.accentColor),
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(
+                            AppDimensions.radiusLg,
+                          ),
                         ),
                       ),
                     ),
@@ -678,6 +676,7 @@ class _PlanScreenState extends State<PlanScreen> {
   }
 
   void _addPlanToDate(PlanProvider planProvider, WorkoutPlan plan) async {
+    final theme = context.read<ThemeProvider>().currentTheme;
     try {
       await planProvider.assignPlanToDate(plan.id, _selectedDate);
       if (mounted) {
@@ -695,7 +694,7 @@ class _PlanScreenState extends State<PlanScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('添加失败: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: theme.errorColor,
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -704,6 +703,7 @@ class _PlanScreenState extends State<PlanScreen> {
   }
 
   void _confirmDeletePlan(PlanProvider planProvider, WorkoutPlan plan) {
+    final theme = context.read<ThemeProvider>().currentTheme;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -733,14 +733,14 @@ class _PlanScreenState extends State<PlanScreen> {
                   messenger.showSnackBar(
                     SnackBar(
                       content: Text('删除失败: $e'),
-                      backgroundColor: Colors.red,
+                      backgroundColor: theme.errorColor,
                       behavior: SnackBarBehavior.floating,
                     ),
                   );
                 }
               }
             },
-            child: const Text('删除', style: TextStyle(color: Colors.red)),
+            child: Text('删除', style: TextStyle(color: theme.errorColor)),
           ),
         ],
       ),
@@ -767,7 +767,9 @@ class _PlanDetailSheet extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: theme.surfaceColor,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(AppDimensions.radiusSheet),
+        ),
       ),
       padding: const EdgeInsets.all(24),
       child: SingleChildScrollView(
@@ -781,8 +783,8 @@ class _PlanDetailSheet extends StatelessWidget {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2),
+                  color: theme.dividerColor,
+                  borderRadius: BorderRadius.circular(AppDimensions.radiusXxs),
                 ),
               ),
             ),
@@ -791,12 +793,9 @@ class _PlanDetailSheet extends StatelessWidget {
             // 计划名称
             Text(
               plan.name,
-              style: TextStyle(
-                fontFamily: '.SF Pro Display',
-                fontSize: 24,
-                fontWeight: FontWeight.w700,
-                color: theme.textColor,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.headlineLarge!.copyWith(fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 8),
             // 右上角删除按钮
@@ -808,7 +807,7 @@ class _PlanDetailSheet extends StatelessWidget {
                     Navigator.pop(context);
                     onDelete!();
                   },
-                  icon: Icon(Icons.delete_outline, color: Colors.red),
+                  icon: Icon(Icons.delete_outline, color: theme.errorColor),
                   tooltip: '删除计划',
                 ),
               ),
@@ -817,36 +816,31 @@ class _PlanDetailSheet extends StatelessWidget {
             // 目标部位
             Text(
               '目标部位：${plan.targetMusclesText}',
-              style: TextStyle(
-                fontFamily: '.SF Pro Text',
-                fontSize: 14,
-                color: theme.secondaryTextColor,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium!.copyWith(color: theme.secondaryTextColor),
             ),
             const SizedBox(height: 8),
 
             // 统计
             Row(
               children: [
-                _buildStatItem('${plan.exerciseCount}', '个动作', theme),
+                _buildStatItem(context, '${plan.exerciseCount}', '个动作', theme),
                 const SizedBox(width: 24),
-                _buildStatItem('${plan.totalSets}', '组', theme),
+                _buildStatItem(context, '${plan.totalSets}', '组', theme),
                 const SizedBox(width: 24),
-                _buildStatItem('~${plan.estimatedDuration}', '分钟', theme),
+                _buildStatItem(
+                  context,
+                  '~${plan.estimatedDuration}',
+                  '分钟',
+                  theme,
+                ),
               ],
             ),
             const SizedBox(height: 24),
 
             // 动作列表
-            Text(
-              '动作列表',
-              style: TextStyle(
-                fontFamily: '.SF Pro Text',
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: theme.textColor,
-              ),
-            ),
+            Text('动作列表', style: Theme.of(context).textTheme.titleLarge!),
             const SizedBox(height: 12),
             ...plan.exercises.asMap().entries.map((entry) {
               final index = entry.key;
@@ -865,174 +859,191 @@ class _PlanDetailSheet extends StatelessWidget {
                         )
                       : null,
                   child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  decoration: BoxDecoration(
-                    border: Border(
-                      bottom: BorderSide(
-                        color: theme.textColor.withValues(alpha: 0.1),
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    decoration: BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(
+                          color: theme.textColor.withValues(alpha: 0.1),
+                        ),
                       ),
                     ),
-                  ),
-                  child: Row(
-                    children: [
-                      // 缩略图或序号
-                      Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          onTap:
-                              hasDetails &&
-                                planExercise.exercise?.imageUrl != null
-                            ? () {
-                                if (planExercise.exercise!.images.isNotEmpty) {
-                                  FullscreenImageViewer.showCarousel(
-                                    context,
-                                    images: planExercise.exercise!.images,
-                                    initialIndex: 0,
-                                    title: planExercise.exercise!.name,
-                                  );
-                                } else if (planExercise.exercise!.imageUrl !=
-                                    null) {
-                                  FullscreenImageViewer.show(
-                                    context,
-                                    imageUrl: planExercise.exercise!.imageUrl!,
-                                    title: planExercise.exercise!.name,
-                                  );
-                                }
-                              }
-                              : null,
+                    child: Row(
+                      children: [
+                        // 缩略图或序号
+                        Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap:
+                                hasDetails &&
+                                    planExercise.exercise?.imageUrl != null
+                                ? () {
+                                    if (planExercise
+                                        .exercise!
+                                        .images
+                                        .isNotEmpty) {
+                                      FullscreenImageViewer.showCarousel(
+                                        context,
+                                        images: planExercise.exercise!.images,
+                                        initialIndex: 0,
+                                        title: planExercise.exercise!.name,
+                                      );
+                                    } else if (planExercise
+                                            .exercise!
+                                            .imageUrl !=
+                                        null) {
+                                      FullscreenImageViewer.show(
+                                        context,
+                                        imageUrl:
+                                            planExercise.exercise!.imageUrl!,
+                                        title: planExercise.exercise!.name,
+                                      );
+                                    }
+                                  }
+                                : null,
                             customBorder: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
+                              borderRadius: BorderRadius.circular(
+                                AppDimensions.radiusLg,
+                              ),
                             ),
                             child: Container(
                               width: 44,
-                          height: 44,
-                          decoration: BoxDecoration(
-                            color: hasDetails
-                                ? theme.accentColor.withValues(alpha: 0.1)
-                                : theme.textColor.withValues(alpha: 0.05),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child:
-                                hasDetails &&
-                                    planExercise.exercise?.imageUrl != null
-                                ? Hero(
-                                    tag: planExercise.exercise!.imageUrl!,
-                                    child: CachedNetworkImage(
-                                      imageUrl:
-                                          planExercise.exercise!.imageUrl!,
-                                      fit: BoxFit.cover,
-                                      placeholder: (context, url) => Icon(
-                                        Icons.fitness_center,
-                                        color: theme.accentColor.withValues(
-                                          alpha: 0.5,
-                                        ),
-                                        size: 22,
-                                      ),
-                                      errorWidget: (context, url, error) =>
-                                          Icon(
+                              height: 44,
+                              decoration: BoxDecoration(
+                                color: hasDetails
+                                    ? theme.accentColor.withValues(alpha: 0.1)
+                                    : theme.textColor.withValues(alpha: 0.05),
+                                borderRadius: BorderRadius.circular(
+                                  AppDimensions.radiusLg,
+                                ),
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(
+                                  AppDimensions.radiusLg,
+                                ),
+                                child:
+                                    hasDetails &&
+                                        planExercise.exercise?.imageUrl != null
+                                    ? Hero(
+                                        tag: planExercise.exercise!.imageUrl!,
+                                        child: CachedNetworkImage(
+                                          imageUrl:
+                                              planExercise.exercise!.imageUrl!,
+                                          fit: BoxFit.cover,
+                                          placeholder: (context, url) => Icon(
                                             Icons.fitness_center,
                                             color: theme.accentColor.withValues(
                                               alpha: 0.5,
                                             ),
                                             size: 22,
                                           ),
-                                    ),
-                                  )
-                                : Center(
-                                    child: Text(
-                                      '${index + 1}',
-                                      style: TextStyle(
-                                        fontFamily: '.SF Pro Text',
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
-                                        color: hasDetails
-                                            ? theme.accentColor
-                                            : theme.secondaryTextColor
-                                                  .withValues(alpha: 0.5),
+                                          errorWidget: (context, url, error) =>
+                                              Icon(
+                                                Icons.fitness_center,
+                                                color: theme.accentColor
+                                                    .withValues(alpha: 0.5),
+                                                size: 22,
+                                              ),
+                                        ),
+                                      )
+                                    : Center(
+                                        child: Text(
+                                          '${index + 1}',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .labelLarge!
+                                              .copyWith(
+                                                fontWeight: FontWeight.w600,
+                                                color: hasDetails
+                                                    ? theme.accentColor
+                                                    : theme.secondaryTextColor
+                                                          .withValues(
+                                                            alpha: 0.5,
+                                                          ),
+                                              ),
+                                        ),
                                       ),
-                                    ),
-                                  ),
-                          ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // 动作名称
-                            Text(
-                              hasDetails
-                                  ? planExercise.name
-                                  : '${planExercise.name} (无详情)',
-                              style: TextStyle(
-                                fontFamily: '.SF Pro Text',
-                                fontSize: 15,
-                                color: hasDetails
-                                    ? theme.textColor
-                                    : theme.secondaryTextColor.withValues(
-                                        alpha: 0.7,
-                                      ),
-                                fontStyle: hasDetails ? null : FontStyle.italic,
                               ),
                             ),
-                            // 肌肉标签和器材信息
-                            if (hasDetails &&
-                                planExercise.exercise != null) ...[
-                              const SizedBox(height: 4),
-                              Row(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 6,
-                                      vertical: 2,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // 动作名称
+                              Text(
+                                hasDetails
+                                    ? planExercise.name
+                                    : '${planExercise.name} (无详情)',
+                                style: Theme.of(context).textTheme.bodyMedium!
+                                    .copyWith(
+                                      fontSize: 15,
+                                      color: hasDetails
+                                          ? theme.textColor
+                                          : theme.secondaryTextColor.withValues(
+                                              alpha: 0.7,
+                                            ),
+                                      fontStyle: hasDetails
+                                          ? null
+                                          : FontStyle.italic,
                                     ),
-                                    decoration: BoxDecoration(
-                                      color: theme.accentColor.withValues(
-                                        alpha: 0.1,
+                              ),
+                              // 肌肉标签和器材信息
+                              if (hasDetails &&
+                                  planExercise.exercise != null) ...[
+                                const SizedBox(height: 4),
+                                Row(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 6,
+                                        vertical: 2,
                                       ),
-                                      borderRadius: BorderRadius.circular(4),
+                                      decoration: BoxDecoration(
+                                        color: theme.accentColor.withValues(
+                                          alpha: 0.1,
+                                        ),
+                                        borderRadius: BorderRadius.circular(
+                                          AppDimensions.radiusSm,
+                                        ),
+                                      ),
+                                      child: Text(
+                                        planExercise
+                                            .exercise!
+                                            .primaryMuscle
+                                            .displayName,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodySmall!
+                                            .copyWith(
+                                              fontSize: 11,
+                                              color: theme.accentColor,
+                                            ),
+                                      ),
                                     ),
-                                    child: Text(
+                                    const SizedBox(width: 6),
+                                    Text(
                                       planExercise
                                           .exercise!
-                                          .primaryMuscle
-                                          .displayName,
-                                      style: TextStyle(
-                                        fontFamily: '.SF Pro Text',
-                                        fontSize: 11,
-                                        color: theme.accentColor,
-                                      ),
+                                          .equipmentDisplayName,
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.bodySmall!,
                                     ),
-                                  ),
-                                  const SizedBox(width: 6),
-                                  Text(
-                                    planExercise.exercise!.equipmentDisplayName,
-                                    style: TextStyle(
-                                      fontFamily: '.SF Pro Text',
-                                      fontSize: 12,
-                                      color: theme.secondaryTextColor,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                                  ],
+                                ),
+                              ],
                             ],
-                          ],
+                          ),
                         ),
-                      ),
-                      Text(
-                        '${planExercise.effectiveSets}组',
-                        style: TextStyle(
-                          fontFamily: '.SF Pro Text',
-                          fontSize: 14,
-                          color: theme.secondaryTextColor,
+                        Text(
+                          '${planExercise.effectiveSets}组',
+                          style: Theme.of(context).textTheme.bodyMedium!
+                              .copyWith(color: theme.secondaryTextColor),
                         ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
                   ),
                 ),
               );
@@ -1048,8 +1059,7 @@ class _PlanDetailSheet extends StatelessWidget {
                     icon: Icon(Icons.calendar_today, color: theme.accentColor),
                     label: Text(
                       '添加到日历',
-                      style: TextStyle(
-                        fontFamily: '.SF Pro Text',
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                         color: theme.accentColor,
                       ),
                     ),
@@ -1057,7 +1067,9 @@ class _PlanDetailSheet extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       side: BorderSide(color: theme.accentColor),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(
+                          AppDimensions.radiusLg,
+                        ),
                       ),
                     ),
                   ),
@@ -1069,13 +1081,11 @@ class _PlanDetailSheet extends StatelessWidget {
                       Navigator.pop(context);
                       // TODO: Start plan
                     },
-                    icon: const Icon(Icons.play_arrow, color: Colors.white),
-                    label: const Text(
+                    icon: Icon(Icons.play_arrow, color: theme.onAccentColor),
+                    label: Text(
                       '开始训练',
-                      style: TextStyle(
-                        fontFamily: '.SF Pro Text',
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
+                      style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                        color: theme.onAccentColor,
                       ),
                     ),
                     style: ElevatedButton.styleFrom(
@@ -1083,7 +1093,9 @@ class _PlanDetailSheet extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       elevation: 0,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(
+                          AppDimensions.radiusLg,
+                        ),
                       ),
                     ),
                   ),
@@ -1096,26 +1108,23 @@ class _PlanDetailSheet extends StatelessWidget {
     );
   }
 
-  Widget _buildStatItem(String value, String label, AppThemeData theme) {
+  Widget _buildStatItem(
+    BuildContext context,
+    String value,
+    String label,
+    AppThemeData theme,
+  ) {
     return Column(
       children: [
         Text(
           value,
-          style: TextStyle(
-            fontFamily: '.SF Pro Display',
+          style: Theme.of(context).textTheme.headlineLarge!.copyWith(
             fontSize: 20,
             fontWeight: FontWeight.w700,
             color: theme.accentColor,
           ),
         ),
-        Text(
-          label,
-          style: TextStyle(
-            fontFamily: '.SF Pro Text',
-            fontSize: 12,
-            color: theme.secondaryTextColor,
-          ),
-        ),
+        Text(label, style: Theme.of(context).textTheme.bodySmall!),
       ],
     );
   }

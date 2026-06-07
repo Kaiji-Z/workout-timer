@@ -8,13 +8,14 @@ import '../models/set_data.dart';
 import '../models/muscle_group.dart';
 
 import '../theme/app_theme.dart';
+import '../utils/dimensions.dart';
 
 /// 训练记录详情页面 - Flat Vitality 设计
-/// 
+///
 /// 显示训练记录的详细信息，支持编辑
 class RecordDetailScreen extends StatefulWidget {
   final WorkoutRecord record;
-  
+
   const RecordDetailScreen({super.key, required this.record});
 
   @override
@@ -30,7 +31,7 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
   void initState() {
     super.initState();
     _exercises = List.from(widget.record.exercises);
-    
+
     // 初始化重量控制器
     for (int i = 0; i < _exercises.length; i++) {
       final exercise = _exercises[i];
@@ -59,7 +60,7 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().currentTheme;
-    
+
     return Scaffold(
       backgroundColor: theme.backgroundColor,
       appBar: AppBar(
@@ -71,12 +72,9 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
         ),
         title: Text(
           '训练详情',
-          style: TextStyle(
-            fontFamily: '.SF Pro Display',
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-            color: theme.textColor,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.headlineMedium!.copyWith(fontWeight: FontWeight.w700),
         ),
         actions: [
           if (_hasChanges)
@@ -84,8 +82,7 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
               onPressed: _saveChanges,
               child: Text(
                 '保存',
-                style: TextStyle(
-                  fontFamily: '.SF Pro Text',
+                style: Theme.of(context).textTheme.labelLarge!.copyWith(
                   color: theme.accentColor,
                   fontWeight: FontWeight.w600,
                 ),
@@ -101,28 +98,20 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
             // 训练摘要卡片
             _buildSummaryCard(theme),
             const SizedBox(height: 24),
-            
+
             // 动作详情
             if (_exercises.isNotEmpty) ...[
-              Text(
-                '动作详情',
-                style: TextStyle(
-                  fontFamily: '.SF Pro Text',
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: theme.textColor,
-                ),
-              ),
+              Text('动作详情', style: Theme.of(context).textTheme.titleLarge!),
               const SizedBox(height: 12),
               ..._exercises.asMap().entries.map((entry) {
                 return _buildExerciseItem(entry.key, entry.value, theme);
               }),
               const SizedBox(height: 24),
             ],
-            
+
             // 删除按钮
             _buildDeleteButton(theme),
-            
+
             const SizedBox(height: 80),
           ],
         ),
@@ -137,23 +126,23 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
   }) {
     return SizedBox(
       height: 80, // Show 3-4 items
-      width: 60,  // Narrow width
+      width: 60, // Narrow width
       child: CupertinoPicker(
         itemExtent: 32,
-        scrollController: FixedExtentScrollController(initialItem: currentReps - 1),
+        scrollController: FixedExtentScrollController(
+          initialItem: currentReps - 1,
+        ),
         onSelectedItemChanged: (index) => onChanged(index + 1),
-        children: List.generate(30, (index) => 
-          Center(
+        children: List.generate(
+          30,
+          (index) => Center(
             child: Text(
               '${index + 1}',
-              style: TextStyle(
-                fontFamily: '.SF Pro Text',
-                fontSize: 14,
-                color: theme.textColor,
-                fontWeight: FontWeight.w600,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium!.copyWith(fontWeight: FontWeight.w600),
             ),
-          )
+          ),
         ),
       ),
     );
@@ -164,26 +153,26 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
       final exercise = _exercises[exerciseIndex];
       final setsData = exercise.setsData ?? [];
       if (setsData.isEmpty) return;
-      
+
       final updatedSetsData = setsData.map((s) {
         if (s.setNumber == setNumber) {
           return s.copyWith(reps: reps);
         }
         return s;
       }).toList();
-      
+
       final updatedExercise = exercise.copyWith(
         setsData: updatedSetsData,
         maxWeight: _calculateMaxWeight(updatedSetsData),
         completedSets: updatedSetsData.length,
       );
-      
+
       _exercises[exerciseIndex] = updatedExercise;
       _hasChanges = true;
     });
   }
 
- void _updateWeight(int exerciseIndex, int setNumber, double? weight) {
+  void _updateWeight(int exerciseIndex, int setNumber, double? weight) {
     setState(() {
       final exercise = _exercises[exerciseIndex];
       final setsData = exercise.setsData ?? [];
@@ -193,13 +182,13 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
         }
         return s;
       }).toList();
-      
+
       final updatedExercise = exercise.copyWith(
         setsData: updatedSetsData,
         maxWeight: _calculateMaxWeight(updatedSetsData),
         completedSets: updatedSetsData.length,
       );
-      
+
       _exercises[exerciseIndex] = updatedExercise;
       _hasChanges = true;
     });
@@ -208,23 +197,25 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
   void _deleteSet(int exerciseIndex, int setNumber) {
     setState(() {
       final exercise = _exercises[exerciseIndex];
-      final updatedSetsData = exercise.setsData!.where((s) => s.setNumber != setNumber).toList();
-      
+      final updatedSetsData = exercise.setsData!
+          .where((s) => s.setNumber != setNumber)
+          .toList();
+
       // 重新编号
       final renumberedSets = updatedSetsData.asMap().entries.map((entry) {
         final newIndex = entry.key + 1;
         return entry.value.copyWith(setNumber: newIndex);
       }).toList();
-      
+
       final updatedExercise = exercise.copyWith(
         setsData: renumberedSets,
         maxWeight: _calculateMaxWeight(renumberedSets),
         completedSets: renumberedSets.length,
       );
-      
+
       _exercises[exerciseIndex] = updatedExercise;
       _hasChanges = true;
-      
+
       // 释放被删除的控制器
       _weightControllers[exerciseIndex]?.remove(setNumber)?.dispose();
     });
@@ -233,29 +224,33 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
   void _addSet(int exerciseIndex, RecordedExercise exercise) {
     setState(() {
       final currentSets = exercise.setsData ?? [];
-      final newSetNumber = currentSets.isEmpty 
-          ? 1 
-          : currentSets.map((s) => s.setNumber).reduce((a, b) => a > b ? a : b) + 1;
-      
+      final newSetNumber = currentSets.isEmpty
+          ? 1
+          : currentSets
+                    .map((s) => s.setNumber)
+                    .reduce((a, b) => a > b ? a : b) +
+                1;
+
       final newSet = SetData(
         setNumber: newSetNumber,
         reps: 12, // 默认12次
         weight: null,
       );
-      
+
       final updatedSetsData = [...currentSets, newSet];
       final updatedExercise = exercise.copyWith(
         setsData: updatedSetsData,
         maxWeight: _calculateMaxWeight(updatedSetsData),
         completedSets: updatedSetsData.length,
       );
-      
+
       _exercises[exerciseIndex] = updatedExercise;
       _hasChanges = true;
-      
+
       // 添加新的控制器
       _weightControllers[exerciseIndex] ??= {};
-      _weightControllers[exerciseIndex]![newSetNumber] = TextEditingController();
+      _weightControllers[exerciseIndex]![newSetNumber] =
+          TextEditingController();
     });
   }
 
@@ -264,7 +259,7 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: theme.cardColor,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
         boxShadow: [
           BoxShadow(
             color: theme.dividerColor.withValues(alpha: 0.1),
@@ -276,89 +271,96 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-// 日期和计划名称
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      FittedBox(
-                        fit: BoxFit.scaleDown,
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          widget.record.fullDateText,
-                          style: TextStyle(
-                            fontFamily: '.SF Pro Display',
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                            color: theme.textColor,
+          // 日期和计划名称
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        widget.record.fullDateText,
+                        style: Theme.of(context).textTheme.headlineMedium!,
+                      ),
+                    ),
+                    if (widget.record.isPlanMode) ...[
+                      const SizedBox(height: 4),
+                      Container(
+                        constraints: const BoxConstraints(maxWidth: 200),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: theme.accentColor.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(
+                            AppDimensions.radiusMd,
                           ),
                         ),
-                      ),
-                      if (widget.record.isPlanMode) ...[
-                        const SizedBox(height: 4),
-                        Container(
-                          constraints: const BoxConstraints(maxWidth: 200),
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: theme.accentColor.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.playlist_add_check, size: 14, color: theme.accentColor),
-                              const SizedBox(width: 4),
-                              Flexible(
-                                child: Text(
-                                  widget.record.planName ?? '计划模式',
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 1,
-                                  style: TextStyle(
-                                    fontFamily: '.SF Pro Text',
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                    color: theme.accentColor,
-                                  ),
-                                ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.playlist_add_check,
+                              size: 14,
+                              color: theme.accentColor,
+                            ),
+                            const SizedBox(width: 4),
+                            Flexible(
+                              child: Text(
+                                widget.record.planName ?? '计划模式',
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                style: Theme.of(context).textTheme.bodySmall!
+                                    .copyWith(
+                                      fontWeight: FontWeight.w500,
+                                      color: theme.accentColor,
+                                    ),
                               ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-                // 训练时长
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: theme.accentColor.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.timer_outlined, size: 18, color: theme.accentColor),
-                      const SizedBox(width: 6),
-                      Text(
-                        widget.record.durationText,
-                        style: TextStyle(
-                          fontFamily: '.SF Pro Display',
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: theme.accentColor,
+                            ),
+                          ],
                         ),
                       ),
                     ],
-                  ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+              // 训练时长
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: theme.accentColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.timer_outlined,
+                      size: 18,
+                      color: theme.accentColor,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      widget.record.durationText,
+                      style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                        color: theme.accentColor,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: 20),
-          
+
           // 统计数据
           Row(
             children: [
@@ -390,9 +392,11 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
               ),
               Expanded(
                 child: _buildStatItem(
-                  widget.record.trainedMuscles.isEmpty 
-                      ? '无' 
-                      : widget.record.trainedMuscles.map((m) => m.displayName).join('/'),
+                  widget.record.trainedMuscles.isEmpty
+                      ? '无'
+                      : widget.record.trainedMuscles
+                            .map((m) => m.displayName)
+                            .join('/'),
                   '训练部位',
                   Icons.accessibility_new,
                   theme,
@@ -405,287 +409,250 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
     );
   }
 
-  Widget _buildStatItem(String value, String label, IconData icon, AppThemeData theme) {
+  Widget _buildStatItem(
+    String value,
+    String label,
+    IconData icon,
+    AppThemeData theme,
+  ) {
     return Column(
       children: [
         FittedBox(
           fit: BoxFit.scaleDown,
           child: Text(
             value,
-            style: TextStyle(
-              fontFamily: '.SF Pro Display',
+            style: Theme.of(context).textTheme.headlineLarge!.copyWith(
               fontSize: 22,
               fontWeight: FontWeight.w700,
-              color: theme.textColor,
             ),
           ),
         ),
         const SizedBox(height: 4),
         FittedBox(
           fit: BoxFit.scaleDown,
-          child: Text(
-            label,
-            style: TextStyle(
-              fontFamily: '.SF Pro Text',
-              fontSize: 12,
-              color: theme.secondaryTextColor,
-            ),
-          ),
+          child: Text(label, style: Theme.of(context).textTheme.bodySmall!),
         ),
       ],
     );
   }
 
+  Widget _buildExerciseItem(
+    int index,
+    RecordedExercise exercise,
+    AppThemeData theme,
+  ) {
+    final hasSetData =
+        exercise.setsData != null && exercise.setsData!.isNotEmpty;
+    final exerciseControllers = _weightControllers[index] ?? {};
 
-
-Widget _buildExerciseItem(int index, RecordedExercise exercise, AppThemeData theme) {
-  final hasSetData = exercise.setsData != null && exercise.setsData!.isNotEmpty;
-  final exerciseControllers = _weightControllers[index] ?? {};
-  
     return Container(
-    margin: const EdgeInsets.only(top: 8, bottom: 8),
-    padding: const EdgeInsets.all(16),
-    decoration: BoxDecoration(
-      color: theme.cardColor,
-      borderRadius: BorderRadius.circular(16),
-      boxShadow: [
-        BoxShadow(
-          color: theme.dividerColor.withValues(alpha: 0.1),
-          blurRadius: 8,
-          offset: const Offset(0, 2),
-        ),
-      ],
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-         // 标题行: 序号-动作名称/训练部位
-         FittedBox(
-           fit: BoxFit.scaleDown,
-           alignment: Alignment.centerLeft,
-           child: Text(
-             _getExerciseDisplayName(index, exercise),
-            style: TextStyle(
-              fontFamily: '.SF Pro Display',
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: theme.textColor,
+      margin: const EdgeInsets.only(top: 8, bottom: 8),
+      padding: const EdgeInsets.all(AppDimensions.screenPadding),
+      decoration: BoxDecoration(
+        color: theme.cardColor,
+        borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
+        boxShadow: [
+          BoxShadow(
+            color: theme.dividerColor.withValues(alpha: 0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 标题行: 序号-动作名称/训练部位
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              _getExerciseDisplayName(index, exercise),
+              style: Theme.of(context).textTheme.titleLarge!,
             ),
           ),
-        ),
-        
-        const SizedBox(height: 12),
-        
-        // 详情行: 每组数据
-        if (hasSetData) ...[
-          // 显示组数据
-          ...exercise.setsData!.map((setData) => 
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8),
+
+          const SizedBox(height: 12),
+
+          // 详情行: 每组数据
+          if (hasSetData) ...[
+            // 显示组数据
+            ...exercise.setsData!.map(
+              (setData) => Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Row(
+                  children: [
+                    // 组数标签
+                    SizedBox(
+                      width: 40,
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          '第${setData.setNumber}组',
+                          style: Theme.of(context).textTheme.bodyMedium!
+                              .copyWith(color: theme.secondaryTextColor),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(width: 12),
+
+                    // 次数选择器
+                    SizedBox(
+                      width: 60,
+                      child: _buildRepsSelector(
+                        currentReps: setData.reps ?? 12,
+                        onChanged: (reps) =>
+                            _updateReps(index, setData.setNumber, reps),
+                        theme: theme,
+                      ),
+                    ),
+
+                    const SizedBox(width: 4),
+
+                    // 乘号
+                    Text('×', style: Theme.of(context).textTheme.titleLarge!),
+
+                    const SizedBox(width: 4),
+
+                    // 重量输入
+                    Expanded(
+                      child: TextField(
+                        controller: exerciseControllers[setData.setNumber],
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          hintText: '0',
+                          hintStyle: Theme.of(context).textTheme.bodyMedium!
+                              .copyWith(color: theme.secondaryTextColor),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(
+                              AppDimensions.radiusMd,
+                            ),
+                            borderSide: BorderSide(color: theme.borderColor),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(
+                              AppDimensions.radiusMd,
+                            ),
+                            borderSide: BorderSide(
+                              color: theme.accentColor,
+                              width: 2,
+                            ),
+                          ),
+                          suffixText: 'kg',
+                          suffixStyle: Theme.of(context).textTheme.bodySmall!,
+                          isDense: true,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 8,
+                          ),
+                        ),
+                        style: Theme.of(context).textTheme.bodyMedium!,
+                        onChanged: (value) {
+                          final weight = double.tryParse(value);
+                          _updateWeight(index, setData.setNumber, weight);
+                        },
+                      ),
+                    ),
+
+                    const SizedBox(width: 4),
+
+                    // 删除按钮 (紧凑)
+                    Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () => _deleteSet(index, setData.setNumber),
+                        customBorder: const CircleBorder(),
+                        child: Padding(
+                          padding: const EdgeInsets.all(4),
+                          child: Icon(
+                            Icons.delete_outline,
+                            size: 18,
+                            color: theme.textColor.withValues(alpha: 0.5),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 8),
+
+            // 添加组按钮
+            TextButton(
+              onPressed: () => _addSet(index, exercise),
               child: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  // 组数标签
-                  SizedBox(
-                    width: 40,
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        '第${setData.setNumber}组',
-                        style: TextStyle(
-                          fontFamily: '.SF Pro Text',
-                          fontSize: 14,
-                          color: theme.secondaryTextColor,
-                        ),
-                      ),
-                    ),
-                  ),
-                  
-                  const SizedBox(width: 12),
-                  
-                  // 次数选择器
-                  SizedBox(
-                    width: 60,
-                    child: _buildRepsSelector(
-                      currentReps: setData.reps ?? 12,
-                      onChanged: (reps) => _updateReps(index, setData.setNumber, reps),
-                      theme: theme,
-                    ),
-                  ),
-                  
+                  Icon(Icons.add, size: 16, color: theme.accentColor),
                   const SizedBox(width: 4),
-                  
-                  // 乘号
                   Text(
-                    '×',
-                    style: TextStyle(
-                      fontFamily: '.SF Pro Text',
-                      fontSize: 16,
+                    '添加组',
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodyMedium!.copyWith(color: theme.accentColor),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 8),
+
+            // 总容量（仅当有 setsData 时显示）
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: theme.accentColor.withValues(alpha: 0.05),
+                borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('总容量', style: Theme.of(context).textTheme.bodySmall!),
+                  Text(
+                    '${exercise.totalVolume.toStringAsFixed(1)} kg',
+                    style: Theme.of(context).textTheme.bodySmall!.copyWith(
                       fontWeight: FontWeight.w600,
-                      color: theme.textColor,
-                    ),
-                  ),
-                  
-                  const SizedBox(width: 4),
-                  
-                  // 重量输入
-                  Expanded(
-                    child: TextField(
-                      controller: exerciseControllers[setData.setNumber],
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                        hintText: '0',
-                        hintStyle: TextStyle(
-                          fontFamily: '.SF Pro Text',
-                          fontSize: 14,
-                          color: theme.secondaryTextColor,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(
-                            color: theme.borderColor,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(
-                            color: theme.accentColor,
-                            width: 2,
-                          ),
-                        ),
-                        suffixText: 'kg',
-                        suffixStyle: TextStyle(
-                          fontFamily: '.SF Pro Text',
-                          fontSize: 12,
-                          color: theme.secondaryTextColor,
-                        ),
-                        isDense: true,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                      ),
-                      style: TextStyle(
-                        fontFamily: '.SF Pro Text',
-                        fontSize: 14,
-                        color: theme.textColor,
-                      ),
-                      onChanged: (value) {
-                        final weight = double.tryParse(value);
-                        _updateWeight(index, setData.setNumber, weight);
-                      },
-                    ),
-                  ),
-                  
-                  const SizedBox(width: 4),
-                  
-                  // 删除按钮 (紧凑)
-                  Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      onTap: () => _deleteSet(index, setData.setNumber),
-                      customBorder: const CircleBorder(),
-                      child: Padding(
-                        padding: const EdgeInsets.all(4),
-                        child: Icon(
-                          Icons.delete_outline,
-                          size: 18,
-                          color: theme.textColor.withValues(alpha: 0.5),
-                        ),
-                      ),
+                      color: theme.accentColor,
                     ),
                   ),
                 ],
               ),
             ),
-          ),
-          
-          const SizedBox(height: 8),
-          
-          // 添加组按钮
-          TextButton(
-            onPressed: () => _addSet(index, exercise),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.add, size: 16, color: theme.accentColor),
-                const SizedBox(width: 4),
-                Text(
-                  '添加组',
-                  style: TextStyle(
-                    fontFamily: '.SF Pro Text',
-                    fontSize: 14,
-                    color: theme.accentColor,
+          ] else ...[
+            // 无数据：显示提示
+            Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () => _addSet(index, exercise),
+                borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: theme.accentColor.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
                   ),
-                ),
-              ],
-            ),
-          ),
-          
-          const SizedBox(height: 8),
-          
-          // 总容量（仅当有 setsData 时显示）
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: theme.accentColor.withValues(alpha: 0.05),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  '总容量',
-                  style: TextStyle(
-                    fontFamily: '.SF Pro Text',
-                    fontSize: 12,
-                    color: theme.secondaryTextColor,
-                  ),
-                ),
-                Text(
-                  '${exercise.totalVolume.toStringAsFixed(1)} kg',
-                  style: TextStyle(
-                    fontFamily: '.SF Pro Text',
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: theme.accentColor,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ] else ...[
-          // 无数据：显示提示
-          Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: () => _addSet(index, exercise),
-              borderRadius: BorderRadius.circular(12),
-              child: Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: theme.accentColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  '点击添加训练数据',
-                  style: TextStyle(
-                    fontFamily: '.SF Pro Text',
-                    fontSize: 14,
-                    color: theme.accentColor,
+                  child: Text(
+                    '点击添加训练数据',
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodyMedium!.copyWith(color: theme.accentColor),
                   ),
                 ),
               ),
             ),
-          ),
+          ],
         ],
-      ],
-    ),
-  );
-}
+      ),
+    );
+  }
 
   Future<void> _saveChanges() async {
-    final updatedRecord = widget.record.copyWith(
-      exercises: _exercises,
-    );
-    
+    final updatedRecord = widget.record.copyWith(exercises: _exercises);
+
     try {
       await context.read<RecordProvider>().updateRecord(updatedRecord);
       setState(() {
@@ -717,7 +684,7 @@ Widget _buildExerciseItem(int index, RecordedExercise exercise, AppThemeData the
       Navigator.pop(context);
       return;
     }
-    
+
     final shouldSave = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -735,11 +702,11 @@ Widget _buildExerciseItem(int index, RecordedExercise exercise, AppThemeData the
         ],
       ),
     );
-    
+
     if (shouldSave == true) {
       await _saveChanges();
     }
-    
+
     if (mounted) {
       Navigator.pop(context);
     }
@@ -758,17 +725,16 @@ Widget _buildExerciseItem(int index, RecordedExercise exercise, AppThemeData the
     return muscle?.displayName ?? '未指定';
   }
 
-  
-  
   /// Calculate max weight from sets data
   double? _calculateMaxWeight(List<SetData> setsData) {
     if (setsData.isEmpty) return null;
-    final weights = setsData.where((s) => s.weight != null).map((s) => s.weight!).toList();
+    final weights = setsData
+        .where((s) => s.weight != null)
+        .map((s) => s.weight!)
+        .toList();
     if (weights.isEmpty) return null;
     return weights.reduce((a, b) => a > b ? a : b);
   }
-
-  
 
   Widget _buildDeleteButton(AppThemeData theme) {
     return SizedBox(
@@ -778,16 +744,15 @@ Widget _buildExerciseItem(int index, RecordedExercise exercise, AppThemeData the
         icon: Icon(Icons.delete_outline, color: theme.errorColor),
         label: Text(
           '删除此记录',
-          style: TextStyle(
-            fontFamily: '.SF Pro Text',
-            color: theme.errorColor,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.labelLarge!.copyWith(color: theme.errorColor),
         ),
         style: OutlinedButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 14),
           side: BorderSide(color: theme.errorColor),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
           ),
         ),
       ),
@@ -812,7 +777,9 @@ Widget _buildExerciseItem(int index, RecordedExercise exercise, AppThemeData the
               final navigator = Navigator.of(context);
               Navigator.pop(context);
               try {
-                await context.read<RecordProvider>().deleteRecord(widget.record.id);
+                await context.read<RecordProvider>().deleteRecord(
+                  widget.record.id,
+                );
                 if (mounted) {
                   navigator.pop();
                   messenger.showSnackBar(

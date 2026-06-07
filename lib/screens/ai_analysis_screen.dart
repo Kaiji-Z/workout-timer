@@ -9,6 +9,7 @@ import '../services/stats_calculator_service.dart';
 import '../services/user_preferences_service.dart';
 import '../theme/theme_provider.dart';
 import '../theme/app_theme.dart';
+import '../utils/dimensions.dart';
 
 /// Full-screen page for AI training analysis.
 /// Generates a rich prompt from workout data and lets users copy it to external AI tools.
@@ -106,7 +107,10 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
           if (set.weight == null || set.weight! <= 0) continue;
           if (set.reps == null || set.reps! <= 0) continue;
 
-          final e1RM = StatsCalculatorService.estimate1RM(set.weight!, set.reps!);
+          final e1RM = StatsCalculatorService.estimate1RM(
+            set.weight!,
+            set.reps!,
+          );
           final current = sessionBest[name];
           if (current == null || e1RM > current.estimated1RM) {
             sessionBest[name] = Estimated1RMPoint(
@@ -241,7 +245,9 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
     final isWeek = widget.periodType == 'week';
     // MEV reference: 10 sets/week (Schoenfeld 2017)
     const weeklyMev = 10;
-    final mevLabel = isWeek ? '周MEV参考: $weeklyMev 组' : '月MEV参考: ${weeklyMev * 4} 组';
+    final mevLabel = isWeek
+        ? '周MEV参考: $weeklyMev 组'
+        : '月MEV参考: ${weeklyMev * 4} 组';
 
     final sorted = setsPerMuscle.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
@@ -259,9 +265,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
       } else {
         status = '🔴 不足';
       }
-      buffer.writeln(
-        '  - ${entry.key.displayName}: $sets 组 $status',
-      );
+      buffer.writeln('  - ${entry.key.displayName}: $sets 组 $status');
     }
     return buffer.toString().trimRight();
   }
@@ -273,9 +277,10 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
 
     // Sort by estimated1RM descending (best session), take top 10
     final sorted = trend.entries.toList()
-      ..sort((a, b) => b.value.last.estimated1RM.compareTo(
-        a.value.last.estimated1RM,
-      ));
+      ..sort(
+        (a, b) =>
+            b.value.last.estimated1RM.compareTo(a.value.last.estimated1RM),
+      );
 
     final buffer = StringBuffer();
     buffer.writeln('  (基于 Mayhew 公式估算，±5-8kg 误差)');
@@ -284,9 +289,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
       final e1RM = point.estimated1RM.toStringAsFixed(1);
       final w = point.weight.toStringAsFixed(1);
       final r = point.reps ?? 0;
-      buffer.writeln(
-        '  - ${entry.key}: ~$e1RM kg (基于 ${w}kg×$r)',
-      );
+      buffer.writeln('  - ${entry.key}: ~$e1RM kg (基于 ${w}kg×$r)');
     }
     return buffer.toString().trimRight();
   }
@@ -307,9 +310,11 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
     if (progressable.isEmpty) return '- 本周期内各动作仅训练1次，无法计算进步趋势';
 
     progressable.sort((a, b) {
-      final changeA = (a.value.last.estimated1RM - a.value.first.estimated1RM) /
+      final changeA =
+          (a.value.last.estimated1RM - a.value.first.estimated1RM) /
           a.value.first.estimated1RM;
-      final changeB = (b.value.last.estimated1RM - b.value.first.estimated1RM) /
+      final changeB =
+          (b.value.last.estimated1RM - b.value.first.estimated1RM) /
           b.value.first.estimated1RM;
       return changeB.compareTo(changeA);
     });
@@ -321,7 +326,11 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
       final change =
           ((last.estimated1RM - first.estimated1RM) / first.estimated1RM * 100);
       final weeks = last.date.difference(first.date).inDays / 7.0;
-      final arrow = change > 0 ? '↑' : change < 0 ? '↓' : '→';
+      final arrow = change > 0
+          ? '↑'
+          : change < 0
+          ? '↓'
+          : '→';
       buffer.writeln(
         '  - ${entry.key}: ${first.estimated1RM.toStringAsFixed(1)} → ${last.estimated1RM.toStringAsFixed(1)} kg (${change > 0 ? '+' : ''}${change.toStringAsFixed(1)}% $arrow${weeks > 0 ? ' / ${weeks.toStringAsFixed(0)}周' : ''})',
       );
@@ -564,7 +573,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
       backgroundColor: theme.primaryColor,
       appBar: _buildAppBar(theme),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppDimensions.screenPadding),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -649,19 +658,16 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
             margin: const EdgeInsets.only(right: 12),
             decoration: BoxDecoration(
               gradient: LinearGradient(colors: theme.timerGradientColors),
-              borderRadius: BorderRadius.circular(2),
+              borderRadius: BorderRadius.circular(AppDimensions.radiusXxs),
             ),
           ),
           Icon(Icons.psychology, color: theme.accentColor, size: 22),
           const SizedBox(width: 8),
           Text(
             'AI 训练分析',
-            style: TextStyle(
-              fontFamily: '.SF Pro Display',
-              fontSize: 18,
+            style: Theme.of(context).textTheme.headlineMedium!.copyWith(
               fontWeight: FontWeight.w700,
               letterSpacing: -0.5,
-              color: theme.textColor,
             ),
           ),
         ],
@@ -671,10 +677,10 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
 
   Widget _buildInstructionsBox(AppThemeData theme) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppDimensions.screenPadding),
       decoration: BoxDecoration(
         color: theme.accentColor.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
         border: Border.all(
           color: theme.accentColor.withValues(alpha: 0.2),
           width: 1,
@@ -689,9 +695,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
               const SizedBox(width: 8),
               Text(
                 '使用说明',
-                style: TextStyle(
-                  fontFamily: '.SF Pro Text',
-                  fontSize: 14,
+                style: Theme.of(context).textTheme.labelLarge!.copyWith(
                   fontWeight: FontWeight.w600,
                   color: theme.accentColor,
                 ),
@@ -714,11 +718,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
       padding: const EdgeInsets.only(bottom: 6),
       child: Text(
         text,
-        style: TextStyle(
-          fontFamily: '.SF Pro Text',
-          fontSize: 13,
-          color: theme.secondaryTextColor,
-        ),
+        style: Theme.of(context).textTheme.bodySmall!.copyWith(fontSize: 13),
       ),
     );
   }
@@ -726,11 +726,9 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
   Widget _buildSectionHeader(String title, AppThemeData theme) {
     return Text(
       title,
-      style: TextStyle(
-        fontFamily: '.SF Pro Display',
+      style: Theme.of(context).textTheme.headlineLarge!.copyWith(
         fontSize: 20,
         fontWeight: FontWeight.w700,
-        color: theme.textColor,
       ),
     );
   }
@@ -740,30 +738,27 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
       padding: const EdgeInsets.only(bottom: 8),
       child: Text(
         title,
-        style: TextStyle(
-          fontFamily: '.SF Pro Text',
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-          color: theme.textColor,
-        ),
+        style: Theme.of(
+          context,
+        ).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.w600),
       ),
     );
   }
 
   Widget _buildGlassCard({required AppThemeData theme, required Widget child}) {
-    final isDark = theme.surfaceColor == const Color(0xFF1E1E2E);
+    final isDark = theme.isDark;
     final bgAlpha = isDark ? 0.08 : 0.12;
     final borderAlpha = isDark ? 0.20 : 0.30;
 
     return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
         child: Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppDimensions.screenPadding),
           decoration: BoxDecoration(
             color: theme.surfaceColor.withValues(alpha: bgAlpha),
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
             border: Border.all(
               color: theme.surfaceColor.withValues(alpha: borderAlpha),
               width: 1,
@@ -818,12 +813,9 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
         ),
         Text(
           _formatVolumeTrend(),
-          style: TextStyle(
-            fontFamily: '.SF Pro Text',
-            fontSize: 13,
-            color: theme.textColor,
-            height: 1.5,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium!.copyWith(fontSize: 13, height: 1.5),
         ),
       ],
     );
@@ -836,12 +828,9 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
         _buildSubsectionHeader('肌肉容量分布', theme),
         Text(
           _formatMuscleVolumeDistribution(),
-          style: TextStyle(
-            fontFamily: '.SF Pro Text',
-            fontSize: 13,
-            color: theme.textColor,
-            height: 1.5,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium!.copyWith(fontSize: 13, height: 1.5),
         ),
       ],
     );
@@ -857,12 +846,9 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
         ),
         Text(
           _formatSetsPerMuscleGroup(),
-          style: TextStyle(
-            fontFamily: '.SF Pro Text',
-            fontSize: 13,
-            color: theme.textColor,
-            height: 1.5,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium!.copyWith(fontSize: 13, height: 1.5),
         ),
       ],
     );
@@ -875,12 +861,9 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
         _buildSubsectionHeader('估算1RM (Mayhew公式)', theme),
         Text(
           _formatEstimated1RM(),
-          style: TextStyle(
-            fontFamily: '.SF Pro Text',
-            fontSize: 13,
-            color: theme.textColor,
-            height: 1.5,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium!.copyWith(fontSize: 13, height: 1.5),
         ),
       ],
     );
@@ -893,12 +876,9 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
         _buildSubsectionHeader('估算1RM进步趋势', theme),
         Text(
           _format1RMProgression(),
-          style: TextStyle(
-            fontFamily: '.SF Pro Text',
-            fontSize: 13,
-            color: theme.textColor,
-            height: 1.5,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium!.copyWith(fontSize: 13, height: 1.5),
         ),
       ],
     );
@@ -911,17 +891,13 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
         _buildSubsectionHeader('恢复状态', theme),
         Text(
           _formatRecoveryManagement(),
-          style: TextStyle(
-            fontFamily: '.SF Pro Text',
-            fontSize: 13,
-            color: theme.textColor,
-            height: 1.5,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium!.copyWith(fontSize: 13, height: 1.5),
         ),
       ],
     );
   }
-
 
   Widget _buildDataRow(String label, String value, AppThemeData theme) {
     return Padding(
@@ -931,20 +907,16 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
         children: [
           Text(
             '$label: ',
-            style: TextStyle(
-              fontFamily: '.SF Pro Text',
-              fontSize: 13,
-              color: theme.secondaryTextColor,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall!.copyWith(fontSize: 13),
           ),
           Expanded(
             child: Text(
               value,
-              style: TextStyle(
-                fontFamily: '.SF Pro Text',
-                fontSize: 13,
-                color: theme.textColor,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium!.copyWith(fontSize: 13),
             ),
           ),
         ],
@@ -958,7 +930,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: theme.textColor.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
         border: Border.all(
           color: theme.textColor.withValues(alpha: 0.1),
           width: 1,
@@ -967,12 +939,9 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
       child: SingleChildScrollView(
         child: Text(
           _generatedPrompt ?? '正在生成提示词...',
-          style: TextStyle(
-            fontFamily: '.SF Pro Text',
-            fontSize: 12,
-            color: theme.textColor,
-            height: 1.5,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall!.copyWith(color: theme.textColor, height: 1.5),
         ),
       ),
     );
@@ -983,13 +952,15 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
       width: double.infinity,
       height: 56,
       child: ElevatedButton.icon(
-        onPressed: _generatedPrompt == null ? null : () {
-          Clipboard.setData(ClipboardData(text: _generatedPrompt!));
-          setState(() => _isPromptCopied = true);
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(const SnackBar(content: Text('提示词已复制到剪贴板')));
-        },
+        onPressed: _generatedPrompt == null
+            ? null
+            : () {
+                Clipboard.setData(ClipboardData(text: _generatedPrompt!));
+                setState(() => _isPromptCopied = true);
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(const SnackBar(content: Text('提示词已复制到剪贴板')));
+              },
         icon: Icon(
           _isPromptCopied ? Icons.check : Icons.copy,
           size: 20,
@@ -997,19 +968,16 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
         ),
         label: Text(
           _isPromptCopied ? '已复制' : '复制提示词',
-          style: TextStyle(
-            fontFamily: '.SF Pro Text',
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: theme.surfaceColor,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleLarge!.copyWith(color: theme.surfaceColor),
         ),
         style: ElevatedButton.styleFrom(
           backgroundColor: theme.accentColor,
           foregroundColor: theme.surfaceColor,
           elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
           ),
         ),
       ),
