@@ -23,8 +23,9 @@ AppThemeData _getAppTheme(BuildContext context) {
 double _niceInterval(double range, int targetTicks) {
   if (range <= 0) return 1.0;
   final roughStep = range / targetTicks;
-  final magnitude =
-      math.pow(10, (math.log(roughStep) / math.log(10)).floor()).toDouble();
+  final magnitude = math
+      .pow(10, (math.log(roughStep) / math.log(10)).floor())
+      .toDouble();
   final residual = roughStep / magnitude;
   double niceStep;
   if (residual <= 1.5) {
@@ -53,10 +54,7 @@ String _formatValue(double value) {
 class DailyVolumeChart extends StatelessWidget {
   final Map<DateTime, double> data;
 
-  const DailyVolumeChart({
-    super.key,
-    required this.data,
-  });
+  const DailyVolumeChart({super.key, required this.data});
 
   @override
   Widget build(BuildContext context) {
@@ -66,20 +64,14 @@ class DailyVolumeChart extends StatelessWidget {
       return Center(
         child: Text(
           '暂无每日训练量数据',
-          style: TextStyle(
-            color: theme.secondaryTextColor,
-            fontSize: 14,
-          ),
+          style: TextStyle(color: theme.secondaryTextColor, fontSize: 14),
         ),
       );
     }
 
     final sortedKeys = data.keys.toList()..sort();
     final spots = sortedKeys.asMap().entries.map((entry) {
-      return FlSpot(
-        entry.key.toDouble(),
-        data[sortedKeys[entry.key]]!,
-      );
+      return FlSpot(entry.key.toDouble(), data[sortedKeys[entry.key]]!);
     }).toList();
 
     final values = data.values.toList();
@@ -134,10 +126,8 @@ class DailyVolumeChart extends StatelessWidget {
             show: true,
             drawVerticalLine: false,
             horizontalInterval: interval,
-            getDrawingHorizontalLine: (value) => FlLine(
-              color: theme.dividerColor,
-              strokeWidth: 1,
-            ),
+            getDrawingHorizontalLine: (value) =>
+                FlLine(color: theme.dividerColor, strokeWidth: 1),
           ),
           titlesData: FlTitlesData(
             topTitles: const AxisTitles(
@@ -175,7 +165,8 @@ class DailyVolumeChart extends StatelessWidget {
                 reservedSize: 40,
                 interval: interval,
                 getTitlesWidget: (value, meta) {
-                  if (value % interval != 0 && (value % interval).abs() > 0.01) {
+                  if (value % interval != 0 &&
+                      (value % interval).abs() > 0.01) {
                     return const SizedBox.shrink();
                   }
                   return Text(

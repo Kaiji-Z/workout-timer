@@ -8,21 +8,22 @@ import '../models/workout_plan.dart';
 import '../theme/theme_provider.dart';
 import '../bloc/plan_provider.dart';
 import '../theme/app_theme.dart';
+import '../utils/dimensions.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 /// 动作选择器 - Flat Vitality 设计
-/// 
+///
 /// 按肌肉部位筛选，支持多选，可查看详情
 class ExerciseSelector extends StatefulWidget {
   /// 已选中的肌肉部位（用于筛选）
   final List<PrimaryMuscleGroup> selectedMuscles;
-  
+
   /// 已选中的动作（含组数）
   final List<PlanExercise> selectedExercises;
-  
+
   /// 选择变化回调
   final ValueChanged<List<PlanExercise>> onSelectionChanged;
-  
+
   const ExerciseSelector({
     super.key,
     required this.selectedMuscles,
@@ -52,7 +53,7 @@ class _ExerciseSelectorState extends State<ExerciseSelector> {
   void didUpdateWidget(ExerciseSelector oldWidget) {
     super.didUpdateWidget(oldWidget);
     // 当选中的肌肉部位变化时，更新筛选
-    if (widget.selectedMuscles.isNotEmpty && 
+    if (widget.selectedMuscles.isNotEmpty &&
         !widget.selectedMuscles.contains(_filterMuscle)) {
       _filterMuscle = widget.selectedMuscles.first;
     }
@@ -68,25 +69,23 @@ class _ExerciseSelectorState extends State<ExerciseSelector> {
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().currentTheme;
     final planProvider = context.watch<PlanProvider>();
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // 搜索框
         _buildSearchBar(theme),
         const SizedBox(height: 12),
-        
+
         // 肌肉部位筛选标签
         if (widget.selectedMuscles.isNotEmpty) ...[
           _buildMuscleFilterChips(theme),
           const SizedBox(height: 12),
         ],
-        
+
         // 动作列表
-        Expanded(
-          child: _buildExerciseList(planProvider, theme),
-        ),
-        
+        Expanded(child: _buildExerciseList(planProvider, theme)),
+
         // 已选动作预览
         if (widget.selectedExercises.isNotEmpty) ...[
           const Divider(height: 32),
@@ -100,7 +99,7 @@ class _ExerciseSelectorState extends State<ExerciseSelector> {
     return Container(
       decoration: BoxDecoration(
         color: theme.surfaceColor,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
         boxShadow: [
           BoxShadow(
             color: theme.textColor.withValues(alpha: 0.05),
@@ -118,14 +117,10 @@ class _ExerciseSelectorState extends State<ExerciseSelector> {
         },
         decoration: InputDecoration(
           hintText: '搜索动作...',
-          hintStyle: TextStyle(
-            fontFamily: '.SF Pro Text',
-            color: theme.secondaryTextColor,
-          ),
-          prefixIcon: Icon(
-            Icons.search,
-            color: theme.secondaryTextColor,
-          ),
+          hintStyle: Theme.of(
+            context,
+          ).textTheme.bodyLarge!.copyWith(color: theme.secondaryTextColor),
+          prefixIcon: Icon(Icons.search, color: theme.secondaryTextColor),
           suffixIcon: _searchQuery.isNotEmpty
               ? IconButton(
                   icon: Icon(Icons.clear, color: theme.secondaryTextColor),
@@ -138,12 +133,14 @@ class _ExerciseSelectorState extends State<ExerciseSelector> {
                 )
               : null,
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 14,
+          ),
         ),
-        style: TextStyle(
-          fontFamily: '.SF Pro Text',
-          color: theme.textColor,
-        ),
+        style: Theme.of(
+          context,
+        ).textTheme.bodyLarge!.copyWith(color: theme.textColor),
       ),
     );
   }
@@ -158,26 +155,33 @@ class _ExerciseSelectorState extends State<ExerciseSelector> {
             color: Colors.transparent,
             child: InkWell(
               onTap: () => setState(() => _filterMuscle = null),
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(AppDimensions.radiusChip),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 margin: const EdgeInsets.only(right: 8),
                 decoration: BoxDecoration(
-                  color: _filterMuscle == null ? theme.accentColor : theme.surfaceColor,
-                  borderRadius: BorderRadius.circular(20),
+                  color: _filterMuscle == null
+                      ? theme.accentColor
+                      : theme.surfaceColor,
+                  borderRadius: BorderRadius.circular(AppDimensions.radiusChip),
                   border: Border.all(
-                    color: _filterMuscle == null 
-                        ? theme.accentColor 
+                    color: _filterMuscle == null
+                        ? theme.accentColor
                         : theme.textColor.withValues(alpha: 0.2),
                   ),
                 ),
                 child: Text(
                   '全部',
-                  style: TextStyle(
-                    fontFamily: '.SF Pro Text',
-                    fontSize: 14,
-                    fontWeight: _filterMuscle == null ? FontWeight.w600 : FontWeight.w500,
-                    color: _filterMuscle == null ? Colors.white : theme.textColor,
+                  style: Theme.of(context).textTheme.labelLarge!.copyWith(
+                    fontWeight: _filterMuscle == null
+                        ? FontWeight.w600
+                        : FontWeight.w500,
+                    color: _filterMuscle == null
+                        ? theme.onAccentColor
+                        : theme.textColor,
                   ),
                 ),
               ),
@@ -190,24 +194,31 @@ class _ExerciseSelectorState extends State<ExerciseSelector> {
               color: Colors.transparent,
               child: InkWell(
                 onTap: () => setState(() => _filterMuscle = muscle),
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(AppDimensions.radiusChip),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   margin: const EdgeInsets.only(right: 8),
                   decoration: BoxDecoration(
                     color: isSelected ? theme.accentColor : theme.surfaceColor,
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(
+                      AppDimensions.radiusChip,
+                    ),
                     border: Border.all(
-                      color: isSelected ? theme.accentColor : theme.textColor.withValues(alpha: 0.2),
+                      color: isSelected
+                          ? theme.accentColor
+                          : theme.textColor.withValues(alpha: 0.2),
                     ),
                   ),
                   child: Text(
                     muscle.displayName,
-                    style: TextStyle(
-                      fontFamily: '.SF Pro Text',
-                      fontSize: 14,
-                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                      color: isSelected ? Colors.white : theme.textColor,
+                    style: Theme.of(context).textTheme.labelLarge!.copyWith(
+                      fontWeight: isSelected
+                          ? FontWeight.w600
+                          : FontWeight.w500,
+                      color: isSelected ? theme.onAccentColor : theme.textColor,
                     ),
                   ),
                 ),
@@ -222,20 +233,27 @@ class _ExerciseSelectorState extends State<ExerciseSelector> {
   Widget _buildExerciseList(PlanProvider planProvider, AppThemeData theme) {
     // 获取所有动作
     List<Exercise> exercises = planProvider.exercises;
-    
+
     // 按肌肉部位筛选
     if (_filterMuscle != null) {
-      exercises = exercises.where((e) => e.primaryMuscle == _filterMuscle).toList();
+      exercises = exercises
+          .where((e) => e.primaryMuscle == _filterMuscle)
+          .toList();
     } else if (widget.selectedMuscles.isNotEmpty) {
-      exercises = exercises.where((e) => widget.selectedMuscles.contains(e.primaryMuscle)).toList();
+      exercises = exercises
+          .where((e) => widget.selectedMuscles.contains(e.primaryMuscle))
+          .toList();
     }
-    
+
     // 搜索筛选
     if (_searchQuery.isNotEmpty) {
-      exercises = exercises.where((e) =>
-          e.name.toLowerCase().contains(_searchQuery) ||
-          e.nameEn.toLowerCase().contains(_searchQuery)
-      ).toList();
+      exercises = exercises
+          .where(
+            (e) =>
+                e.name.toLowerCase().contains(_searchQuery) ||
+                e.nameEn.toLowerCase().contains(_searchQuery),
+          )
+          .toList();
     }
 
     if (exercises.isEmpty) {
@@ -251,11 +269,9 @@ class _ExerciseSelectorState extends State<ExerciseSelector> {
             const SizedBox(height: 16),
             Text(
               '没有找到动作',
-              style: TextStyle(
-                fontFamily: '.SF Pro Text',
-                fontSize: 16,
-                color: theme.secondaryTextColor,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge!.copyWith(color: theme.secondaryTextColor),
             ),
           ],
         ),
@@ -267,7 +283,9 @@ class _ExerciseSelectorState extends State<ExerciseSelector> {
       itemCount: exercises.length,
       itemBuilder: (context, index) {
         final exercise = exercises[index];
-        final isSelected = widget.selectedExercises.any((e) => e.exerciseId == exercise.id);
+        final isSelected = widget.selectedExercises.any(
+          (e) => e.exerciseId == exercise.id,
+        );
         return _ExerciseListItem(
           exercise: exercise,
           isSelected: isSelected,
@@ -281,10 +299,10 @@ class _ExerciseSelectorState extends State<ExerciseSelector> {
   Widget _buildSelectedPreview(AppThemeData theme) {
     return Container(
       constraints: const BoxConstraints(maxHeight: 110),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppDimensions.screenPadding),
       decoration: BoxDecoration(
         color: theme.accentColor.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -295,9 +313,7 @@ class _ExerciseSelectorState extends State<ExerciseSelector> {
             children: [
               Text(
                 '已选 ${widget.selectedExercises.length} 个动作',
-                style: TextStyle(
-                  fontFamily: '.SF Pro Text',
-                  fontSize: 14,
+                style: Theme.of(context).textTheme.labelLarge!.copyWith(
                   fontWeight: FontWeight.w600,
                   color: theme.textColor,
                 ),
@@ -306,10 +322,9 @@ class _ExerciseSelectorState extends State<ExerciseSelector> {
                 onPressed: () => widget.onSelectionChanged([]),
                 child: Text(
                   '清空',
-                  style: TextStyle(
-                    fontFamily: '.SF Pro Text',
-                    color: theme.accentColor,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.labelLarge!.copyWith(color: theme.accentColor),
                 ),
               ),
             ],
@@ -322,13 +337,18 @@ class _ExerciseSelectorState extends State<ExerciseSelector> {
                 runSpacing: 8,
                 children: widget.selectedExercises.map((planExercise) {
                   return Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
-                       color: theme.surfaceColor,
-                       borderRadius: BorderRadius.circular(16),
-                       boxShadow: [
-                         BoxShadow(
-                           color: theme.textColor.withValues(alpha: 0.05),
+                      color: theme.surfaceColor,
+                      borderRadius: BorderRadius.circular(
+                        AppDimensions.radiusXl,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: theme.textColor.withValues(alpha: 0.05),
                           blurRadius: 4,
                           offset: const Offset(0, 1),
                         ),
@@ -339,27 +359,23 @@ class _ExerciseSelectorState extends State<ExerciseSelector> {
                       children: [
                         Text(
                           planExercise.name,
-                          style: TextStyle(
-                            fontFamily: '.SF Pro Text',
-                            fontSize: 13,
-                            color: theme.textColor,
-                          ),
+                          style: Theme.of(context).textTheme.bodyMedium!
+                              .copyWith(fontSize: 13, color: theme.textColor),
                         ),
                         const SizedBox(width: 4),
                         Text(
                           '(${planExercise.targetSets}组)',
-                          style: TextStyle(
-                            fontFamily: '.SF Pro Text',
-                            fontSize: 12,
-                            color: theme.secondaryTextColor,
-                          ),
+                          style: Theme.of(context).textTheme.bodySmall,
                         ),
                         const SizedBox(width: 4),
                         Material(
                           color: Colors.transparent,
                           child: InkWell(
-                            onTap: () => _removeExerciseById(planExercise.exerciseId),
-                            borderRadius: BorderRadius.circular(8),
+                            onTap: () =>
+                                _removeExerciseById(planExercise.exerciseId),
+                            borderRadius: BorderRadius.circular(
+                              AppDimensions.radiusMd,
+                            ),
                             child: Icon(
                               Icons.close,
                               size: 16,
@@ -381,19 +397,23 @@ class _ExerciseSelectorState extends State<ExerciseSelector> {
 
   void _toggleExercise(Exercise exercise) {
     final newSelection = List<PlanExercise>.from(widget.selectedExercises);
-    final existingIndex = newSelection.indexWhere((e) => e.exerciseId == exercise.id);
-    
+    final existingIndex = newSelection.indexWhere(
+      (e) => e.exerciseId == exercise.id,
+    );
+
     if (existingIndex >= 0) {
       newSelection.removeAt(existingIndex);
     } else {
-      newSelection.add(PlanExercise(
-        exerciseId: exercise.id,
-        exercise: exercise,
-        targetSets: exercise.recommendation.recommendedSets,
-        order: newSelection.length,
-      ));
+      newSelection.add(
+        PlanExercise(
+          exerciseId: exercise.id,
+          exercise: exercise,
+          targetSets: exercise.recommendation.recommendedSets,
+          order: newSelection.length,
+        ),
+      );
     }
-    
+
     widget.onSelectionChanged(newSelection);
   }
 
@@ -403,7 +423,6 @@ class _ExerciseSelectorState extends State<ExerciseSelector> {
     widget.onSelectionChanged(newSelection);
   }
 }
-
 
 /// 动作列表项
 class _ExerciseListItem extends StatelessWidget {
@@ -424,8 +443,10 @@ class _ExerciseListItem extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
       decoration: BoxDecoration(
-        color: isSelected ? theme.accentColor.withValues(alpha: 0.1) : theme.surfaceColor,
-        borderRadius: BorderRadius.circular(12),
+        color: isSelected
+            ? theme.accentColor.withValues(alpha: 0.1)
+            : theme.surfaceColor,
+        borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
         border: Border.all(
           color: isSelected ? theme.accentColor : Colors.transparent,
           width: isSelected ? 1.5 : 0,
@@ -451,16 +472,18 @@ class _ExerciseListItem extends StatelessWidget {
                 );
               }
             },
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
             child: Container(
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: isSelected ? theme.accentColor : theme.accentColor.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(10),
+                color: isSelected
+                    ? theme.accentColor
+                    : theme.accentColor.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
               ),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
                 child: exercise.imageUrl != null
                     ? Hero(
                         tag: exercise.imageUrl!,
@@ -469,19 +492,25 @@ class _ExerciseListItem extends StatelessWidget {
                           fit: BoxFit.cover,
                           placeholder: (context, url) => Icon(
                             Icons.fitness_center,
-                            color: isSelected ? Colors.white : theme.accentColor,
+                            color: isSelected
+                                ? theme.onAccentColor
+                                : theme.accentColor,
                             size: 22,
                           ),
                           errorWidget: (context, url, error) => Icon(
                             Icons.fitness_center,
-                            color: isSelected ? Colors.white : theme.accentColor,
+                            color: isSelected
+                                ? theme.onAccentColor
+                                : theme.accentColor,
                             size: 22,
                           ),
                         ),
                       )
                     : Icon(
                         Icons.fitness_center,
-                        color: isSelected ? Colors.white : theme.accentColor,
+                        color: isSelected
+                            ? theme.onAccentColor
+                            : theme.accentColor,
                         size: 22,
                       ),
               ),
@@ -490,8 +519,7 @@ class _ExerciseListItem extends StatelessWidget {
         ),
         title: Text(
           exercise.name,
-          style: TextStyle(
-            fontFamily: '.SF Pro Text',
+          style: Theme.of(context).textTheme.titleLarge!.copyWith(
             fontSize: 15,
             fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
             color: theme.textColor,
@@ -503,12 +531,11 @@ class _ExerciseListItem extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
                 color: theme.accentColor.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(4),
+                borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
               ),
               child: Text(
                 exercise.primaryMuscle.displayName,
-                style: TextStyle(
-                  fontFamily: '.SF Pro Text',
+                style: Theme.of(context).textTheme.bodySmall!.copyWith(
                   fontSize: 11,
                   color: theme.accentColor,
                 ),
@@ -517,17 +544,17 @@ class _ExerciseListItem extends StatelessWidget {
             const SizedBox(width: 6),
             Text(
               exercise.equipmentDisplayName,
-              style: TextStyle(
-                fontFamily: '.SF Pro Text',
-                fontSize: 12,
-                color: theme.secondaryTextColor,
-              ),
+              style: Theme.of(context).textTheme.bodySmall,
             ),
           ],
         ),
         trailing: isSelected
             ? Icon(Icons.check_circle, color: theme.accentColor, size: 24)
-            : Icon(Icons.add_circle_outline, color: theme.secondaryTextColor, size: 24),
+            : Icon(
+                Icons.add_circle_outline,
+                color: theme.secondaryTextColor,
+                size: 24,
+              ),
         onTap: onTap,
       ),
     );
@@ -573,7 +600,8 @@ class ExerciseDetailSheet extends StatefulWidget {
   State<ExerciseDetailSheet> createState() => _ExerciseDetailSheetState();
 }
 
-class _ExerciseDetailSheetState extends State<ExerciseDetailSheet> with SingleTickerProviderStateMixin {
+class _ExerciseDetailSheetState extends State<ExerciseDetailSheet>
+    with SingleTickerProviderStateMixin {
   int _currentPage = 0;
   Timer? _autoPlayTimer;
   static const _autoPlayDuration = Duration(seconds: 3);
@@ -606,7 +634,7 @@ class _ExerciseDetailSheetState extends State<ExerciseDetailSheet> with SingleTi
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().currentTheme;
     final hasImages = widget.exercise.images.isNotEmpty;
-    
+
     return DraggableScrollableSheet(
       initialChildSize: 0.85,
       minChildSize: 0.5,
@@ -615,7 +643,9 @@ class _ExerciseDetailSheetState extends State<ExerciseDetailSheet> with SingleTi
         return Container(
           decoration: BoxDecoration(
             color: theme.surfaceColor,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            borderRadius: const BorderRadius.vertical(
+              top: Radius.circular(AppDimensions.radiusSheet),
+            ),
           ),
           child: Column(
             children: [
@@ -627,11 +657,13 @@ class _ExerciseDetailSheetState extends State<ExerciseDetailSheet> with SingleTi
                   height: 4,
                   decoration: BoxDecoration(
                     color: theme.dividerColor,
-                    borderRadius: BorderRadius.circular(2),
+                    borderRadius: BorderRadius.circular(
+                      AppDimensions.radiusXxs,
+                    ),
                   ),
                 ),
               ),
-              
+
               // 内容区域
               Expanded(
                 child: SingleChildScrollView(
@@ -643,90 +675,106 @@ class _ExerciseDetailSheetState extends State<ExerciseDetailSheet> with SingleTi
                       // 动作名称
                       Text(
                         widget.exercise.name,
-                        style: TextStyle(
-                          fontFamily: '.SF Pro Display',
-                          fontSize: 24,
-                          fontWeight: FontWeight.w700,
-                          color: theme.textColor,
-                        ),
+                        style: Theme.of(context).textTheme.headlineLarge!
+                            .copyWith(
+                              fontWeight: FontWeight.w700,
+                              color: theme.textColor,
+                            ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         widget.exercise.nameEn,
-                        style: TextStyle(
-                          fontFamily: '.SF Pro Text',
-                          fontSize: 14,
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                           color: theme.secondaryTextColor,
                         ),
                       ),
                       const SizedBox(height: 16),
-                      
+
                       // 标签
                       Wrap(
                         spacing: 8,
                         runSpacing: 8,
                         children: [
-                          _buildTag(widget.exercise.primaryMuscle.displayName, Icons.fitness_center, theme),
-                          _buildTag(widget.exercise.equipmentDisplayName, Icons.sports_gymnastics, theme),
-                          _buildTag(widget.exercise.levelDisplayName, Icons.signal_cellular_alt, theme),
+                          _buildTag(
+                            widget.exercise.primaryMuscle.displayName,
+                            Icons.fitness_center,
+                            theme,
+                          ),
+                          _buildTag(
+                            widget.exercise.equipmentDisplayName,
+                            Icons.sports_gymnastics,
+                            theme,
+                          ),
+                          _buildTag(
+                            widget.exercise.levelDisplayName,
+                            Icons.signal_cellular_alt,
+                            theme,
+                          ),
                         ],
                       ),
                       const SizedBox(height: 24),
-                      
+
                       // 图片轮播
-                      if (hasImages)
-                        _buildImageCarousel(theme),
-                      
+                      if (hasImages) _buildImageCarousel(theme),
+
                       // 动作指导
                       if (widget.exercise.instructions.isNotEmpty) ...[
                         const SizedBox(height: 24),
                         _buildInstructions(theme),
                       ],
-                      
+
                       const SizedBox(height: 24),
-                      
+
                       // 推荐配置
                       _buildRecommendation(theme),
-                      
+
                       const SizedBox(height: 24),
-                      
+
                       // 次要肌肉部位
                       if (widget.exercise.secondaryMuscles.isNotEmpty) ...[
                         Text(
                           '涉及部位',
-                          style: TextStyle(
-                            fontFamily: '.SF Pro Text',
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: theme.textColor,
-                          ),
+                          style: Theme.of(context).textTheme.labelLarge!
+                              .copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: theme.textColor,
+                              ),
                         ),
                         const SizedBox(height: 8),
                         Wrap(
                           spacing: 8,
                           runSpacing: 8,
-                          children: widget.exercise.secondaryMuscles.map((muscle) {
+                          children: widget.exercise.secondaryMuscles.map((
+                            muscle,
+                          ) {
                             return Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
                               decoration: BoxDecoration(
-                                 color: theme.surfaceColor,
-                                borderRadius: BorderRadius.circular(16),
-                                border: Border.all(color: theme.textColor.withValues(alpha: 0.1)),
+                                color: theme.surfaceColor,
+                                borderRadius: BorderRadius.circular(
+                                  AppDimensions.radiusXl,
+                                ),
+                                border: Border.all(
+                                  color: theme.textColor.withValues(alpha: 0.1),
+                                ),
                               ),
                               child: Text(
                                 muscle.displayName,
-                                style: TextStyle(
-                                  fontFamily: '.SF Pro Text',
-                                  fontSize: 13,
-                                  color: theme.textColor,
-                                ),
+                                style: Theme.of(context).textTheme.bodyMedium!
+                                    .copyWith(
+                                      fontSize: 13,
+                                      color: theme.textColor,
+                                    ),
                               ),
                             );
                           }).toList(),
                         ),
                         const SizedBox(height: 24),
                       ],
-                      
+
                       // 操作按钮
                       SizedBox(
                         width: double.infinity,
@@ -736,21 +784,22 @@ class _ExerciseDetailSheetState extends State<ExerciseDetailSheet> with SingleTi
                             Navigator.pop(context);
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: widget.isSelected ? theme.errorColor : theme.accentColor,
-                            foregroundColor: Colors.white,
+                            backgroundColor: widget.isSelected
+                                ? theme.errorColor
+                                : theme.accentColor,
+                            foregroundColor: theme.onAccentColor,
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(
+                                AppDimensions.radiusLg,
+                              ),
                             ),
                             elevation: 0,
                           ),
                           child: Text(
                             widget.isSelected ? '从计划中移除' : '添加到计划',
-                            style: const TextStyle(
-                              fontFamily: '.SF Pro Text',
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
+                            style: Theme.of(context).textTheme.titleLarge!
+                                .copyWith(color: theme.onAccentColor),
                           ),
                         ),
                       ),
@@ -769,7 +818,7 @@ class _ExerciseDetailSheetState extends State<ExerciseDetailSheet> with SingleTi
   /// 图片轮播组件（交叉渐隐自动轮播）
   Widget _buildImageCarousel(AppThemeData theme) {
     final images = widget.exercise.images;
-    
+
     return Column(
       children: [
         // 轮播图片 - 使用 AnimatedSwitcher 实现交叉渐隐
@@ -777,39 +826,41 @@ class _ExerciseDetailSheetState extends State<ExerciseDetailSheet> with SingleTi
           color: Colors.transparent,
           child: InkWell(
             onTap: () => _showFullscreenImage(_currentPage),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
             child: SizedBox(
               height: 200,
               child: AnimatedSwitcher(
-              duration: _fadeDuration,
-              transitionBuilder: (child, animation) {
-                return FadeTransition(
-                  opacity: animation,
-                  child: child,
-                );
-              },
-              child: Container(
-                key: ValueKey<int>(_currentPage),
-                margin: const EdgeInsets.symmetric(horizontal: 4),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Hero(
-                    tag: 'exercise_image_$_currentPage',
-                    child: CachedNetworkImage(
-                      imageUrl: images[_currentPage],
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => Container(
-                        color: theme.accentColor.withValues(alpha: 0.1),
-                        child: Center(
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
+                duration: _fadeDuration,
+                transitionBuilder: (child, animation) {
+                  return FadeTransition(opacity: animation, child: child);
+                },
+                child: Container(
+                  key: ValueKey<int>(_currentPage),
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+                    child: Hero(
+                      tag: 'exercise_image_$_currentPage',
+                      child: CachedNetworkImage(
+                        imageUrl: images[_currentPage],
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) => Container(
+                          color: theme.accentColor.withValues(alpha: 0.1),
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: theme.accentColor,
+                            ),
+                          ),
+                        ),
+                        errorWidget: (context, url, error) => Container(
+                          color: theme.accentColor.withValues(alpha: 0.1),
+                          child: Icon(
+                            Icons.fitness_center,
+                            size: 48,
                             color: theme.accentColor,
                           ),
                         ),
-                      ),
-                      errorWidget: (context, url, error) => Container(
-                        color: theme.accentColor.withValues(alpha: 0.1),
-                        child: Icon(Icons.fitness_center, size: 48, color: theme.accentColor),
                       ),
                     ),
                   ),
@@ -817,11 +868,10 @@ class _ExerciseDetailSheetState extends State<ExerciseDetailSheet> with SingleTi
               ),
             ),
           ),
-          ),
         ),
-        
+
         const SizedBox(height: 12),
-        
+
         // 页面指示器
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -832,33 +882,29 @@ class _ExerciseDetailSheetState extends State<ExerciseDetailSheet> with SingleTi
                 onTap: () {
                   setState(() => _currentPage = index);
                 },
-                borderRadius: BorderRadius.circular(4),
+                borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
                 child: Container(
                   margin: const EdgeInsets.symmetric(horizontal: 4),
                   width: _currentPage == index ? 24 : 8,
                   height: 8,
                   decoration: BoxDecoration(
-                    color: _currentPage == index 
-                        ? theme.accentColor 
+                    color: _currentPage == index
+                        ? theme.accentColor
                         : theme.textColor.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(4),
+                    borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
                   ),
                 ),
               ),
             );
           }),
         ),
-        
+
         const SizedBox(height: 8),
-        
+
         // 图片说明
         Text(
           '第 ${_currentPage + 1} 步 / 共 ${images.length} 步',
-          style: TextStyle(
-            fontFamily: '.SF Pro Text',
-            fontSize: 12,
-            color: theme.secondaryTextColor,
-          ),
+          style: Theme.of(context).textTheme.bodySmall,
         ),
       ],
     );
@@ -875,12 +921,9 @@ class _ExerciseDetailSheetState extends State<ExerciseDetailSheet> with SingleTi
             const SizedBox(width: 8),
             Text(
               '动作指导',
-              style: TextStyle(
-                fontFamily: '.SF Pro Text',
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: theme.textColor,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge!.copyWith(color: theme.textColor),
             ),
           ],
         ),
@@ -899,16 +942,14 @@ class _ExerciseDetailSheetState extends State<ExerciseDetailSheet> with SingleTi
                   height: 28,
                   decoration: BoxDecoration(
                     color: theme.accentColor,
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
                   ),
                   child: Center(
                     child: Text(
                       '${index + 1}',
-                      style: TextStyle(
-                        fontFamily: '.SF Pro Text',
-                        fontSize: 14,
+                      style: Theme.of(context).textTheme.labelLarge!.copyWith(
                         fontWeight: FontWeight.w600,
-                        color: Colors.white,
+                        color: theme.onAccentColor,
                       ),
                     ),
                   ),
@@ -920,13 +961,13 @@ class _ExerciseDetailSheetState extends State<ExerciseDetailSheet> with SingleTi
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       color: theme.accentColor.withValues(alpha: 0.05),
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(
+                        AppDimensions.radiusLg,
+                      ),
                     ),
                     child: Text(
                       instruction,
-                      style: TextStyle(
-                        fontFamily: '.SF Pro Text',
-                        fontSize: 14,
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                         height: 1.5,
                         color: theme.textColor,
                       ),
@@ -944,19 +985,17 @@ class _ExerciseDetailSheetState extends State<ExerciseDetailSheet> with SingleTi
   /// 推荐配置组件
   Widget _buildRecommendation(AppThemeData theme) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppDimensions.screenPadding),
       decoration: BoxDecoration(
         color: theme.accentColor.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             '推荐配置',
-            style: TextStyle(
-              fontFamily: '.SF Pro Text',
-              fontSize: 14,
+            style: Theme.of(context).textTheme.labelLarge!.copyWith(
               fontWeight: FontWeight.w600,
               color: theme.textColor,
             ),
@@ -1000,7 +1039,7 @@ class _ExerciseDetailSheetState extends State<ExerciseDetailSheet> with SingleTi
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: theme.accentColor.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -1009,8 +1048,7 @@ class _ExerciseDetailSheetState extends State<ExerciseDetailSheet> with SingleTi
           const SizedBox(width: 6),
           Text(
             text,
-            style: TextStyle(
-              fontFamily: '.SF Pro Text',
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
               fontSize: 13,
               fontWeight: FontWeight.w500,
               color: theme.accentColor,
@@ -1021,27 +1059,25 @@ class _ExerciseDetailSheetState extends State<ExerciseDetailSheet> with SingleTi
     );
   }
 
-  Widget _buildStatItem(String value, String label, IconData icon, AppThemeData theme) {
+  Widget _buildStatItem(
+    String value,
+    String label,
+    IconData icon,
+    AppThemeData theme,
+  ) {
     return Column(
       children: [
         Icon(icon, size: 20, color: theme.accentColor),
         const SizedBox(height: 4),
         Text(
           value,
-          style: TextStyle(
-            fontFamily: '.SF Pro Display',
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: theme.textColor,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleLarge!.copyWith(color: theme.textColor),
         ),
         Text(
           label,
-          style: TextStyle(
-            fontFamily: '.SF Pro Text',
-            fontSize: 11,
-            color: theme.secondaryTextColor,
-          ),
+          style: Theme.of(context).textTheme.bodySmall!.copyWith(fontSize: 11),
         ),
       ],
     );
@@ -1074,10 +1110,12 @@ class _FullscreenImageGallery extends StatefulWidget {
   });
 
   @override
-  State<_FullscreenImageGallery> createState() => _FullscreenImageGalleryState();
+  State<_FullscreenImageGallery> createState() =>
+      _FullscreenImageGalleryState();
 }
 
-class _FullscreenImageGalleryState extends State<_FullscreenImageGallery> with SingleTickerProviderStateMixin {
+class _FullscreenImageGalleryState extends State<_FullscreenImageGallery>
+    with SingleTickerProviderStateMixin {
   late int _currentIndex;
   Timer? _autoPlayTimer;
   static const _autoPlayDuration = Duration(seconds: 3);
@@ -1110,7 +1148,7 @@ class _FullscreenImageGalleryState extends State<_FullscreenImageGallery> with S
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().currentTheme;
-    
+
     return Dialog(
       backgroundColor: Colors.black,
       insetPadding: EdgeInsets.zero,
@@ -1123,28 +1161,30 @@ class _FullscreenImageGalleryState extends State<_FullscreenImageGallery> with S
               onTap: () => Navigator.pop(context),
               child: Center(
                 child: AnimatedSwitcher(
-                duration: _fadeDuration,
-                transitionBuilder: (child, animation) {
-                  return FadeTransition(
-                    opacity: animation,
-                    child: child,
-                  );
-                },
-                child: InteractiveViewer(
-                  key: ValueKey<int>(_currentIndex),
-                  minScale: 0.5,
-                  maxScale: 3.0,
-                  child: Center(
-                    child: CachedNetworkImage(
-                      imageUrl: widget.images[_currentIndex],
-                      fit: BoxFit.contain,
-                      placeholder: (context, url) => Center(
-                        child: CircularProgressIndicator(
-                          color: Colors.white,
+                  duration: _fadeDuration,
+                  transitionBuilder: (child, animation) {
+                    return FadeTransition(opacity: animation, child: child);
+                  },
+                  child: InteractiveViewer(
+                    key: ValueKey<int>(_currentIndex),
+                    minScale: 0.5,
+                    maxScale: 3.0,
+                    child: Center(
+                      child: CachedNetworkImage(
+                        imageUrl: widget.images[_currentIndex],
+                        fit: BoxFit.contain,
+                        placeholder: (context, url) => Center(
+                          child: CircularProgressIndicator(
+                            color: theme.onAccentColor,
+                          ),
                         ),
-                      ),
-                      errorWidget: (context, url, error) => Center(
-                        child: Icon(Icons.broken_image, size: 64, color: Colors.white54),
+                        errorWidget: (context, url, error) => Center(
+                          child: Icon(
+                            Icons.broken_image,
+                            size: 64,
+                            color: theme.onAccentColor.withValues(alpha: 0.54),
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -1152,8 +1192,7 @@ class _FullscreenImageGalleryState extends State<_FullscreenImageGallery> with S
               ),
             ),
           ),
-          ),
-          
+
           // 顶部栏
           Positioned(
             top: 0,
@@ -1161,7 +1200,10 @@ class _FullscreenImageGalleryState extends State<_FullscreenImageGallery> with S
             right: 0,
             child: SafeArea(
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
@@ -1172,24 +1214,20 @@ class _FullscreenImageGalleryState extends State<_FullscreenImageGallery> with S
                 child: Row(
                   children: [
                     IconButton(
-                      icon: Icon(Icons.close, color: Colors.white),
+                      icon: Icon(Icons.close, color: theme.onAccentColor),
                       onPressed: () => Navigator.pop(context),
                     ),
                     Expanded(
                       child: Text(
                         widget.title,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                        ),
+                        style: Theme.of(context).textTheme.headlineMedium!
+                            .copyWith(color: theme.onAccentColor),
                       ),
                     ),
                     Text(
                       '${_currentIndex + 1} / ${widget.images.length}',
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 14,
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        color: theme.onAccentColor.withValues(alpha: 0.7),
                       ),
                     ),
                   ],
@@ -1197,7 +1235,7 @@ class _FullscreenImageGalleryState extends State<_FullscreenImageGallery> with S
               ),
             ),
           ),
-          
+
           // 底部指示器
           Positioned(
             bottom: 0,
@@ -1205,7 +1243,7 @@ class _FullscreenImageGalleryState extends State<_FullscreenImageGallery> with S
             right: 0,
             child: SafeArea(
               child: Container(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(AppDimensions.screenPadding),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.bottomCenter,
@@ -1222,16 +1260,20 @@ class _FullscreenImageGalleryState extends State<_FullscreenImageGallery> with S
                         onTap: () {
                           setState(() => _currentIndex = index);
                         },
-                        borderRadius: BorderRadius.circular(4),
+                        borderRadius: BorderRadius.circular(
+                          AppDimensions.radiusSm,
+                        ),
                         child: Container(
                           margin: const EdgeInsets.symmetric(horizontal: 4),
                           width: _currentIndex == index ? 24 : 8,
                           height: 8,
                           decoration: BoxDecoration(
-                            color: _currentIndex == index 
-                                ? Colors.white 
-                                : Colors.white38,
-                            borderRadius: BorderRadius.circular(4),
+                            color: _currentIndex == index
+                                ? theme.onAccentColor
+                                : theme.onAccentColor.withValues(alpha: 0.38),
+                            borderRadius: BorderRadius.circular(
+                              AppDimensions.radiusSm,
+                            ),
                           ),
                         ),
                       ),

@@ -34,7 +34,10 @@ class CircularProgressPainter extends CustomPainter {
     // Draw progress arc with gradient
     final gradient = LinearGradient(
       colors: gradientColors,
-      stops: List.generate(gradientColors.length, (i) => i / (gradientColors.length - 1)),
+      stops: List.generate(
+        gradientColors.length,
+        (i) => i / (gradientColors.length - 1),
+      ),
     ).createShader(Rect.fromCircle(center: center, radius: radius));
 
     final progressPaint = Paint()
@@ -56,8 +59,8 @@ class CircularProgressPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CircularProgressPainter oldDelegate) {
-    return oldDelegate.progress != progress || 
-           oldDelegate.gradientColors != gradientColors ||
-           oldDelegate.backgroundColor != backgroundColor;
+    return oldDelegate.progress != progress ||
+        oldDelegate.gradientColors != gradientColors ||
+        oldDelegate.backgroundColor != backgroundColor;
   }
 }

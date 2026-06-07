@@ -5,6 +5,7 @@ import '../bloc/timer_provider.dart';
 import '../theme/theme_provider.dart';
 import '../theme/app_theme.dart';
 import '../utils/dimensions.dart';
+import 'glass_widgets.dart';
 
 /// Warm Vitality 风格计时器组件
 ///
@@ -58,8 +59,7 @@ class TimerWidget extends StatelessWidget {
       children: [
         Text(
           '训练计时器',
-          style: TextStyle(
-            fontFamily: '.SF Pro Display',
+          style: theme.toThemeData().textTheme.headlineLarge!.copyWith(
             fontSize: 20,
             fontWeight: FontWeight.w700,
             letterSpacing: 2,
@@ -101,8 +101,7 @@ class TimerWidget extends StatelessWidget {
             children: [
               Text(
                 _formatTime(timer.remainingSeconds),
-                style: TextStyle(
-                  fontFamily: '.SF Pro Display',
+                style: Theme.of(context).textTheme.headlineLarge!.copyWith(
                   fontSize: 52,
                   fontWeight: FontWeight.w700,
                   color: theme.textColor,
@@ -121,7 +120,7 @@ class TimerWidget extends StatelessWidget {
     final isRunning = timer.isRunning;
     final bgColor = isRunning
         ? theme.accentColor.withValues(alpha: 0.15)
-        : theme.textColor.withValues(alpha: 0.08);
+        : theme.shadowColor;
     final borderColor = isRunning
         ? theme.accentColor.withValues(alpha: 0.4)
         : theme.textColor.withValues(alpha: 0.2);
@@ -133,12 +132,11 @@ class TimerWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: bgColor,
         border: Border.all(color: borderColor, width: 1),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusChip),
       ),
       child: Text(
         text,
-        style: TextStyle(
-          fontFamily: '.SF Pro Text',
+        style: theme.toThemeData().textTheme.labelLarge!.copyWith(
           fontSize: 11,
           fontWeight: FontWeight.w600,
           letterSpacing: 1.5,
@@ -177,10 +175,10 @@ class TimerWidget extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       decoration: BoxDecoration(
         color: theme.surfaceColor.withValues(alpha: 0.9),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
         boxShadow: [
           BoxShadow(
-            color: theme.textColor.withValues(alpha: 0.08),
+            color: theme.shadowColor,
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -191,8 +189,7 @@ class TimerWidget extends StatelessWidget {
         children: [
           Text(
             '${timer.totalSets}',
-            style: TextStyle(
-              fontFamily: '.SF Pro Display',
+            style: theme.toThemeData().textTheme.headlineLarge!.copyWith(
               fontSize: 28,
               fontWeight: FontWeight.w700,
               color: theme.accentColor,
@@ -201,10 +198,7 @@ class TimerWidget extends StatelessWidget {
           const SizedBox(width: 12),
           Text(
             '完成组数',
-            style: TextStyle(
-              fontFamily: '.SF Pro Text',
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
+            style: theme.toThemeData().textTheme.labelLarge!.copyWith(
               color: theme.textColor.withValues(alpha: 0.7),
               letterSpacing: 1,
             ),
@@ -219,31 +213,30 @@ class TimerWidget extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         // 重置按钮 (圆形白色背景)
-        _CircleControlButton(
+        CircularControlButton(
           icon: Icons.refresh_rounded,
           onPressed: timer.resetTimer,
-          theme: theme,
+          iconColor: theme.accentColor,
           semanticLabel: '重置计时器',
         ),
         // 主按钮 (开始/暂停)
         Expanded(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: _PrimaryControlButton(
+            child: PrimaryActionButton(
               label: timer.isRunning ? '暂停' : '开始',
               icon: timer.isRunning
                   ? Icons.pause_rounded
                   : Icons.play_arrow_rounded,
               onPressed: timer.isRunning ? timer.pauseTimer : timer.startTimer,
-              theme: theme,
             ),
           ),
         ),
         // 跳过按钮 (圆形白色背景)
-        _CircleControlButton(
+        CircularControlButton(
           icon: Icons.skip_next_rounded,
           onPressed: timer.skipSet,
-          theme: theme,
+          iconColor: theme.accentColor,
           semanticLabel: '跳过当前组',
         ),
       ],
@@ -326,143 +319,33 @@ class _PresetChip extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: onPressed,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusChip),
         child: Semantics(
           button: true,
           label: '$seconds秒',
           child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          decoration: BoxDecoration(
-            color: isSelected
-                ? theme.accentColor
-                : theme.surfaceColor.withValues(alpha: 0.9),
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: theme.textColor.withValues(alpha: 0.08),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            decoration: BoxDecoration(
+              color: isSelected
+                  ? theme.accentColor
+                  : theme.surfaceColor.withValues(alpha: 0.9),
+              borderRadius: BorderRadius.circular(AppDimensions.radiusChip),
+              boxShadow: [
+                BoxShadow(
+                  color: theme.shadowColor,
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Text(
+              label,
+              style: Theme.of(context).textTheme.labelLarge!.copyWith(
+                fontWeight: FontWeight.w600,
+                color: isSelected ? theme.onAccentColor : theme.textColor,
               ),
-            ],
-          ),
-          child: Text(
-            label,
-            style: TextStyle(
-              fontFamily: '.SF Pro Text',
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: isSelected ? Colors.white : theme.textColor,
             ),
           ),
-        ),
-        ),
-      ),
-    );
-  }
-}
-
-/// 圆形控制按钮 - 参考图风格
-class _CircleControlButton extends StatelessWidget {
-  final IconData icon;
-  final VoidCallback onPressed;
-  final AppThemeData theme;
-  final String semanticLabel;
-
-  const _CircleControlButton({
-    required this.icon,
-    required this.onPressed,
-    required this.theme,
-    required this.semanticLabel,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onPressed,
-        customBorder: const CircleBorder(),
-        child: Semantics(
-          button: true,
-          label: semanticLabel,
-          child: Container(
-          width: 56,
-          height: 56,
-          decoration: BoxDecoration(
-            color: theme.cardColor,
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(
-                color: theme.textColor.withValues(alpha: 0.1),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Icon(icon, color: theme.accentColor, size: 24),
-        ),
-        ),
-      ),
-    );
-  }
-}
-
-/// 主控制按钮 - 参考图风格
-class _PrimaryControlButton extends StatelessWidget {
-  final String label;
-  final IconData icon;
-  final VoidCallback onPressed;
-  final AppThemeData theme;
-
-  const _PrimaryControlButton({
-    required this.label,
-    required this.icon,
-    required this.onPressed,
-    required this.theme,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final semanticLabel = icon == Icons.pause_rounded ? '暂停计时' : '开始计时';
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onPressed,
-        borderRadius: BorderRadius.circular(28),
-        child: Semantics(
-          button: true,
-          label: semanticLabel,
-          child: Container(
-          height: 56,
-          decoration: BoxDecoration(
-            color: theme.accentColor,
-            borderRadius: BorderRadius.circular(28),
-            boxShadow: [
-              BoxShadow(
-                color: theme.accentColor.withValues(alpha: 0.3),
-                blurRadius: 15,
-                offset: const Offset(0, 6),
-              ),
-            ],
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, color: Colors.white, size: 24),
-              const SizedBox(width: 8),
-              Text(
-                label,
-                style: const TextStyle(
-                  fontFamily: '.SF Pro Text',
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                  letterSpacing: 1,
-                ),
-              ),
-            ],
-          ),
-        ),
         ),
       ),
     );
