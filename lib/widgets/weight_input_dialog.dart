@@ -4,6 +4,7 @@ import '../models/set_data.dart';
 import '../models/exercise.dart';
 import '../services/bodyweight_coefficient_service.dart';
 import '../theme/theme_provider.dart';
+import '../utils/dimensions.dart';
 import 'glass_widgets.dart';
 
 /// 重量输入对话框 - Flat Vitality 设计风格
@@ -75,7 +76,9 @@ class _WeightInputDialogState extends State<WeightInputDialog> {
 
     return Dialog(
       backgroundColor: theme.surfaceColor,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppDimensions.radiusSheet),
+      ),
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -87,10 +90,8 @@ class _WeightInputDialogState extends State<WeightInputDialog> {
               children: [
                 Text(
                   '第${widget.setNumber}组 - ${widget.exerciseName}',
-                  style: TextStyle(
-                    fontFamily: '.SF Pro Display',
+                  style: Theme.of(context).textTheme.headlineLarge!.copyWith(
                     fontSize: 18,
-                    fontWeight: FontWeight.w600,
                     color: theme.textColor,
                   ),
                 ),
@@ -107,7 +108,7 @@ class _WeightInputDialogState extends State<WeightInputDialog> {
                 ),
                 decoration: BoxDecoration(
                   color: theme.accentColor.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
                 ),
                 child: Row(
                   children: [
@@ -120,9 +121,7 @@ class _WeightInputDialogState extends State<WeightInputDialog> {
                     Expanded(
                       child: Text(
                         '体重 ${_bodyWeight!.toStringAsFixed(0)}kg × ${(_coefficient * 100).toStringAsFixed(0)}% = ${(_bodyWeight! * _coefficient).toStringAsFixed(1)}kg',
-                        style: TextStyle(
-                          fontFamily: '.SF Pro Text',
-                          fontSize: 12,
+                        style: Theme.of(context).textTheme.bodySmall!.copyWith(
                           color: theme.accentColor,
                         ),
                       ),
@@ -140,25 +139,21 @@ class _WeightInputDialogState extends State<WeightInputDialog> {
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
                 labelText: _isBodyweight ? '附加重量(kg)' : '重量(kg)',
-                labelStyle: TextStyle(
-                  fontFamily: '.SF Pro Text',
-                  fontSize: 14,
+                labelStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
                   color: theme.secondaryTextColor,
                 ),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
                   borderSide: BorderSide(color: theme.borderColor),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
                   borderSide: BorderSide(color: theme.accentColor, width: 2),
                 ),
               ),
-              style: TextStyle(
-                fontFamily: '.SF Pro Text',
-                fontSize: 16,
-                color: theme.textColor,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge!.copyWith(color: theme.textColor),
               textInputAction: TextInputAction.next,
               onSubmitted: (_) {
                 _repsFocus.requestFocus();
@@ -173,25 +168,21 @@ class _WeightInputDialogState extends State<WeightInputDialog> {
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
                 labelText: '次数',
-                labelStyle: TextStyle(
-                  fontFamily: '.SF Pro Text',
-                  fontSize: 14,
+                labelStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
                   color: theme.secondaryTextColor,
                 ),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
                   borderSide: BorderSide(color: theme.borderColor),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
                   borderSide: BorderSide(color: theme.accentColor, width: 2),
                 ),
               ),
-              style: TextStyle(
-                fontFamily: '.SF Pro Text',
-                fontSize: 16,
-                color: theme.textColor,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge!.copyWith(color: theme.textColor),
               textInputAction: TextInputAction.done,
             ),
             const SizedBox(height: 24),
@@ -207,10 +198,7 @@ class _WeightInputDialogState extends State<WeightInputDialog> {
                   },
                   child: Text(
                     '跳过',
-                    style: TextStyle(
-                      fontFamily: '.SF Pro Text',
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
+                    style: Theme.of(context).textTheme.labelLarge!.copyWith(
                       color: theme.secondaryTextColor,
                     ),
                   ),

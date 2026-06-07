@@ -4,9 +4,10 @@ import '../models/workout_plan.dart';
 import '../theme/theme_provider.dart';
 import 'muscle_selector.dart';
 import '../theme/app_theme.dart';
+import '../utils/dimensions.dart';
 
 /// 计划卡片 - Flat Vitality 设计
-/// 
+///
 /// 显示训练计划的摘要信息
 class PlanCard extends StatelessWidget {
   final WorkoutPlan plan;
@@ -31,17 +32,17 @@ class PlanCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().currentTheme;
-    
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
         child: Container(
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
           decoration: BoxDecoration(
             color: theme.surfaceColor,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
             boxShadow: [
               BoxShadow(
                 color: theme.textColor.withValues(alpha: 0.06),
@@ -55,7 +56,7 @@ class PlanCard extends StatelessWidget {
             children: [
               // 主要内容
               Padding(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(AppDimensions.screenPadding),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -67,7 +68,9 @@ class PlanCard extends StatelessWidget {
                           height: 40,
                           decoration: BoxDecoration(
                             color: theme.accentColor.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(
+                              AppDimensions.radiusLg,
+                            ),
                           ),
                           child: Icon(
                             Icons.fitness_center,
@@ -82,12 +85,11 @@ class PlanCard extends StatelessWidget {
                             children: [
                               Text(
                                 plan.name,
-                                style: TextStyle(
-                                  fontFamily: '.SF Pro Display',
-                                  fontSize: 17,
-                                  fontWeight: FontWeight.w600,
-                                  color: theme.textColor,
-                                ),
+                                style: Theme.of(context).textTheme.titleLarge!
+                                    .copyWith(
+                                      fontSize: 17,
+                                      color: theme.textColor,
+                                    ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -102,25 +104,28 @@ class PlanCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    
+
                     if (!isCompact) ...[
                       const SizedBox(height: 12),
                       // 统计信息
                       Row(
                         children: [
                           _buildStat(
+                            context,
                             '${plan.exerciseCount} 个动作',
                             Icons.list_alt,
                             theme,
                           ),
                           const SizedBox(width: 16),
                           _buildStat(
+                            context,
                             '${plan.totalSets} 组',
                             Icons.repeat,
                             theme,
                           ),
                           const SizedBox(width: 16),
                           _buildStat(
+                            context,
                             '~${plan.estimatedDuration} 分钟',
                             Icons.timer_outlined,
                             theme,
@@ -131,7 +136,7 @@ class PlanCard extends StatelessWidget {
                   ],
                 ),
               ),
-              
+
               // 操作按钮
               if (showActions && !isCompact) ...[
                 const Divider(height: 1),
@@ -143,13 +148,15 @@ class PlanCard extends StatelessWidget {
                       if (onEdit != null)
                         TextButton.icon(
                           onPressed: onEdit,
-                          icon: Icon(Icons.edit_outlined, size: 18, color: theme.secondaryTextColor),
+                          icon: Icon(
+                            Icons.edit_outlined,
+                            size: 18,
+                            color: theme.secondaryTextColor,
+                          ),
                           label: Text(
                             '编辑',
-                            style: TextStyle(
-                              fontFamily: '.SF Pro Text',
-                              color: theme.secondaryTextColor,
-                            ),
+                            style: Theme.of(context).textTheme.labelLarge!
+                                .copyWith(color: theme.secondaryTextColor),
                           ),
                         ),
                       if (onStart != null)
@@ -159,11 +166,16 @@ class PlanCard extends StatelessWidget {
                           label: const Text('开始'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: theme.accentColor,
-                            foregroundColor: Colors.white,
+                            foregroundColor: theme.onAccentColor,
                             elevation: 0,
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
+                              borderRadius: BorderRadius.circular(
+                                AppDimensions.radiusChip,
+                              ),
                             ),
                           ),
                         ),
@@ -178,7 +190,12 @@ class PlanCard extends StatelessWidget {
     );
   }
 
-  Widget _buildStat(String text, IconData icon, AppThemeData theme) {
+  Widget _buildStat(
+    BuildContext context,
+    String text,
+    IconData icon,
+    AppThemeData theme,
+  ) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -186,8 +203,7 @@ class PlanCard extends StatelessWidget {
         const SizedBox(width: 4),
         Text(
           text,
-          style: TextStyle(
-            fontFamily: '.SF Pro Text',
+          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
             fontSize: 13,
             color: theme.secondaryTextColor,
           ),
@@ -213,18 +229,20 @@ class CompactPlanCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().currentTheme;
-    
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
         child: Container(
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: isSelected ? theme.accentColor.withValues(alpha: 0.1) : theme.surfaceColor,
-            borderRadius: BorderRadius.circular(12),
+            color: isSelected
+                ? theme.accentColor.withValues(alpha: 0.1)
+                : theme.surfaceColor,
+            borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
             border: Border.all(
               color: isSelected ? theme.accentColor : Colors.transparent,
             ),
@@ -237,66 +255,64 @@ class CompactPlanCard extends StatelessWidget {
             ],
           ),
           child: Row(
-          children: [
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: isSelected ? theme.accentColor : theme.accentColor.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(
-                Icons.fitness_center,
-                color: isSelected ? Colors.white : theme.accentColor,
-                size: 18,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    plan.name,
-                    style: TextStyle(
-                      fontFamily: '.SF Pro Text',
-                      fontSize: 15,
-                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                      color: theme.textColor,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    plan.targetMusclesText,
-                    style: TextStyle(
-                      fontFamily: '.SF Pro Text',
-                      fontSize: 12,
-                      color: theme.secondaryTextColor,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            // 统计
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: theme.accentColor.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                '${plan.exerciseCount}动作 · ${plan.totalSets}组',
-                style: TextStyle(
-                  fontFamily: '.SF Pro Text',
-                  fontSize: 11,
-                  fontWeight: FontWeight.w500,
-                  color: theme.accentColor,
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? theme.accentColor
+                      : theme.accentColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
+                ),
+                child: Icon(
+                  Icons.fitness_center,
+                  color: isSelected ? theme.onAccentColor : theme.accentColor,
+                  size: 18,
                 ),
               ),
-            ),
-          ],
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      plan.name,
+                      style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                        fontSize: 15,
+                        fontWeight: isSelected
+                            ? FontWeight.w600
+                            : FontWeight.w500,
+                        color: theme.textColor,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      plan.targetMusclesText,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
+                ),
+              ),
+              // 统计
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: theme.accentColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+                ),
+                child: Text(
+                  '${plan.exerciseCount}动作 · ${plan.totalSets}组',
+                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
+                    color: theme.accentColor,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
-      ),
       ),
     );
   }
@@ -327,10 +343,11 @@ class PlanProgressCard extends StatefulWidget {
   State<PlanProgressCard> createState() => _PlanProgressCardState();
 }
 
-class _PlanProgressCardState extends State<PlanProgressCard> with SingleTickerProviderStateMixin {
+class _PlanProgressCardState extends State<PlanProgressCard>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _heightAnimation;
-  
+
   @override
   void initState() {
     super.initState();
@@ -368,19 +385,20 @@ class _PlanProgressCardState extends State<PlanProgressCard> with SingleTickerPr
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().currentTheme;
-    final currentExercise = widget.plan.exercises.isNotEmpty &&
+    final currentExercise =
+        widget.plan.exercises.isNotEmpty &&
             widget.currentExerciseIndex < widget.plan.exercises.length
         ? widget.plan.exercises[widget.currentExerciseIndex]
         : null;
-    
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
         color: theme.surfaceColor,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
         boxShadow: [
           BoxShadow(
-            color: theme.textColor.withValues(alpha: 0.08),
+            color: theme.shadowColor,
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -395,58 +413,54 @@ class _PlanProgressCardState extends State<PlanProgressCard> with SingleTickerPr
             child: InkWell(
               onTap: widget.onToggle,
               child: Container(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(AppDimensions.screenPadding),
                 child: Row(
-                children: [
-                  Container(
-                    width: 32,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      color: theme.accentColor.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
+                  children: [
+                    Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        color: theme.accentColor.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(
+                          AppDimensions.radiusMd,
+                        ),
+                      ),
+                      child: Icon(
+                        Icons.playlist_add_check,
+                        color: theme.accentColor,
+                        size: 18,
+                      ),
                     ),
-                    child: Icon(
-                      Icons.playlist_add_check,
-                      color: theme.accentColor,
-                      size: 18,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      alignment: Alignment.centerLeft,
-                      child: currentExercise != null
-                          ? Text(
-                              '${widget.plan.name} · ${currentExercise.name} 第${_getCurrentSetNumber(currentExercise)}组',
-                              style: TextStyle(
-                                fontFamily: '.SF Pro Text',
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: theme.textColor,
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: currentExercise != null
+                            ? Text(
+                                '${widget.plan.name} · ${currentExercise.name} 第${_getCurrentSetNumber(currentExercise)}组',
+                                style: Theme.of(context).textTheme.labelLarge!
+                                    .copyWith(color: theme.textColor),
+                              )
+                            : Text(
+                                widget.plan.name,
+                                style: Theme.of(context).textTheme.labelLarge!
+                                    .copyWith(color: theme.textColor),
                               ),
-                            )
-                          : Text(
-                              widget.plan.name,
-                              style: TextStyle(
-                                fontFamily: '.SF Pro Text',
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: theme.textColor,
-                              ),
-                            ),
+                      ),
                     ),
-                  ),
-                  Icon(
-                    widget.isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-                    color: theme.secondaryTextColor,
-                  ),
-                ],
+                    Icon(
+                      widget.isExpanded
+                          ? Icons.keyboard_arrow_up
+                          : Icons.keyboard_arrow_down,
+                      color: theme.secondaryTextColor,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
-          ),
-          
+
           // 展开内容
           SizeTransition(
             sizeFactor: _heightAnimation,
@@ -454,7 +468,7 @@ class _PlanProgressCardState extends State<PlanProgressCard> with SingleTickerPr
               children: [
                 const Divider(height: 1),
                 Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(AppDimensions.screenPadding),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -462,24 +476,24 @@ class _PlanProgressCardState extends State<PlanProgressCard> with SingleTickerPr
                       if (currentExercise != null) ...[
                         Text(
                           '当前：${currentExercise.name} 第${_getCurrentSetNumber(currentExercise)}/${currentExercise.effectiveSets}组',
-                          style: TextStyle(
-                            fontFamily: '.SF Pro Text',
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: theme.accentColor,
-                          ),
+                          style: Theme.of(context).textTheme.labelLarge!
+                              .copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: theme.accentColor,
+                              ),
                         ),
                         const SizedBox(height: 12),
                       ],
-                      
+
                       // 所有动作列表
                       ...widget.plan.exercises.asMap().entries.map((entry) {
                         final index = entry.key;
                         final exercise = entry.value;
-                        final completed = widget.completedSets[exercise.exerciseId] ?? 0;
+                        final completed =
+                            widget.completedSets[exercise.exerciseId] ?? 0;
                         final isCurrent = index == widget.currentExerciseIndex;
                         final isCompleted = completed >= exercise.effectiveSets;
-                        
+
                         return Padding(
                           padding: const EdgeInsets.symmetric(vertical: 4),
                           child: Row(
@@ -488,53 +502,58 @@ class _PlanProgressCardState extends State<PlanProgressCard> with SingleTickerPr
                                 isCompleted
                                     ? Icons.check_circle
                                     : isCurrent
-                                        ? Icons.radio_button_checked
-                                        : Icons.radio_button_unchecked,
+                                    ? Icons.radio_button_checked
+                                    : Icons.radio_button_unchecked,
                                 size: 20,
                                 color: isCompleted
                                     ? theme.accentColor
                                     : isCurrent
-                                        ? theme.accentColor
-                                        : theme.secondaryTextColor,
+                                    ? theme.accentColor
+                                    : theme.secondaryTextColor,
                               ),
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
-                                  exercise.hasDetails ? exercise.name : '${exercise.name} (无详情)',
-                                  style: TextStyle(
-                                    fontFamily: '.SF Pro Text',
-                                    fontSize: 14,
-                                    color: exercise.hasDetails
-                                        ? (isCompleted || isCurrent
-                                            ? theme.textColor
-                                            : theme.secondaryTextColor)
-                                        : theme.secondaryTextColor.withValues(alpha: 0.7),
-                                    fontStyle: exercise.hasDetails ? null : FontStyle.italic,
-                                    decoration: isCompleted
-                                        ? TextDecoration.lineThrough
-                                        : null,
-                                  ),
+                                  exercise.hasDetails
+                                      ? exercise.name
+                                      : '${exercise.name} (无详情)',
+                                  style: Theme.of(context).textTheme.bodyMedium!
+                                      .copyWith(
+                                        color: exercise.hasDetails
+                                            ? (isCompleted || isCurrent
+                                                  ? theme.textColor
+                                                  : theme.secondaryTextColor)
+                                            : theme.secondaryTextColor
+                                                  .withValues(alpha: 0.7),
+                                        fontStyle: exercise.hasDetails
+                                            ? null
+                                            : FontStyle.italic,
+                                        decoration: isCompleted
+                                            ? TextDecoration.lineThrough
+                                            : null,
+                                      ),
                                 ),
                               ),
                               Text(
                                 '$completed/${exercise.effectiveSets}',
-                                style: TextStyle(
-                                  fontFamily: '.SF Pro Text',
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w500,
-                                  color: isCompleted
-                                      ? theme.accentColor
-                                      : theme.secondaryTextColor,
-                                ),
+                                style: Theme.of(context).textTheme.bodyMedium!
+                                    .copyWith(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w500,
+                                      color: isCompleted
+                                          ? theme.accentColor
+                                          : theme.secondaryTextColor,
+                                    ),
                               ),
                             ],
                           ),
                         );
                       }),
-                      
+
                       // 切换下一动作按钮 - 醒目样式
                       if (widget.onNextExercise != null &&
-                          widget.currentExerciseIndex < widget.plan.exercises.length - 1) ...[
+                          widget.currentExerciseIndex <
+                              widget.plan.exercises.length - 1) ...[
                         const SizedBox(height: 16),
                         Container(
                           width: double.infinity,
@@ -545,7 +564,9 @@ class _PlanProgressCardState extends State<PlanProgressCard> with SingleTickerPr
                                 theme.accentColor.withValues(alpha: 0.8),
                               ],
                             ),
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: BorderRadius.circular(
+                              AppDimensions.radiusXl,
+                            ),
                             boxShadow: [
                               BoxShadow(
                                 color: theme.accentColor.withValues(alpha: 0.3),
@@ -558,7 +579,9 @@ class _PlanProgressCardState extends State<PlanProgressCard> with SingleTickerPr
                             color: Colors.transparent,
                             child: InkWell(
                               onTap: widget.onNextExercise,
-                              borderRadius: BorderRadius.circular(16),
+                              borderRadius: BorderRadius.circular(
+                                AppDimensions.radiusXl,
+                              ),
                               child: Padding(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 20,
@@ -567,20 +590,18 @@ class _PlanProgressCardState extends State<PlanProgressCard> with SingleTickerPr
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    const Icon(
+                                    Icon(
                                       Icons.arrow_forward_rounded,
-                                      color: Colors.white,
+                                      color: theme.onAccentColor,
                                       size: 24,
                                     ),
                                     const SizedBox(width: 8),
                                     Text(
                                       '切换下一动作',
-                                      style: TextStyle(
-                                        fontFamily: '.SF Pro Text',
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.white,
-                                      ),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleLarge!
+                                          .copyWith(color: theme.onAccentColor),
                                     ),
                                   ],
                                 ),
@@ -628,18 +649,18 @@ class EmptyPlanCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().currentTheme;
-    
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
         child: Container(
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
             color: theme.surfaceColor,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
             border: Border.all(
               color: theme.accentColor.withValues(alpha: 0.3),
               style: BorderStyle.solid,
@@ -654,28 +675,20 @@ class EmptyPlanCard extends StatelessWidget {
                   color: theme.accentColor.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(
-                  Icons.add,
-                  color: theme.accentColor,
-                  size: 28,
-                ),
+                child: Icon(Icons.add, color: theme.accentColor, size: 28),
               ),
               const SizedBox(height: 16),
               Text(
                 title,
-                style: TextStyle(
-                  fontFamily: '.SF Pro Display',
+                style: Theme.of(context).textTheme.titleLarge!.copyWith(
                   fontSize: 17,
-                  fontWeight: FontWeight.w600,
                   color: theme.textColor,
                 ),
               ),
               const SizedBox(height: 4),
               Text(
                 subtitle,
-                style: TextStyle(
-                  fontFamily: '.SF Pro Text',
-                  fontSize: 14,
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                   color: theme.secondaryTextColor,
                 ),
               ),
@@ -686,7 +699,6 @@ class EmptyPlanCard extends StatelessWidget {
     );
   }
 }
-
 
 /// 极简进度行 - 计划模式训练中显示
 /// 单行：动作名 + 当前组/总组 + 整体进度条
@@ -713,7 +725,7 @@ class PlanProgressCompact extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: theme.surfaceColor,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
         boxShadow: [
           BoxShadow(
             color: theme.textColor.withValues(alpha: 0.05),
@@ -731,12 +743,9 @@ class PlanProgressCompact extends StatelessWidget {
               alignment: Alignment.centerLeft,
               child: Text(
                 '$exerciseName · $currentSet/$totalSets组',
-                style: TextStyle(
-                  fontFamily: '.SF Pro Text',
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: theme.textColor,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.labelLarge!.copyWith(color: theme.textColor),
               ),
             ),
           ),
@@ -745,7 +754,7 @@ class PlanProgressCompact extends StatelessWidget {
           SizedBox(
             width: 80,
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(2),
+              borderRadius: BorderRadius.circular(AppDimensions.radiusXxs),
               child: LinearProgressIndicator(
                 value: totalProgress,
                 backgroundColor: theme.accentColor.withValues(alpha: 0.15),

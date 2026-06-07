@@ -6,6 +6,7 @@ import '../models/workout_plan.dart';
 import '../services/bodyweight_coefficient_service.dart';
 import '../theme/theme_provider.dart';
 import '../theme/app_theme.dart';
+import '../utils/dimensions.dart';
 
 /// 批量训练数据记录对话框 - Flat Vitality 设计风格
 ///
@@ -156,7 +157,9 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
 
     return Dialog(
       backgroundColor: theme.surfaceColor,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
+      ),
       child: Container(
         constraints: BoxConstraints(maxHeight: 600 - bottomInset),
         padding: EdgeInsets.fromLTRB(24, 24, 24, 24),
@@ -167,10 +170,8 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
             // 标题
             Text(
               '记录训练数据',
-              style: TextStyle(
-                fontFamily: '.SF Pro Display',
+              style: Theme.of(context).textTheme.headlineLarge!.copyWith(
                 fontSize: 22,
-                fontWeight: FontWeight.w600,
                 color: theme.textColor,
               ),
             ),
@@ -178,11 +179,9 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
             // 副标题
             Text(
               '滚动选择次数，输入重量',
-              style: TextStyle(
-                fontFamily: '.SF Pro Text',
-                fontSize: 14,
-                color: theme.secondaryTextColor,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium!.copyWith(color: theme.secondaryTextColor),
             ),
             const SizedBox(height: 24),
 
@@ -218,10 +217,7 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
                   },
                   child: Text(
                     '跳过',
-                    style: TextStyle(
-                      fontFamily: '.SF Pro Text',
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
+                    style: Theme.of(context).textTheme.labelLarge!.copyWith(
                       color: theme.secondaryTextColor,
                     ),
                   ),
@@ -235,18 +231,18 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: theme.accentColor,
-                    foregroundColor: Colors.white,
+                    foregroundColor: theme.onAccentColor,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(
+                        AppDimensions.radiusLg,
+                      ),
                     ),
                   ),
                   child: Text(
                     '保存',
-                    style: TextStyle(
-                      fontFamily: '.SF Pro Text',
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.titleLarge!.copyWith(fontSize: 14),
                   ),
                 ),
               ],
@@ -267,7 +263,7 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: theme.surfaceColor,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
         boxShadow: [
           BoxShadow(
             color: theme.textColor.withValues(alpha: 0.05),
@@ -277,7 +273,7 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppDimensions.screenPadding),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -287,10 +283,8 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
               alignment: Alignment.centerLeft,
               child: Text(
                 exercise.name,
-                style: TextStyle(
-                  fontFamily: '.SF Pro Display',
+                style: Theme.of(context).textTheme.headlineLarge!.copyWith(
                   fontSize: 16,
-                  fontWeight: FontWeight.w600,
                   color: theme.textColor,
                 ),
               ),
@@ -353,12 +347,11 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
                 color: theme.accentColor.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(6),
+                borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
               ),
               child: Text(
                 '体重 ${_bodyWeight!.toStringAsFixed(0)}kg × ${(coeff * 100).toStringAsFixed(0)}% = ${eqWeight.toStringAsFixed(1)}kg',
-                style: TextStyle(
-                  fontFamily: '.SF Pro Text',
+                style: Theme.of(context).textTheme.bodySmall!.copyWith(
                   fontSize: 10,
                   color: theme.accentColor,
                 ),
@@ -376,9 +369,7 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
                   alignment: Alignment.centerLeft,
                   child: Text(
                     '第$setNumber组',
-                    style: TextStyle(
-                      fontFamily: '.SF Pro Text',
-                      fontSize: 14,
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                       color: theme.secondaryTextColor,
                     ),
                   ),
@@ -402,12 +393,9 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
               // 乘号
               Text(
                 '×',
-                style: TextStyle(
-                  fontFamily: '.SF Pro Text',
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: theme.textColor,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge!.copyWith(color: theme.textColor),
               ),
 
               const SizedBox(width: 4),
@@ -420,34 +408,31 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                     hintText: isBw ? '附加' : '0',
-                    hintStyle: TextStyle(
-                      fontFamily: '.SF Pro Text',
-                      fontSize: 14,
+                    hintStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
                       color: theme.secondaryTextColor,
                     ),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(
+                        AppDimensions.radiusMd,
+                      ),
                       borderSide: BorderSide(color: theme.borderColor),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(
+                        AppDimensions.radiusMd,
+                      ),
                       borderSide: BorderSide(
                         color: theme.accentColor,
                         width: 2,
                       ),
                     ),
                     suffixText: 'kg',
-                    suffixStyle: TextStyle(
-                      fontFamily: '.SF Pro Text',
-                      fontSize: 12,
-                      color: theme.secondaryTextColor,
-                    ),
+                    suffixStyle: Theme.of(context).textTheme.bodySmall!
+                        .copyWith(color: theme.secondaryTextColor),
                   ),
-                  style: TextStyle(
-                    fontFamily: '.SF Pro Text',
-                    fontSize: 14,
-                    color: theme.textColor,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium!.copyWith(color: theme.textColor),
                   onChanged: (value) {
                     final weight = double.tryParse(value);
                     _updateWeight(exerciseId, setNumber, weight, exercise);
@@ -480,11 +465,9 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
           (index) => Center(
             child: Text(
               '${index + 1}',
-              style: TextStyle(
-                fontFamily: '.SF Pro Text',
+              style: Theme.of(context).textTheme.titleLarge!.copyWith(
                 fontSize: 14,
                 color: theme.textColor,
-                fontWeight: FontWeight.w600,
               ),
             ),
           ),
