@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../theme/theme_provider.dart';
+import '../utils/dimensions.dart';
 
 // ============================================================================
 // PRESSABLE MIXIN - 按压动画混入
@@ -153,7 +154,7 @@ class _CircularControlButtonState extends State<CircularControlButton>
         shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
-            color: theme.textColor.withValues(alpha: 0.12),
+            color: theme.shadowColor,
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -168,10 +169,7 @@ class _CircularControlButtonState extends State<CircularControlButton>
     return Semantics(
       button: true,
       label: widget.semanticLabel,
-      child: buildPressable(
-        onPressed: widget.onPressed,
-        child: child,
-      ),
+      child: buildPressable(onPressed: widget.onPressed, child: child),
     );
   }
 }
@@ -252,16 +250,13 @@ class _PrimaryActionButtonState extends State<PrimaryActionButton>
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               if (widget.icon != null) ...[
-                Icon(widget.icon, color: Colors.white, size: 22),
+                Icon(widget.icon, color: theme.onAccentColor, size: 22),
                 const SizedBox(width: 8),
               ],
               Text(
                 widget.label,
-                style: const TextStyle(
-                  fontFamily: '.SF Pro Text',
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
+                style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                  color: theme.onAccentColor,
                   letterSpacing: 0.5,
                 ),
               ),
@@ -289,7 +284,7 @@ class FlatCard extends StatelessWidget {
     required this.child,
     this.padding,
     this.margin,
-    this.borderRadius = 16,
+    this.borderRadius = AppDimensions.radiusXl,
   });
 
   @override
@@ -297,13 +292,13 @@ class FlatCard extends StatelessWidget {
     final theme = context.watch<ThemeProvider>().currentTheme;
     return Container(
       margin: margin,
-      padding: padding ?? const EdgeInsets.all(16),
+      padding: padding ?? const EdgeInsets.all(AppDimensions.screenPadding),
       decoration: BoxDecoration(
         color: theme.surfaceColor.withValues(alpha: 0.9),
         borderRadius: BorderRadius.circular(borderRadius),
         boxShadow: [
           BoxShadow(
-            color: theme.textColor.withValues(alpha: 0.08),
+            color: theme.shadowColor,
             blurRadius: 16,
             offset: const Offset(0, 4),
           ),
@@ -335,26 +330,25 @@ class FlatBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.watch<ThemeProvider>().currentTheme;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: BoxDecoration(
         color: backgroundColor ?? const Color(0xFFFFA726),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusChip),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           if (icon != null) ...[
-            Icon(icon, color: textColor ?? Colors.white, size: 14),
+            Icon(icon, color: textColor ?? theme.onAccentColor, size: 14),
             const SizedBox(width: 6),
           ],
           Text(
             text,
-            style: TextStyle(
-              fontFamily: '.SF Pro Text',
+            style: Theme.of(context).textTheme.labelLarge!.copyWith(
               fontSize: 13,
-              fontWeight: FontWeight.w500,
-              color: textColor ?? Colors.white,
+              color: textColor ?? theme.onAccentColor,
             ),
           ),
         ],
@@ -387,7 +381,7 @@ class StatusBadge extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusChip),
         border: Border.all(color: color.withValues(alpha: 0.3), width: 1),
       ),
       child: Row(
@@ -399,12 +393,9 @@ class StatusBadge extends StatelessWidget {
           ],
           Text(
             text,
-            style: TextStyle(
-              fontFamily: '.SF Pro Text',
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-              color: color,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.labelLarge!.copyWith(fontSize: 13, color: color),
           ),
         ],
       ),
@@ -548,10 +539,8 @@ class _SecondaryButtonState extends State<_SecondaryButton>
               ],
               Text(
                 widget.label,
-                style: TextStyle(
-                  fontFamily: '.SF Pro Text',
+                style: Theme.of(context).textTheme.titleLarge!.copyWith(
                   fontSize: 15,
-                  fontWeight: FontWeight.w600,
                   color: widget.color,
                 ),
               ),

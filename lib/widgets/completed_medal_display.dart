@@ -210,26 +210,22 @@ class _CompletedMedalDisplayState extends State<CompletedMedalDisplay>
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.check, size: 48, color: Colors.white),
+          Icon(Icons.check, size: 48, color: widget.theme.onAccentColor),
           const SizedBox(height: 8),
           Text(
             _formatTime(widget.sessionDuration),
-            style: const TextStyle(
-              fontFamily: '.SF Pro Display',
-              fontSize: 28,
-              fontWeight: FontWeight.w600,
-              color: Colors.white,
+            style: Theme.of(context).textTheme.displaySmall!.copyWith(
+              color: widget.theme.onAccentColor,
               letterSpacing: -1,
             ),
           ),
           const SizedBox(height: 4),
-          const Text(
+          Text(
             '训练完成',
-            style: TextStyle(
-              fontFamily: '.SF Pro Text',
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
               fontSize: 13,
-              color: Color(0xCCFFFFFF),
               fontWeight: FontWeight.w500,
+              color: const Color(0xCCFFFFFF),
             ),
           ),
         ],

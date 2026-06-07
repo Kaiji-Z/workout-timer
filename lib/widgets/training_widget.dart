@@ -136,12 +136,9 @@ class _TrainingWidgetState extends State<TrainingWidget>
           Expanded(
             child: Text(
               '训练计时器',
-              style: TextStyle(
-                fontFamily: '.SF Pro Display',
-                fontSize: 18,
+              style: Theme.of(context).textTheme.headlineMedium!.copyWith(
                 fontWeight: FontWeight.w700,
                 letterSpacing: -0.5, // Match other pages
-                color: theme.textColor,
               ),
               textAlign: TextAlign.center,
             ),
@@ -152,14 +149,14 @@ class _TrainingWidgetState extends State<TrainingWidget>
             child: InkWell(
               onTap: () =>
                   _showPlanSelector(theme, planProvider, progressProvider),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
               child: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   color: _isPlanMode
                       ? theme.accentColor.withValues(alpha: 0.1)
                       : Colors.transparent,
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
                 ),
                 child: Icon(
                   Icons.playlist_add_check,
@@ -210,11 +207,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
               padding: const EdgeInsets.only(top: 4),
               child: Text(
                 nextHint,
-                style: TextStyle(
-                  fontFamily: '.SF Pro Text',
-                  fontSize: 12,
-                  color: theme.secondaryTextColor,
-                ),
+                style: Theme.of(context).textTheme.bodySmall!,
               ),
             ),
         ],
@@ -604,7 +597,9 @@ class _TrainingWidgetState extends State<TrainingWidget>
       context: context,
       backgroundColor: theme.surfaceColor,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(AppDimensions.radiusSheet),
+        ),
       ),
       builder: (context) => Container(
         padding: const EdgeInsets.all(24),
@@ -618,7 +613,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
                 height: 4,
                 decoration: BoxDecoration(
                   color: theme.dividerColor,
-                  borderRadius: BorderRadius.circular(2),
+                  borderRadius: BorderRadius.circular(AppDimensions.radiusXxs),
                 ),
               ),
             ),
@@ -628,12 +623,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
               children: [
                 Text(
                   '选择训练计划',
-                  style: TextStyle(
-                    fontFamily: '.SF Pro Display',
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: theme.textColor,
-                  ),
+                  style: Theme.of(context).textTheme.headlineMedium!,
                 ),
                 if (_isPlanMode)
                   TextButton(
@@ -664,11 +654,15 @@ class _TrainingWidgetState extends State<TrainingWidget>
                         color: isSelected
                             ? theme.accentColor
                             : theme.accentColor.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(
+                          AppDimensions.radiusMd,
+                        ),
                       ),
                       child: Icon(
                         Icons.fitness_center,
-                        color: isSelected ? Colors.white : theme.accentColor,
+                        color: isSelected
+                            ? theme.onAccentColor
+                            : theme.accentColor,
                       ),
                     ),
                     title: Text(plan.name),
