@@ -14,12 +14,8 @@ void main() {
   Widget buildTestWidget(Widget child) {
     final themeProvider = ThemeProvider();
     return MultiProvider(
-      providers: [
-        ChangeNotifierProvider.value(value: themeProvider),
-      ],
-      child: MaterialApp(
-        home: Scaffold(body: child),
-      ),
+      providers: [ChangeNotifierProvider.value(value: themeProvider)],
+      child: MaterialApp(home: Scaffold(body: child)),
     );
   }
 
@@ -36,9 +32,9 @@ void main() {
         DateTime(2026, 6, 7): 600.0,
       };
 
-      await tester.pumpWidget(buildTestWidget(
-        DailyVolumeChart(data: dailyData),
-      ));
+      await tester.pumpWidget(
+        buildTestWidget(DailyVolumeChart(data: dailyData)),
+      );
       await tester.pumpAndSettle();
 
       expect(find.byType(DailyVolumeChart), findsOneWidget);
@@ -47,9 +43,9 @@ void main() {
     testWidgets('handles empty data without crash', (tester) async {
       final emptyData = <DateTime, double>{};
 
-      await tester.pumpWidget(buildTestWidget(
-        DailyVolumeChart(data: emptyData),
-      ));
+      await tester.pumpWidget(
+        buildTestWidget(DailyVolumeChart(data: emptyData)),
+      );
       await tester.pumpAndSettle();
 
       expect(find.byType(DailyVolumeChart), findsOneWidget);

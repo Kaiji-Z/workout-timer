@@ -7,16 +7,15 @@ import 'package:workout_timer/services/stats_calculator_service.dart';
 
 void main() {
   group('Detailed Recording E2E Tests', () {
-    
     group('SetData Model Tests', () {
       test('SetData serializes and deserializes correctly', () {
         final setData = SetData(setNumber: 1, reps: 10, weight: 50.0);
-        
+
         final map = setData.toMap();
         expect(map['set_number'], 1);
         expect(map['reps'], 10);
         expect(map['weight'], 50.0);
-        
+
         final restored = SetData.fromMap(map);
         expect(restored.setNumber, setData.setNumber);
         expect(restored.reps, setData.reps);
@@ -25,10 +24,22 @@ void main() {
 
       test('SetData displayText formats correctly', () {
         // Note: Implementation uses '×' (Unicode multiplication sign)
-        expect(SetData(setNumber: 1, reps: 10, weight: 50.0).displayText, '10 × 50.0kg');
-        expect(SetData(setNumber: 1, reps: 10, weight: null).displayText, '10 reps');
-        expect(SetData(setNumber: 1, reps: null, weight: 50.0).displayText, '50.0kg');
-        expect(SetData(setNumber: 1, reps: null, weight: null).displayText, 'Set 1');
+        expect(
+          SetData(setNumber: 1, reps: 10, weight: 50.0).displayText,
+          '10 × 50.0kg',
+        );
+        expect(
+          SetData(setNumber: 1, reps: 10, weight: null).displayText,
+          '10 reps',
+        );
+        expect(
+          SetData(setNumber: 1, reps: null, weight: 50.0).displayText,
+          '50.0kg',
+        );
+        expect(
+          SetData(setNumber: 1, reps: null, weight: null).displayText,
+          'Set 1',
+        );
       });
 
       test('SetData volume calculates correctly', () {
@@ -45,7 +56,7 @@ void main() {
         expect(nullMap['set_number'], 3);
         expect(nullMap['reps'], isNull);
         expect(nullMap['weight'], isNull);
-        
+
         final restoredNull = SetData.fromMap(nullMap);
         expect(restoredNull.setNumber, 3);
         expect(restoredNull.reps, isNull);
@@ -54,12 +65,12 @@ void main() {
 
       test('SetData copyWith works correctly', () {
         final original = SetData(setNumber: 1, reps: 10, weight: 50.0);
-        
+
         final copied = original.copyWith(reps: 12);
         expect(copied.setNumber, 1);
         expect(copied.reps, 12);
         expect(copied.weight, 50.0);
-        
+
         // Original unchanged
         expect(original.reps, 10);
       });
@@ -76,20 +87,23 @@ void main() {
             SetData(setNumber: 3, reps: 6, weight: 60.0),
           ],
         );
-        
+
         // Volume: 10*50 + 8*55 + 6*60 = 500 + 440 + 360 = 1300
         expect(exercise.totalVolume, 1300.0);
       });
 
-      test('RecordedExercise without setsData falls back to completedSets * maxWeight', () {
-        final exercise = RecordedExercise(
-          exerciseId: 'test-1',
-          completedSets: 3,
-          maxWeight: 50.0,
-        );
-        
-        expect(exercise.totalVolume, 150.0); // 3 * 50
-      });
+      test(
+        'RecordedExercise without setsData falls back to completedSets * maxWeight',
+        () {
+          final exercise = RecordedExercise(
+            exerciseId: 'test-1',
+            completedSets: 3,
+            maxWeight: 50.0,
+          );
+
+          expect(exercise.totalVolume, 150.0); // 3 * 50
+        },
+      );
 
       test('RecordedExercise with empty setsData returns zero volume', () {
         // Note: Empty list is not null, so fold returns 0.0 (not fallback)
@@ -99,7 +113,7 @@ void main() {
           maxWeight: 40.0,
           setsData: [],
         );
-        
+
         // Empty list uses fold which returns 0.0
         expect(exercise.totalVolume, 0.0);
       });
@@ -114,10 +128,10 @@ void main() {
             SetData(setNumber: 2, reps: 6, weight: 60.0),
           ],
         );
-        
+
         final json = exercise.toJson();
         final restored = RecordedExercise.fromJson(json);
-        
+
         expect(restored.exerciseId, 'ex-123');
         expect(restored.completedSets, 2);
         expect(restored.maxWeight, 60.0);
@@ -131,15 +145,27 @@ void main() {
 
       test('RecordedExercise weightText formats correctly', () {
         expect(
-          RecordedExercise(exerciseId: '1', completedSets: 3, maxWeight: 75.5).weightText,
+          RecordedExercise(
+            exerciseId: '1',
+            completedSets: 3,
+            maxWeight: 75.5,
+          ).weightText,
           '75.5kg',
         );
         expect(
-          RecordedExercise(exerciseId: '1', completedSets: 3, maxWeight: null).weightText,
+          RecordedExercise(
+            exerciseId: '1',
+            completedSets: 3,
+            maxWeight: null,
+          ).weightText,
           '',
         );
         expect(
-          RecordedExercise(exerciseId: '1', completedSets: 3, maxWeight: 0).weightText,
+          RecordedExercise(
+            exerciseId: '1',
+            completedSets: 3,
+            maxWeight: 0,
+          ).weightText,
           '',
         );
       });
@@ -148,7 +174,7 @@ void main() {
     group('StatsCalculatorService Tests', () {
       test('StatsCalculatorService calculates total volume correctly', () {
         final service = StatsCalculatorService();
-        
+
         final records = [
           WorkoutRecord(
             id: 'record-1',
@@ -185,7 +211,7 @@ void main() {
             createdAt: DateTime(2024, 1, 16),
           ),
         ];
-        
+
         // Bench press: 10*60 + 8*65 + 6*70 = 600 + 520 + 420 = 1540
         // Deadlift: 4 * 100 = 400
         // Total: 1940
@@ -195,14 +221,14 @@ void main() {
 
       test('StatsCalculatorService handles empty records', () {
         final service = StatsCalculatorService();
-        
+
         final volume = service.calculateTotalVolume([]);
         expect(volume, 0.0);
       });
 
       test('StatsCalculatorService calculates density correctly', () {
         final service = StatsCalculatorService();
-        
+
         final records = [
           WorkoutRecord(
             id: 'r1',
@@ -223,7 +249,7 @@ void main() {
             createdAt: DateTime(2024, 1, 16),
           ),
         ];
-        
+
         // 30 sets / 60 minutes = 0.5 sets per minute
         final density = service.calculateDensity(records);
         expect(density, closeTo(0.5, 0.001));
@@ -285,55 +311,65 @@ void main() {
         );
       });
 
-      test('StatsCalculatorService daily volume trend aggregates correctly', () {
-        final service = StatsCalculatorService();
+      test(
+        'StatsCalculatorService daily volume trend aggregates correctly',
+        () {
+          final service = StatsCalculatorService();
 
-        final records = [
-          WorkoutRecord(
-            id: 'r1',
-            date: DateTime.now().subtract(const Duration(days: 1)), // Yesterday
-            durationSeconds: 1800,
-            trainedMuscles: [],
-            exercises: [
-              RecordedExercise(
-                exerciseId: 'ex1',
-                completedSets: 3,
-                setsData: [
-                  SetData(setNumber: 1, reps: 10, weight: 50.0), // 500
-                ],
-              ),
-            ],
-            totalSets: 3,
-            createdAt: DateTime.now().subtract(const Duration(days: 1)),
-          ),
-          WorkoutRecord(
-            id: 'r2',
-            date: DateTime.now().subtract(const Duration(days: 2)), // 2 days ago
-            durationSeconds: 1800,
-            trainedMuscles: [],
-            exercises: [
-              RecordedExercise(
-                exerciseId: 'ex2',
-                completedSets: 3,
-                setsData: [
-                  SetData(setNumber: 1, reps: 10, weight: 60.0), // 600
-                ],
-              ),
-            ],
-            totalSets: 3,
-            createdAt: DateTime.now().subtract(const Duration(days: 2)),
-          ),
-        ];
+          final records = [
+            WorkoutRecord(
+              id: 'r1',
+              date: DateTime.now().subtract(
+                const Duration(days: 1),
+              ), // Yesterday
+              durationSeconds: 1800,
+              trainedMuscles: [],
+              exercises: [
+                RecordedExercise(
+                  exerciseId: 'ex1',
+                  completedSets: 3,
+                  setsData: [
+                    SetData(setNumber: 1, reps: 10, weight: 50.0), // 500
+                  ],
+                ),
+              ],
+              totalSets: 3,
+              createdAt: DateTime.now().subtract(const Duration(days: 1)),
+            ),
+            WorkoutRecord(
+              id: 'r2',
+              date: DateTime.now().subtract(
+                const Duration(days: 2),
+              ), // 2 days ago
+              durationSeconds: 1800,
+              trainedMuscles: [],
+              exercises: [
+                RecordedExercise(
+                  exerciseId: 'ex2',
+                  completedSets: 3,
+                  setsData: [
+                    SetData(setNumber: 1, reps: 10, weight: 60.0), // 600
+                  ],
+                ),
+              ],
+              totalSets: 3,
+              createdAt: DateTime.now().subtract(const Duration(days: 2)),
+            ),
+          ];
 
-        final trend = service.calculateDailyVolumeTrend(records);
+          final trend = service.calculateDailyVolumeTrend(records);
 
-        // Should have 2 daily entries
-        expect(trend.length, 2);
+          // Should have 2 daily entries
+          expect(trend.length, 2);
 
-        // Total volume across all days should be 1100 (500 + 600)
-        final totalDailyVolume = trend.values.fold<double>(0.0, (sum, v) => sum + v);
-        expect(totalDailyVolume, 1100.0);
-      });
+          // Total volume across all days should be 1100 (500 + 600)
+          final totalDailyVolume = trend.values.fold<double>(
+            0.0,
+            (sum, v) => sum + v,
+          );
+          expect(totalDailyVolume, 1100.0);
+        },
+      );
     });
 
     group('Integration: Full Recording Flow', () {
@@ -356,9 +392,9 @@ void main() {
               maxWeight: 80.0,
               setsData: [
                 SetData(setNumber: 1, reps: 10, weight: 70.0), // 700
-                SetData(setNumber: 2, reps: 8, weight: 75.0),  // 600
-                SetData(setNumber: 3, reps: 6, weight: 80.0),  // 480
-                SetData(setNumber: 4, reps: 5, weight: 80.0),  // 400
+                SetData(setNumber: 2, reps: 8, weight: 75.0), // 600
+                SetData(setNumber: 3, reps: 6, weight: 80.0), // 480
+                SetData(setNumber: 4, reps: 5, weight: 80.0), // 400
               ],
             ),
             RecordedExercise(
@@ -373,7 +409,7 @@ void main() {
               setsData: [
                 SetData(setNumber: 1, reps: 12, weight: 28.0), // 336
                 SetData(setNumber: 2, reps: 10, weight: 30.0), // 300
-                SetData(setNumber: 3, reps: 8, weight: 32.0),  // 256
+                SetData(setNumber: 3, reps: 8, weight: 32.0), // 256
               ],
             ),
             RecordedExercise(
@@ -397,7 +433,7 @@ void main() {
 
         expect(restored.id, 'workout-complete');
         expect(restored.exercises.length, 3);
-        
+
         // Verify first exercise with setsData
         final benchPress = restored.exercises[0];
         expect(benchPress.exerciseId, 'bench-press');
@@ -411,7 +447,7 @@ void main() {
         // Calculate total volume via service
         final service = StatsCalculatorService();
         final totalVolume = service.calculateTotalVolume([restored]);
-        
+
         // Bench: 2180 + Incline: 336 + 300 + 256 = 892 + Tricep: 75 = 3147
         expect(totalVolume, closeTo(3147.0, 0.1));
       });
