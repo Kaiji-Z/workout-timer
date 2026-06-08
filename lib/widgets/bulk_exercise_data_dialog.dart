@@ -262,15 +262,9 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: theme.surfaceColor,
+        color: theme.surfaceColorRaised,
         borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-        boxShadow: [
-          BoxShadow(
-            color: theme.textColor.withValues(alpha: 0.05),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        boxShadow: AppElevation.resting(theme.shadowColor),
       ),
       child: Padding(
         padding: const EdgeInsets.all(AppDimensions.screenPadding),

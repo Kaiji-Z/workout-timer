@@ -107,6 +107,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
+          tooltip: '关闭',
           icon: Icon(Icons.close, color: theme.textColor),
           onPressed: () => Navigator.pop(context),
         ),
@@ -708,15 +709,9 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
                   vertical: 14,
                 ),
                 decoration: BoxDecoration(
-                  color: theme.surfaceColor,
+                  color: theme.surfaceColorRaised,
                   borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-                  boxShadow: [
-                    BoxShadow(
-                      color: theme.textColor.withValues(alpha: 0.05),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
+                  boxShadow: AppElevation.resting(theme.shadowColor),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -755,15 +750,9 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
             Container(
               padding: const EdgeInsets.all(AppDimensions.screenPadding),
               decoration: BoxDecoration(
-                color: theme.surfaceColor,
+                color: theme.surfaceColorRaised,
                 borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-                boxShadow: [
-                  BoxShadow(
-                    color: theme.textColor.withValues(alpha: 0.05),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
+                boxShadow: AppElevation.resting(theme.shadowColor),
               ),
               child: SingleChildScrollView(
                 child: Text(
@@ -1064,6 +1053,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               IconButton(
+                tooltip: '减少',
                 icon: Icon(
                   Icons.remove_circle_outline,
                   color: theme.accentColor,
@@ -1091,6 +1081,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
                 ),
               ),
               IconButton(
+                tooltip: '增加',
                 icon: Icon(
                   Icons.add_circle_outline,
                   color: theme.accentColor,

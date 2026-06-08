@@ -10,6 +10,8 @@ import '../theme/theme_provider.dart';
 import '../theme/app_theme.dart';
 import '../utils/dimensions.dart';
 import '../animations/list_animations.dart';
+import '../animations/page_transitions.dart';
+import '../animations/animation_primitives.dart';
 import 'record_detail_screen.dart';
 
 class HistoryScreen extends StatefulWidget {
@@ -265,8 +267,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
   void _navigateToDetail(WorkoutRecord record) async {
     await Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => RecordDetailScreen(record: record),
+      FadeUpPageRoute(
+        page: RecordDetailScreen(record: record),
       ),
     );
     // 返回后刷新列表以反映编辑后的数据
@@ -312,24 +314,15 @@ class _RecordCard extends StatelessWidget {
         child: Icon(Icons.delete, color: theme.textColor),
       ),
       onDismissed: (direction) => onDelete(),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
+      child: AnimatedCard(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
           child: Container(
             margin: const EdgeInsets.only(bottom: 12),
             padding: const EdgeInsets.all(AppDimensions.screenPadding),
             decoration: BoxDecoration(
-              color: theme.cardColor.withValues(alpha: 0.9),
+              color: theme.surfaceColorRaised,
               borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
-              boxShadow: [
-                BoxShadow(
-                  color: theme.dividerColor.withValues(alpha: 0.15),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
+              boxShadow: AppElevation.raised(theme.shadowColor),
             ),
             child: Row(
               children: [
@@ -486,7 +479,6 @@ class _RecordCard extends StatelessWidget {
             ),
           ),
         ),
-      ),
     );
   }
 }
@@ -529,15 +521,9 @@ class _SessionCard extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(AppDimensions.screenPadding),
         decoration: BoxDecoration(
-          color: theme.cardColor.withValues(alpha: 0.9),
+          color: theme.surfaceColorRaised,
           borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
-          boxShadow: [
-            BoxShadow(
-              color: theme.dividerColor.withValues(alpha: 0.15),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
+          boxShadow: AppElevation.raised(theme.shadowColor),
         ),
         child: Row(
           children: [

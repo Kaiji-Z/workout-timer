@@ -7,6 +7,7 @@ import '../services/data_transfer_service.dart';
 import '../theme/theme_provider.dart';
 import '../theme/app_theme.dart';
 import '../utils/dimensions.dart';
+import '../animations/page_transitions.dart';
 import 'user_preferences_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -312,8 +313,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => const UserPreferencesScreen(),
+                  FadeUpPageRoute(
+                    page: const UserPreferencesScreen(),
                   ),
                 );
               },
@@ -627,15 +628,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Container(
       padding: padding ?? const EdgeInsets.symmetric(vertical: 4),
       decoration: BoxDecoration(
-        color: theme.surfaceColor,
+        color: theme.surfaceColorRaised,
         borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
-        boxShadow: [
-          BoxShadow(
-            color: theme.dividerColor.withValues(alpha: 0.15),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        boxShadow: AppElevation.resting(theme.shadowColor),
       ),
       child: child,
     );
@@ -739,14 +734,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               ? Border.all(color: theme.accentColor, width: 2.5)
                               : null,
                           boxShadow: isSelected
-                              ? [
-                                  BoxShadow(
-                                    color: theme.accentColor.withValues(
-                                      alpha: 0.3,
-                                    ),
-                                    blurRadius: 8,
-                                  ),
-                                ]
+                              ? AppElevation.resting(
+                                  theme.accentColor.withValues(alpha: 0.3),
+                                )
                               : null,
                         ),
                         child: isSelected

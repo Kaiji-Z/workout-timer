@@ -647,6 +647,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
       backgroundColor: Colors.transparent,
       elevation: 0,
       leading: IconButton(
+        tooltip: '关闭',
         icon: Icon(Icons.close, color: theme.textColor),
         onPressed: () => Navigator.pop(context),
       ),

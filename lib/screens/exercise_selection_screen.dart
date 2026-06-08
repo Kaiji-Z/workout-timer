@@ -12,6 +12,7 @@ import '../widgets/exercise_selector.dart'; // 复用 ExerciseDetailSheet
 import '../widgets/fullscreen_image_viewer.dart';
 import '../services/exercise_favorites_service.dart';
 import '../services/database_helper.dart';
+import '../animations/page_transitions.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 /// 独立的动作选择页面
@@ -43,12 +44,11 @@ class ExerciseSelectionScreen extends StatefulWidget {
   }) {
     return Navigator.push<List<PlanExercise>>(
       context,
-      MaterialPageRoute(
-        builder: (context) => ExerciseSelectionScreen(
+      FadeUpPageRoute(
+        page: ExerciseSelectionScreen(
           selectedMuscles: selectedMuscles,
           initialExercises: initialExercises ?? [],
         ),
-        fullscreenDialog: false,
       ),
     );
   }
@@ -163,6 +163,7 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
       backgroundColor: Colors.transparent,
       elevation: 0,
       leading: IconButton(
+        tooltip: '返回',
         icon: Icon(Icons.arrow_back, color: theme.textColor),
         onPressed: () => Navigator.pop(context),
       ),
@@ -193,15 +194,9 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Container(
         decoration: BoxDecoration(
-          color: theme.surfaceColor,
+          color: theme.surfaceColorRaised,
           borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-          boxShadow: [
-            BoxShadow(
-              color: theme.textColor.withValues(alpha: 0.05),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          boxShadow: AppElevation.resting(theme.shadowColor),
         ),
         child: TextField(
           controller: _searchController,
@@ -218,6 +213,7 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
             prefixIcon: Icon(Icons.search, color: theme.secondaryTextColor),
             suffixIcon: _searchQuery.isNotEmpty
                 ? IconButton(
+                    tooltip: '清除搜索',
                     icon: Icon(Icons.clear, color: theme.secondaryTextColor),
                     onPressed: () {
                       _searchController.clear();
@@ -531,14 +527,8 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
     return Container(
       height: 88,
       decoration: BoxDecoration(
-        color: theme.surfaceColor,
-        boxShadow: [
-          BoxShadow(
-            color: theme.shadowColor,
-            blurRadius: 12,
-            offset: const Offset(0, -4),
-          ),
-        ],
+        color: theme.surfaceColorRaised,
+        boxShadow: AppElevation.raised(theme.shadowColor),
       ),
       child: SafeArea(
         top: false,
@@ -782,13 +772,7 @@ class _ExerciseListItemState extends State<_ExerciseListItem> {
                   : Colors.transparent,
               width: widget.isSelected ? 1.5 : 0,
             ),
-            boxShadow: [
-              BoxShadow(
-                color: widget.theme.textColor.withValues(alpha: 0.03),
-                blurRadius: 4,
-                offset: const Offset(0, 1),
-              ),
-            ],
+            boxShadow: AppElevation.resting(widget.theme.shadowColor),
           ),
           child: ListTile(
             leading: Material(

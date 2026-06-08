@@ -273,13 +273,9 @@ class _DurationPickerState extends State<DurationPicker> {
           decoration: BoxDecoration(
             color: theme.primaryColor,
             borderRadius: BorderRadius.circular(AppDimensions.radiusPill),
-            boxShadow: [
-              BoxShadow(
-                color: theme.primaryColor.withValues(alpha: 0.25),
-                blurRadius: 8,
-                offset: const Offset(0, 3),
-              ),
-            ],
+            boxShadow: AppElevation.resting(
+              theme.primaryColor.withValues(alpha: 0.25),
+            ),
           ),
           child: Center(
             child: Text(
