@@ -85,15 +85,25 @@
 
 ## 📸 界面
 
-| 计时器 | 训练计划 | 动作库 |
+| 计时器 | 训练计划 | 历史记录 |
 |:---:|:---:|:---:|
-| 大号倒计时 + 进度环 | 日历 + 卡片 | 870+ 动作搜索 |
+| <img src="docs/screenshots/timer.jpg" width="240" alt="计时器"> | <img src="docs/screenshots/plan-calendar.jpg" width="240" alt="训练计划"> | <img src="docs/screenshots/history.jpg" width="240" alt="历史记录"> |
+| 大号倒计时 + 进度环 | 日历 + 计划卡片 | 训练记录列表 |
 
-| 训练记录 | 数据统计 | AI 分析 |
+| 统计概览 | 统计详情 | AI 分析 |
 |:---:|:---:|:---:|
-| 每组重量×次数 | 图表 + 趋势 | 智能训练报告 |
+| <img src="docs/screenshots/stats-overview.jpg" width="240" alt="统计概览"> | <img src="docs/screenshots/stats-detail.jpg" width="240" alt="统计详情"> | <img src="docs/screenshots/ai-analysis.jpg" width="240" alt="AI 分析"> |
+| 周数据 + 概览 | 容量趋势图 | 智能训练报告 |
 
-> 📸 截图待补充 — 下载 APK 体验真实效果
+| AI 向导 | 动作库 | 动作详情 |
+|:---:|:---:|:---:|
+| <img src="docs/screenshots/ai-wizard.jpg" width="240" alt="AI 向导"> | <img src="docs/screenshots/exercise-list.jpg" width="240" alt="动作库"> | <img src="docs/screenshots/exercise-detail.jpg" width="240" alt="动作详情"> |
+| 生成训练计划 | 870+ 动作搜索 | 动作示范 + 说明 |
+
+| 设置 |
+|:---:|
+| <img src="docs/screenshots/settings.jpg" width="240" alt="设置"> |
+| 通知 · 深色模式 · 主题切换 |
 
 ---
 
