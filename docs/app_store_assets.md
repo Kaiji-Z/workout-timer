@@ -9,7 +9,7 @@
 | 字段 | 内容 |
 |------|------|
 | 应用名称 | 撬铁计时器 |
-| 包名 | com.example.workout_timer |
+| 包名 | com.kaiji.workouttimer |
 | 版本 | 1.0.0 |
 | 分类 | 健康 / 工具 |
 | 价格 | 免费 |
