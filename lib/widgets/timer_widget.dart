@@ -6,6 +6,7 @@ import '../theme/theme_provider.dart';
 import '../theme/app_theme.dart';
 import '../utils/dimensions.dart';
 import 'glass_widgets.dart';
+import 'semantics_helpers.dart';
 
 /// Warm Vitality 风格计时器组件
 ///
@@ -99,12 +100,15 @@ class TimerWidget extends StatelessWidget {
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                _formatTime(timer.remainingSeconds),
-                style: Theme.of(context).textTheme.headlineLarge!.copyWith(
-                  fontSize: 52,
-                  fontWeight: FontWeight.w700,
-                  color: theme.textColor,
+              LiveTimer(
+                value: '剩余 ${timer.remainingSeconds} 秒',
+                child: Text(
+                  _formatTime(timer.remainingSeconds),
+                  style: Theme.of(context).textTheme.headlineLarge!.copyWith(
+                    fontSize: 52,
+                    fontWeight: FontWeight.w700,
+                    color: theme.textColor,
+                  ),
                 ),
               ),
               const SizedBox(height: 8),
@@ -174,15 +178,9 @@ class TimerWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       decoration: BoxDecoration(
-        color: theme.surfaceColor.withValues(alpha: 0.9),
+        color: theme.surfaceColorRaised,
         borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
-        boxShadow: [
-          BoxShadow(
-            color: theme.shadowColor,
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        boxShadow: AppElevation.raised(theme.shadowColor),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -330,13 +328,7 @@ class _PresetChip extends StatelessWidget {
                   ? theme.accentColor
                   : theme.surfaceColor.withValues(alpha: 0.9),
               borderRadius: BorderRadius.circular(AppDimensions.radiusChip),
-              boxShadow: [
-                BoxShadow(
-                  color: theme.shadowColor,
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
+              boxShadow: AppElevation.resting(theme.shadowColor),
             ),
             child: Text(
               label,

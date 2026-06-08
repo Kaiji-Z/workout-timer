@@ -1,114 +1,99 @@
 <div align="center">
 
-# 🏋️ 撸铁计时器 | Workout Timer
+# 🏋️ 撸铁计时器
 
-**专注训练，不再分心**
+**组间休息，精准掌控**
 
 [![Flutter](https://img.shields.io/badge/Flutter-3.10+-02569B?logo=flutter)](https://flutter.dev)
 [![Dart](https://img.shields.io/badge/Dart-3.10+-0175C2?logo=dart)](https://dart.dev)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS%20%7C%20Web%20%7C%20Desktop-lightgrey)](https://flutter.dev)
+[![Release](https://img.shields.io/github/v/release/Kaiji-Z/workout-timer?include_prereleases)](https://github.com/Kaiji-Z/workout-timer/releases)
 
-**免费 · 开源 · 无广告 · 无会员**
+免费 · 开源 · 无广告 · 无会员 · 数据不上传
 
-[功能特性](#-功能特性) · [快速开始](#-快速开始) · [截图预览](#-截图预览) · [技术栈](#-技术栈)
+[下载 APK](https://github.com/Kaiji-Z/workout-timer/releases) · [功能](#-功能) · [构建](#-从源码构建) · [技术栈](#-技术栈)
 
 </div>
 
 ---
 
-## 🎯 为什么选择撸铁计时器？
+## 这是什么？
 
-### 你是否也有这样的经历？
+一个**只做一件事**的健身 App：帮你管好组间休息。
 
-> 💪 刚做完一组卧推，拿起手机刷个短视频...
-> 
-> ⏰ 一抬头，**15分钟过去了**
-> 
-> 😰 身体凉了，训练状态全无
+你一定经历过——做完一组卧推，拿起手机，刷了 15 分钟短视频，身体凉了，训练状态全没了。撸铁计时器就是为解决这个问题而生。
 
-**组间休息时间失控，是健身效率的头号杀手。**
+按下开始，倒计时。时间到了，声音+振动提醒你。就这么简单。
 
-- ❌ 休息太短 → 肌肉恢复不足，下一组质量下降
-- ❌ 休息太长 → 身体冷却，训练节奏被打断
-
-### 市面上的健身 App 怎么样？
-
-| 问题 | 现状 |
-|------|------|
-| 📱 **功能繁杂** | 社交、商城、课程...真正需要的计时功能反而难找 |
-| 💰 **会员绑架** | 基础功能也要开会员，不付费就限制使用 |
-| 📢 **广告干扰** | 训练中弹出广告，打断专注状态 |
-| ☁️ **隐私担忧** | 数据上传云端，不知道被用来做什么 |
-
-### 我们的解决方案
-
-**撸铁计时器** —— 一个专注做好一件事的健身 App：
-
-> ⏱️ **简单但专业** —— 只做计时，做到极致
-> 
-> 🔔 **提醒到位** —— 声音+振动+弹窗，不怕错过
-> 
-> 🆓 **完全免费** —— 开源项目，无广告，无会员，无套路
+但如果你需要更多——训练计划、动作库、每组重量记录、数据统计——它也能做到。
 
 ---
 
-## ✨ 功能特性
+## ✨ 功能
 
-### ⏱️ 专业计时器
+### ⏱️ 计时器
 
-| 功能 | 说明 |
-|------|------|
-| 预设时长 | 30秒 / 60秒 / 90秒 / 120秒 一键切换 |
-| 大号显示 | 倒计时一目了然，训练中无需眯眼看 |
-| 组数记录 | 自动统计训练组数 |
-| 后台运行 | 锁屏后继续计时，不中断 |
+| | |
+|---|---|
+| 预设休息 | 30秒 / 60秒 / 90秒 / 120秒，一键切换 |
+| 大号倒计时 | 训练中不用眯眼看屏幕 |
+| 后台计时 | 锁屏后继续倒计时，不中断 |
+| 多重提醒 | 声音 + 振动 + 通知弹窗 |
+| 组数统计 | 自动记录完成了几组 |
+| 完成动画 | 训练结束时圆环变奖牌 |
 
-### 🔔 多重提醒
+### 📚 动作库
 
-- 🔊 **声音提醒** - 训练时无需盯屏幕
-- 📳 **振动提醒** - 安静环境也能感知
-- 📱 **弹窗通知** - 锁屏状态也能看到
+- **870+ 专业动作**，覆盖胸/背/腿/肩/臂/核心全部肌群
+- 每个动作附带示范图片
+- 中英文双语搜索，模糊匹配
+- 按肌群、器械筛选
+- 收藏常用动作
 
-### 📚 健身动作库
+### 📋 训练计划
 
-- **870+ 专业动作**，覆盖所有肌群
-- 肌肉部位分类，快速筛选
-- 动作详情 + 示范图片
-- 中英文双语搜索
+- **AI 生成计划**：输入训练目标，一键生成完整训练方案
+- 日历视图安排每日训练
+- 计划内动作支持自定义组数、次数
+- 执行计划时自动引导，逐个动作推进
 
-### 🤖 AI 训练计划
+### 📊 训练记录
 
-- 智能生成个性化训练计划
-- 根据目标肌群自动推荐动作
-- 日历视图管理训练安排
+- 每组记录**重量 × 次数**，精确追踪进步
+- 自重动作自动计算训练量（生物力学系数）
+- 周/月/年统计 + 肌群训练分布环形图
+- 力量进步趋势图 + 1RM 估算
+- 肌群恢复状态追踪
+- AI 训练分析报告
 
-### 📊 训练记录 & 统计
+### 🎨 外观
 
-- 详细记录每组重量、次数
-- 周/月/年数据统计
-- 肌群训练分布可视化
-- 训练热力图日历
+- **3 种主题**：琥珀金 / 珊瑚橙 / 天际蓝
+- **深色模式**：每种主题自动生成深色变体
+- Flat Vitality 设计系统 — 温暖渐变 + 深蓝强调色
+- 按压动画、数字动画、页面转场动画
+- 全面无障碍支持（Tooltip、语义标注、实时播报）
 
-### 🎨 精美设计
+### 🔒 隐私
 
-- **5种主题配色**：琥珀金、珊瑚橙、薄荷绿、玫瑰粉、天际蓝
-- Flat Vitality 设计系统
-- Material Design 3 现代界面
-
-### 🔒 隐私优先
-
-- 所有数据**本地存储**
-- 不上传云端，不收集个人信息
-- 你的训练数据只属于你
+- **所有数据只存你手机上**（SQLite 本地数据库）
+- 没有账号注册，没有云同步，没有数据上传
+- 不收集任何个人信息
+- 支持导出全部数据（JSON 格式）
 
 ---
 
-## 📸 截图预览
+## 📸 界面
 
-| 计时器 | 训练计划 | 数据统计 |
-|:------:|:--------:|:--------:|
-| 计时界面 | 日历规划 | 图表分析 |
+| 计时器 | 训练计划 | 动作库 |
+|:---:|:---:|:---:|
+| 大号倒计时 + 进度环 | 日历 + 卡片 | 870+ 动作搜索 |
+
+| 训练记录 | 数据统计 | AI 分析 |
+|:---:|:---:|:---:|
+| 每组重量×次数 | 图表 + 趋势 | 智能训练报告 |
+
+> 📸 截图待补充 — 下载 APK 体验真实效果
 
 ---
 
@@ -116,40 +101,31 @@
 
 ### 下载安装
 
-> **直接下载 APK**（推荐）
-> 
-> 前往 [Releases](https://github.com/Kaiji-Z/workout-timer/releases) 页面下载最新版本
+直接下载最新 APK 安装即可：
+
+👉 [**GitHub Releases**](https://github.com/Kaiji-Z/workout-timer/releases)
+
+👉 [**Gitee 镜像**](https://gitee.com/kaiji1126/workout-timer/releases)
 
 ### 从源码构建
 
 ```bash
-# 克隆项目
 git clone https://github.com/Kaiji-Z/workout-timer.git
 cd workout-timer
-
-# 安装依赖
 flutter pub get
-
-# 运行应用
 flutter run
 
-# 构建 APK
+# 构建 release APK
 flutter build apk --release --no-tree-shake-icons
 ```
 
 <details>
-<summary>🇨🇳 国内用户镜像配置</summary>
+<summary>🇨🇳 国内镜像</summary>
 
 ```bash
-# Flutter 中国镜像
 export PUB_HOSTED_URL=https://pub.flutter-io.cn
 export FLUTTER_STORAGE_BASE_URL=https://storage.flutter-io.cn
-
-# 或阿里云镜像
-export PUB_HOSTED_URL=https://mirrors.aliyun.com/dart-pub
-export FLUTTER_STORAGE_BASE_URL=https://mirrors.aliyun.com/flutter
 ```
-
 </details>
 
 ---
@@ -158,11 +134,12 @@ export FLUTTER_STORAGE_BASE_URL=https://mirrors.aliyun.com/flutter
 
 | 技术 | 用途 |
 |------|------|
-| [Flutter](https://flutter.dev) | 跨平台 UI 框架 |
-| [Provider](https://pub.dev/packages/provider) | 状态管理 |
-| [SQLite](https://pub.dev/packages/sqflite) | 本地数据存储 |
-| [fl_chart](https://pub.dev/packages/fl_chart) | 数据可视化 |
-| [flutter_local_notifications](https://pub.dev/packages/flutter_local_notifications) | 本地通知 |
+| Flutter 3.10+ / Dart 3.10+ | 跨平台 UI |
+| Provider (ChangeNotifier) | 状态管理 |
+| SQLite (sqflite) | 本地数据库，4 版增量迁移 |
+| fl_chart | 数据可视化 |
+| flutter_local_notifications | 通知提醒 |
+| Orbitron + Rajdhani | 计时器专用字体 |
 
 ---
 
@@ -170,49 +147,46 @@ export FLUTTER_STORAGE_BASE_URL=https://mirrors.aliyun.com/flutter
 
 ```
 lib/
-├── main.dart                 # 应用入口
-├── bloc/                     # 状态管理 (Provider)
-├── models/                   # 数据模型
-├── screens/                  # 页面
-├── widgets/                  # 组件
-├── theme/                    # 主题系统
-├── services/                 # 服务层
-└── data/                     # 静态数据
+├── main.dart                 # 入口，MultiProvider，底部导航
+├── bloc/                     # 状态管理 (ChangeNotifier × 5)
+│   ├── timer_provider.dart   # 倒计时 + 组数
+│   ├── training_provider.dart # 训练状态机
+│   ├── plan_provider.dart    # 计划 CRUD
+│   ├── record_provider.dart  # 训练记录 + 统计
+│   └── training_progress_provider.dart # 实时训练进度
+├── models/                   # 数据模型 (fromMap/toMap/copyWith)
+├── screens/                  # 12 个页面
+├── widgets/                  # 可复用组件 (15+)
+├── theme/                    # Flat Vitality 主题系统
+│   ├── app_theme.dart        # 3 主题 + 深色变体
+│   └── theme_provider.dart   # 主题状态 + 持久化
+├── animations/               # 动画原语
+│   ├── animation_primitives.dart # AnimatedCard, CountUp, Shimmer
+│   └── page_transitions.dart # FadeUpPageRoute, ScaleFadePageRoute
+├── services/                 # 数据库、通知、AI、统计
+│   ├── database_helper.dart  # SQLite v4，增量迁移
+│   ├── notification_service.dart
+│   ├── ai_prompt_service.dart
+│   ├── stats_calculator_service.dart
+│   └── ...
+├── utils/
+│   └── dimensions.dart       # AppDimensions 设计 token
+└── data/                     # 870+ 动作静态 JSON
 ```
 
 ---
 
-## 🤝 贡献指南
+## 🤝 贡献
 
-欢迎参与贡献！无论是报告 Bug、提出建议，还是提交代码，我们都非常欢迎。
+欢迎提 Issue 和 PR。
 
-1. Fork 本仓库
-2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
-4. 推送到分支 (`git push origin feature/AmazingFeature`)
-5. 创建 Pull Request
+1. Fork → 2. 创建分支 → 3. 提交 → 4. Push → 5. 创建 Pull Request
 
 ---
 
 ## 📄 许可证
 
-本项目基于 [MIT 许可证](LICENSE) 开源。
-
----
-
-## 🤖 AI-Powered Development
-
-本项目由 **AI 辅助开发**，展示了人机协作编程的可能性。
-
-| 工具 | 说明 |
-|------|------|
-| [OpenCode](https://github.com/opencode-ai/opencode) | AI 代码助手，提供智能代码补全和重构建议 |
-| [Oh My OpenAgent](https://github.com/oh-my-openagent) | 强大的 AI Agent 插件，实现复杂任务的自动化开发 |
-
-通过 AI 的辅助，我们实现了：
-- 🚀 **快速迭代** - 从想法到实现，大幅缩短开发周期
-- 🔧 **代码质量** - AI 辅助 code review 和最佳实践建议
-- 📚 **知识整合** - AI 帮助整合健身领域知识和开发规范
+[MIT License](LICENSE)
 
 ---
 
@@ -228,14 +202,8 @@ lib/
 
 <div align="center">
 
-## ⭐ 如果这个项目对你有帮助
+**觉得有用？给个 Star ⭐**
 
-**给一个 Star 支持一下！**
-
-这是对开源开发者最大的鼓励 🙏
-
-[![Star History Chart](https://api.star-history.com/svg?repos=Kaiji-Z/workout-timer&type=Date)](https://star-history.com/#Kaiji-Z/workout-timer&Date)
-
-**Made with ❤️ by [Kaiji](https://github.com/Kaiji-Z)**
+[![Star History](https://api.star-history.com/svg?repos=Kaiji-Z/workout-timer&type=Date)](https://star-history.com/#Kaiji-Z/workout-timer&Date)
 
 </div>

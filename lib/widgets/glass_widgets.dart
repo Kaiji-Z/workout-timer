@@ -152,13 +152,7 @@ class _CircularControlButtonState extends State<CircularControlButton>
       decoration: BoxDecoration(
         color: widget.backgroundColor ?? theme.cardColor,
         shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(
-            color: theme.shadowColor,
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        boxShadow: AppElevation.raised(theme.shadowColor),
       ),
       child: Icon(
         widget.icon,
@@ -235,13 +229,7 @@ class _PrimaryActionButtonState extends State<PrimaryActionButton>
         decoration: BoxDecoration(
           color: bgColor,
           borderRadius: BorderRadius.circular(widget.height / 2),
-          boxShadow: [
-            BoxShadow(
-              color: bgColor.withValues(alpha: 0.3),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
+          boxShadow: AppElevation.raised(bgColor.withValues(alpha: 0.3)),
         ),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -294,15 +282,9 @@ class FlatCard extends StatelessWidget {
       margin: margin,
       padding: padding ?? const EdgeInsets.all(AppDimensions.screenPadding),
       decoration: BoxDecoration(
-        color: theme.surfaceColor.withValues(alpha: 0.9),
+        color: theme.surfaceColorRaised,
         borderRadius: BorderRadius.circular(borderRadius),
-        boxShadow: [
-          BoxShadow(
-            color: theme.shadowColor,
-            blurRadius: 16,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        boxShadow: AppElevation.raised(theme.shadowColor),
       ),
       child: child,
     );
@@ -334,7 +316,7 @@ class FlatBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: BoxDecoration(
-        color: backgroundColor ?? const Color(0xFFFFA726),
+        color: backgroundColor ?? theme.accentColor.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(AppDimensions.radiusChip),
       ),
       child: Row(

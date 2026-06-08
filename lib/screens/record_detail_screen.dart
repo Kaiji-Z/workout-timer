@@ -67,6 +67,7 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
+          tooltip: '返回',
           icon: Icon(Icons.arrow_back, color: theme.textColor),
           onPressed: () => _onBackPressed(),
         ),
@@ -258,15 +259,9 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: theme.cardColor,
+        color: theme.surfaceColorRaised,
         borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
-        boxShadow: [
-          BoxShadow(
-            color: theme.dividerColor.withValues(alpha: 0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        boxShadow: AppElevation.resting(theme.shadowColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -449,15 +444,9 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
       margin: const EdgeInsets.only(top: 8, bottom: 8),
       padding: const EdgeInsets.all(AppDimensions.screenPadding),
       decoration: BoxDecoration(
-        color: theme.cardColor,
+        color: theme.surfaceColorRaised,
         borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
-        boxShadow: [
-          BoxShadow(
-            color: theme.dividerColor.withValues(alpha: 0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        boxShadow: AppElevation.resting(theme.shadowColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

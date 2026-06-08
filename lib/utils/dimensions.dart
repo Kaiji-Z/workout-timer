@@ -46,8 +46,8 @@ class AppDimensions {
   // 页面内容统一内边距
   static const double screenPadding = 16.0;
 
-  // 触摸目标
-  static const double minTouchTarget = 44.0;
+  // 触摸目标 (Material/Apple HIG 推荐 48dp+ 以确保可访问性)
+  static const double minTouchTarget = 48.0;
 
   // 计时器尺寸（响应式基准）
   static double timerSize(BuildContext context) {
@@ -59,4 +59,37 @@ class AppDimensions {
     final screenWidth = MediaQuery.of(context).size.width;
     return (screenWidth * 0.18).clamp(60.0, 90.0);
   }
+}
+
+/// 3-tier elevation system for Flat Vitality depth
+///
+/// 使用三个层级替代散落的 BoxShadow 字面量，确保阴影一致性。
+/// 调用方传入 [shadowColor]（通常为 `theme.shadowColor`）。
+class AppElevation {
+  AppElevation._();
+
+  /// Resting: 卡片静止时的微妙阴影
+  static List<BoxShadow> resting(Color shadowColor) => [
+    BoxShadow(color: shadowColor, blurRadius: 8, offset: const Offset(0, 2)),
+  ];
+
+  /// Raised: 激活/提升卡片的明显阴影
+  static List<BoxShadow> raised(Color shadowColor) => [
+    BoxShadow(color: shadowColor, blurRadius: 16, offset: const Offset(0, 4)),
+    BoxShadow(
+      color: shadowColor.withValues(alpha: 0.0),
+      blurRadius: 10,
+      offset: const Offset(0, 2),
+    ),
+  ];
+
+  /// Floating: FAB/对话框的最大阴影
+  static List<BoxShadow> floating(Color shadowColor) => [
+    BoxShadow(color: shadowColor, blurRadius: 24, offset: const Offset(0, 8)),
+    BoxShadow(
+      color: shadowColor.withValues(alpha: 0.0),
+      blurRadius: 16,
+      offset: const Offset(0, 4),
+    ),
+  ];
 }

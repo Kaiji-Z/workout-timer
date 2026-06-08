@@ -53,15 +53,9 @@ class _CalendarWidgetState extends State<CalendarWidget> {
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: theme.surfaceColor,
+        color: theme.surfaceColorRaised,
         borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
-        boxShadow: [
-          BoxShadow(
-            color: theme.textColor.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        boxShadow: AppElevation.resting(theme.shadowColor),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -104,6 +98,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
       children: [
         // 上个月
         IconButton(
+          tooltip: '上个月',
           onPressed: () {
             setState(() {
               _currentMonth = DateTime(
@@ -125,6 +120,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
 
         // 下个月
         IconButton(
+          tooltip: '下个月',
           onPressed: () {
             setState(() {
               _currentMonth = DateTime(

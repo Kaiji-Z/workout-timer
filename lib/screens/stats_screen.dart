@@ -11,8 +11,10 @@ import '../services/workout_repository.dart';
 import '../services/stats_calculator_service.dart';
 import '../bloc/record_provider.dart';
 import '../widgets/volume_trend_charts.dart';
+import '../animations/animation_primitives.dart';
 import 'ai_analysis_screen.dart';
 import '../services/user_preferences_service.dart';
+import '../animations/page_transitions.dart';
 
 class StatsScreen extends StatefulWidget {
   const StatsScreen({super.key});
@@ -562,15 +564,9 @@ class _StatsScreenState extends State<StatsScreen>
         Container(
           padding: const EdgeInsets.all(AppDimensions.screenPadding),
           decoration: BoxDecoration(
-            color: theme.surfaceColor.withValues(alpha: 0.9),
+            color: theme.surfaceColorRaised,
             borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
-            boxShadow: [
-              BoxShadow(
-                color: theme.shadowColor,
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
+            boxShadow: AppElevation.raised(theme.shadowColor),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -591,33 +587,37 @@ class _StatsScreenState extends State<StatsScreen>
         Expanded(
           child: _buildMetricCard(
             '训练次数',
-            '${stats['sessionCount']}',
+            '',
             '次',
             Icons.fitness_center,
             theme.primaryColor,
             theme,
+            numValue: (stats['sessionCount'] as num).toDouble(),
           ),
         ),
         const SizedBox(width: 12),
         Expanded(
           child: _buildMetricCard(
             '训练天数',
-            '${stats['workoutDays']}',
+            '',
             '天',
             Icons.calendar_today,
             theme.secondaryColor,
             theme,
+            numValue: (stats['workoutDays'] as num).toDouble(),
           ),
         ),
         const SizedBox(width: 12),
         Expanded(
           child: _buildMetricCard(
             '周均训练',
-            '${(stats['avgSessionsPerWeek'] as double).toStringAsFixed(1)} 次',
+            '',
             '次',
             Icons.trending_up,
             theme.accentColor,
             theme,
+            numValue: stats['avgSessionsPerWeek'] as double,
+            decimalPlaces: 1,
           ),
         ),
       ],
@@ -667,11 +667,12 @@ class _StatsScreenState extends State<StatsScreen>
             Expanded(
               child: _buildMetricCard(
                 '总组数',
-                '${stats['totalSets']}',
+                '',
                 '组',
                 Icons.repeat,
                 theme.primaryColor,
                 theme,
+                numValue: (stats['totalSets'] as num).toDouble(),
               ),
             ),
             const SizedBox(width: 12),
@@ -752,8 +753,10 @@ class _StatsScreenState extends State<StatsScreen>
     String unit,
     IconData icon,
     Color color,
-    AppThemeData theme,
-  ) {
+    AppThemeData theme, {
+    double? numValue,
+    int decimalPlaces = 0,
+  }) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
       decoration: BoxDecoration(
@@ -766,15 +769,25 @@ class _StatsScreenState extends State<StatsScreen>
         children: [
           Icon(icon, color: color, size: 20),
           const SizedBox(height: 6),
-          Text(
-            value,
-            style: Theme.of(context).textTheme.titleLarge!.copyWith(
-              fontWeight: FontWeight.w700,
-              color: theme.textColor,
+          if (numValue != null)
+            CountUp(
+              target: numValue,
+              decimalPlaces: decimalPlaces,
+              style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                fontWeight: FontWeight.w700,
+                color: theme.textColor,
+              ),
+            )
+          else
+            Text(
+              value,
+              style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                fontWeight: FontWeight.w700,
+                color: theme.textColor,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
           Text(
             label,
             style: Theme.of(context).textTheme.bodySmall!.copyWith(
@@ -1034,15 +1047,9 @@ class _StatsScreenState extends State<StatsScreen>
     return Container(
       padding: const EdgeInsets.all(AppDimensions.screenPadding),
       decoration: BoxDecoration(
-        color: theme.surfaceColor.withValues(alpha: 0.9),
+        color: theme.surfaceColorRaised,
         borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
-        boxShadow: [
-          BoxShadow(
-            color: theme.shadowColor,
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        boxShadow: AppElevation.raised(theme.shadowColor),
       ),
       child: Column(
         children: [
@@ -1051,6 +1058,7 @@ class _StatsScreenState extends State<StatsScreen>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               IconButton(
+                tooltip: '上一周',
                 onPressed: () => _navigateWeek(-1),
                 icon: Icon(Icons.chevron_left, color: theme.textColor),
               ),
@@ -1087,6 +1095,7 @@ class _StatsScreenState extends State<StatsScreen>
                       ),
                     ),
                   IconButton(
+                    tooltip: '下一周',
                     onPressed: canGoNext ? () => _navigateWeek(1) : null,
                     icon: Icon(
                       Icons.chevron_right,
@@ -1176,20 +1185,15 @@ class _StatsScreenState extends State<StatsScreen>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: theme.surfaceColor.withValues(alpha: 0.9),
+        color: theme.surfaceColorRaised,
         borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
-        boxShadow: [
-          BoxShadow(
-            color: theme.shadowColor,
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        boxShadow: AppElevation.raised(theme.shadowColor),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           IconButton(
+            tooltip: '上一年',
             onPressed: () => _navigateYear(-1),
             icon: Icon(Icons.chevron_left, color: theme.textColor),
           ),
@@ -1214,6 +1218,7 @@ class _StatsScreenState extends State<StatsScreen>
               ),
             ),
           IconButton(
+            tooltip: '下一年',
             onPressed: _selectedYear < DateTime.now().year
                 ? () => _navigateYear(1)
                 : null,
@@ -1251,15 +1256,9 @@ class _StatsScreenState extends State<StatsScreen>
     return Container(
       padding: const EdgeInsets.all(AppDimensions.screenPadding),
       decoration: BoxDecoration(
-        color: theme.surfaceColor.withValues(alpha: 0.9),
+        color: theme.surfaceColorRaised,
         borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
-        boxShadow: [
-          BoxShadow(
-            color: theme.shadowColor,
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        boxShadow: AppElevation.raised(theme.shadowColor),
       ),
       // 使用 LayoutBuilder 计算精确高度，避免 shrinkWrap 产生多余空白行
       child: LayoutBuilder(
@@ -2389,8 +2388,8 @@ class _StatsScreenState extends State<StatsScreen>
 
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => AIAnalysisScreen(
+      FadeUpPageRoute(
+        page: AIAnalysisScreen(
           periodType: periodType,
           startDate: startDate,
           endDate: endDate,
@@ -2420,15 +2419,9 @@ class _CollapsibleSection extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 0),
       decoration: BoxDecoration(
-        color: theme.surfaceColor,
+        color: theme.surfaceColorRaised,
         borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
-        boxShadow: [
-          BoxShadow(
-            color: theme.shadowColor,
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        boxShadow: AppElevation.raised(theme.shadowColor),
       ),
       child: Theme(
         data: Theme.of(context).copyWith(dividerColor: Colors.transparent),

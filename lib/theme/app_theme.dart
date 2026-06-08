@@ -45,6 +45,18 @@ class AppThemeData {
   final Color errorBackgroundColor; // 错误背景
   final Color dividerColor; // 分割线
 
+  // 表面层级系统 (3-tier depth system)
+  final Color surfaceColorRaised; // Level 1: raised cards, list items
+  final Color surfaceColorOverlay; // Level 2: dialogs, bottom sheets, floating
+  final Color scrimColor; // Modal scrim/overlay
+
+  // 扩展语义色
+  final Color warningColor; // 警告状态 (amber)
+  final Color infoColor; // 信息状态 (blue)
+
+  // 高亮色 - pressed/active 状态
+  final Color highlightColor; // Subtle accent tint for pressed states
+
   /// Whether this theme is a dark variant.
   /// Replaces fragile `surfaceColor == Color(0xFF1E1E2E)` checks.
   final bool isDark;
@@ -69,6 +81,12 @@ class AppThemeData {
     this.successColor = const Color(0xFF4CAF50),
     this.errorBackgroundColor = const Color(0xFFF5E6E6),
     this.dividerColor = const Color(0xFFE0E0E0),
+    required this.surfaceColorRaised,
+    required this.surfaceColorOverlay,
+    required this.scrimColor,
+    this.warningColor = const Color(0xFFFF9800),
+    this.infoColor = const Color(0xFF2196F3),
+    this.highlightColor = const Color(0x1A1A237E), // accentColor at ~10% alpha
     this.isDark = false,
   });
 
@@ -111,16 +129,16 @@ class AppThemeData {
       // 深色背景 - 保持原有色调
       primaryColor: darkPrimary,
       secondaryColor: darkSecondary,
-      // 强调色保持不变（深靛蓝在深色背景上效果良好）
-      accentColor: accentColor,
+      // 强调色 - 浅化靛蓝以确保 WCAG 对比度 (#1A237E 在深色背景上约 1.1:1 失败)
+      accentColor: const Color(0xFF7986CB), // Indigo 300 — text/icons on dark
       // 表面颜色 - 中性深色（不使用主题色调，保持卡片可读性）
       surfaceColor: const Color(0xFF1E1E2E),
       cardColor: const Color(0xFF2A2A3C),
       // 文字颜色 - 浅色
       textColor: const Color(0xFFE8E8E8),
       secondaryTextColor: const Color(0xFF9E9E9E),
-      // 进度环 - 保持原有强调色
-      progressRingColor: progressRingColor,
+      // 进度环 - 使用更鲜艳的 Indigo Accent 400 以保证可见度
+      progressRingColor: const Color(0xFF536DFE),
       progressBgColor: const Color(0x40FFFFFF),
       progressStrokeWidth: progressStrokeWidth,
       // 装饰圆圈 - 保持白色半透明
@@ -130,6 +148,14 @@ class AppThemeData {
       successColor: const Color(0xFF66BB6A),
       errorBackgroundColor: const Color(0xFF3E2723),
       dividerColor: const Color(0xFF3A3A4A),
+      // 表面层级系统 - 深色模式
+      surfaceColorRaised: const Color(0xFF2A2A3C), // 原 cardColor 值
+      surfaceColorOverlay: const Color(0xFF33334A), // 更亮的层级用于对话框
+      scrimColor: const Color(0xB0000000), // 更不透明的 scrim 用于深色
+      // 扩展语义色 - 深色背景下使用更亮的颜色
+      warningColor: const Color(0xFFFFB74D), // 更浅的琥珀
+      infoColor: const Color(0xFF64B5F6), // 更浅的蓝
+      highlightColor: const Color(0x337986CB), // 更浅的强调色调
       isDark: true,
     );
   }
@@ -195,6 +221,7 @@ class AppThemeData {
           fontWeight: FontWeight.w700,
           color: textColor,
           letterSpacing: -1,
+          fontFeatures: const [FontFeature.tabularFigures()],
         ),
         displayMedium: TextStyle(
           fontFamily: '.SF Pro Display',
@@ -202,6 +229,7 @@ class AppThemeData {
           fontWeight: FontWeight.w700,
           color: textColor,
           letterSpacing: -0.5,
+          fontFeatures: const [FontFeature.tabularFigures()],
         ),
         displaySmall: TextStyle(
           fontFamily: '.SF Pro Display',
@@ -209,24 +237,28 @@ class AppThemeData {
           fontWeight: FontWeight.w600,
           color: textColor,
           letterSpacing: -0.3,
+          fontFeatures: const [FontFeature.tabularFigures()],
         ),
         headlineLarge: TextStyle(
           fontFamily: '.SF Pro Display',
           fontSize: 24,
           fontWeight: FontWeight.w600,
           color: textColor,
+          fontFeatures: const [FontFeature.tabularFigures()],
         ),
         headlineMedium: TextStyle(
           fontFamily: '.SF Pro Text',
           fontSize: 18,
           fontWeight: FontWeight.w600,
           color: textColor,
+          fontFeatures: const [FontFeature.tabularFigures()],
         ),
         titleLarge: TextStyle(
           fontFamily: '.SF Pro Text',
           fontSize: 16,
           fontWeight: FontWeight.w600,
           color: textColor,
+          fontFeatures: const [FontFeature.tabularFigures()],
         ),
         bodyLarge: TextStyle(
           fontFamily: '.SF Pro Text',
@@ -251,6 +283,7 @@ class AppThemeData {
           fontSize: 14,
           fontWeight: FontWeight.w500,
           color: textColor,
+          fontFeatures: const [FontFeature.tabularFigures()],
         ),
       ),
     );
@@ -299,6 +332,10 @@ const amberGoldTheme = AppThemeData(
     Color(0x30FFFFFF),
     Color(0x20FFFFFF),
   ],
+  // Surface hierarchy (3-tier depth system)
+  surfaceColorRaised: Color(0xFFF5F5F5),
+  surfaceColorOverlay: Color(0xFFFFFFFF),
+  scrimColor: Color(0x80000000),
 );
 
 /// Theme: Coral Orange
@@ -329,6 +366,10 @@ const coralOrangeTheme = AppThemeData(
     Color(0x30FFFFFF),
     Color(0x20FFFFFF),
   ],
+  // Surface hierarchy (3-tier depth system)
+  surfaceColorRaised: Color(0xFFF5F5F5),
+  surfaceColorOverlay: Color(0xFFFFFFFF),
+  scrimColor: Color(0x80000000),
 );
 
 // NOTE: mintGreen and rosePink themes were removed (reduced from 5 to 3).
@@ -363,6 +404,10 @@ const skyBlueTheme = AppThemeData(
     Color(0x30FFFFFF),
     Color(0x20FFFFFF),
   ],
+  // Surface hierarchy (3-tier depth system)
+  surfaceColorRaised: Color(0xFFF5F5F5),
+  surfaceColorOverlay: Color(0xFFFFFFFF),
+  scrimColor: Color(0x80000000),
 );
 
 /// 获取主题数据
@@ -387,3 +432,24 @@ const allThemes = [
   coralOrangeTheme,
   skyBlueTheme,
 ];
+
+/// Okabe-Ito colorblind-safe palette for data visualization
+///
+/// 适用于色盲用户的图表配色方案 (Okabe-Ito 2008)。
+/// 涵盖 7 种高对比度颜色，对红绿色盲、蓝黄色盲均友好。
+class ChartPalette {
+  ChartPalette._();
+
+  static const List<Color> colors = [
+    Color(0xFFE69F00), // orange
+    Color(0xFF56B4E9), // sky blue
+    Color(0xFF009E73), // bluish green
+    Color(0xFFF0E442), // yellow
+    Color(0xFF0072B2), // blue
+    Color(0xFFD55E00), // vermilion
+    Color(0xFFCC79A7), // reddish purple
+  ];
+
+  /// 按索引获取颜色（自动循环以支持任意数量的数据点）
+  static Color byIndex(int index) => colors[index % colors.length];
+}

@@ -5,6 +5,7 @@ import '../theme/theme_provider.dart';
 import 'muscle_selector.dart';
 import '../theme/app_theme.dart';
 import '../utils/dimensions.dart';
+import '../animations/animation_primitives.dart';
 
 /// 计划卡片 - Flat Vitality 设计
 ///
@@ -33,23 +34,14 @@ class PlanCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().currentTheme;
 
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
-        child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-          decoration: BoxDecoration(
-            color: theme.surfaceColor,
+    return AnimatedCard(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        decoration: BoxDecoration(
+          color: theme.surfaceColorRaised,
             borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
-            boxShadow: [
-              BoxShadow(
-                color: theme.textColor.withValues(alpha: 0.06),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
-              ),
-            ],
+            boxShadow: AppElevation.raised(theme.shadowColor),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -186,7 +178,6 @@ class PlanCard extends StatelessWidget {
             ],
           ),
         ),
-      ),
     );
   }
 
@@ -241,18 +232,12 @@ class CompactPlanCard extends StatelessWidget {
           decoration: BoxDecoration(
             color: isSelected
                 ? theme.accentColor.withValues(alpha: 0.1)
-                : theme.surfaceColor,
+                : theme.surfaceColorRaised,
             borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
             border: Border.all(
               color: isSelected ? theme.accentColor : Colors.transparent,
             ),
-            boxShadow: [
-              BoxShadow(
-                color: theme.textColor.withValues(alpha: 0.03),
-                blurRadius: 4,
-                offset: const Offset(0, 1),
-              ),
-            ],
+            boxShadow: AppElevation.resting(theme.shadowColor),
           ),
           child: Row(
             children: [
@@ -394,15 +379,9 @@ class _PlanProgressCardState extends State<PlanProgressCard>
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: theme.surfaceColor,
+        color: theme.surfaceColorRaised,
         borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
-        boxShadow: [
-          BoxShadow(
-            color: theme.shadowColor,
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        boxShadow: AppElevation.raised(theme.shadowColor),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -567,13 +546,9 @@ class _PlanProgressCardState extends State<PlanProgressCard>
                             borderRadius: BorderRadius.circular(
                               AppDimensions.radiusXl,
                             ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: theme.accentColor.withValues(alpha: 0.3),
-                                blurRadius: 12,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
+                            boxShadow: AppElevation.raised(
+                              theme.accentColor.withValues(alpha: 0.3),
+                            ),
                           ),
                           child: Material(
                             color: Colors.transparent,
@@ -724,15 +699,9 @@ class PlanProgressCompact extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 20),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: theme.surfaceColor,
+        color: theme.surfaceColorRaised,
         borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-        boxShadow: [
-          BoxShadow(
-            color: theme.textColor.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        boxShadow: AppElevation.resting(theme.shadowColor),
       ),
       child: Row(
         children: [
