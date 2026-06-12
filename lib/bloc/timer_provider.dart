@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'package:flutter/widgets.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import '../services/notification_service.dart';
 import '../services/timer_service.dart';
 import '../services/workout_repository.dart';
@@ -16,7 +16,8 @@ class TimerProvider extends ChangeNotifier {
   final int _totalPlannedSets = 5;
   int _currentSessionRestTime = 0;
   int _selectedPresetIndex = 1;
-  DateTime? _sessionStartTime; // For accurate time tracking in background
+  DateTime? _countdownStartTime; // When current countdown started (web fallback)
+  int _countdownDuration = 60; // Full duration of current countdown (web fallback)
 
   final List<int> presetTimes = [30, 60, 90, 120];
 
@@ -33,6 +34,19 @@ class TimerProvider extends ChangeNotifier {
   int get _initialSeconds => presetTimes[_selectedPresetIndex];
   int get selectedPresetIndex => _selectedPresetIndex;
 
+  /// Whether platform services (TimerService) are available.
+  /// Returns false on web or when ServicesBinding is not initialized (e.g., unit tests).
+  static bool get _canUsePlatformServices {
+    if (kIsWeb) return false;
+    try {
+      // ignore: invalid_use_of_visible_for_testing_member
+      ServicesBinding.instance;
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
   void selectPreset(int index) {
     if (_isRunning) return;
     _selectedPresetIndex = index;
@@ -43,13 +57,13 @@ class TimerProvider extends ChangeNotifier {
   void startTimer() {
     if (_isRunning) return;
     _isRunning = true;
-    _sessionStartTime =
-        DateTime.now(); // Record start time for accurate tracking
+    _countdownStartTime = DateTime.now();
+    _countdownDuration = _initialSeconds;
+    _remainingSeconds = _initialSeconds;
     _timer = Timer.periodic(const Duration(seconds: 1), _tick);
 
-    if (!kIsWeb) {
-      TimerService.startService();
-      _updateServiceNotification();
+    if (_canUsePlatformServices) {
+      TimerService.startCountdown(duration: _initialSeconds, mode: 'simple');
     }
     notifyListeners();
   }
@@ -60,8 +74,8 @@ class TimerProvider extends ChangeNotifier {
     _timer?.cancel();
     _timer = null;
 
-    if (!kIsWeb) {
-      TimerService.stopService();
+    if (_canUsePlatformServices) {
+      TimerService.stopCountdown();
     }
     notifyListeners();
   }
@@ -69,6 +83,10 @@ class TimerProvider extends ChangeNotifier {
   void resetTimer() {
     pauseTimer();
     _remainingSeconds = _initialSeconds;
+
+    if (_canUsePlatformServices) {
+      TimerService.stopService();
+    }
     notifyListeners();
   }
 
@@ -76,16 +94,56 @@ class TimerProvider extends ChangeNotifier {
     pauseTimer();
     _remainingSeconds = _initialSeconds;
     _totalSets = 0;
+
+    if (_canUsePlatformServices) {
+      TimerService.stopService();
+    }
     notifyListeners();
   }
 
-  /// 刷新会话时长（从后台恢复时调用）
+  /// 刷新倒计时（从后台恢复时调用）
+  /// 轮询 Kotlin 获取权威剩余时间，修复 Timer.periodic 后台冻结问题
   void refreshDuration() {
-    if (_isRunning && _sessionStartTime != null) {
-      // Recalculate rest time from DateTime for accuracy
-      _currentSessionRestTime = DateTime.now()
-          .difference(_sessionStartTime!)
-          .inSeconds;
+    if (!_isRunning) return;
+
+    // Flutter #94094: Timer.periodic may be unresponsive after background
+    _timer?.cancel();
+    _timer = null;
+
+    if (_canUsePlatformServices && _countdownStartTime != null) {
+      TimerService.getRemainingTime().then((nativeState) {
+        // State guard: only act if still running (prevent double transition)
+        if (!_isRunning) return;
+
+        if (nativeState['completed'] == true) {
+          _onTimerEnd();
+          return;
+        }
+
+        final nativeRemaining = nativeState['remaining'] as int? ?? 0;
+        if (nativeRemaining > 0) {
+          _remainingSeconds = nativeRemaining;
+          _currentSessionRestTime =
+              _countdownDuration - nativeRemaining;
+          // Restart polling timer
+          _timer = Timer.periodic(const Duration(seconds: 1), _tick);
+          notifyListeners();
+        }
+      }).catchError((e) {
+        debugPrint('Native timer poll error on resume: $e');
+        // Fallback: restart polling timer anyway
+        _timer = Timer.periodic(const Duration(seconds: 1), _tick);
+      });
+    } else {
+      // Web fallback: recalculate from DateTime
+      if (_countdownStartTime != null) {
+        final elapsed =
+            DateTime.now().difference(_countdownStartTime!).inSeconds;
+        _remainingSeconds =
+            (_countdownDuration - elapsed).clamp(0, _countdownDuration);
+        _currentSessionRestTime = elapsed.clamp(0, _countdownDuration);
+      }
+      _timer = Timer.periodic(const Duration(seconds: 1), _tick);
       notifyListeners();
     }
   }
@@ -98,40 +156,67 @@ class TimerProvider extends ChangeNotifier {
         debugPrint('Error saving session: $e');
       }
     }
-    pauseTimer();
+    _timer?.cancel();
+    _timer = null;
+    _isRunning = false;
     _remainingSeconds = _initialSeconds;
     _totalSets = 0;
     _currentSessionRestTime = 0;
+    _countdownStartTime = null;
+
+    if (_canUsePlatformServices) {
+      TimerService.stopCountdown();
+      TimerService.stopService();
+    }
     notifyListeners();
   }
 
-  void _tick(Timer timer) {
+  void _tick(Timer timer) async {
     if (!_isRunning) return;
 
-    if (_remainingSeconds > 0) {
-      _remainingSeconds--;
-      _currentSessionRestTime++;
-      _updateServiceNotification();
-      notifyListeners();
-    } else {
-      _onTimerEnd();
-    }
-  }
+    if (_canUsePlatformServices) {
+      // Poll native timer — single source of truth for countdown
+      try {
+        final nativeState = await TimerService.getRemainingTime();
+        _remainingSeconds = nativeState['remaining'] as int? ?? 0;
 
-  void _updateServiceNotification() {
-    if (!kIsWeb) {
-      final minutes = (_remainingSeconds / 60).floor();
-      final seconds = _remainingSeconds % 60;
-      final timeStr =
-          '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
-      TimerService.updateNotification('剩余 $timeStr');
+        // Native timer completed
+        if (nativeState['completed'] == true && _isRunning) {
+          _onTimerEnd();
+          return;
+        }
+      } catch (e) {
+        debugPrint('Native timer poll error: $e');
+      }
+    } else {
+      // Web fallback: DateTime-based calculation
+      if (_countdownStartTime != null) {
+        final elapsed =
+            DateTime.now().difference(_countdownStartTime!).inSeconds;
+        _remainingSeconds =
+            (_countdownDuration - elapsed).clamp(0, _countdownDuration);
+      }
+    }
+
+    _currentSessionRestTime++;
+
+    if (_remainingSeconds <= 0 && _isRunning) {
+      _onTimerEnd();
+    } else {
+      notifyListeners();
     }
   }
 
   void _onTimerEnd() {
-    pauseTimer();
+    _timer?.cancel();
+    _timer = null;
+    _isRunning = false;
     _totalSets++;
-    if (!kIsWeb) {
+    _countdownStartTime = null;
+
+    if (_canUsePlatformServices) {
+      TimerService.stopCountdown();
+      TimerService.stopService();
       _notificationService.showNotification().catchError(
         (e) => debugPrint('Notification error: $e'),
       );
@@ -142,12 +227,16 @@ class TimerProvider extends ChangeNotifier {
 
   void skipSet() {
     _onTimerEnd();
-    if (_isRunning) startTimer();
+    startTimer();
   }
 
   @override
   void dispose() {
     _timer?.cancel();
+    if (_canUsePlatformServices) {
+      TimerService.stopCountdown();
+      TimerService.stopService();
+    }
     super.dispose();
   }
 }
