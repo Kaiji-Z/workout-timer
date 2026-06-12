@@ -15,13 +15,41 @@ import 'semantics_helpers.dart';
 /// - 白色背景按钮 + 深色图标/文字
 /// - 扁平设计，无发光效果
 /// - 温暖渐变背景
-class TimerWidget extends StatelessWidget {
+class TimerWidget extends StatefulWidget {
   const TimerWidget({super.key});
 
+  @override
+  State<TimerWidget> createState() => _TimerWidgetState();
+}
+
+class _TimerWidgetState extends State<TimerWidget>
+    with WidgetsBindingObserver {
   String _formatTime(int seconds) {
     final minutes = seconds ~/ 60;
     final remainingSeconds = seconds % 60;
     return '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      final timer = context.read<TimerProvider>();
+      if (timer.isRunning) {
+        timer.refreshDuration();
+      }
+    }
   }
 
   @override
