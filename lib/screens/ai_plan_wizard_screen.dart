@@ -17,6 +17,88 @@ import '../bloc/plan_provider.dart';
 import '../utils/dimensions.dart';
 import '../widgets/glass_widgets.dart';
 
+/// Tries to extract a valid workout plan JSON from arbitrary text.
+///
+/// Strategy (in order):
+/// 1. Direct `jsonDecode` — works for pure JSON input.
+/// 2. Markdown code block — `` ```json {...} ``` `` or `` ``` {...} ``` ``.
+/// 3. Brace matching — finds the largest balanced `{...}` substring.
+///
+/// Each candidate is validated by checking for the required `days` key.
+/// Returns `null` if no valid JSON with `days` is found.
+Map<String, dynamic>? _extractJsonFromText(String text) {
+  // 1. Direct parse
+  try {
+    final result = jsonDecode(text);
+    if (result is Map<String, dynamic> && result.containsKey('days')) {
+      return result;
+    }
+  } catch (_) {}
+
+  // 2. Markdown code blocks (```json ... ``` or ``` ... ```)
+  final codeBlockPattern = RegExp(r'```(?:json)?\s*\n?([\s\S]*?)\n?\s*```');
+  for (final match in codeBlockPattern.allMatches(text)) {
+    final blockContent = match.group(1)?.trim();
+    if (blockContent == null) continue;
+    try {
+      final result = jsonDecode(blockContent);
+      if (result is Map<String, dynamic> && result.containsKey('days')) {
+        return result;
+      }
+    } catch (_) {}
+  }
+
+  // 3. Brace matching — scan for the outermost balanced { ... } that contains "days"
+  int searchFrom = 0;
+  while (true) {
+    final startIndex = text.indexOf('{', searchFrom);
+    if (startIndex == -1) break;
+
+    int depth = 0;
+    bool inString = false;
+    bool escape = false;
+
+    for (int i = startIndex; i < text.length; i++) {
+      final ch = text[i];
+
+      if (escape) {
+        escape = false;
+        continue;
+      }
+      if (ch == r'\') {
+        escape = true;
+        continue;
+      }
+      if (ch == '"') {
+        inString = !inString;
+        continue;
+      }
+      if (inString) continue;
+
+      if (ch == '{') depth++;
+      if (ch == '}') {
+        depth--;
+        if (depth == 0) {
+          // Found a complete top-level object
+          final candidate = text.substring(startIndex, i + 1);
+          try {
+            final result = jsonDecode(candidate);
+            if (result is Map<String, dynamic> &&
+                result.containsKey('days')) {
+              return result;
+            }
+          } catch (_) {}
+          break; // Stop scanning from this startIndex
+        }
+      }
+    }
+
+    searchFrom = startIndex + 1;
+  }
+
+  return null;
+}
+
 class AIPlanWizardScreen extends StatefulWidget {
   const AIPlanWizardScreen({super.key});
 
@@ -524,7 +606,14 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
     });
 
     try {
-      final jsonMap = jsonDecode(_jsonController.text) as Map<String, dynamic>;
+      final jsonMap = _extractJsonFromText(_jsonController.text);
+      if (jsonMap == null) {
+        setState(() {
+          _isParsing = false;
+          _parseError = '未能识别有效的训练计划JSON，请确保AI回复中包含 days 数组。';
+        });
+        return;
+      }
       final parsedPlan = WeeklyPlanImport.fromJson(jsonMap);
       setState(() {
         _isParsing = false;
@@ -946,7 +1035,14 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
     });
 
     try {
-      final jsonMap = jsonDecode(_jsonController.text) as Map<String, dynamic>;
+      final jsonMap = _extractJsonFromText(_jsonController.text);
+      if (jsonMap == null) {
+        setState(() {
+          _isParsing = false;
+          _parseError = '未能识别有效的训练计划JSON，请确保AI回复中包含 days 数组。';
+        });
+        return;
+      }
       final parsedPlan = WeeklyPlanImport.fromJson(jsonMap);
       setState(() {
         _isParsing = false;
@@ -1474,10 +1570,12 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
 
     if (confirmed != true) return;
 
+    if (!mounted) return;
     setState(() => _isImporting = true);
 
     try {
-      await context.read<PlanProvider>().importWeeklyPlanWithMatches(
+      final planProvider = context.read<PlanProvider>();
+      await planProvider.importWeeklyPlanWithMatches(
         _parsedPlan!,
         _startDate,
         _manualSelections,

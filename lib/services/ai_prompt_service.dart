@@ -36,8 +36,21 @@ If unsure about exact names, use standard exercise terminology and we'll match t
 
 ## Output Format
 
-Output ONLY valid JSON. No explanations or markdown:
+请按以下两部分输出你的回复：
 
+**第一部分：计划设计说明**
+
+详细说明你为什么这样设计这个训练计划，包括：
+- 分化方式的选择理由（如推/拉/腿、上下肢、全身等，结合我的训练频率 ${profile.weeklyFrequency} 天/周）
+- 每个训练日的动作选择逻辑（为什么选这些动作，复合/孤立的搭配原则）
+- 容量分配依据（每个肌群每周的训练组数，如何匹配我的目标 $formattedGoal）
+- 与我的经验水平 $formattedExperience 和器材条件 $formattedEquipment 的适配考虑
+
+**第二部分：训练计划 JSON**
+
+在分析之后，用 ```json 代码块提供结构化训练计划：
+
+```json
 {
   "name": "Plan Name",
   "days": [
@@ -51,6 +64,7 @@ Output ONLY valid JSON. No explanations or markdown:
     }
   ]
 }
+```
 
 ## Rules
 
@@ -61,7 +75,7 @@ Output ONLY valid JSON. No explanations or markdown:
 5. Compound first, isolation last
 6. Include rest days based on ${profile.weeklyFrequency} frequency
 
-Generate my weekly plan. JSON only:''';
+请根据以上信息，先解释你的设计思路，然后生成训练计划。''';
   }
 
   /// Format goal string for display
