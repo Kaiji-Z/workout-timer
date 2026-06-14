@@ -166,15 +166,19 @@ class ExerciseMatcherService {
     }
 
     // Step 5: Fuzzy search using fuzzy package
+    //
+    // BUG FIX: weight must be < 1.0 because the fuzzy package computes
+    // `1.0 - weight` internally. A weight of 1.0 becomes 0.0, which
+    // zeroes out ALL scores regardless of match quality.
     final fuzzy = Fuzzy<Exercise>(
       _exercises,
       options: FuzzyOptions(
         keys: [
-          WeightedKey(name: 'nameEn', getter: (e) => e.nameEn, weight: 1.0),
+          WeightedKey(name: 'nameEn', getter: (e) => e.nameEn, weight: 0.99),
           WeightedKey(
             name: 'nameZh',
             getter: (e) => e.nameZh ?? '',
-            weight: 0.8,
+            weight: 0.79,
           ),
         ],
         threshold: 0.4,
@@ -188,14 +192,33 @@ class ExerciseMatcherService {
     final result = fuzzy.search(inputName);
 
     if (result.isNotEmpty) {
-      final topCandidates = result.take(5).map((r) => r.item).toList();
+      // Re-rank results by token coverage to prevent false-positive matches.
+      //
+      // The fuzzy package with tokenize=true, matchAllTokens=false gives
+      // disproportionately high scores to entries matching only 1 of N tokens.
+      // Token coverage = (matched input tokens / total input tokens).
+      // We require >= 50% coverage for auto-success.
+      final inputTokens = _tokenize(inputName);
+      final ranked = result.map((r) {
+        final coverage =
+            _calculateTokenCoverage(inputTokens, r.item.nameEn);
+        return (result: r, coverage: coverage);
+      }).toList()
+        ..sort((a, b) {
+          // Sort by coverage DESC, then by fuzzy score ASC
+          final covCmp = b.coverage.compareTo(a.coverage);
+          if (covCmp != 0) return covCmp;
+          return a.result.score.compareTo(b.result.score);
+        });
 
-      // FIXED: fuzzy score is a DISTANCE score (lower = better match)
-      // score < 0.15 = high confidence match (almost exact)
-      // score < 0.4 = reasonable match
-      // score > 0.4 = poor match, likely unrelated
-      if (result.first.score < 0.15) {
-        return MatchResult.success(exercise: result.first.item);
+      final topCandidates = ranked.take(5).map((r) => r.result.item).toList();
+      final best = ranked.first;
+
+      // Auto-success requires BOTH low fuzzy score AND high token coverage.
+      // This prevents matching "Overhead Dumbbell Triceps Extension" to
+      // "Dumbbell Step Ups" (25% coverage) even if fuzzy score is 0.0.
+      if (best.result.score < 0.15 && best.coverage >= 0.5) {
+        return MatchResult.success(exercise: best.result.item);
       }
 
       return MatchResult.candidates(candidates: topCandidates);
@@ -277,5 +300,40 @@ class ExerciseMatcherService {
   /// Batch match multiple exercise names in parallel
   Future<List<MatchResult>> matchAll(List<String> exerciseNames) async {
     return Future.wait(exerciseNames.map((name) => matchExercise(name)));
+  }
+
+  /// Tokenize a string into lowercase word tokens for coverage calculation.
+  List<String> _tokenize(String s) {
+    return s
+        .toLowerCase()
+        .replaceAll(RegExp(r'[-_/\(\)]'), ' ')
+        .trim()
+        .split(RegExp(r'\s+'))
+        .where((w) => w.isNotEmpty)
+        .toList();
+  }
+
+  /// Calculate what fraction of [inputTokens] appear in the exercise name.
+  /// Uses substring matching so "tricep" matches "triceps" and vice versa.
+  double _calculateTokenCoverage(List<String> inputTokens, String exerciseName) {
+    if (inputTokens.isEmpty) return 0.0;
+
+    final nameLower = exerciseName.toLowerCase();
+    final nameWords = nameLower
+        .replaceAll(RegExp(r'[-_/\(\)]'), ' ')
+        .split(RegExp(r'\s+'))
+        .where((w) => w.isNotEmpty)
+        .toSet();
+
+    int matched = 0;
+    for (final token in inputTokens) {
+      // Check if any word in the exercise name contains this token
+      // (or vice versa, for short tokens like "tricep" vs "triceps")
+      if (nameWords.any((w) => w.contains(token) || token.contains(w))) {
+        matched++;
+      }
+    }
+
+    return matched / inputTokens.length;
   }
 }

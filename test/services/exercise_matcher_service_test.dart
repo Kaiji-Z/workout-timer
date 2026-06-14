@@ -117,6 +117,60 @@ void main() {
       });
     });
 
+    group('token coverage bug regression', () {
+      test('Overhead Dumbbell Triceps Extension should NOT match Dumbbell Step Ups', () async {
+        // Regression test: fuzzy search tokenizes input into 4 tokens
+        // (overhead, dumbbell, triceps, extension). "Dumbbell Step Ups"
+        // only matches 1/4 tokens (dumbbell) but due to fuzzy scoring bugs,
+        // it was incorrectly auto-matched.
+        final result = await service.matchExercise(
+          'Overhead Dumbbell Triceps Extension',
+        );
+
+        // Must NOT auto-match to Dumbbell Step Ups (wrong muscle group)
+        if (result.isSuccess) {
+          expect(
+            result.exercise!.id,
+            isNot(equals('dumbbell_step_ups')),
+            reason: 'Should not match to a leg exercise when searching for triceps',
+          );
+          expect(
+            result.exercise!.id,
+            contains('triceps'),
+            reason: 'Should match to a triceps exercise',
+          );
+        }
+      });
+
+      test('Overhead Dumbbell Triceps Extension should match a triceps exercise or return candidates', () async {
+        final result = await service.matchExercise(
+          'Overhead Dumbbell Triceps Extension',
+        );
+
+        // Either auto-match to a triceps exercise, or return candidates
+        // containing triceps exercises. Must NOT match Dumbbell Step Ups.
+        if (result.isSuccess) {
+          expect(result.exercise!.id, contains('triceps'));
+        } else if (result.hasCandidates) {
+          // At least one candidate should be a triceps exercise
+          final hasTricepsCandidate = result.candidates.any(
+            (e) => e.id.contains('triceps') || e.id.contains('tricep'),
+          );
+          expect(
+            hasTricepsCandidate,
+            isTrue,
+            reason: 'Candidates should include triceps exercises',
+          );
+          // Dumbbell Step Ups should NOT be the first candidate
+          expect(
+            result.candidates.first.id,
+            isNot(equals('dumbbell_step_ups')),
+            reason: 'Wrong exercise should not be top candidate',
+          );
+        }
+      });
+    });
+
     group('failure cases', () {
       test('returns failure for unknown exercise', () async {
         final result = await service.matchExercise('Unknown Exercise XYZ');
