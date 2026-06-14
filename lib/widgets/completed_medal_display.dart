@@ -33,15 +33,8 @@ class _CompletedMedalDisplayState extends State<CompletedMedalDisplay>
   // ── 尺寸常量（与 _TimerRingPainter 一致） ──
   static const double _outerStrokeWidth = 8.0;
   static const double _innerStrokeWidth = 6.0;
-  static const double _outerRingGap = 4.0;
   static const double _innerOuterGap = 12.0;
   static const double _edgeMargin = 8.0;
-  static const int _segmentsPerRing = 60;
-  static const double _segmentGapRadians = math.pi / 180 * 1.2;
-
-  // ── 奖牌装饰 ──
-  static const double _medalBorderWidth = 4.0;
-  static const double _medalInnerRingWidth = 2.0;
 
   // Animation controllers
   late AnimationController _shrinkController;

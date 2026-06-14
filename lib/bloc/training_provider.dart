@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:flutter/widgets.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import '../services/timer_service.dart';
@@ -91,8 +90,9 @@ class TrainingProvider extends ChangeNotifier {
 
   /// 开始运动
   void startExercise() {
-    if (_state != TrainingState.idle && _state != TrainingState.completed)
+    if (_state != TrainingState.idle && _state != TrainingState.completed) {
       return;
+    }
 
     _state = TrainingState.exercising;
     _currentSet = 1;

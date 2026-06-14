@@ -37,7 +37,7 @@ class FullscreenImageViewer extends StatefulWidget {
         barrierDismissible: true,
         barrierLabel: '关闭',
         transitionDuration: const Duration(milliseconds: 200),
-        pageBuilder: (context, _, __) =>
+        pageBuilder: (context, _, _) =>
             FullscreenImageViewer(imageUrl: imageUrl, title: title),
         transitionsBuilder: (context, animation, _, child) {
           return FadeTransition(opacity: animation, child: child);
@@ -63,7 +63,7 @@ class FullscreenImageViewer extends StatefulWidget {
         barrierDismissible: true,
         barrierLabel: '关闭',
         transitionDuration: const Duration(milliseconds: 200),
-        pageBuilder: (context, _, __) => FullscreenImageViewer(
+        pageBuilder: (context, _, _) => FullscreenImageViewer(
           imageUrl: images.isNotEmpty ? images.first : '',
           images: images,
           initialIndex: initialIndex,

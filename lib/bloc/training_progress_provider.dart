@@ -36,8 +36,9 @@ class TrainingProgressProvider extends ChangeNotifier {
   /// 获取下一个动作
   PlanExercise? getNextExercise() {
     if (_currentPlan == null || _currentPlan!.exercises.isEmpty) return null;
-    if (_currentExerciseIndex >= _currentPlan!.exercises.length - 1)
+    if (_currentExerciseIndex >= _currentPlan!.exercises.length - 1) {
       return null;
+    }
     return _currentPlan!.exercises[_currentExerciseIndex + 1];
   }
 

@@ -70,7 +70,7 @@ class _PlanScreenState extends State<PlanScreen> {
                   page: const AIPlanWizardScreen(),
                 ),
               );
-              if (result == true && mounted) {
+              if (result == true && context.mounted) {
                 context.read<PlanProvider>().loadPlans();
               }
             },

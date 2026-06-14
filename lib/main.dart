@@ -161,6 +161,7 @@ class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
 
   /// Global key to access MainNavigation state for tab switching
+  // ignore: library_private_types_in_public_api
   static final GlobalKey<_MainNavigationState> globalKey =
       GlobalKey<_MainNavigationState>();
 

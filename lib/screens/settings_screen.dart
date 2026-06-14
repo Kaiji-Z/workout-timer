@@ -1,6 +1,10 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../services/battery_optimization_service.dart';
 import '../services/workout_repository.dart';
 import '../services/notification_sound_service.dart';
 import '../services/data_transfer_service.dart';
@@ -17,7 +21,8 @@ class SettingsScreen extends StatefulWidget {
   State<SettingsScreen> createState() => _SettingsScreenState();
 }
 
-class _SettingsScreenState extends State<SettingsScreen> {
+class _SettingsScreenState extends State<SettingsScreen>
+    with WidgetsBindingObserver {
   final WorkoutRepository _repository = WorkoutRepository();
   final NotificationSoundService _soundService = NotificationSoundService();
   final DataTransferService _dataTransferService = DataTransferService();
@@ -28,17 +33,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _detailedRecordingEnabled = false;
   String _customMessage = '准备开始下一组！';
   String _selectedSound = 'default';
+  bool _isBatteryOptimizationIgnored = true; // Default true (non-Android)
   late final TextEditingController _messageController;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _messageController = TextEditingController(text: _customMessage);
     _loadSettings();
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && !kIsWeb && Platform.isAndroid) {
+      // Refresh battery optimization status when user returns from system settings
+      BatteryOptimizationService.isIgnoringBatteryOptimizations().then(
+        (ignored) {
+          if (mounted) {
+            setState(() => _isBatteryOptimizationIgnored = ignored);
+          }
+        },
+      );
+    }
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _messageController.dispose();
     super.dispose();
   }
@@ -54,6 +76,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _messageController.text = _customMessage;
       _selectedSound = _soundService.getSelectedSound();
     });
+
+    // Check battery optimization status (Android only)
+    if (!kIsWeb && Platform.isAndroid) {
+      final ignored =
+          await BatteryOptimizationService.isIgnoringBatteryOptimizations();
+      if (mounted) {
+        setState(() => _isBatteryOptimizationIgnored = ignored);
+      }
+    }
   }
 
   Future<void> _saveSettings() async {
@@ -190,6 +221,80 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           const SizedBox(height: 24),
 
+          // Background Running Settings (Android only)
+          if (!kIsWeb && Platform.isAndroid) ...[
+            _buildSectionHeader('后台运行', theme),
+            _buildSettingsCard(
+              theme: theme,
+              child: Column(
+                children: [
+                  ListTile(
+                    title: Text(
+                      '允许后台活动',
+                      style: TextStyle(color: theme.textColor),
+                    ),
+                    subtitle: Text(
+                      _isBatteryOptimizationIgnored
+                          ? '已允许，计时器可在后台正常运行'
+                          : '未允许，后台计时器可能被系统暂停',
+                      style: TextStyle(
+                        color: _isBatteryOptimizationIgnored
+                            ? theme.secondaryTextColor
+                            : theme.errorColor,
+                      ),
+                    ),
+                    trailing: Icon(
+                      _isBatteryOptimizationIgnored
+                          ? Icons.check_circle
+                          : Icons.warning_amber_rounded,
+                      color: _isBatteryOptimizationIgnored
+                          ? theme.successColor
+                          : theme.warningColor,
+                    ),
+                    onTap: () async {
+                      if (!_isBatteryOptimizationIgnored) {
+                        await BatteryOptimizationService
+                            .requestIgnoreBatteryOptimizations();
+                      }
+                    },
+                  ),
+                  if (!_isBatteryOptimizationIgnored) ...[
+                    Divider(
+                      color: theme.surfaceColor.withValues(alpha: 0.1),
+                      height: 1,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.info_outline,
+                            size: 16,
+                            color: theme.warningColor,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              '点击上方选项，在弹出的系统对话框中选择"允许"，以确保计时器在后台正常运行',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: theme.secondaryTextColor,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+          ],
+
           // Appearance Settings
           _buildSectionHeader('外观设置', theme),
           _buildSettingsCard(
@@ -320,6 +425,175 @@ class _SettingsScreenState extends State<SettingsScreen> {
               },
             ),
           ),
+          const SizedBox(height: 24),
+
+          // About
+          _buildSectionHeader('关于', theme),
+          _buildSettingsCard(
+            theme: theme,
+            child: Column(
+              children: [
+                ListTile(
+                  title:
+                      Text('隐私政策', style: TextStyle(color: theme.textColor)),
+                  subtitle: Text(
+                    '查看本应用的隐私政策',
+                    style: Theme.of(context).textTheme.bodySmall!,
+                  ),
+                  trailing: Icon(
+                    Icons.chevron_right,
+                    color: theme.secondaryTextColor,
+                  ),
+                  onTap: () => _showPrivacyPolicy(theme),
+                ),
+                Divider(color: theme.dividerColor, height: 1),
+                ListTile(
+                  title:
+                      Text('版本', style: TextStyle(color: theme.textColor)),
+                  trailing: Text(
+                    '1.0.0',
+                    style: TextStyle(color: theme.secondaryTextColor),
+                  ),
+                ),
+                Divider(color: theme.dividerColor, height: 1),
+                ListTile(
+                  title:
+                      Text('开发者', style: TextStyle(color: theme.textColor)),
+                  subtitle: Text(
+                    '深圳市露凯文化传播有限公司',
+                    style: Theme.of(context).textTheme.bodySmall!,
+                  ),
+                ),
+                Divider(color: theme.dividerColor, height: 1),
+                ListTile(
+                  title: Text('联系邮箱',
+                      style: TextStyle(color: theme.textColor)),
+                  subtitle: Text(
+                    'lookatmedia@163.com',
+                    style: Theme.of(context).textTheme.bodySmall!,
+                  ),
+                  trailing: Icon(
+                    Icons.content_copy,
+                    color: theme.secondaryTextColor,
+                    size: 20,
+                  ),
+                  onTap: () {
+                    Clipboard.setData(
+                        const ClipboardData(text: 'lookatmedia@163.com'));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('邮箱已复制'),
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 32),
+        ],
+      ),
+    );
+  }
+
+  void _showPrivacyPolicy(AppThemeData theme) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: theme.surfaceColor.withValues(alpha: 0.98),
+        title: Text('隐私政策', style: TextStyle(color: theme.textColor)),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '撸铁计时器不收集任何个人信息',
+                  style: TextStyle(
+                    color: theme.accentColor,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text('数据存储',
+                    style: TextStyle(
+                        color: theme.textColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14)),
+                const SizedBox(height: 4),
+                Text(
+                  '所有训练数据均存储在您的设备本地（SQLite 数据库），不上传至任何服务器。卸载应用将永久删除所有数据。',
+                  style: TextStyle(
+                      color: theme.secondaryTextColor,
+                      fontSize: 13,
+                      height: 1.6),
+                ),
+                const SizedBox(height: 12),
+                Text('设备权限',
+                    style: TextStyle(
+                        color: theme.textColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14)),
+                const SizedBox(height: 4),
+                Text(
+                  '• 通知：计时结束提醒\n'
+                  '• 振动：计时结束振动提醒\n'
+                  '• 前台服务：后台持续计时\n'
+                  '• 网络：仅下载开源健身图片（CC0）\n'
+                  '• 电池优化豁免：防止计时器被系统中断',
+                  style: TextStyle(
+                      color: theme.secondaryTextColor,
+                      fontSize: 13,
+                      height: 1.6),
+                ),
+                const SizedBox(height: 12),
+                Text('第三方服务',
+                    style: TextStyle(
+                        color: theme.textColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14)),
+                const SizedBox(height: 4),
+                Text(
+                  '本应用不集成任何第三方数据分析、广告或追踪 SDK。',
+                  style: TextStyle(
+                      color: theme.secondaryTextColor,
+                      fontSize: 13,
+                      height: 1.6),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  '完整隐私政策：\nhttps://kaiji-z.github.io/workout-timer/',
+                  style: TextStyle(
+                    color: theme.secondaryTextColor,
+                    fontSize: 13,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Clipboard.setData(const ClipboardData(
+                  text: 'https://kaiji-z.github.io/workout-timer/'));
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('隐私政策链接已复制'),
+                  duration: Duration(seconds: 2),
+                ),
+              );
+            },
+            child: const Text('复制链接'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('关闭'),
+          ),
         ],
       ),
     );
@@ -396,6 +670,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final result = await _showImportDialog(context, theme, localBackups);
     if (result == null || result.isEmpty) return;
 
+    if (!mounted) return;
     // 二次确认：导入会覆盖数据
     final confirmed = await showDialog<bool>(
       context: context,

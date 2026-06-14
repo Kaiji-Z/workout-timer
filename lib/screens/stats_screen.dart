@@ -637,8 +637,9 @@ class _StatsScreenState extends State<StatsScreen>
         .whereType<WorkoutRecord>()
         .toList();
 
-    if (currentWorkoutRecords.isEmpty || previousWorkoutRecords.isEmpty)
+    if (currentWorkoutRecords.isEmpty || previousWorkoutRecords.isEmpty) {
       return null;
+    }
 
     final currentVolume = _statsCalc.calculateTotalVolume(
       currentWorkoutRecords,
