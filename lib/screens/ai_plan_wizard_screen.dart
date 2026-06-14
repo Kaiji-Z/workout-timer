@@ -5,9 +5,13 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../theme/theme_provider.dart';
 import '../theme/app_theme.dart';
+import '../models/exercise.dart';
+import '../models/muscle_group.dart';
 import '../models/user_profile.dart';
 import '../models/weekly_plan_import.dart';
 import '../services/ai_prompt_service.dart';
+import '../services/exercise_matcher_service.dart';
+import '../services/exercise_service.dart';
 import '../services/user_preferences_service.dart';
 import '../bloc/plan_provider.dart';
 import '../utils/dimensions.dart';
@@ -47,6 +51,11 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
   WeeklyPlanImport? _parsedPlan;
   bool _isImporting = false;
   final Map<String, int> _editableSets = {};
+
+  // Pre-matching state: key = "day{dayOfWeek}-{exerciseName}"
+  final Map<String, MatchResult> _matchResults = {};
+  final Map<String, Exercise> _manualSelections = {};
+  bool _isMatching = false;
 
   bool _preferencesLoaded = false;
 
@@ -471,6 +480,37 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
     );
   }
 
+  /// Run pre-matching against the exercise database after JSON is parsed.
+  /// Populates _matchResults so the preview UI can show status badges.
+  Future<void> _runPreMatching() async {
+    if (_parsedPlan == null) return;
+
+    setState(() => _isMatching = true);
+
+    try {
+      if (!ExerciseService.isLoaded) {
+        await ExerciseService.loadExercises();
+      }
+      final matcher = ExerciseMatcherService(
+        exercises: ExerciseService.exercises,
+      );
+
+      _matchResults.clear();
+
+      for (final day in _parsedPlan!.days) {
+        for (final exercise in day.exercises) {
+          final key = 'day${day.dayOfWeek}-${exercise.exerciseName}';
+          final result = await matcher.matchExercise(exercise.exerciseName);
+          _matchResults[key] = result;
+        }
+      }
+    } catch (e) {
+      debugPrint('Pre-matching failed: $e');
+    } finally {
+      if (mounted) setState(() => _isMatching = false);
+    }
+  }
+
   /// Parse JSON for import analysis tab - goes directly to preview
   void _parseJsonForImport() async {
     if (_jsonController.text.isEmpty) {
@@ -489,6 +529,8 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
       setState(() {
         _isParsing = false;
         _parsedPlan = parsedPlan;
+        _matchResults.clear();
+        _manualSelections.clear();
         _currentStep = 1; // Go to preview step (step 2 in import mode)
         _pageController.animateToPage(
           1,
@@ -496,6 +538,8 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
           curve: Curves.easeInOut,
         );
       });
+      // Run pre-matching after navigation so UI shows progress immediately
+      _runPreMatching();
     } catch (e) {
       setState(() {
         _isParsing = false;
@@ -907,6 +951,8 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
       setState(() {
         _isParsing = false;
         _parsedPlan = parsedPlan;
+        _matchResults.clear();
+        _manualSelections.clear();
       });
 
       if (_currentStep < 3) {
@@ -917,6 +963,8 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
           curve: Curves.easeInOut,
         );
       }
+      // Run pre-matching after navigation so UI shows progress immediately
+      _runPreMatching();
     } catch (e) {
       setState(() {
         _isParsing = false;
@@ -968,6 +1016,12 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
                 ),
                 const SizedBox(height: 16),
 
+                // Match summary header
+                if (!_isMatching && _matchResults.isNotEmpty) ...[
+                  _buildMatchSummary(theme),
+                  const SizedBox(height: 16),
+                ],
+
                 ..._parsedPlan!.days.map((day) => _buildDayCard(day, theme)),
               ],
             ),
@@ -983,6 +1037,54 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  /// Build match summary banner showing matched/candidate/unmatched counts.
+  Widget _buildMatchSummary(AppThemeData theme) {
+    int matched = 0;
+    int candidates = 0;
+    int unmatched = 0;
+
+    for (final day in _parsedPlan!.days) {
+      for (final exercise in day.exercises) {
+        final key = 'day${day.dayOfWeek}-${exercise.exerciseName}';
+        final hasManual = _manualSelections.containsKey(key);
+        final result = _matchResults[key];
+
+        if (hasManual || (result?.isSuccess ?? false)) {
+          matched++;
+        } else if (result != null && result.candidates.isNotEmpty) {
+          candidates++;
+        } else {
+          unmatched++;
+        }
+      }
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: theme.accentColor.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+        border: Border.all(
+          color: theme.accentColor.withValues(alpha: 0.2),
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.info_outline, color: theme.accentColor, size: 20),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              '匹配：$matched个 ✅ | 待选：$candidates个 ⚠️ | 未匹配：$unmatched个',
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                color: theme.textColor,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -1035,18 +1137,115 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
     int dayOfWeek,
     AppThemeData theme,
   ) {
-    final exerciseKey = 'day${dayOfWeek}-${exercise.exerciseName}';
+    final exerciseKey = 'day$dayOfWeek-${exercise.exerciseName}';
     final currentSets = _editableSets[exerciseKey] ?? exercise.targetSets;
+
+    // --- Match status ---
+    final matchResult = _matchResults[exerciseKey];
+    final hasManualSelection = _manualSelections.containsKey(exerciseKey);
+    final isMatched =
+        hasManualSelection || (matchResult?.isSuccess ?? false);
+
+    // Display name: manual selection > auto-match > original
+    final displayName = hasManualSelection
+        ? _manualSelections[exerciseKey]!.name
+        : (matchResult?.isSuccess == true && matchResult?.exercise != null
+              ? matchResult!.exercise!.name
+              : exercise.exerciseName);
+
+    // Build status badge widget
+    Widget? statusBadge;
+    if (_isMatching) {
+      statusBadge = SizedBox(
+        width: 16,
+        height: 16,
+        child: CircularProgressIndicator(
+          strokeWidth: 2,
+          color: theme.accentColor,
+        ),
+      );
+    } else if (isMatched) {
+      statusBadge = Icon(
+        Icons.check_circle,
+        color: theme.successColor,
+        size: 20,
+      );
+    } else if (matchResult != null && matchResult.candidates.isNotEmpty) {
+      statusBadge = GestureDetector(
+        onTap: () => _showCandidateSelection(
+          exerciseKey,
+          exercise.exerciseName,
+          matchResult,
+          theme,
+        ),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+            color: theme.warningColor.withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
+            border: Border.all(
+              color: theme.warningColor.withValues(alpha: 0.4),
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.help_outline, size: 14, color: theme.warningColor),
+              const SizedBox(width: 4),
+              Text(
+                '${matchResult.candidates.length}个候选',
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall!.copyWith(
+                  fontSize: 11,
+                  color: theme.warningColor,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    } else {
+      statusBadge = Icon(
+        Icons.help_outline,
+        color: theme.secondaryTextColor,
+        size: 20,
+      );
+    }
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
             flex: 3,
-            child: Text(
-              exercise.exerciseName,
-              style: Theme.of(context).textTheme.bodyMedium!,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  displayName,
+                  style: Theme.of(context).textTheme.bodyMedium!,
+                ),
+                if (displayName != exercise.exerciseName)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 2),
+                    child: Text(
+                      '原: ${exercise.exerciseName}',
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodySmall!.copyWith(
+                        color: theme.secondaryTextColor,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: statusBadge,
+                ),
+              ],
             ),
           ),
           Row(
@@ -1104,6 +1303,152 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
     );
   }
 
+  /// Show bottom sheet for user to select a matching exercise from candidates.
+  void _showCandidateSelection(
+    String matchKey,
+    String originalName,
+    MatchResult matchResult,
+    AppThemeData theme,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: theme.surfaceColor,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(AppDimensions.radiusSheet),
+        ),
+      ),
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Header
+              Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 40,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: theme.dividerColor,
+                          borderRadius: BorderRadius.circular(
+                            AppDimensions.radiusXxs,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      '选择匹配的动作',
+                      style: Theme.of(
+                        context,
+                      ).textTheme.headlineLarge!.copyWith(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'AI生成的"$originalName"有'
+                      '${matchResult.candidates.length}个候选',
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        color: theme.secondaryTextColor,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Divider(height: 1),
+              // Candidate list
+              Flexible(
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: matchResult.candidates.length,
+                  itemBuilder: (context, index) {
+                    final candidate = matchResult.candidates[index];
+                    final isSelected =
+                        _manualSelections[matchKey]?.id == candidate.id;
+
+                    return ListTile(
+                      leading: Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? theme.accentColor
+                              : theme.accentColor.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(
+                            AppDimensions.radiusMd,
+                          ),
+                        ),
+                        child: Icon(
+                          isSelected
+                              ? Icons.check
+                              : Icons.fitness_center,
+                          color: isSelected
+                              ? theme.onAccentColor
+                              : theme.accentColor,
+                          size: 20,
+                        ),
+                      ),
+                      title: Text(candidate.name),
+                      subtitle: Text(
+                        '${candidate.primaryMuscle.displayName}'
+                        ' · ${candidate.equipmentDisplayName}',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                      trailing: isSelected
+                          ? Icon(
+                              Icons.check_circle,
+                              color: theme.accentColor,
+                            )
+                          : null,
+                      onTap: () {
+                        setState(() {
+                          _manualSelections[matchKey] = candidate;
+                        });
+                        Navigator.pop(context);
+                      },
+                    );
+                  },
+                ),
+              ),
+              // Keep as unmatched option
+              const Divider(height: 1),
+              Padding(
+                padding: const EdgeInsets.all(AppDimensions.screenPadding),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: TextButton.icon(
+                    onPressed: () {
+                      setState(() {
+                        _manualSelections.remove(matchKey);
+                      });
+                      Navigator.pop(context);
+                    },
+                    icon: Icon(
+                      Icons.close,
+                      color: theme.secondaryTextColor,
+                    ),
+                    label: Text(
+                      '保持为"无详情"',
+                      style: TextStyle(color: theme.secondaryTextColor),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   Future<void> _importPlan() async {
     if (_parsedPlan == null) return;
 
@@ -1132,9 +1477,10 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
     setState(() => _isImporting = true);
 
     try {
-      await context.read<PlanProvider>().importWeeklyPlan(
+      await context.read<PlanProvider>().importWeeklyPlanWithMatches(
         _parsedPlan!,
         _startDate,
+        _manualSelections,
       );
 
       if (mounted) {

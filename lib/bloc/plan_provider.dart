@@ -277,6 +277,120 @@ class PlanProvider extends ChangeNotifier {
     }
   }
 
+  /// Import weekly plan with pre-resolved match selections
+  ///
+  /// [manualSelections] maps "day{N}-{exerciseName}" → user-selected Exercise.
+  /// Entries in this map use the user's choice; all others fall back to
+  /// auto-matching, and remaining failures are saved as "无详情".
+  Future<List<String>> importWeeklyPlanWithMatches(
+    WeeklyPlanImport weeklyPlan,
+    DateTime startDate,
+    Map<String, Exercise> manualSelections,
+  ) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final matcher = ExerciseMatcherService(exercises: _exercises);
+      final List<WorkoutPlan> plans = [];
+      final List<DateTime> dates = [];
+
+      for (final dayPlan in weeklyPlan.days) {
+        if (dayPlan.exercises.isEmpty) continue;
+
+        final daysToAdd = dayPlan.dayOfWeek - 1;
+        final planDate = startDate.add(Duration(days: daysToAdd));
+
+        final List<PlanExercise> matchedExercises = [];
+
+        for (final exerciseEntry in dayPlan.exercises) {
+          final key = 'day${dayPlan.dayOfWeek}-${exerciseEntry.exerciseName}';
+
+          // Check manual selection first
+          if (manualSelections.containsKey(key)) {
+            matchedExercises.add(
+              PlanExercise(
+                exerciseId: manualSelections[key]!.id,
+                exercise: manualSelections[key],
+                targetSets: exerciseEntry.targetSets,
+                order: matchedExercises.length,
+              ),
+            );
+            continue;
+          }
+
+          // Fall back to auto-matching
+          final result = await matcher.matchExercise(
+            exerciseEntry.exerciseName,
+          );
+
+          if (result.isSuccess && result.exercise != null) {
+            matchedExercises.add(
+              PlanExercise(
+                exerciseId: result.exercise!.id,
+                exercise: result.exercise,
+                targetSets: exerciseEntry.targetSets,
+                order: matchedExercises.length,
+              ),
+            );
+          } else {
+            matchedExercises.add(
+              PlanExercise(
+                exerciseId: 'unmatched_${const Uuid().v4()}',
+                exercise: null,
+                unmatchedName: exerciseEntry.exerciseName,
+                targetSets: exerciseEntry.targetSets,
+                order: matchedExercises.length,
+              ),
+            );
+            debugPrint('未匹配动作已保留为"无详情": ${exerciseEntry.exerciseName}');
+          }
+        }
+
+        final planId = const Uuid().v4();
+        final targetMuscles = matchedExercises
+            .map((e) => e.exercise?.primaryMuscle)
+            .whereType<PrimaryMuscleGroup>()
+            .toSet()
+            .toList();
+        final plan = WorkoutPlan(
+          id: planId,
+          name: '${weeklyPlan.name} - 第${dayPlan.dayOfWeek}天',
+          targetMuscles: targetMuscles,
+          exercises: matchedExercises,
+          createdAt: DateTime.now(),
+        );
+
+        plans.add(plan);
+        dates.add(planDate);
+      }
+
+      final createdIds = await _repository.batchCreatePlansWithCalendar(
+        plans,
+        dates,
+      );
+
+      _plans.insertAll(0, plans);
+      for (int i = 0; i < plans.length; i++) {
+        final key = _dateToKey(dates[i]);
+        _calendarPlans.putIfAbsent(key, () => []).add(plans[i]);
+      }
+
+      _isLoading = false;
+      notifyListeners();
+
+      debugPrint('从周计划导入了 ${plans.length} 个计划（含手动选择）');
+      return createdIds;
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      debugPrint('导入周计划失败: $e');
+      notifyListeners();
+      rethrow;
+    }
+  }
+
   /// 选择计划（用于训练）
   void selectPlan(WorkoutPlan? plan) {
     _selectedPlan = plan;
