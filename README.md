@@ -165,7 +165,7 @@ lib/
 │   ├── record_provider.dart  # 训练记录 + 统计
 │   └── training_progress_provider.dart # 实时训练进度
 ├── models/                   # 数据模型 (fromMap/toMap/copyWith)
-├── screens/                  # 12 个页面
+├── screens/                  # 11 个页面
 ├── widgets/                  # 可复用组件 (15+)
 ├── theme/                    # Flat Vitality 主题系统
 │   ├── app_theme.dart        # 3 主题 + 深色变体
