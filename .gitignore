@@ -66,5 +66,12 @@ nul
 # App screenshots (used for store listing only)
 /docs/shots/
 
+# Local-only docs (contains sensitive company/developer account info)
+/docs/上架操作指南.md
+
+# Local-only scripts (contains company registration info for 软著)
+/scripts/export_pdf.py
+/scripts/generate_copyright_source.py
+
 # OpenCode internal state
 .omo/
