@@ -13,20 +13,12 @@ import '../animations/animation_primitives.dart';
 class PlanCard extends StatelessWidget {
   final WorkoutPlan plan;
   final VoidCallback? onTap;
-  final VoidCallback? onStart;
-  final VoidCallback? onEdit;
-  final VoidCallback? onDelete;
-  final bool showActions;
   final bool isCompact;
 
   const PlanCard({
     super.key,
     required this.plan,
     this.onTap,
-    this.onStart,
-    this.onEdit,
-    this.onDelete,
-    this.showActions = true,
     this.isCompact = false,
   });
 
@@ -128,53 +120,6 @@ class PlanCard extends StatelessWidget {
                   ],
                 ),
               ),
-
-              // 操作按钮
-              if (showActions && !isCompact) ...[
-                const Divider(height: 1),
-                Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      if (onEdit != null)
-                        TextButton.icon(
-                          onPressed: onEdit,
-                          icon: Icon(
-                            Icons.edit_outlined,
-                            size: 18,
-                            color: theme.secondaryTextColor,
-                          ),
-                          label: Text(
-                            '编辑',
-                            style: Theme.of(context).textTheme.labelLarge!
-                                .copyWith(color: theme.secondaryTextColor),
-                          ),
-                        ),
-                      if (onStart != null)
-                        ElevatedButton.icon(
-                          onPressed: onStart,
-                          icon: const Icon(Icons.play_arrow, size: 18),
-                          label: const Text('开始'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: theme.accentColor,
-                            foregroundColor: theme.onAccentColor,
-                            elevation: 0,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 8,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(
-                                AppDimensions.radiusChip,
-                              ),
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ],
             ],
           ),
         ),

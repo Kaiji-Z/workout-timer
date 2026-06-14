@@ -550,6 +550,7 @@ class ExerciseDetailSheet extends StatefulWidget {
   final bool isSelected;
   final VoidCallback onToggle;
   final Function(int)? onSetsChanged;
+  final bool readOnly;
 
   const ExerciseDetailSheet({
     super.key,
@@ -557,6 +558,7 @@ class ExerciseDetailSheet extends StatefulWidget {
     required this.isSelected,
     required this.onToggle,
     this.onSetsChanged,
+    this.readOnly = false,
   });
 
   static Future<void> show(
@@ -565,6 +567,7 @@ class ExerciseDetailSheet extends StatefulWidget {
     bool isSelected = false,
     required VoidCallback onToggle,
     Function(int)? onSetsChanged,
+    bool readOnly = false,
   }) {
     return showModalBottomSheet(
       context: context,
@@ -575,6 +578,7 @@ class ExerciseDetailSheet extends StatefulWidget {
         isSelected: isSelected,
         onToggle: onToggle,
         onSetsChanged: onSetsChanged,
+        readOnly: readOnly,
       ),
     );
   }
@@ -759,34 +763,35 @@ class _ExerciseDetailSheetState extends State<ExerciseDetailSheet>
                       ],
 
                       // 操作按钮
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            widget.onToggle();
-                            Navigator.pop(context);
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: widget.isSelected
-                                ? theme.errorColor
-                                : theme.accentColor,
-                            foregroundColor: theme.onAccentColor,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(
-                                AppDimensions.radiusLg,
+                      if (!widget.readOnly)
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              widget.onToggle();
+                              Navigator.pop(context);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: widget.isSelected
+                                  ? theme.errorColor
+                                  : theme.accentColor,
+                              foregroundColor: theme.onAccentColor,
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(
+                                  AppDimensions.radiusLg,
+                                ),
                               ),
+                              elevation: 0,
                             ),
-                            elevation: 0,
-                          ),
-                          child: Text(
-                            widget.isSelected ? '从计划中移除' : '添加到计划',
-                            style: Theme.of(context).textTheme.titleLarge!
-                                .copyWith(color: theme.onAccentColor),
+                            child: Text(
+                              widget.isSelected ? '从计划中移除' : '添加到计划',
+                              style: Theme.of(context).textTheme.titleLarge!
+                                  .copyWith(color: theme.onAccentColor),
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 16),
+                      if (!widget.readOnly) const SizedBox(height: 16),
                     ],
                   ),
                 ),
