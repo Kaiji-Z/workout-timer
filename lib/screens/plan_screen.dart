@@ -15,6 +15,7 @@ import 'plan_form_screen.dart';
 import 'ai_plan_wizard_screen.dart';
 import '../theme/app_theme.dart';
 import '../animations/page_transitions.dart';
+import '../main.dart';
 
 /// 计划页面 - Flat Vitality 设计
 ///
@@ -163,7 +164,6 @@ class _PlanScreenState extends State<PlanScreen> {
         // 当日计划列表
         if (plansForDate.isNotEmpty)
           ...plansForDate
-              .take(3)
               .map(
                 (plan) => Dismissible(
                   key: ValueKey(plan.id),
@@ -225,7 +225,6 @@ class _PlanScreenState extends State<PlanScreen> {
                   child: PlanCard(
                     plan: plan,
                     onTap: () => _showPlanDetail(plan),
-                    showActions: false,
                   ),
                 ),
               )
@@ -856,6 +855,7 @@ class _PlanDetailSheet extends StatelessWidget {
                           exercise: planExercise.exercise!,
                           isSelected: false,
                           onToggle: () => Navigator.pop(context),
+                          readOnly: true,
                         )
                       : null,
                   child: Container(
@@ -1079,7 +1079,8 @@ class _PlanDetailSheet extends StatelessWidget {
                   child: ElevatedButton.icon(
                     onPressed: () {
                       Navigator.pop(context);
-                      // TODO: Start plan
+                      context.read<PlanProvider>().selectPlan(plan);
+                      MainNavigation.switchToTab(2);
                     },
                     icon: Icon(Icons.play_arrow, color: theme.onAccentColor),
                     label: Text(
