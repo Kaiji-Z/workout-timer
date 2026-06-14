@@ -173,7 +173,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
     if (currentVolume == 0 && previousVolume == 0) return '- 暂无趋势数据';
 
     final buffer = StringBuffer();
-    final fmtVol = (double v) => v >= 1000
+    String fmtVol(double v) => v >= 1000
         ? '${(v / 1000).toStringAsFixed(1)}k kg'
         : '${v.toStringAsFixed(0)} kg';
 
@@ -449,7 +449,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
     final density = _statsCalc.calculateDensity(widget.records);
     final sessionCount = widget.records.length;
     final workoutDays = _countUniqueDays(widget.records);
-    final fmtVol = (double v) =>
+    String fmtVol(double v) =>
         v >= 1000 ? '${(v / 1000).toStringAsFixed(1)}k' : v.toStringAsFixed(0);
 
     final buffer = StringBuffer();
@@ -526,7 +526,19 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
 
     // Output format
     buffer.writeln('## 输出格式');
-    buffer.writeln('Output ONLY valid JSON. No explanations or markdown:');
+    buffer.writeln('请按以下两部分输出你的回复：');
+    buffer.writeln();
+    buffer.writeln('**第一部分：计划设计说明**');
+    buffer.writeln();
+    buffer.writeln('根据我的训练数据报告，详细说明你为什么这样设计下个周期的训练计划，包括：');
+    buffer.writeln('- 分化方式的选择理由（结合我每周 $workoutDays 天的训练频率）');
+    buffer.writeln('- 与本周期数据的对比分析（哪些肌群训练不足需要加强，哪些已经过度需要恢复）');
+    buffer.writeln('- 每个训练日的动作选择逻辑和容量分配依据');
+    buffer.writeln('- 渐进超负荷的具体建议（重量、组数、频率的调整方向）');
+    buffer.writeln();
+    buffer.writeln('**第二部分：训练计划 JSON**');
+    buffer.writeln();
+    buffer.writeln('在分析之后，用 ```json 代码块提供结构化训练计划：');
     buffer.writeln('```json');
     buffer.writeln('{');
     buffer.writeln('  "name": "计划名称",');
@@ -556,7 +568,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
     buffer.writeln('- 徒手: Pull-up, Dip, Push-up, Bodyweight Squat');
     buffer.writeln('如果不确定确切名称，使用标准术语即可。');
     buffer.writeln();
-    buffer.writeln('生成我的训练计划。JSON only:');
+    buffer.writeln('请先解释你的设计思路和分析，然后生成训练计划。');
 
     return buffer.toString();
   }
@@ -784,7 +796,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
     final avgVolumePerSession = sessionCount > 0
         ? totalVolume / sessionCount
         : 0.0;
-    final fmtVol = (double v) =>
+    String fmtVol(double v) =>
         v >= 1000 ? '${(v / 1000).toStringAsFixed(1)}k' : v.toStringAsFixed(0);
 
     return Column(

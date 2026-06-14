@@ -81,7 +81,8 @@ void main() {
 
       final prompt = service.generatePrompt(profile);
 
-      expect(prompt, contains('Output ONLY valid JSON'));
+      expect(prompt, contains('计划设计说明'));
+      expect(prompt, contains('```json'));
       expect(prompt, contains('"dayOfWeek"'));
       expect(prompt, contains('"targetMuscles"'));
       expect(prompt, contains('"exerciseName"'));
