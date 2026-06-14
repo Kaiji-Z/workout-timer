@@ -298,7 +298,10 @@ class _SetRecordDialogState extends State<SetRecordDialog> {
                       '保存',
                       style: Theme.of(
                         context,
-                      ).textTheme.titleLarge!.copyWith(fontSize: 15),
+                      ).textTheme.titleLarge!.copyWith(
+                        fontSize: 15,
+                        color: theme.onAccentColor,
+                      ),
                     ),
                   ),
                 ),

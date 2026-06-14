@@ -56,3 +56,15 @@ nul
 *.html
 !web/**/*.html
 !docs/**/*.html
+
+# App store submission materials (contains sensitive company/bank/ID info)
+/上架材料/
+
+# Generated copyright documents (large, auto-generated)
+*.docx
+
+# App screenshots (used for store listing only)
+/docs/shots/
+
+# OpenCode internal state
+.omo/
