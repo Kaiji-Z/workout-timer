@@ -5,10 +5,8 @@ import '../models/exercise.dart';
 import '../models/muscle_group.dart';
 import '../models/weekly_plan_import.dart';
 import '../services/exercise_matcher_service.dart';
-
+import '../services/exercise_service.dart';
 import '../services/plan_repository.dart';
-
-import '../data/exercise_data.dart';
 
 /// 训练计划状态管理
 class PlanProvider extends ChangeNotifier {
@@ -39,7 +37,10 @@ class PlanProvider extends ChangeNotifier {
 
     try {
       // 加载完整动作列表（异步加载ExerciseService的873个动作）
-      _exercises = await ExerciseData.loadAndGetFullExerciseList();
+      if (!ExerciseService.isLoaded) {
+        await ExerciseService.loadExercises();
+      }
+      _exercises = ExerciseService.exercises;
 
       // 加载计划
       _plans = await _repository.getAllPlans(exercises: _exercises);
