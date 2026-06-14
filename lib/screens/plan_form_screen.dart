@@ -26,7 +26,7 @@ class PlanFormScreen extends StatefulWidget {
 }
 
 class _PlanFormScreenState extends State<PlanFormScreen> {
-  final PageController _pageController = PageController();
+  late final PageController _pageController;
   final TextEditingController _nameController = TextEditingController();
 
   int _currentStep = 0;
@@ -46,7 +46,10 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
       _selectedMuscles = List.from(widget.plan!.targetMuscles);
       _selectedExercises = List.from(widget.plan!.exercises);
       _nameController.text = widget.plan!.name;
+      // 编辑模式默认跳到第3步（确认/微调）
+      _currentStep = 2;
     }
+    _pageController = PageController(initialPage: _currentStep);
   }
 
   @override
@@ -84,18 +87,6 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
               fontWeight: FontWeight.w700,
             ),
           ),
-          actions: [
-            if (_currentStep > 0)
-              TextButton(
-                onPressed: _previousStep,
-                child: Text(
-                  '上一步',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.labelLarge!.copyWith(color: theme.accentColor),
-                ),
-              ),
-          ],
         ),
         body: Column(
           children: [
@@ -144,39 +135,47 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
     bool isActive,
     AppThemeData theme,
   ) {
-    return Column(
-      children: [
-        Container(
-          width: 32,
-          height: 32,
-          decoration: BoxDecoration(
-            color: isActive
-                ? theme.accentColor
-                : theme.textColor.withValues(alpha: 0.1),
-            shape: BoxShape.circle,
-          ),
-          child: Center(
-            child: isActive && _currentStep > number - 1
-                ? Icon(Icons.check, color: theme.onAccentColor, size: 18)
-                : Text(
-                    '$number',
-                    style: Theme.of(context).textTheme.labelLarge!.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: isActive
-                          ? theme.onAccentColor
-                          : theme.secondaryTextColor,
+    // 步骤索引 = number - 1
+    final stepIndex = number - 1;
+    // 判断是否可点击：编辑模式全部可点击；创建模式只能回到已完成步骤
+    final canTap = isEditMode || stepIndex < _currentStep;
+
+    return GestureDetector(
+      onTap: canTap ? () => _jumpToStep(stepIndex) : null,
+      child: Column(
+        children: [
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: isActive
+                  ? theme.accentColor
+                  : theme.textColor.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Center(
+              child: isActive && _currentStep > number - 1
+                  ? Icon(Icons.check, color: theme.onAccentColor, size: 18)
+                  : Text(
+                      '$number',
+                      style: Theme.of(context).textTheme.labelLarge!.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: isActive
+                            ? theme.onAccentColor
+                            : theme.secondaryTextColor,
+                      ),
                     ),
-                  ),
+            ),
           ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: Theme.of(context).textTheme.bodySmall!.copyWith(
-            color: isActive ? theme.textColor : theme.secondaryTextColor,
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: Theme.of(context).textTheme.bodySmall!.copyWith(
+              color: isActive ? theme.textColor : theme.secondaryTextColor,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -207,7 +206,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            '选择你今天想要训练的肌肉部位（可多选）',
+            '选择计划要覆盖的肌肉部位（可多选）',
             style: Theme.of(
               context,
             ).textTheme.bodyMedium!.copyWith(color: theme.secondaryTextColor),
@@ -292,10 +291,6 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
 
           // 选择动作入口按钮
           _buildSelectExerciseButton(theme),
-          const SizedBox(height: 32),
-
-          // 快速推荐（可选）
-          _buildQuickRecommendations(theme),
         ],
       ),
     );
@@ -362,38 +357,53 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
             spacing: 8,
             runSpacing: 8,
             children: _selectedExercises.map((exercise) {
-              return Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
-                ),
-                decoration: BoxDecoration(
-                  color: theme.accentColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      exercise.hasDetails
-                          ? exercise.name
-                          : '${exercise.name} (无详情)',
-                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        fontSize: 13,
-                        color: exercise.hasDetails
-                            ? theme.textColor
-                            : theme.secondaryTextColor.withValues(alpha: 0.7),
-                        fontStyle: exercise.hasDetails
-                            ? null
-                            : FontStyle.italic,
+              return GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _selectedExercises.removeWhere(
+                      (e) => e.exerciseId == exercise.exerciseId,
+                    );
+                  });
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: theme.accentColor.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        exercise.hasDetails
+                            ? exercise.name
+                            : '${exercise.name} (无详情)',
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          fontSize: 13,
+                          color: exercise.hasDetails
+                              ? theme.textColor
+                              : theme.secondaryTextColor.withValues(alpha: 0.7),
+                          fontStyle: exercise.hasDetails
+                              ? null
+                              : FontStyle.italic,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      '(${exercise.targetSets}组)',
-                      style: Theme.of(context).textTheme.bodySmall!,
-                    ),
-                  ],
+                      const SizedBox(width: 4),
+                      Text(
+                        '(${exercise.targetSets}组)',
+                        style: Theme.of(context).textTheme.bodySmall!,
+                      ),
+                      const SizedBox(width: 4),
+                      Icon(
+                        Icons.close,
+                        size: 14,
+                        color: theme.secondaryTextColor,
+                      ),
+                    ],
+                  ),
                 ),
               );
             }).toList(),
@@ -453,67 +463,44 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
     );
   }
 
-  /// 快速推荐
-  Widget _buildQuickRecommendations(AppThemeData theme) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          '或从推荐计划开始',
-          style: Theme.of(
-            context,
-          ).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.w600),
-        ),
-        const SizedBox(height: 12),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            _buildQuickButton('上肢推', [
-              PrimaryMuscleGroup.chest,
-              PrimaryMuscleGroup.shoulders,
-              PrimaryMuscleGroup.arms,
-            ], theme),
-            _buildQuickButton('上肢拉', [
-              PrimaryMuscleGroup.back,
-              PrimaryMuscleGroup.arms,
-            ], theme),
-            _buildQuickButton('下肢', [
-              PrimaryMuscleGroup.legs,
-              PrimaryMuscleGroup.core,
-            ], theme),
-            _buildQuickButton('全身', PrimaryMuscleGroup.values.toList(), theme),
-          ],
-        ),
-      ],
-    );
-  }
-
   Widget _buildQuickButton(
     String label,
     List<PrimaryMuscleGroup> muscles,
     AppThemeData theme,
   ) {
-    final isSelected =
-        _selectedMuscles.length == muscles.length &&
-        _selectedMuscles.every((m) => muscles.contains(m));
+    final isSelected = muscles.every((m) => _selectedMuscles.contains(m));
 
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: () {
+          final allSelected = muscles.every((m) => _selectedMuscles.contains(m));
           setState(() {
-            _selectedMuscles = muscles;
+            if (allSelected) {
+              // 全部已选 → 移除该组
+              _selectedMuscles.removeWhere((m) => muscles.contains(m));
+            } else {
+              // 部分或未选 → 添加缺失的（合并，不替换）
+              for (final m in muscles) {
+                if (!_selectedMuscles.contains(m)) {
+                  _selectedMuscles.add(m);
+                }
+              }
+            }
           });
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                '已选择部位：${muscles.map((m) => m.displayName).join("、")}',
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  allSelected
+                      ? '已移除：${muscles.map((m) => m.displayName).join("、")}'
+                      : '已添加：${muscles.map((m) => m.displayName).join("、")}',
+                ),
+                behavior: SnackBarBehavior.floating,
+                duration: const Duration(seconds: 2),
               ),
-              behavior: SnackBarBehavior.floating,
-              duration: const Duration(seconds: 2),
-            ),
-          );
+            );
+          }
         },
         borderRadius: BorderRadius.circular(AppDimensions.radiusChip),
         child: Container(
@@ -648,21 +635,48 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
               ],
             ),
           ),
+          const SizedBox(height: 8),
+          Text(
+            '※ 预估时长 = 总组数 × 2.5分钟（含休息）',
+            style: Theme.of(context).textTheme.bodySmall!.copyWith(
+              fontSize: 12,
+              color: theme.secondaryTextColor,
+              fontStyle: FontStyle.italic,
+            ),
+          ),
           const SizedBox(height: 24),
 
           // 动作列表（可调整组数）
           Text(
-            '调整组数（可选）',
+            '调整组数（可拖拽排序）',
             style: Theme.of(
               context,
             ).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 12),
-          ..._selectedExercises.asMap().entries.map((entry) {
-            final index = entry.key;
-            final exercise = entry.value;
-            return _buildExerciseSetItem(index, exercise, theme);
-          }),
+          SizedBox(
+            height: _selectedExercises.length * 80.0,
+            child: ReorderableListView.builder(
+              buildDefaultDragHandles: false,
+              itemCount: _selectedExercises.length,
+              onReorder: (oldIndex, newIndex) {
+                setState(() {
+                  if (newIndex > oldIndex) newIndex--;
+                  final item = _selectedExercises.removeAt(oldIndex);
+                  _selectedExercises.insert(newIndex, item);
+                });
+              },
+              itemBuilder: (context, index) {
+                final exercise = _selectedExercises[index];
+                return _buildExerciseSetItem(
+                  index,
+                  exercise,
+                  theme,
+                  key: ValueKey(exercise.exerciseId),
+                );
+              },
+            ),
+          ),
         ],
       ),
     );
@@ -686,9 +700,11 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
   Widget _buildExerciseSetItem(
     int index,
     PlanExercise planExercise,
-    AppThemeData theme,
-  ) {
+    AppThemeData theme, {
+    Key? key,
+  }) {
     return Container(
+      key: key,
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -698,6 +714,18 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
       ),
       child: Row(
         children: [
+          // 拖拽手柄
+          ReorderableDragStartListener(
+            index: index,
+            child: Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: Icon(
+                Icons.drag_indicator,
+                color: theme.secondaryTextColor,
+                size: 20,
+              ),
+            ),
+          ),
           Container(
             width: 28,
             height: 28,
@@ -790,6 +818,23 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
               ),
+              const SizedBox(width: 8),
+              // 删除动作按钮
+              IconButton(
+                tooltip: '删除动作',
+                onPressed: () {
+                  setState(() {
+                    _selectedExercises.removeAt(index);
+                  });
+                },
+                icon: Icon(
+                  Icons.delete_outline,
+                  size: 20,
+                  color: theme.errorColor,
+                ),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+              ),
             ],
           ),
         ],
@@ -834,41 +879,71 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       child: SafeArea(
-        child: SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: _isSaving ? null : onPressed,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: isEnabled
-                  ? theme.accentColor
-                  : theme.textColor.withValues(alpha: 0.1),
-              foregroundColor: theme.onAccentColor,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+        child: Row(
+          children: [
+            // 上一步按钮（左側，仅当不是第一步时显示）
+            if (_currentStep > 0) ...[
+              OutlinedButton(
+                onPressed: _previousStep,
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: theme.accentColor,
+                  side: BorderSide(
+                    color: theme.accentColor.withValues(alpha: 0.3),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 16,
+                    horizontal: 20,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+                  ),
+                ),
+                child: Text(
+                  '上一步',
+                  style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                    fontSize: 15,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+            ],
+            // 下一步/保存按钮（右侧，占满剩余空间）
+            Expanded(
+              child: ElevatedButton(
+                onPressed: _isSaving ? null : onPressed,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: isEnabled
+                      ? theme.accentColor
+                      : theme.textColor.withValues(alpha: 0.1),
+                  foregroundColor: theme.onAccentColor,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+                  ),
+                ),
+                child: _isSaving
+                    ? SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            theme.onAccentColor,
+                          ),
+                        ),
+                      )
+                    : Text(
+                        buttonText,
+                        style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                          color: isEnabled
+                              ? theme.onAccentColor
+                              : theme.secondaryTextColor,
+                        ),
+                      ),
               ),
             ),
-            child: _isSaving
-                ? SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        theme.onAccentColor,
-                      ),
-                    ),
-                  )
-                : Text(
-                    buttonText,
-                    style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                      color: isEnabled
-                          ? theme.onAccentColor
-                          : theme.secondaryTextColor,
-                    ),
-                  ),
-          ),
+          ],
         ),
       ),
     );
@@ -876,26 +951,27 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
 
   void _nextStep() {
     if (_currentStep < 2) {
-      setState(() {
-        _currentStep++;
-      });
-      _pageController.nextPage(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
+      _jumpToStep(_currentStep + 1);
     }
   }
 
   void _previousStep() {
     if (_currentStep > 0) {
-      setState(() {
-        _currentStep--;
-      });
-      _pageController.previousPage(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
+      _jumpToStep(_currentStep - 1);
     }
+  }
+
+  /// 跳转到指定步骤（用于步骤指示器点击和上一步）
+  void _jumpToStep(int step) {
+    if (step < 0 || step > 2 || step == _currentStep) return;
+    setState(() {
+      _currentStep = step;
+    });
+    _pageController.animateToPage(
+      step,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
   }
 
   Future<void> _savePlan() async {
