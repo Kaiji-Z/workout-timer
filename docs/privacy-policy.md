@@ -1,6 +1,6 @@
 # 隐私政策
 
-**最后更新：2026年6月6日**
+**最后更新：2026年6月14日**
 
 ## 概述
 
@@ -31,10 +31,13 @@
 
 | 权限 | 用途 | 是否必须 |
 |------|------|---------|
-| 通知 | 计时结束提醒（声音、振动、弹窗） | 是 |
-| 振动 | 计时结束振动提醒 | 是 |
-| 前台服务 | 计时器在后台持续运行 | 是 |
-| 开机启动 | 开机后恢复通知渠道 | 否 |
+| 通知 (POST_NOTIFICATIONS) | 计时结束时发送通知提醒（声音、振动、弹窗） | 是 |
+| 振动 (VIBRATE) | 计时结束时振动提醒 | 是 |
+| 前台服务 (FOREGROUND_SERVICE) | 计时器在后台持续运行，确保锁屏不中断 | 是 |
+| 前台特殊服务 (FOREGROUND_SERVICE_SPECIAL_USE) | 计时器作为特殊前台服务运行，确保后台精确计时 | 是 |
+| 网络 (INTERNET) | 加载健身动作的示例图片（CC0 公共领域图片资源） | 部分（核心功能不需要） |
+| 开机启动 (RECEIVE_BOOT_COMPLETED) | 开机后恢复通知渠道 | 否 |
+| 电池优化豁免 (REQUEST_IGNORE_BATTERY_OPTIMIZATIONS) | 防止系统省电策略中断计时器运行 | 是 |
 
 ## 网络访问
 
@@ -65,13 +68,13 @@
 如有任何关于隐私政策的问题，请联系：
 
 - GitHub: [Kaiji-Z/workout-timer](https://github.com/Kaiji-Z/workout-timer)
-- Email: man_dog@163.com
+- Email: lookatmedia@163.com
 
 ---
 
 ## Privacy Policy (English)
 
-**Last Updated: June 6, 2026**
+**Last Updated: June 14, 2026**
 
 ### Overview
 
@@ -89,12 +92,15 @@ Workout Timer ("this app") is a professional fitness rest timer application. We 
 
 | Permission | Purpose | Required |
 |-----------|---------|----------|
-| Notifications | Timer completion alerts | Yes |
-| Vibration | Vibration alerts for timer | Yes |
-| Foreground Service | Keep timer running in background | Yes |
-| Internet | Load exercise demo images (CC0 public domain) | Partial |
-| Receive Boot Completed | Restore notification channels after reboot | No |
+| Notifications (POST_NOTIFICATIONS) | Timer completion alerts (sound, vibration, popup) | Yes |
+| Vibration (VIBRATE) | Vibration alerts when timer ends | Yes |
+| Foreground Service (FOREGROUND_SERVICE) | Keep timer running in background | Yes |
+| Foreground Special Use (FOREGROUND_SERVICE_SPECIAL_USE) | Timer runs as special foreground service for precise background timing | Yes |
+| Internet (INTERNET) | Load exercise demo images (CC0 public domain) | Partial |
+| Receive Boot Completed (RECEIVE_BOOT_COMPLETED) | Restore notification channels after device reboot | No |
+| Battery Optimization Exemption (REQUEST_IGNORE_BATTERY_OPTIMIZATIONS) | Prevent system power-saving from interrupting timer | Yes |
 
 ### Contact
 
 - GitHub: [Kaiji-Z/workout-timer](https://github.com/Kaiji-Z/workout-timer)
+- Email: lookatmedia@163.com

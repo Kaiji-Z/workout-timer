@@ -23,7 +23,7 @@
 <body>
 
 <h1>撸铁计时器 隐私政策</h1>
-<p class="update-date">生效日期：2026年6月8日 &nbsp;|&nbsp; 版本：v1.0</p>
+<p class="update-date">生效日期：2026年6月14日 &nbsp;|&nbsp; 版本：v1.1</p>
 
 <div class="summary">
   <strong>一句话总结：</strong>撸铁计时器不收集、不上传、不分享任何个人数据。你的训练数据只存储在你自己的手机上。
@@ -51,13 +51,15 @@
 <p>这些数据<strong>不会离开您的设备</strong>。卸载应用后数据将被清除。</p>
 
 <h2>3. 权限说明</h2>
-<p>应用仅申请以下必要权限：</p>
+<p>应用申请以下权限以确保核心功能正常运行：</p>
 <ul>
-  <li><strong>前台服务（FOREGROUND_SERVICE）</strong>：用于锁屏后继续计时</li>
+  <li><strong>前台服务（FOREGROUND_SERVICE）</strong>：用于锁屏后继续计时，确保后台持续运行不中断</li>
+  <li><strong>前台特殊服务（FOREGROUND_SERVICE_SPECIAL_USE）</strong>：计时器作为特殊前台服务运行，确保后台精确计时</li>
   <li><strong>振动（VIBRATE）</strong>：用于休息结束时的振动提醒</li>
-  <li><strong>通知（POST_NOTIFICATIONS）</strong>：用于显示计时器通知</li>
-  <li><strong>开机启动（RECEIVE_BOOT_COMPLETED）</strong>：用于设备重启后恢复计时通知</li>
-  <li><strong>网络（INTERNET）</strong>：Flutter 框架基础权限，应用本身不使用网络传输任何数据</li>
+  <li><strong>通知（POST_NOTIFICATIONS）</strong>：用于显示计时器通知（声音、振动、弹窗）</li>
+  <li><strong>网络（INTERNET）</strong>：用于加载健身动作的示例图片（来自公开的 CC0 图片资源）。核心计时功能不需要网络</li>
+  <li><strong>开机启动（RECEIVE_BOOT_COMPLETED）</strong>：用于设备重启后恢复计时通知渠道</li>
+  <li><strong>电池优化豁免（REQUEST_IGNORE_BATTERY_OPTIMIZATIONS）</strong>：防止系统省电策略中断计时器运行</li>
 </ul>
 
 <h2>4. 第三方服务</h2>
@@ -80,7 +82,7 @@
   <strong>联系我们</strong><br>
   如对本隐私政策有任何疑问，请通过以下方式联系：<br>
   GitHub Issues：<a href="https://github.com/Kaiji-Z/workout-timer/issues" target="_blank">提交问题</a><br>
-  邮箱：man_dog@163.com
+  邮箱：lookatmedia@163.com
 </div>
 
 <footer>
