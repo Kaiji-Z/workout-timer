@@ -33,6 +33,8 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
   List<PrimaryMuscleGroup> _selectedMuscles = [];
   List<PlanExercise> _selectedExercises = [];
 
+  bool _isSaving = false;
+
   bool get isEditMode => widget.plan != null;
 
   @override
@@ -58,57 +60,65 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().currentTheme;
 
-    return Scaffold(
-      backgroundColor: theme.backgroundColor,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          tooltip: '关闭',
-          icon: Icon(Icons.close, color: theme.textColor),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text(
-          isEditMode ? '编辑计划' : '创建计划',
-          style: Theme.of(context).textTheme.headlineLarge!.copyWith(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (!didPop) {
+          await _confirmClose();
+        }
+      },
+      child: Scaffold(
+        backgroundColor: theme.backgroundColor,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: IconButton(
+            tooltip: '关闭',
+            icon: Icon(Icons.close, color: theme.textColor),
+            onPressed: _confirmClose,
           ),
+          title: Text(
+            isEditMode ? '编辑计划' : '创建计划',
+            style: Theme.of(context).textTheme.headlineLarge!.copyWith(
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          actions: [
+            if (_currentStep > 0)
+              TextButton(
+                onPressed: _previousStep,
+                child: Text(
+                  '上一步',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.labelLarge!.copyWith(color: theme.accentColor),
+                ),
+              ),
+          ],
         ),
-        actions: [
-          if (_currentStep > 0)
-            TextButton(
-              onPressed: _previousStep,
-              child: Text(
-                '上一步',
-                style: Theme.of(
-                  context,
-                ).textTheme.labelLarge!.copyWith(color: theme.accentColor),
+        body: Column(
+          children: [
+            // 步骤指示器
+            _buildStepIndicator(theme),
+
+            // 内容
+            Expanded(
+              child: PageView(
+                controller: _pageController,
+                physics: const NeverScrollableScrollPhysics(),
+                children: [
+                  _buildStep1(theme),
+                  _buildStep2(theme),
+                  _buildStep3(theme),
+                ],
               ),
             ),
-        ],
-      ),
-      body: Column(
-        children: [
-          // 步骤指示器
-          _buildStepIndicator(theme),
 
-          // 内容
-          Expanded(
-            child: PageView(
-              controller: _pageController,
-              physics: const NeverScrollableScrollPhysics(),
-              children: [
-                _buildStep1(theme),
-                _buildStep2(theme),
-                _buildStep3(theme),
-              ],
-            ),
-          ),
-
-          // 底部按钮
-          _buildBottomButton(theme),
-        ],
+            // 底部按钮
+            _buildBottomButton(theme),
+          ],
+        ),
       ),
     );
   }
@@ -313,7 +323,31 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
                 ).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.w600),
               ),
               TextButton(
-                onPressed: () => setState(() => _selectedExercises.clear()),
+                onPressed: () async {
+                  final confirmed = await showDialog<bool>(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('清空已选动作？'),
+                      content: const Text('确定要清空所有已选动作吗？此操作无法撤销。'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: const Text('取消'),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          child: Text(
+                            '清空',
+                            style: TextStyle(color: theme.errorColor),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                  if (confirmed == true && mounted) {
+                    setState(() => _selectedExercises.clear());
+                  }
+                },
                 child: Text(
                   '清空',
                   style: Theme.of(
@@ -471,6 +505,15 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
           setState(() {
             _selectedMuscles = muscles;
           });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                '已选择部位：${muscles.map((m) => m.displayName).join("、")}',
+              ),
+              behavior: SnackBarBehavior.floating,
+              duration: const Duration(seconds: 2),
+            ),
+          );
         },
         borderRadius: BorderRadius.circular(AppDimensions.radiusChip),
         child: Container(
@@ -794,7 +837,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
         child: SizedBox(
           width: double.infinity,
           child: ElevatedButton(
-            onPressed: onPressed,
+            onPressed: _isSaving ? null : onPressed,
             style: ElevatedButton.styleFrom(
               backgroundColor: isEnabled
                   ? theme.accentColor
@@ -806,14 +849,25 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
                 borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
               ),
             ),
-            child: Text(
-              buttonText,
-              style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                color: isEnabled
-                    ? theme.onAccentColor
-                    : theme.secondaryTextColor,
-              ),
-            ),
+            child: _isSaving
+                ? SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        theme.onAccentColor,
+                      ),
+                    ),
+                  )
+                : Text(
+                    buttonText,
+                    style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                      color: isEnabled
+                          ? theme.onAccentColor
+                          : theme.secondaryTextColor,
+                    ),
+                  ),
           ),
         ),
       ),
@@ -859,6 +913,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
         (_selectedExercises.fold(0, (sum, e) => sum + e.effectiveSets) * 2.5)
             .round();
 
+    setState(() => _isSaving = true);
     try {
       if (isEditMode) {
         // 编辑模式
@@ -896,6 +951,70 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
           ),
         );
       }
+    } finally {
+      if (mounted) {
+        setState(() => _isSaving = false);
+      }
+    }
+  }
+
+  /// 比较两个列表是否相等（按顺序逐元素比较）
+  bool _listEquals<T>(List<T> a, List<T> b) {
+    if (a.length != b.length) return false;
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+    return true;
+  }
+
+  /// 检查是否有未保存的更改
+  Future<bool> _hasUnsavedChanges() async {
+    // 编辑模式：与原始计划比较
+    if (isEditMode) {
+      final original = widget.plan!;
+      final nameChanged = _nameController.text.trim() != original.name;
+      final musclesChanged = !_listEquals(
+        _selectedMuscles,
+        original.targetMuscles,
+      );
+      final exercisesChanged = !_listEquals(
+        _selectedExercises,
+        original.exercises,
+      );
+      return nameChanged || musclesChanged || exercisesChanged;
+    }
+    // 创建模式：任何已输入数据都算未保存
+    return _selectedMuscles.isNotEmpty ||
+        _selectedExercises.isNotEmpty ||
+        _nameController.text.trim().isNotEmpty;
+  }
+
+  /// 关闭前确认（有未保存更改时弹出对话框）
+  Future<void> _confirmClose() async {
+    if (!await _hasUnsavedChanges()) {
+      if (mounted) Navigator.pop(context);
+      return;
+    }
+    if (!mounted) return;
+    final shouldDiscard = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('放弃编辑？'),
+        content: const Text('您有未保存的更改，确定要退出吗？'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('继续编辑'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('放弃'),
+          ),
+        ],
+      ),
+    );
+    if (shouldDiscard == true && mounted) {
+      Navigator.pop(context);
     }
   }
 }
