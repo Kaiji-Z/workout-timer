@@ -1,6 +1,6 @@
 # AGENTS.md - WorkoutTimer Flutter App
 
-**Updated:** 2026-06-04
+**Updated:** 2026-06-14
 **Branch:** master
 
 ## OVERVIEW
@@ -10,7 +10,7 @@ Cross-platform Flutter workout rest timer with preset durations (30s/60s/90s/120
 **Architecture**: MVVM with Provider (ChangeNotifier), services layer, local SQLite.
 **Stack**: Flutter 3.10+ / Dart 3.10.7+ / sqflite + sqflite_common_ffi / provider / flutter_local_notifications / uuid / intl / fuzzy / fl_chart / cached_network_image / google_fonts / string_similarity.
 **Design System**: "Flat Vitality" — warm gradients, deep indigo accent (#1A237E), white circular buttons.
-**Database**: SQLite v4 with incremental migrations (v1→v2→v3→v4).
+**Database**: SQLite v5 with incremental migrations (v1→v2→v3→v4→v5).
 
 ---
 
@@ -70,8 +70,9 @@ Uses `package:flutter_lints/flutter.yaml` — no custom rule overrides. Standard
 lib/
 ├── main.dart                 # Entry point, MultiProvider, bottom nav
 ├── animations/               # Page transitions and list animations
+│   ├── animation_primitives.dart # AnimatedCard, CountUp, Shimmer
 │   ├── list_animations.dart
-│   └── page_transitions.dart # FadeUpPageRoute (slide-up transition)
+│   └── page_transitions.dart # FadeUpPageRoute, ScaleFadePageRoute (slide-up transition)
 ├── bloc/                     # State providers (ChangeNotifier, NOT BLoC)
 │   ├── timer_provider.dart   # Timer countdown, sets counter
 │   ├── training_provider.dart # Training mode state machine
@@ -104,8 +105,6 @@ lib/
 │   ├── training_widget.dart  # Main training UI
 │   ├── timer_widget.dart     # Timer display
 │   ├── animated_timer_widget.dart # Animated timer variant
-│   ├── rest_timer_widget.dart     # Rest timer component
-│   ├── session_stopwatch_widget.dart # Session stopwatch
 │   ├── calendar_widget.dart  # Month calendar (LayoutBuilder for exact height)
 │   ├── exercise_selector.dart     # Exercise selection with search/filter
 │   ├── muscle_selector.dart       # Muscle group selection
@@ -118,20 +117,27 @@ lib/
 │   ├── glass_widgets.dart    # CircularControlButton, PressableMixin, Flat Vitality UI
 │   ├── ui_components.dart    # SheetDragHandle, SectionHeader, InfoBanner, EmptyState
 │   ├── circular_progress_painter.dart # Progress ring painter
-│   └── completed_medal_display.dart   # Completed workout medal
+│   ├── completed_medal_display.dart   # Completed workout medal
+│   ├── touch_target.dart    # Touch target size helpers (accessibility)
+│   ├── semantics_helpers.dart # Semantic labeling helpers
+│   └── volume_trend_charts.dart # Volume trend chart widgets
 ├── theme/                    # Flat Vitality theme (3 themes: amberGold, coralOrange, skyBlue)
 │   ├── app_theme.dart        # Theme data models
 │   └── theme_provider.dart   # Theme state + persistence
 ├── services/                 # Database, notifications, repositories
-│   ├── database_helper.dart  # SQLite singleton, v4 schema, migrations
+│   ├── database_helper.dart  # SQLite singleton, v5 schema, migrations
 │   ├── notification_service.dart # Local notifications
+│   ├── notification_sound_service.dart # Notification sound playback
 │   ├── exercise_service.dart # Exercise data loading
 │   ├── exercise_matcher_service.dart # Fuzzy exercise name matching
+│   ├── exercise_favorites_service.dart # Exercise favorites CRUD
 │   ├── ai_prompt_service.dart # AI plan prompt generation
 │   ├── stats_calculator_service.dart # Strength data, volume, 1RM estimation
 │   ├── bodyweight_coefficient_service.dart # Bodyweight exercise volume estimation
+│   ├── battery_optimization_service.dart # Battery optimization request (Android)
 │   ├── user_preferences_service.dart # Training preferences persistence
 │   ├── timer_service.dart    # Android foreground service via MethodChannel
+│   ├── data_transfer_service.dart # Data export/import (JSON)
 │   ├── workout_repository.dart   # Session data
 │   ├── plan_repository.dart      # Plan CRUD
 │   └── record_repository.dart    # Record CRUD
@@ -251,8 +257,8 @@ Dark mode uses derived colors from light theme via `AppThemeData.dark` getter.
 
 ## DATABASE
 
-### Schema (v4)
-8 tables with foreign keys and indexes:
+### Schema (v5)
+9 tables with foreign keys and indexes:
 - `workout_sessions` — Legacy simple session (id, sets, rest_time_ms, created_at)
 - `exercises` — Exercise definitions (id, name, name_en, primary_muscle, secondary_muscles, equipment, level, image_url, muscle_image_url, recommended_sets/reps/rest)
 - `workout_plans` — Plan templates (id, name, target_muscles, estimated_duration)
@@ -260,6 +266,7 @@ Dark mode uses derived colors from light theme via `AppThemeData.dark` getter.
 - `calendar_plans` — Date→Plan scheduling (date, plan_id) with UNIQUE(date, plan_id)
 - `workout_records` — Detailed workout records (date, duration_seconds, trained_muscles, plan_id, plan_name, total_sets)
 - `record_exercises` — Record→Exercise join (record_id, exercise_id, completed_sets, max_weight, per_set_data)
+- `favorite_exercises` — Exercise favorites (exercise_id PK, created_at)
 
 ### Migration History
 | Version | Changes |
@@ -268,6 +275,7 @@ Dark mode uses derived colors from light theme via `AppThemeData.dark` getter.
 | v2 | Added 6 tables: exercises, workout_plans, plan_exercises, calendar_plans, workout_records, record_exercises + indexes |
 | v3 | Added `per_set_data TEXT` column to `record_exercises` (JSON-encoded SetData array) |
 | v4 | Added `unmatched_name TEXT` column to `plan_exercises` (for unmatched custom exercises) |
+| v5 | Added `favorite_exercises` table (exercise_id PK, created_at) for exercise favorites |
 
 ### Migration Rules
 - All migrations in `database_helper.dart:_onUpgrade()` — sequential `if (oldVersion < N)` blocks
@@ -391,6 +399,9 @@ expect(find.text('开始运动'), findsOneWidget);
 | AI prompt generation | `services/ai_prompt_service.dart` |
 | Stats / 1RM calculation | `services/stats_calculator_service.dart` |
 | Bodyweight volume coeff | `services/bodyweight_coefficient_service.dart` |
+| Exercise favorites | `services/exercise_favorites_service.dart` |
+| Battery optimization | `services/battery_optimization_service.dart` |
+| Data export/import | `services/data_transfer_service.dart` |
 | User preferences | `services/user_preferences_service.dart` |
 | Bottom navigation | `main.dart` (`MainNavigation` widget) |
 | AI plan wizard | `screens/ai_plan_wizard_screen.dart` |
@@ -517,7 +528,7 @@ feat: everything
 - **bloc/ naming**: Directory uses Provider (ChangeNotifier), not BLoC pattern
 - **No dependency injection**: Services instantiated inside providers
 - **Mixed comments**: Code uses both English and Chinese comments
-- **Large screen files**: `stats_screen.dart` (2549 lines), `exercise_selection_screen.dart` (811 lines), `ai_analysis_screen.dart` (1163 lines) — consider splitting
+- **Large screen files**: `stats_screen.dart` (2359 lines), `plan_form_screen.dart` (968 lines), `exercise_selection_screen.dart` (872 lines), `ai_analysis_screen.dart` (899 lines) — consider splitting
 
 ---
 
