@@ -1,9 +1,11 @@
 // 生成本地翻译文件脚本
 // 运行: dart run scripts/generate_translations.dart
 
+// ignore_for_file: avoid_print, avoid_relative_lib_imports
+
 import 'dart:convert';
 import 'dart:io';
-import '../lib/utils/fitness_vocabulary.dart';
+import 'package:workout_timer/utils/fitness_vocabulary.dart';
 
 void main() async {
   // 读取动作名称

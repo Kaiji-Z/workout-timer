@@ -1,8 +1,8 @@
-/// 健身术语中英文对照表
-/// Fitness Vocabulary - English to Chinese Translation
-///
-/// 这个文件包含所有健身相关术语的中英文对照
-/// 用于翻译运动名称和健身术语
+// 健身术语中英文对照表
+// Fitness Vocabulary - English to Chinese Translation
+//
+// 这个文件包含所有健身相关术语的中英文对照
+// 用于翻译运动名称和健身术语
 
 const Map<String, String> fitnessVocabulary = {
   // ==================== 器械 Equipment ====================

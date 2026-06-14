@@ -1,6 +1,8 @@
 // 批量翻译动作名称脚本
 // 运行: dart run scripts/translate_exercises.dart
 
+// ignore_for_file: avoid_print
+
 import 'dart:convert';
 import 'dart:io';
 

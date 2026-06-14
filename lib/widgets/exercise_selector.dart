@@ -1091,7 +1091,6 @@ class _FullscreenImageGallery extends StatefulWidget {
   final String title;
 
   const _FullscreenImageGallery({
-    super.key,
     required this.images,
     required this.initialIndex,
     required this.title,

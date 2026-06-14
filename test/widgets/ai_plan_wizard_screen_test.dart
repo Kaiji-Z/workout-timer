@@ -28,7 +28,7 @@ void main() {
             ChangeNotifierProvider.value(value: themeProvider),
             ChangeNotifierProvider(create: (_) => PlanProvider()),
           ],
-          child: const MaterialApp(home: const AIPlanWizardScreen()),
+          child: const MaterialApp(home: AIPlanWizardScreen()),
         ),
       );
 
@@ -48,7 +48,7 @@ void main() {
             ChangeNotifierProvider.value(value: themeProvider),
             ChangeNotifierProvider(create: (_) => PlanProvider()),
           ],
-          child: const MaterialApp(home: const AIPlanWizardScreen()),
+          child: const MaterialApp(home: AIPlanWizardScreen()),
         ),
       );
 
@@ -69,7 +69,7 @@ void main() {
             ChangeNotifierProvider.value(value: themeProvider),
             ChangeNotifierProvider(create: (_) => PlanProvider()),
           ],
-          child: const MaterialApp(home: const AIPlanWizardScreen()),
+          child: const MaterialApp(home: AIPlanWizardScreen()),
         ),
       );
 

@@ -805,8 +805,10 @@ class _TrainingWidgetState extends State<TrainingWidget>
         }
 
         // 保存带详细动作的记录
+        if (!context.mounted) return;
+        final recordProvider = context.read<RecordProvider>();
         final record = progressProvider.generateRecord();
-        await context.read<RecordProvider>().saveRecord(record);
+        await recordProvider.saveRecord(record);
 
         training.resetWorkout();
         progressProvider.endPlan();
