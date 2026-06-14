@@ -74,3 +74,8 @@ nul
 
 # OpenCode internal state
 .omo/
+
+# Local-only design artifacts
+.impeccable.md
+/docs/plans/
+/docs/references/
