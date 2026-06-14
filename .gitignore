@@ -2,6 +2,7 @@
 *.class
 *.log
 *.pyc
+__pycache__/
 *.swp
 .DS_Store
 .atom/
@@ -50,8 +51,6 @@ app.*.map.json
 *.keystore
 
 # Temporary files
-*.png
-!android/app/src/main/res/**/*.png
 nul
 *.html
 !web/**/*.html
