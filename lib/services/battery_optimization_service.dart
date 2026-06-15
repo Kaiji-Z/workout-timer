@@ -8,6 +8,9 @@ import 'package:flutter/services.dart';
 /// allows background activity. This service provides:
 /// - [isIgnoringBatteryOptimizations]: Check if app is whitelisted
 /// - [requestIgnoreBatteryOptimizations]: Show system dialog to whitelist app
+/// - [getOemManufacturer]: Detect Chinese OEM manufacturer (huawei/xiaomi/...)
+/// - [isOemAutoStartAvailable]: Check if OEM-specific settings exist
+/// - [requestOemAutoStart]: Open OEM-specific auto-start settings page
 class BatteryOptimizationService {
   static const _channel = MethodChannel('com.kaiji.workouttimer/timer_service');
 
@@ -37,6 +40,51 @@ class BatteryOptimizationService {
       return result ?? false;
     } on PlatformException catch (e) {
       debugPrint('Failed to request battery optimization: $e');
+      return false;
+    }
+  }
+
+  /// Returns the OEM manufacturer name (e.g., "huawei", "xiaomi") or null for
+  /// stock Android.
+  ///
+  /// Used to determine if OEM-specific battery settings are needed.
+  static Future<String?> getOemManufacturer() async {
+    if (kIsWeb || !defaultTargetPlatform.isAndroid) return null;
+    try {
+      final result = await _channel.invokeMethod<String>('getOemManufacturer');
+      return result;
+    } on PlatformException catch (e) {
+      debugPrint('Failed to get OEM manufacturer: $e');
+      return null;
+    }
+  }
+
+  /// Checks if OEM-specific auto-start/battery settings are available on this
+  /// device.
+  ///
+  /// Returns true for Chinese OEMs (华为/小米/OPPO/vivo/魅族/三星/OnePlus).
+  static Future<bool> isOemAutoStartAvailable() async {
+    if (kIsWeb || !defaultTargetPlatform.isAndroid) return false;
+    try {
+      final result =
+          await _channel.invokeMethod<bool>('isOemAutoStartAvailable');
+      return result ?? false;
+    } on PlatformException catch (e) {
+      debugPrint('Failed to check OEM auto-start availability: $e');
+      return false;
+    }
+  }
+
+  /// Opens the OEM-specific auto-start/battery settings page.
+  ///
+  /// Returns true if the settings page was successfully opened.
+  static Future<bool> requestOemAutoStart() async {
+    if (kIsWeb || !defaultTargetPlatform.isAndroid) return false;
+    try {
+      final result = await _channel.invokeMethod<bool>('requestOemAutoStart');
+      return result ?? false;
+    } on PlatformException catch (e) {
+      debugPrint('Failed to request OEM auto-start: $e');
       return false;
     }
   }
