@@ -34,7 +34,33 @@ class _SettingsScreenState extends State<SettingsScreen>
   String _customMessage = '准备开始下一组！';
   String _selectedSound = 'default';
   bool _isBatteryOptimizationIgnored = true; // Default true (non-Android)
+  String? _oemManufacturer;
+  bool _oemAutoStartAvailable = false;
   late final TextEditingController _messageController;
+
+  /// OEM manufacturer code -> Chinese display name.
+  static const Map<String, String> _oemDisplayNames = {
+    'huawei': '华为',
+    'honor': '荣耀',
+    'xiaomi': '小米',
+    'oppo': 'OPPO',
+    'vivo': 'vivo',
+    'meizu': '魅族',
+    'samsung': '三星',
+    'oneplus': '一加',
+  };
+
+  /// OEM manufacturer code -> step-by-step instruction text.
+  static const Map<String, String> _oemInstructions = {
+    'huawei': '在「应用启动管理」中找到撜铁计时器，关闭「自动管理」，手动开启全部三个开关',
+    'honor': '在「应用启动管理」中找到撜铁计时器，关闭「自动管理」，手动开启全部三个开关',
+    'xiaomi': '在「自启动管理」中找到撜铁计时器，开启自启动开关。然后在「省电策略」中选择「无限制」',
+    'oppo': '在「自启动管理」中找到撜铁计时器，允许自启动',
+    'vivo': '在「后台高耗电」或「自启动」中找到撜铁计时器，允许后台运行',
+    'meizu': '在「智能休眠」或「后台管理」中找到撜铁计时器，允许后台运行',
+    'samsung': '在「电池」设置中找到撜铁计时器，选择「不受限制」',
+    'oneplus': '在「电池优化」高级设置中找到撜铁计时器，选择「不优化」',
+  };
 
   @override
   void initState() {
@@ -55,7 +81,25 @@ class _SettingsScreenState extends State<SettingsScreen>
           }
         },
       );
+      _checkOemStatus();
     }
+  }
+
+  /// Checks OEM-specific battery/auto-start settings (Chinese OEMs only).
+  ///
+  /// Updates [_oemManufacturer] and [_oemAutoStartAvailable] when the device is
+  /// a Chinese OEM (华为/小米/OPPO/vivo/魅族/三星/OnePlus).
+  void _checkOemStatus() {
+    BatteryOptimizationService.getOemManufacturer().then((oem) {
+      if (!mounted || oem == null) return;
+      BatteryOptimizationService.isOemAutoStartAvailable().then((available) {
+        if (!mounted) return;
+        setState(() {
+          _oemManufacturer = oem;
+          _oemAutoStartAvailable = available;
+        });
+      });
+    });
   }
 
   @override
@@ -84,6 +128,8 @@ class _SettingsScreenState extends State<SettingsScreen>
       if (mounted) {
         setState(() => _isBatteryOptimizationIgnored = ignored);
       }
+      // Check OEM-specific battery settings
+      _checkOemStatus();
     }
   }
 
@@ -293,6 +339,8 @@ class _SettingsScreenState extends State<SettingsScreen>
               ),
             ),
             const SizedBox(height: 24),
+            if (_oemManufacturer != null && _oemAutoStartAvailable)
+              ..._buildOemSection(_oemManufacturer, theme),
           ],
 
           // Appearance Settings
@@ -909,6 +957,119 @@ class _SettingsScreenState extends State<SettingsScreen>
       ),
       child: child,
     );
+  }
+
+  /// Builds the OEM-specific battery settings section (Chinese OEMs only).
+  ///
+  /// Shows manufacturer-specific step-by-step instructions and a button to
+  /// open the OEM settings page. Returns an empty list when [manufacturer]
+  /// is null (defensive guard — the build method already checks non-null).
+  List<Widget> _buildOemSection(String? manufacturer, AppThemeData theme) {
+    if (manufacturer == null) return const [];
+    final displayName = _oemDisplayNames[manufacturer] ?? manufacturer;
+    final instruction = _oemInstructions[manufacturer] ??
+        '请在系统设置中允许本应用自启动和后台运行';
+
+    return [
+      _buildSectionHeader('厂商后台管理', theme),
+      _buildSettingsCard(
+        theme: theme,
+        padding: const EdgeInsets.all(AppDimensions.screenPadding),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Title row with manufacturer name
+            Row(
+              children: [
+                Icon(
+                  Icons.phone_android,
+                  size: 20,
+                  color: theme.accentColor,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    '$displayName手机省电管理',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: theme.textColor,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            // Explanation text
+            Text(
+              '您的$displayName手机有独立的省电管理，标准电池优化白名单可能不够。'
+              '请点击下方按钮，在打开的设置页面中允许本应用自启动/后台运行。',
+              style: TextStyle(
+                fontSize: 13,
+                height: 1.5,
+                color: theme.secondaryTextColor,
+              ),
+            ),
+            const SizedBox(height: 12),
+            // Step-by-step instructions box
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: theme.accentColor.withValues(alpha: 0.08),
+                borderRadius:
+                    BorderRadius.circular(AppDimensions.radiusMd),
+                border: Border.all(
+                  color: theme.accentColor.withValues(alpha: 0.2),
+                ),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(
+                    Icons.checklist,
+                    size: 16,
+                    color: theme.accentColor,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      instruction,
+                      style: TextStyle(
+                        fontSize: 13,
+                        height: 1.5,
+                        color: theme.textColor,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            // Action button to open OEM settings
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: () {
+                  BatteryOptimizationService.requestOemAutoStart();
+                },
+                icon: const Icon(Icons.open_in_new, size: 18),
+                label: Text('前往$displayName设置'),
+                style: FilledButton.styleFrom(
+                  backgroundColor: theme.accentColor,
+                  foregroundColor: theme.onAccentColor,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius:
+                        BorderRadius.circular(AppDimensions.radiusMd),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      const SizedBox(height: 24),
+    ];
   }
 
   Widget _buildSettingsSwitch(
