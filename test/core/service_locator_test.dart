@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:workout_timer/core/service_locator.dart';
+import 'package:workout_timer/services/error_reporter_service.dart';
 import 'package:workout_timer/services/notification_service.dart';
 import 'package:workout_timer/services/plan_repository.dart';
 import 'package:workout_timer/services/record_repository.dart';
@@ -8,7 +9,7 @@ import 'package:workout_timer/services/user_preferences_service.dart';
 import 'package:workout_timer/services/workout_repository.dart';
 
 void main() {
-  // ServiceLocator holds static state — isolate each test with a fresh slate.
+  // ServiceLocator holds static state - isolate each test with a fresh slate.
   setUp(ServiceLocator.reset);
   tearDown(ServiceLocator.reset);
 
@@ -65,7 +66,7 @@ void main() {
       expect(callCount, 1);
     });
 
-    test('caches the instance — factory runs only once', () {
+    test('caches the instance - factory runs only once', () {
       var callCount = 0;
       ServiceLocator.registerLazy<PlanRepository>(() {
         callCount++;
@@ -96,6 +97,7 @@ void main() {
       expect(ServiceLocator.get<PlanRepository>(), isNotNull);
       expect(ServiceLocator.get<RecordRepository>(), isNotNull);
       expect(ServiceLocator.get<StatsCalculatorService>(), isNotNull);
+      expect(ServiceLocator.get<ErrorReporter>(), isNotNull);
     });
 
     test('UserPreferencesService is registered lazily', () {
@@ -107,7 +109,7 @@ void main() {
       expect(second, same(first));
     });
 
-    test('is idempotent — calling setup twice yields fresh instances', () {
+    test('is idempotent - calling setup twice yields fresh instances', () {
       ServiceLocator.setup();
       final firstRepo = ServiceLocator.get<WorkoutRepository>();
 

@@ -32,7 +32,7 @@ void main() {
     List<PrimaryMuscleGroup> trainedMuscles = const [],
   }) {
     return WorkoutRecord(
-      id: '${date.toIso8601String()}',
+      id: date.toIso8601String(),
       date: date,
       durationSeconds: durationSeconds,
       trainedMuscles: trainedMuscles,

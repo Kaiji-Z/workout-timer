@@ -18,6 +18,7 @@ import 'theme/theme_provider.dart';
 import 'theme/app_theme.dart';
 import 'utils/dimensions.dart';
 import 'services/notification_service.dart';
+import 'services/error_reporter_service.dart';
 import 'services/exercise_service.dart';
 import 'services/timer_service.dart';
 
@@ -32,6 +33,12 @@ void main() async {
 
   // Register all service dependencies for DI (before any Provider is created)
   ServiceLocator.setup();
+
+  // Wire the global ScaffoldMessenger key into ErrorReporter so data-loss
+  // failures can surface a SnackBar to the user without a BuildContext.
+  final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
+  ServiceLocator.get<ErrorReporter>().scaffoldMessengerKey =
+      scaffoldMessengerKey;
 
   // Load exercise data from assets
   try {
@@ -62,13 +69,23 @@ void main() async {
     TimerService.initialize();
   }
 
-  runApp(MyApp(themeProvider: themeProvider));
+  runApp(
+    MyApp(
+      themeProvider: themeProvider,
+      scaffoldMessengerKey: scaffoldMessengerKey,
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
   final ThemeProvider themeProvider;
+  final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey;
 
-  const MyApp({super.key, required this.themeProvider});
+  const MyApp({
+    super.key,
+    required this.themeProvider,
+    required this.scaffoldMessengerKey,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -86,6 +103,7 @@ class MyApp extends StatelessWidget {
         builder: (context, themeProvider, child) {
           return MaterialApp(
             title: '撸铁计时器',
+            scaffoldMessengerKey: scaffoldMessengerKey,
             theme: themeProvider.currentTheme.toThemeData(),
             home: MainNavigation(key: MainNavigation.globalKey),
           );
