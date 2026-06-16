@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
 import '../models/set_data.dart';
 import '../models/exercise.dart';
 import '../services/bodyweight_coefficient_service.dart';
@@ -138,7 +139,9 @@ class _WeightInputDialogState extends State<WeightInputDialog> {
               focusNode: _weightFocus,
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
-                labelText: _isBodyweight ? '附加重量(kg)' : '重量(kg)',
+                labelText: _isBodyweight
+                    ? AppLocalizations.of(context)!.recAddedWeightKg
+                    : AppLocalizations.of(context)!.recWeightKg,
                 labelStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
                   color: theme.secondaryTextColor,
                 ),
@@ -167,7 +170,7 @@ class _WeightInputDialogState extends State<WeightInputDialog> {
               focusNode: _repsFocus,
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
-                labelText: '次数',
+                labelText: AppLocalizations.of(context)!.recReps,
                 labelStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
                   color: theme.secondaryTextColor,
                 ),
@@ -197,7 +200,7 @@ class _WeightInputDialogState extends State<WeightInputDialog> {
                     Navigator.of(context).pop(null);
                   },
                   child: Text(
-                    '跳过',
+                    AppLocalizations.of(context)!.recSkip,
                     style: Theme.of(context).textTheme.labelLarge!.copyWith(
                       color: theme.secondaryTextColor,
                     ),
@@ -232,8 +235,10 @@ class _WeightInputDialogState extends State<WeightInputDialog> {
                     } else {
                       // 简单验证
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('请输入有效的重量和次数'),
+                        SnackBar(
+                          content: Text(
+                            AppLocalizations.of(context)!.recInvalidInput,
+                          ),
                           behavior: SnackBarBehavior.floating,
                         ),
                       );

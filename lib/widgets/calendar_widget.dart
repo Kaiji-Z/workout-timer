@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
 import '../theme/theme_provider.dart';
 import '../providers/plan_provider.dart';
 
@@ -98,7 +99,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
       children: [
         // 上个月
         IconButton(
-          tooltip: '上个月',
+          tooltip: AppLocalizations.of(context)!.calPrevMonth,
           onPressed: () {
             setState(() {
               _currentMonth = DateTime(
@@ -120,7 +121,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
 
         // 下个月
         IconButton(
-          tooltip: '下个月',
+          tooltip: AppLocalizations.of(context)!.calNextMonth,
           onPressed: () {
             setState(() {
               _currentMonth = DateTime(

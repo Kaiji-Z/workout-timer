@@ -337,6 +337,120 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'训练已保存：完成{sets}组，总时长 {duration}'**
   String trainingSavedCompleted(int sets, String duration);
+
+  /// No description provided for @notifNextSet.
+  ///
+  /// In zh, this message translates to:
+  /// **'准备开始下一组！'**
+  String get notifNextSet;
+
+  /// No description provided for @notifRestDone.
+  ///
+  /// In zh, this message translates to:
+  /// **'休息结束！'**
+  String get notifRestDone;
+
+  /// No description provided for @soundDefault.
+  ///
+  /// In zh, this message translates to:
+  /// **'默认'**
+  String get soundDefault;
+
+  /// No description provided for @soundBeep.
+  ///
+  /// In zh, this message translates to:
+  /// **'哔声'**
+  String get soundBeep;
+
+  /// No description provided for @soundRing.
+  ///
+  /// In zh, this message translates to:
+  /// **'铃声'**
+  String get soundRing;
+
+  /// No description provided for @soundChime.
+  ///
+  /// In zh, this message translates to:
+  /// **'钟声'**
+  String get soundChime;
+
+  /// No description provided for @soundWhistle.
+  ///
+  /// In zh, this message translates to:
+  /// **'哨声'**
+  String get soundWhistle;
+
+  /// No description provided for @recReps.
+  ///
+  /// In zh, this message translates to:
+  /// **'次数'**
+  String get recReps;
+
+  /// No description provided for @recSkip.
+  ///
+  /// In zh, this message translates to:
+  /// **'跳过'**
+  String get recSkip;
+
+  /// No description provided for @recSave.
+  ///
+  /// In zh, this message translates to:
+  /// **'保存'**
+  String get recSave;
+
+  /// No description provided for @recWeightKg.
+  ///
+  /// In zh, this message translates to:
+  /// **'重量 (kg)'**
+  String get recWeightKg;
+
+  /// No description provided for @recAddedWeightKg.
+  ///
+  /// In zh, this message translates to:
+  /// **'附加重量 (kg)'**
+  String get recAddedWeightKg;
+
+  /// No description provided for @recBodyweightOnly.
+  ///
+  /// In zh, this message translates to:
+  /// **'0 = 纯自重'**
+  String get recBodyweightOnly;
+
+  /// No description provided for @recInvalidInput.
+  ///
+  /// In zh, this message translates to:
+  /// **'请输入有效的重量和次数'**
+  String get recInvalidInput;
+
+  /// No description provided for @recRecordData.
+  ///
+  /// In zh, this message translates to:
+  /// **'记录训练数据'**
+  String get recRecordData;
+
+  /// No description provided for @recScrollHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'滚动选择次数，输入重量'**
+  String get recScrollHint;
+
+  /// No description provided for @recAdded.
+  ///
+  /// In zh, this message translates to:
+  /// **'附加'**
+  String get recAdded;
+
+  /// No description provided for @calPrevMonth.
+  ///
+  /// In zh, this message translates to:
+  /// **'上个月'**
+  String get calPrevMonth;
+
+  /// No description provided for @calNextMonth.
+  ///
+  /// In zh, this message translates to:
+  /// **'下个月'**
+  String get calNextMonth;
 }
 
 class _AppLocalizationsDelegate

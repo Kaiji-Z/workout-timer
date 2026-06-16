@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
 import '../models/set_data.dart';
 import '../models/exercise.dart';
 import '../services/bodyweight_coefficient_service.dart';
@@ -135,7 +136,7 @@ class _SetRecordDialogState extends State<SetRecordDialog> {
 
             // 次数选择器
             Text(
-              '次数',
+              AppLocalizations.of(context)!.recReps,
               style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -212,7 +213,9 @@ class _SetRecordDialogState extends State<SetRecordDialog> {
 
             // 重量输入
             Text(
-              _isBodyweight ? '附加重量 (kg)' : '重量 (kg)',
+              _isBodyweight
+                  ? AppLocalizations.of(context)!.recAddedWeightKg
+                  : AppLocalizations.of(context)!.recWeightKg,
               style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -227,7 +230,9 @@ class _SetRecordDialogState extends State<SetRecordDialog> {
                 decimal: true,
               ),
               decoration: InputDecoration(
-                hintText: _isBodyweight ? '0 = 纯自重' : '0',
+                hintText: _isBodyweight
+                    ? AppLocalizations.of(context)!.recBodyweightOnly
+                    : '0',
                 hintStyle: Theme.of(context).textTheme.bodyLarge!.copyWith(
                   color: theme.secondaryTextColor.withValues(alpha: 0.5),
                 ),
@@ -270,7 +275,7 @@ class _SetRecordDialogState extends State<SetRecordDialog> {
                       ),
                     ),
                     child: Text(
-                      '跳过',
+                      AppLocalizations.of(context)!.recSkip,
                       style: Theme.of(context).textTheme.titleLarge!.copyWith(
                         fontSize: 15,
                         color: theme.secondaryTextColor,
@@ -295,10 +300,8 @@ class _SetRecordDialogState extends State<SetRecordDialog> {
                       ),
                     ),
                     child: Text(
-                      '保存',
-                      style: Theme.of(
-                        context,
-                      ).textTheme.titleLarge!.copyWith(
+                      AppLocalizations.of(context)!.recSave,
+                      style: Theme.of(context).textTheme.titleLarge!.copyWith(
                         fontSize: 15,
                         color: theme.onAccentColor,
                       ),
