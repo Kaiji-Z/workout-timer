@@ -1,13 +1,23 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import '../core/service_locator.dart';
 import '../services/notification_service.dart';
 import '../services/timer_service.dart';
 import '../services/workout_repository.dart';
 
 class TimerProvider extends ChangeNotifier {
-  final NotificationService _notificationService = NotificationService();
-  final WorkoutRepository _repository = WorkoutRepository();
+  final NotificationService _notificationService;
+  final WorkoutRepository _repository;
+
+  /// Dependencies default to the [ServiceLocator] registry for production use;
+  /// tests pass mocks via this constructor.
+  TimerProvider({
+    NotificationService? notificationService,
+    WorkoutRepository? repository,
+  }) : _notificationService =
+           notificationService ?? ServiceLocator.get<NotificationService>(),
+       _repository = repository ?? ServiceLocator.get<WorkoutRepository>();
 
   Timer? _timer;
   int _remainingSeconds = 60;
@@ -16,8 +26,10 @@ class TimerProvider extends ChangeNotifier {
   final int _totalPlannedSets = 5;
   int _currentSessionRestTime = 0;
   int _selectedPresetIndex = 1;
-  DateTime? _countdownStartTime; // When current countdown started (web fallback)
-  int _countdownDuration = 60; // Full duration of current countdown (web fallback)
+  DateTime?
+  _countdownStartTime; // When current countdown started (web fallback)
+  int _countdownDuration =
+      60; // Full duration of current countdown (web fallback)
 
   final List<int> presetTimes = [30, 60, 90, 120];
 
@@ -111,36 +123,40 @@ class TimerProvider extends ChangeNotifier {
     _timer = null;
 
     if (_canUsePlatformServices && _countdownStartTime != null) {
-      TimerService.getRemainingTime().then((nativeState) {
-        // State guard: only act if still running (prevent double transition)
-        if (!_isRunning) return;
+      TimerService.getRemainingTime()
+          .then((nativeState) {
+            // State guard: only act if still running (prevent double transition)
+            if (!_isRunning) return;
 
-        if (nativeState['completed'] == true) {
-          _onTimerEnd();
-          return;
-        }
+            if (nativeState['completed'] == true) {
+              _onTimerEnd();
+              return;
+            }
 
-        final nativeRemaining = nativeState['remaining'] as int? ?? 0;
-        if (nativeRemaining > 0) {
-          _remainingSeconds = nativeRemaining;
-          _currentSessionRestTime =
-              _countdownDuration - nativeRemaining;
-          // Restart polling timer
-          _timer = Timer.periodic(const Duration(seconds: 1), _tick);
-          notifyListeners();
-        }
-      }).catchError((e) {
-        debugPrint('Native timer poll error on resume: $e');
-        // Fallback: restart polling timer anyway
-        _timer = Timer.periodic(const Duration(seconds: 1), _tick);
-      });
+            final nativeRemaining = nativeState['remaining'] as int? ?? 0;
+            if (nativeRemaining > 0) {
+              _remainingSeconds = nativeRemaining;
+              _currentSessionRestTime = _countdownDuration - nativeRemaining;
+              // Restart polling timer
+              _timer = Timer.periodic(const Duration(seconds: 1), _tick);
+              notifyListeners();
+            }
+          })
+          .catchError((e) {
+            debugPrint('Native timer poll error on resume: $e');
+            // Fallback: restart polling timer anyway
+            _timer = Timer.periodic(const Duration(seconds: 1), _tick);
+          });
     } else {
       // Web fallback: recalculate from DateTime
       if (_countdownStartTime != null) {
-        final elapsed =
-            DateTime.now().difference(_countdownStartTime!).inSeconds;
-        _remainingSeconds =
-            (_countdownDuration - elapsed).clamp(0, _countdownDuration);
+        final elapsed = DateTime.now()
+            .difference(_countdownStartTime!)
+            .inSeconds;
+        _remainingSeconds = (_countdownDuration - elapsed).clamp(
+          0,
+          _countdownDuration,
+        );
         _currentSessionRestTime = elapsed.clamp(0, _countdownDuration);
       }
       _timer = Timer.periodic(const Duration(seconds: 1), _tick);
@@ -191,10 +207,13 @@ class TimerProvider extends ChangeNotifier {
     } else {
       // Web fallback: DateTime-based calculation
       if (_countdownStartTime != null) {
-        final elapsed =
-            DateTime.now().difference(_countdownStartTime!).inSeconds;
-        _remainingSeconds =
-            (_countdownDuration - elapsed).clamp(0, _countdownDuration);
+        final elapsed = DateTime.now()
+            .difference(_countdownStartTime!)
+            .inSeconds;
+        _remainingSeconds = (_countdownDuration - elapsed).clamp(
+          0,
+          _countdownDuration,
+        );
       }
     }
 

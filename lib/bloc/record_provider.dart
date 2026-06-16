@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import '../core/service_locator.dart';
 import '../models/workout_record.dart';
 
 import '../models/muscle_group.dart';
@@ -8,7 +9,11 @@ import '../models/exercise.dart';
 
 /// 训练记录状态管理
 class RecordProvider extends ChangeNotifier {
-  final RecordRepository _repository = RecordRepository();
+  final RecordRepository _repository;
+
+  /// [repository] defaults to the [ServiceLocator] registry; tests inject a mock.
+  RecordProvider({RecordRepository? repository})
+    : _repository = repository ?? ServiceLocator.get<RecordRepository>();
 
   static List<Exercise>? _cachedExercises;
 
