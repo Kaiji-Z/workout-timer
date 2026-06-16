@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
 import '../models/set_data.dart';
 import '../models/workout_plan.dart';
 import '../services/bodyweight_coefficient_service.dart';
@@ -169,7 +170,7 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
           children: [
             // 标题
             Text(
-              '记录训练数据',
+              AppLocalizations.of(context)!.recRecordData,
               style: Theme.of(context).textTheme.headlineLarge!.copyWith(
                 fontSize: 22,
                 color: theme.textColor,
@@ -178,7 +179,7 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
             const SizedBox(height: 8),
             // 副标题
             Text(
-              '滚动选择次数，输入重量',
+              AppLocalizations.of(context)!.recScrollHint,
               style: Theme.of(
                 context,
               ).textTheme.bodyMedium!.copyWith(color: theme.secondaryTextColor),
@@ -216,7 +217,7 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
                     Navigator.of(context).pop(null);
                   },
                   child: Text(
-                    '跳过',
+                    AppLocalizations.of(context)!.recSkip,
                     style: Theme.of(context).textTheme.labelLarge!.copyWith(
                       color: theme.secondaryTextColor,
                     ),
@@ -239,7 +240,7 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
                     ),
                   ),
                   child: Text(
-                    '保存',
+                    AppLocalizations.of(context)!.recSave,
                     style: Theme.of(
                       context,
                     ).textTheme.titleLarge!.copyWith(fontSize: 14),
@@ -401,7 +402,9 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
                   controller: weightController,
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
-                    hintText: isBw ? '附加' : '0',
+                    hintText: isBw
+                        ? AppLocalizations.of(context)!.recAdded
+                        : '0',
                     hintStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
                       color: theme.secondaryTextColor,
                     ),

@@ -153,4 +153,61 @@ class AppLocalizationsZh extends AppLocalizations {
   String trainingSavedCompleted(int sets, String duration) {
     return '训练已保存：完成$sets组，总时长 $duration';
   }
+
+  @override
+  String get notifNextSet => '准备开始下一组！';
+
+  @override
+  String get notifRestDone => '休息结束！';
+
+  @override
+  String get soundDefault => '默认';
+
+  @override
+  String get soundBeep => '哔声';
+
+  @override
+  String get soundRing => '铃声';
+
+  @override
+  String get soundChime => '钟声';
+
+  @override
+  String get soundWhistle => '哨声';
+
+  @override
+  String get recReps => '次数';
+
+  @override
+  String get recSkip => '跳过';
+
+  @override
+  String get recSave => '保存';
+
+  @override
+  String get recWeightKg => '重量 (kg)';
+
+  @override
+  String get recAddedWeightKg => '附加重量 (kg)';
+
+  @override
+  String get recBodyweightOnly => '0 = 纯自重';
+
+  @override
+  String get recInvalidInput => '请输入有效的重量和次数';
+
+  @override
+  String get recRecordData => '记录训练数据';
+
+  @override
+  String get recScrollHint => '滚动选择次数，输入重量';
+
+  @override
+  String get recAdded => '附加';
+
+  @override
+  String get calPrevMonth => '上个月';
+
+  @override
+  String get calNextMonth => '下个月';
 }

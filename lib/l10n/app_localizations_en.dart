@@ -153,4 +153,61 @@ class AppLocalizationsEn extends AppLocalizations {
   String trainingSavedCompleted(int sets, String duration) {
     return 'Saved: $sets sets complete, $duration total';
   }
+
+  @override
+  String get notifNextSet => 'Get ready for the next set!';
+
+  @override
+  String get notifRestDone => 'Rest time over!';
+
+  @override
+  String get soundDefault => 'Default';
+
+  @override
+  String get soundBeep => 'Beep';
+
+  @override
+  String get soundRing => 'Ring';
+
+  @override
+  String get soundChime => 'Chime';
+
+  @override
+  String get soundWhistle => 'Whistle';
+
+  @override
+  String get recReps => 'Reps';
+
+  @override
+  String get recSkip => 'Skip';
+
+  @override
+  String get recSave => 'Save';
+
+  @override
+  String get recWeightKg => 'Weight (kg)';
+
+  @override
+  String get recAddedWeightKg => 'Added Weight (kg)';
+
+  @override
+  String get recBodyweightOnly => '0 = bodyweight only';
+
+  @override
+  String get recInvalidInput => 'Please enter valid weight and reps';
+
+  @override
+  String get recRecordData => 'Record Workout Data';
+
+  @override
+  String get recScrollHint => 'Scroll to select reps, enter weight';
+
+  @override
+  String get recAdded => 'Added';
+
+  @override
+  String get calPrevMonth => 'Previous month';
+
+  @override
+  String get calNextMonth => 'Next month';
 }
