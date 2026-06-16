@@ -36,7 +36,7 @@ dependencies:
   path: any
   string_similarity: ^2.1.1
 
-  fl_chart: ^0.69.0
+  fl_chart: ^1.0.0
   fuzzy: ^0.5.1
 
   path_provider: ^2.1.0
