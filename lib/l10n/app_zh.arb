@@ -1,0 +1,17 @@
+{
+  "@@locale": "zh",
+  "appTitle": "撸铁计时器",
+  "@appTitle": {
+    "description": "应用名称"
+  },
+  "navPlans": "训练计划",
+  "@navPlans": {},
+  "navHistory": "历史记录",
+  "@navHistory": {},
+  "navStats": "训练统计",
+  "@navStats": {},
+  "navSettings": "设置",
+  "@navSettings": {},
+  "navTimer": "训练计时器",
+  "@navTimer": {}
+}

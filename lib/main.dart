@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'l10n/app_localizations.dart';
 import 'core/service_locator.dart';
 import 'screens/timer_screen.dart';
 import 'screens/settings_screen.dart';
@@ -105,6 +106,8 @@ class MyApp extends StatelessWidget {
             title: '撸铁计时器',
             scaffoldMessengerKey: scaffoldMessengerKey,
             theme: themeProvider.currentTheme.toThemeData(),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
             home: MainNavigation(key: MainNavigation.globalKey),
           );
         },

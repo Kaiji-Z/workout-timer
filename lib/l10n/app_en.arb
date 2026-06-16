@@ -1,0 +1,9 @@
+{
+  "@@locale": "en",
+  "appTitle": "Iron Timer",
+  "navPlans": "Plans",
+  "navHistory": "History",
+  "navStats": "Stats",
+  "navSettings": "Settings",
+  "navTimer": "Timer"
+}
