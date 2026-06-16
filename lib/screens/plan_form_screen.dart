@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
@@ -474,7 +475,9 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
       color: Colors.transparent,
       child: InkWell(
         onTap: () {
-          final allSelected = muscles.every((m) => _selectedMuscles.contains(m));
+          final allSelected = muscles.every(
+            (m) => _selectedMuscles.contains(m),
+          );
           setState(() {
             if (allSelected) {
               // 全部已选 → 移除该组
@@ -900,9 +903,9 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
                 ),
                 child: Text(
                   '上一步',
-                  style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                    fontSize: 15,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge!.copyWith(fontSize: 15),
                 ),
               ),
               const SizedBox(width: 12),
@@ -1034,26 +1037,17 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
     }
   }
 
-  /// 比较两个列表是否相等（按顺序逐元素比较）
-  bool _listEquals<T>(List<T> a, List<T> b) {
-    if (a.length != b.length) return false;
-    for (int i = 0; i < a.length; i++) {
-      if (a[i] != b[i]) return false;
-    }
-    return true;
-  }
-
   /// 检查是否有未保存的更改
   Future<bool> _hasUnsavedChanges() async {
     // 编辑模式：与原始计划比较
     if (isEditMode) {
       final original = widget.plan!;
       final nameChanged = _nameController.text.trim() != original.name;
-      final musclesChanged = !_listEquals(
+      final musclesChanged = !listEquals(
         _selectedMuscles,
         original.targetMuscles,
       );
-      final exercisesChanged = !_listEquals(
+      final exercisesChanged = !listEquals(
         _selectedExercises,
         original.exercises,
       );
