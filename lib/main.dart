@@ -218,6 +218,7 @@ class _MainNavigationState extends State<MainNavigation> {
   @override
   Widget build(BuildContext context) {
     final appTheme = context.watch<ThemeProvider>().currentTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       // 使用半透明背景
@@ -294,14 +295,14 @@ class _MainNavigationState extends State<MainNavigation> {
                     Icons.fitness_center_outlined,
                     Icons.fitness_center,
                     appTheme,
-                    '训练计划',
+                    l10n.navPlans,
                   ),
                   _buildNavItem(
                     1,
                     Icons.history_outlined,
                     Icons.history,
                     appTheme,
-                    '历史记录',
+                    l10n.navHistory,
                   ),
                   // Index 2: 空白占位，中心圆形按钮通过 Positioned 覆盖此区域
                   const Expanded(child: SizedBox()),
@@ -310,14 +311,14 @@ class _MainNavigationState extends State<MainNavigation> {
                     Icons.bar_chart_outlined,
                     Icons.bar_chart,
                     appTheme,
-                    '训练统计',
+                    l10n.navStats,
                   ),
                   _buildNavItem(
                     4,
                     Icons.settings_outlined,
                     Icons.settings,
                     appTheme,
-                    '设置',
+                    l10n.navSettings,
                   ),
                 ],
               ),
@@ -389,7 +390,7 @@ class _MainNavigationState extends State<MainNavigation> {
     final isSelected = _currentIndex == 2;
 
     return Semantics(
-      label: '训练计时器',
+      label: '训练计时器', // TODO(l10n): needs context
       button: true,
       child: Material(
         color: Colors.transparent,

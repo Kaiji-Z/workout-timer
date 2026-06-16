@@ -7,6 +7,7 @@ import 'package:workout_timer/providers/plan_provider.dart';
 import 'package:workout_timer/providers/training_progress_provider.dart';
 import 'package:workout_timer/core/service_locator.dart';
 import 'package:workout_timer/theme/theme_provider.dart';
+import 'package:workout_timer/l10n/app_localizations.dart';
 import 'package:workout_timer/widgets/training_widget.dart';
 
 void main() {
@@ -34,7 +35,12 @@ void main() {
           ChangeNotifierProvider.value(value: progressProvider),
           ChangeNotifierProvider(create: (_) => TimerProvider()),
         ],
-        child: const MaterialApp(home: TrainingWidget()),
+        child: MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale("zh"),
+          home: const TrainingWidget(),
+        ),
       ),
     );
 

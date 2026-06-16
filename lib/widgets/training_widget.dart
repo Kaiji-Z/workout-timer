@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../providers/training_provider.dart';
 import '../utils/dimensions.dart';
@@ -135,7 +136,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
           // Centered title
           Expanded(
             child: Text(
-              '训练计时器',
+              AppLocalizations.of(context)!.navTimer,
               style: Theme.of(context).textTheme.headlineMedium!.copyWith(
                 fontWeight: FontWeight.w700,
                 letterSpacing: -0.5, // Match other pages
@@ -242,7 +243,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
       return Center(
         child: AnimatedTimerDisplay(
           seconds: training.restRemaining,
-          label: '休息倒计时',
+          label: AppLocalizations.of(context)!.trainingRestCountdown,
           theme: theme,
           size: AppDimensions.timerSize(context),
           sessionDuration: training.sessionDuration,
@@ -258,7 +259,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
       return Center(
         child: AnimatedTimerDisplay(
           seconds: training.sessionDuration,
-          label: '运动中',
+          label: AppLocalizations.of(context)!.trainingExercising,
           theme: theme,
           size: AppDimensions.timerSize(context),
           sessionDuration: training.sessionDuration,
@@ -271,7 +272,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
     return Center(
       child: AnimatedTimerDisplay(
         seconds: training.restDuration,
-        label: '休息时长',
+        label: AppLocalizations.of(context)!.trainingRestDuration,
         theme: theme,
         size: AppDimensions.timerSize(context),
         sessionDuration: 0,
@@ -312,7 +313,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
       icon = Icons.self_improvement;
     } else if (training.isCompleted) {
       color = theme.progressRingColor;
-      text = '训练完成';
+      text = AppLocalizations.of(context)!.trainingCompleted;
       icon = Icons.emoji_events;
     } else if (training.isExercisePaused) {
       color = theme.progressRingColor;
@@ -323,7 +324,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
       if (_isPlanMode && _selectedPlan != null) {
         text = '${_selectedPlan!.name} · 准备开始';
       } else {
-        text = '准备开始';
+        text = AppLocalizations.of(context)!.trainingReady;
       }
       icon = Icons.play_circle_outline;
     }
@@ -336,7 +337,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             StatusBadge(
-              text: '训练完成',
+              text: AppLocalizations.of(context)!.trainingCompleted,
               color: theme.progressRingColor,
               icon: Icons.emoji_events,
             ),
@@ -394,7 +395,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
           ),
           const SizedBox(width: 16),
           PrimaryActionButton(
-            label: '开始运动',
+            label: AppLocalizations.of(context)!.trainingStartExercise,
             icon: Icons.play_arrow_rounded,
             onPressed: () {
               training.startExercise();
@@ -445,7 +446,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
           ),
           const SizedBox(width: 16),
           PrimaryActionButton(
-            label: '休息',
+            label: AppLocalizations.of(context)!.trainingRest,
             icon: Icons.self_improvement,
             onPressed: () {
               if (_isPlanMode) {
@@ -522,7 +523,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
           ),
           const SizedBox(width: 16),
           PrimaryActionButton(
-            label: '继续',
+            label: AppLocalizations.of(context)!.trainingContinue,
             icon: Icons.play_arrow,
             onPressed: training.resumeFromPause,
           ),
@@ -533,7 +534,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
     // 休息中：跳过休息(主按钮，居中)
     if (training.isResting) {
       return PrimaryActionButton(
-        label: '跳过休息',
+        label: AppLocalizations.of(context)!.trainingSkipRest,
         icon: Icons.skip_next,
         onPressed: training.skipRest,
       );
@@ -563,7 +564,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
           ),
           const SizedBox(width: 16),
           PrimaryActionButton(
-            label: '保存',
+            label: AppLocalizations.of(context)!.trainingSave,
             icon: Icons.save,
             onPressed: () =>
                 _saveWorkout(context, training, theme, progressProvider),
@@ -585,8 +586,8 @@ class _TrainingWidgetState extends State<TrainingWidget>
 
     if (plans.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('还没有计划，请先创建计划'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.trainingNoPlan),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -622,7 +623,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '选择训练计划',
+                  AppLocalizations.of(context)!.trainingSelectPlan,
                   style: Theme.of(context).textTheme.headlineMedium!,
                 ),
                 if (_isPlanMode)
@@ -632,7 +633,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
                       Navigator.pop(context);
                     },
                     child: Text(
-                      '取消计划',
+                      AppLocalizations.of(context)!.trainingCancelPlan,
                       style: TextStyle(color: theme.errorColor),
                     ),
                   ),
