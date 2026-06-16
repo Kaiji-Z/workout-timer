@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
+import '../core/service_locator.dart';
 import '../models/workout_plan.dart';
 import '../models/exercise.dart';
 import '../models/muscle_group.dart';
@@ -10,7 +11,11 @@ import '../services/plan_repository.dart';
 
 /// 训练计划状态管理
 class PlanProvider extends ChangeNotifier {
-  final PlanRepository _repository = PlanRepository();
+  final PlanRepository _repository;
+
+  /// [repository] defaults to the [ServiceLocator] registry; tests inject a mock.
+  PlanProvider({PlanRepository? repository})
+    : _repository = repository ?? ServiceLocator.get<PlanRepository>();
 
   List<WorkoutPlan> _plans = [];
   final Map<String, List<WorkoutPlan>> _calendarPlans = {}; // Key: 'yyyy-MM-dd'

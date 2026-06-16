@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'core/service_locator.dart';
 import 'screens/timer_screen.dart';
 import 'screens/settings_screen.dart';
 import 'screens/history_screen.dart';
@@ -28,6 +29,9 @@ void main() async {
 
   // Initialize date formatting for Chinese locale
   await initializeDateFormatting('zh_CN', null);
+
+  // Register all service dependencies for DI (before any Provider is created)
+  ServiceLocator.setup();
 
   // Load exercise data from assets
   try {

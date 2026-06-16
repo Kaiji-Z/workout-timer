@@ -5,10 +5,17 @@ import 'package:workout_timer/bloc/timer_provider.dart';
 import 'package:workout_timer/bloc/training_provider.dart';
 import 'package:workout_timer/bloc/plan_provider.dart';
 import 'package:workout_timer/bloc/training_progress_provider.dart';
+import 'package:workout_timer/core/service_locator.dart';
 import 'package:workout_timer/theme/theme_provider.dart';
 import 'package:workout_timer/widgets/training_widget.dart';
 
 void main() {
+  setUpAll(() {
+    // ServiceLocator must be initialized before Providers that resolve
+    // dependencies via the registry (TimerProvider, PlanProvider, ...).
+    ServiceLocator.setup();
+  });
+
   testWidgets('TrainingWidget shows training screen', (
     WidgetTester tester,
   ) async {
