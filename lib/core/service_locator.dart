@@ -1,3 +1,4 @@
+import '../services/error_reporter_service.dart';
 import '../services/notification_service.dart';
 import '../services/record_repository.dart';
 import '../services/plan_repository.dart';
@@ -66,6 +67,7 @@ class ServiceLocator {
     register<PlanRepository>(PlanRepository());
     register<RecordRepository>(RecordRepository());
     register<StatsCalculatorService>(StatsCalculatorService());
+    register<ErrorReporter>(ErrorReporter());
 
     // UserPreferencesService performs async I/O per call; create lazily so the
     // first request pays the cost instead of blocking startup.

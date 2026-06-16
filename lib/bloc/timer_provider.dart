@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import '../core/service_locator.dart';
+import '../services/error_reporter_service.dart';
 import '../services/notification_service.dart';
 import '../services/timer_service.dart';
 import '../services/workout_repository.dart';
@@ -9,15 +10,18 @@ import '../services/workout_repository.dart';
 class TimerProvider extends ChangeNotifier {
   final NotificationService _notificationService;
   final WorkoutRepository _repository;
+  final ErrorReporter _errorReporter;
 
   /// Dependencies default to the [ServiceLocator] registry for production use;
   /// tests pass mocks via this constructor.
   TimerProvider({
     NotificationService? notificationService,
     WorkoutRepository? repository,
+    ErrorReporter? errorReporter,
   }) : _notificationService =
            notificationService ?? ServiceLocator.get<NotificationService>(),
-       _repository = repository ?? ServiceLocator.get<WorkoutRepository>();
+       _repository = repository ?? ServiceLocator.get<WorkoutRepository>(),
+       _errorReporter = errorReporter ?? ServiceLocator.get<ErrorReporter>();
 
   Timer? _timer;
   int _remainingSeconds = 60;
@@ -168,8 +172,15 @@ class TimerProvider extends ChangeNotifier {
     if (_totalSets > 0) {
       try {
         await _repository.saveSession(_totalSets, _currentSessionRestTime);
-      } catch (e) {
-        debugPrint('Error saving session: $e');
+      } catch (e, st) {
+        // Data-loss path: the user's completed workout may not be saved.
+        // Surface a warning instead of failing silently.
+        _errorReporter.report(
+          e,
+          severity: ErrorSeverity.userWarning,
+          stackTrace: st,
+          message: '训练记录保存失败，请检查后重试',
+        );
       }
     }
     _timer?.cancel();

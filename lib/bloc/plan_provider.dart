@@ -5,6 +5,7 @@ import '../models/workout_plan.dart';
 import '../models/exercise.dart';
 import '../models/muscle_group.dart';
 import '../models/weekly_plan_import.dart';
+import '../services/error_reporter_service.dart';
 import '../services/exercise_matcher_service.dart';
 import '../services/exercise_service.dart';
 import '../services/plan_repository.dart';
@@ -12,10 +13,12 @@ import '../services/plan_repository.dart';
 /// 训练计划状态管理
 class PlanProvider extends ChangeNotifier {
   final PlanRepository _repository;
+  final ErrorReporter _errorReporter;
 
   /// [repository] defaults to the [ServiceLocator] registry; tests inject a mock.
-  PlanProvider({PlanRepository? repository})
-    : _repository = repository ?? ServiceLocator.get<PlanRepository>();
+  PlanProvider({PlanRepository? repository, ErrorReporter? errorReporter})
+    : _repository = repository ?? ServiceLocator.get<PlanRepository>(),
+      _errorReporter = errorReporter ?? ServiceLocator.get<ErrorReporter>();
 
   List<WorkoutPlan> _plans = [];
   final Map<String, List<WorkoutPlan>> _calendarPlans = {}; // Key: 'yyyy-MM-dd'
@@ -89,9 +92,14 @@ class PlanProvider extends ChangeNotifier {
       await _repository.createPlan(plan);
       _plans.insert(0, plan);
       notifyListeners();
-    } catch (e) {
+    } catch (e, st) {
       _error = e.toString();
-      debugPrint('Error creating plan: $e');
+      _errorReporter.report(
+        e,
+        severity: ErrorSeverity.userWarning,
+        stackTrace: st,
+        message: '计划创建失败，请重试',
+      );
       notifyListeners();
       rethrow;
     }
@@ -108,9 +116,14 @@ class PlanProvider extends ChangeNotifier {
       }
 
       notifyListeners();
-    } catch (e) {
+    } catch (e, st) {
       _error = e.toString();
-      debugPrint('Error updating plan: $e');
+      _errorReporter.report(
+        e,
+        severity: ErrorSeverity.userWarning,
+        stackTrace: st,
+        message: '计划更新失败，请重试',
+      );
       notifyListeners();
       rethrow;
     }
@@ -132,9 +145,14 @@ class PlanProvider extends ChangeNotifier {
       }
 
       notifyListeners();
-    } catch (e) {
+    } catch (e, st) {
       _error = e.toString();
-      debugPrint('Error deleting plan: $e');
+      _errorReporter.report(
+        e,
+        severity: ErrorSeverity.userWarning,
+        stackTrace: st,
+        message: '计划删除失败，请重试',
+      );
       notifyListeners();
       rethrow;
     }
@@ -273,10 +291,15 @@ class PlanProvider extends ChangeNotifier {
 
       debugPrint('从周计划导入了 ${plans.length} 个计划');
       return createdIds;
-    } catch (e) {
+    } catch (e, st) {
       _error = e.toString();
       _isLoading = false;
-      debugPrint('导入周计划失败: $e');
+      _errorReporter.report(
+        e,
+        severity: ErrorSeverity.userWarning,
+        stackTrace: st,
+        message: '计划导入失败，请重试',
+      );
       notifyListeners();
       rethrow;
     }
@@ -387,10 +410,15 @@ class PlanProvider extends ChangeNotifier {
 
       debugPrint('从周计划导入了 ${plans.length} 个计划（含手动选择）');
       return createdIds;
-    } catch (e) {
+    } catch (e, st) {
       _error = e.toString();
       _isLoading = false;
-      debugPrint('导入周计划失败: $e');
+      _errorReporter.report(
+        e,
+        severity: ErrorSeverity.userWarning,
+        stackTrace: st,
+        message: '计划导入失败，请重试',
+      );
       notifyListeners();
       rethrow;
     }

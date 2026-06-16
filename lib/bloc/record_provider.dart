@@ -3,6 +3,7 @@ import '../core/service_locator.dart';
 import '../models/workout_record.dart';
 
 import '../models/muscle_group.dart';
+import '../services/error_reporter_service.dart';
 import '../services/record_repository.dart';
 import '../services/exercise_service.dart';
 import '../models/exercise.dart';
@@ -10,10 +11,12 @@ import '../models/exercise.dart';
 /// 训练记录状态管理
 class RecordProvider extends ChangeNotifier {
   final RecordRepository _repository;
+  final ErrorReporter _errorReporter;
 
-  /// [repository] defaults to the [ServiceLocator] registry; tests inject a mock.
-  RecordProvider({RecordRepository? repository})
-    : _repository = repository ?? ServiceLocator.get<RecordRepository>();
+  /// Dependencies default to the [ServiceLocator] registry; tests inject a mock.
+  RecordProvider({RecordRepository? repository, ErrorReporter? errorReporter})
+    : _repository = repository ?? ServiceLocator.get<RecordRepository>(),
+      _errorReporter = errorReporter ?? ServiceLocator.get<ErrorReporter>();
 
   static List<Exercise>? _cachedExercises;
 
@@ -50,6 +53,8 @@ class RecordProvider extends ChangeNotifier {
     } catch (e) {
       _error = e.toString();
       _isLoading = false;
+      // Loading failure is surfaced via the `error` getter the UI observes,
+      // so it stays devOnly here.
       debugPrint('Error loading records: $e');
       notifyListeners();
     }
@@ -61,9 +66,15 @@ class RecordProvider extends ChangeNotifier {
       await _repository.saveRecord(record);
       _records.insert(0, record);
       notifyListeners();
-    } catch (e) {
+    } catch (e, st) {
       _error = e.toString();
-      debugPrint('Error saving record: $e');
+      // Data-loss path: the user's workout record may not be persisted.
+      _errorReporter.report(
+        e,
+        severity: ErrorSeverity.userWarning,
+        stackTrace: st,
+        message: '记录保存失败，请重试',
+      );
       notifyListeners();
       rethrow;
     }
@@ -80,9 +91,14 @@ class RecordProvider extends ChangeNotifier {
       }
 
       notifyListeners();
-    } catch (e) {
+    } catch (e, st) {
       _error = e.toString();
-      debugPrint('Error updating record: $e');
+      _errorReporter.report(
+        e,
+        severity: ErrorSeverity.userWarning,
+        stackTrace: st,
+        message: '记录更新失败，请重试',
+      );
       notifyListeners();
       rethrow;
     }
@@ -94,9 +110,14 @@ class RecordProvider extends ChangeNotifier {
       await _repository.deleteRecord(recordId);
       _records.removeWhere((r) => r.id == recordId);
       notifyListeners();
-    } catch (e) {
+    } catch (e, st) {
       _error = e.toString();
-      debugPrint('Error deleting record: $e');
+      _errorReporter.report(
+        e,
+        severity: ErrorSeverity.userWarning,
+        stackTrace: st,
+        message: '记录删除失败，请重试',
+      );
       notifyListeners();
       rethrow;
     }
