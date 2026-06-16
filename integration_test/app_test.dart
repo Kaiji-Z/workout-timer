@@ -13,7 +13,7 @@ void main() {
       // Launch the app
       final themeProvider = ThemeProvider();
       await themeProvider.initialize();
-      await tester.pumpWidget(MyApp(themeProvider: themeProvider));
+      await tester.pumpWidget(MyApp(themeProvider: themeProvider, scaffoldMessengerKey: GlobalKey<ScaffoldMessengerState>()));
       await tester.pumpAndSettle();
 
       // Verify initial state - timer screen shows
@@ -26,7 +26,7 @@ void main() {
     testWidgets('Navigation to settings works', (tester) async {
       final themeProvider = ThemeProvider();
       await themeProvider.initialize();
-      await tester.pumpWidget(MyApp(themeProvider: themeProvider));
+      await tester.pumpWidget(MyApp(themeProvider: themeProvider, scaffoldMessengerKey: GlobalKey<ScaffoldMessengerState>()));
       await tester.pumpAndSettle();
 
       // Navigate to settings
@@ -40,7 +40,7 @@ void main() {
     testWidgets('Navigation to history works', (tester) async {
       final themeProvider = ThemeProvider();
       await themeProvider.initialize();
-      await tester.pumpWidget(MyApp(themeProvider: themeProvider));
+      await tester.pumpWidget(MyApp(themeProvider: themeProvider, scaffoldMessengerKey: GlobalKey<ScaffoldMessengerState>()));
       await tester.pumpAndSettle();
 
       // Navigate to history
