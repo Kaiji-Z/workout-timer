@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import '../theme/theme_provider.dart';
-import '../bloc/record_provider.dart';
+import '../providers/record_provider.dart';
 import '../models/workout_record.dart';
 import '../models/set_data.dart';
 import '../models/muscle_group.dart';

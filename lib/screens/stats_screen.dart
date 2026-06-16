@@ -10,7 +10,7 @@ import '../models/muscle_group.dart';
 import '../services/workout_repository.dart';
 import '../services/stats_calculator_service.dart';
 import '../services/stats_aggregator_service.dart';
-import '../bloc/record_provider.dart';
+import '../providers/record_provider.dart';
 import '../widgets/volume_trend_charts.dart';
 import '../animations/animation_primitives.dart';
 import 'ai_analysis_screen.dart';

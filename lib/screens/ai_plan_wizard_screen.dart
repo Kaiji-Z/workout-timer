@@ -13,7 +13,7 @@ import '../services/ai_prompt_service.dart';
 import '../services/exercise_matcher_service.dart';
 import '../services/exercise_service.dart';
 import '../services/user_preferences_service.dart';
-import '../bloc/plan_provider.dart';
+import '../providers/plan_provider.dart';
 import '../utils/dimensions.dart';
 import '../widgets/glass_widgets.dart';
 

@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../theme/theme_provider.dart';
 import '../utils/dimensions.dart';
-import '../bloc/plan_provider.dart';
+import '../providers/plan_provider.dart';
 import '../models/workout_plan.dart';
 import '../models/muscle_group.dart';
 import '../widgets/calendar_widget.dart';
