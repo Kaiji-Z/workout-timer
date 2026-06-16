@@ -21,7 +21,7 @@ dependencies:
   sqflite_common_ffi: ^2.3.0
   sqflite_common_ffi_web: ^0.4.0
 
-  flutter_local_notifications: ^17.0.0
+  flutter_local_notifications: ^22.0.0
 
   shared_preferences: ^2.2.2
 

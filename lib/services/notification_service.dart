@@ -22,7 +22,7 @@ class NotificationService {
         android: androidSettings,
         iOS: iosSettings,
       );
-      await _notifications.initialize(settings);
+      await _notifications.initialize(settings: settings);
 
       await _createNotificationChannel();
     } catch (e) {
@@ -86,7 +86,12 @@ class NotificationService {
         iOS: iosDetails,
       );
 
-      await _notifications.show(0, '休息结束！', customMessage, details);
+      await _notifications.show(
+        id: 0,
+        title: '休息结束！',
+        body: customMessage,
+        notificationDetails: details,
+      );
     } catch (e) {
       debugPrint('Failed to show notification: $e');
     }
