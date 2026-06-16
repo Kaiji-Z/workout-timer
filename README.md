@@ -158,7 +158,7 @@ export FLUTTER_STORAGE_BASE_URL=https://storage.flutter-io.cn
 ```
 lib/
 ├── main.dart                 # 入口，MultiProvider，底部导航
-├── bloc/                     # 状态管理 (ChangeNotifier × 5)
+├── providers/                     # 状态管理 (ChangeNotifier × 5)
 │   ├── timer_provider.dart   # 倒计时 + 组数
 │   ├── training_provider.dart # 训练状态机
 │   ├── plan_provider.dart    # 计划 CRUD
