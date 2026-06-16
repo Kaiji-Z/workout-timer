@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 import '../theme/theme_provider.dart';
 import '../utils/dimensions.dart';
-import '../bloc/plan_provider.dart';
+import '../providers/plan_provider.dart';
 import '../models/workout_plan.dart';
 import '../models/muscle_group.dart';
 

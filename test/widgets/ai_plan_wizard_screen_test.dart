@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workout_timer/core/service_locator.dart';
 import 'package:workout_timer/screens/ai_plan_wizard_screen.dart';
 import 'package:workout_timer/theme/theme_provider.dart';
-import 'package:workout_timer/bloc/plan_provider.dart';
+import 'package:workout_timer/providers/plan_provider.dart';
 
 void main() {
   setUp(() {

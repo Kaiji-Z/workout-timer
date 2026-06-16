@@ -5,7 +5,7 @@ import '../main.dart';
 import '../models/workout_session.dart';
 import '../models/workout_record.dart';
 import '../services/workout_repository.dart';
-import '../bloc/record_provider.dart';
+import '../providers/record_provider.dart';
 import '../theme/theme_provider.dart';
 import '../theme/app_theme.dart';
 import '../utils/dimensions.dart';

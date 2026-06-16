@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../theme/theme_provider.dart';
-import '../bloc/plan_provider.dart';
+import '../providers/plan_provider.dart';
 
 import '../theme/app_theme.dart';
 import '../utils/dimensions.dart';

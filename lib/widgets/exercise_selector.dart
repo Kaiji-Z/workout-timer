@@ -6,7 +6,7 @@ import '../models/exercise.dart';
 import '../models/muscle_group.dart';
 import '../models/workout_plan.dart';
 import '../theme/theme_provider.dart';
-import '../bloc/plan_provider.dart';
+import '../providers/plan_provider.dart';
 import '../theme/app_theme.dart';
 import '../utils/dimensions.dart';
 import 'package:cached_network_image/cached_network_image.dart';

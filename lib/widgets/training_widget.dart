@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../bloc/training_provider.dart';
+import '../providers/training_provider.dart';
 import '../utils/dimensions.dart';
-import '../bloc/plan_provider.dart';
-import '../bloc/training_progress_provider.dart';
-import '../bloc/record_provider.dart';
+import '../providers/plan_provider.dart';
+import '../providers/training_progress_provider.dart';
+import '../providers/record_provider.dart';
 import '../theme/theme_provider.dart';
 import '../theme/app_theme.dart';
 import '../services/workout_repository.dart';

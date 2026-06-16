@@ -7,7 +7,7 @@ import '../models/workout_plan.dart';
 import '../theme/theme_provider.dart';
 import '../theme/app_theme.dart';
 import '../utils/dimensions.dart';
-import '../bloc/plan_provider.dart';
+import '../providers/plan_provider.dart';
 import '../widgets/exercise_selector.dart'; // 复用 ExerciseDetailSheet
 import '../widgets/fullscreen_image_viewer.dart';
 import '../services/exercise_favorites_service.dart';
