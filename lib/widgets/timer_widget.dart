@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
 import '../providers/timer_provider.dart';
 import '../theme/theme_provider.dart';
 import '../theme/app_theme.dart';
@@ -22,8 +23,7 @@ class TimerWidget extends StatefulWidget {
   State<TimerWidget> createState() => _TimerWidgetState();
 }
 
-class _TimerWidgetState extends State<TimerWidget>
-    with WidgetsBindingObserver {
+class _TimerWidgetState extends State<TimerWidget> with WidgetsBindingObserver {
   String _formatTime(int seconds) {
     final minutes = seconds ~/ 60;
     final remainingSeconds = seconds % 60;
@@ -87,7 +87,7 @@ class _TimerWidgetState extends State<TimerWidget>
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          '训练计时器',
+          AppLocalizations.of(context)!.navTimer,
           style: theme.toThemeData().textTheme.headlineLarge!.copyWith(
             fontSize: 20,
             fontWeight: FontWeight.w700,
@@ -129,7 +129,8 @@ class _TimerWidgetState extends State<TimerWidget>
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               LiveTimer(
-                value: '剩余 ${timer.remainingSeconds} 秒',
+                value:
+                    '剩余 ${timer.remainingSeconds} 秒', // TODO(l10n): use timerSecondsRemaining
                 child: Text(
                   _formatTime(timer.remainingSeconds),
                   style: Theme.of(context).textTheme.headlineLarge!.copyWith(
@@ -157,7 +158,9 @@ class _TimerWidgetState extends State<TimerWidget>
         ? theme.accentColor.withValues(alpha: 0.4)
         : theme.textColor.withValues(alpha: 0.2);
     final textColor = isRunning ? theme.accentColor : theme.textColor;
-    final text = isRunning ? '进行中' : '准备就绪';
+    final text = isRunning
+        ? AppLocalizations.of(context)!.timerInProgress
+        : AppLocalizations.of(context)!.timerReady;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
@@ -223,7 +226,7 @@ class _TimerWidgetState extends State<TimerWidget>
           ),
           const SizedBox(width: 12),
           Text(
-            '完成组数',
+            AppLocalizations.of(context)!.timerCompletedSets,
             style: theme.toThemeData().textTheme.labelLarge!.copyWith(
               color: theme.textColor.withValues(alpha: 0.7),
               letterSpacing: 1,
@@ -243,14 +246,16 @@ class _TimerWidgetState extends State<TimerWidget>
           icon: Icons.refresh_rounded,
           onPressed: timer.resetTimer,
           iconColor: theme.accentColor,
-          semanticLabel: '重置计时器',
+          semanticLabel: AppLocalizations.of(context)!.timerReset,
         ),
         // 主按钮 (开始/暂停)
         Expanded(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: PrimaryActionButton(
-              label: timer.isRunning ? '暂停' : '开始',
+              label: timer.isRunning
+                  ? AppLocalizations.of(context)!.timerPause
+                  : AppLocalizations.of(context)!.timerStart,
               icon: timer.isRunning
                   ? Icons.pause_rounded
                   : Icons.play_arrow_rounded,
@@ -263,7 +268,7 @@ class _TimerWidgetState extends State<TimerWidget>
           icon: Icons.skip_next_rounded,
           onPressed: timer.skipSet,
           iconColor: theme.accentColor,
-          semanticLabel: '跳过当前组',
+          semanticLabel: AppLocalizations.of(context)!.timerSkipSet,
         ),
       ],
     );
@@ -348,7 +353,7 @@ class _PresetChip extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppDimensions.radiusChip),
         child: Semantics(
           button: true,
-          label: '$seconds秒',
+          label: '$seconds秒', // TODO(l10n): use timerSecondsLabel
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             decoration: BoxDecoration(

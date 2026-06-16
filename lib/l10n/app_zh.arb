@@ -13,5 +13,132 @@
   "navSettings": "设置",
   "@navSettings": {},
   "navTimer": "训练计时器",
-  "@navTimer": {}
+  "@navTimer": {},
+
+  "timerSecondsRemaining": "剩余 {seconds} 秒",
+  "@timerSecondsRemaining": {
+    "placeholders": {
+      "seconds": { "type": "int" }
+    }
+  },
+  "timerInProgress": "进行中",
+  "@timerInProgress": {},
+  "timerReady": "准备就绪",
+  "@timerReady": {},
+  "timerCompletedSets": "完成组数",
+  "@timerCompletedSets": {},
+  "timerReset": "重置计时器",
+  "@timerReset": {},
+  "timerPause": "暂停",
+  "@timerPause": {},
+  "timerStart": "开始",
+  "@timerStart": {},
+  "timerSkipSet": "跳过当前组",
+  "@timerSkipSet": {},
+  "timerSecondsLabel": "{seconds}秒",
+  "@timerSecondsLabel": {
+    "placeholders": {
+      "seconds": { "type": "int" }
+    }
+  },
+
+  "trainingNextExercise": "下一个：{name}",
+  "@trainingNextExercise": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "trainingNextDone": "下一个：训练完成",
+  "@trainingNextDone": {},
+  "trainingRestCountdown": "休息倒计时",
+  "@trainingRestCountdown": {},
+  "trainingExercising": "运动中",
+  "@trainingExercising": {},
+  "trainingRestDuration": "休息时长",
+  "@trainingRestDuration": {},
+  "trainingExerciseProgress": "{name} · 第{set}组 · 运动",
+  "@trainingExerciseProgress": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "set": { "type": "int" }
+    }
+  },
+  "trainingSetExercising": "第 {set} 组 · 运动中",
+  "@trainingSetExercising": {
+    "placeholders": {
+      "set": { "type": "int" }
+    }
+  },
+  "trainingExerciseRest": "{name} · 已完成{set}组 · 休息中",
+  "@trainingExerciseRest": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "set": { "type": "int" }
+    }
+  },
+  "trainingSetRest": "第 {set} 组 · 休息中",
+  "@trainingSetRest": {
+    "placeholders": {
+      "set": { "type": "int" }
+    }
+  },
+  "trainingCompleted": "训练完成",
+  "@trainingCompleted": {},
+  "trainingSetPaused": "第 {set} 组 · 已暂停",
+  "@trainingSetPaused": {
+    "placeholders": {
+      "set": { "type": "int" }
+    }
+  },
+  "trainingPlanReady": "{name} · 准备开始",
+  "@trainingPlanReady": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "trainingReady": "准备开始",
+  "@trainingReady": {},
+  "trainingSetCount": "{set} 组",
+  "@trainingSetCount": {
+    "placeholders": {
+      "set": { "type": "int" }
+    }
+  },
+  "trainingStartExercise": "开始运动",
+  "@trainingStartExercise": {},
+  "trainingRest": "休息",
+  "@trainingRest": {},
+  "trainingContinue": "继续",
+  "@trainingContinue": {},
+  "trainingSkipRest": "跳过休息",
+  "@trainingSkipRest": {},
+  "trainingSave": "保存",
+  "@trainingSave": {},
+  "trainingNoPlan": "还没有计划，请先创建计划",
+  "@trainingNoPlan": {},
+  "trainingSelectPlan": "选择训练计划",
+  "@trainingSelectPlan": {},
+  "trainingCancelPlan": "取消计划",
+  "@trainingCancelPlan": {},
+  "trainingPlanSummary": "{exerciseCount}动作 · {totalSets}组",
+  "@trainingPlanSummary": {
+    "placeholders": {
+      "exerciseCount": { "type": "int" },
+      "totalSets": { "type": "int" }
+    }
+  },
+  "trainingSavedDetail": "训练已保存：{sets}组，总时长 {duration}",
+  "@trainingSavedDetail": {
+    "placeholders": {
+      "sets": { "type": "int" },
+      "duration": { "type": "String" }
+    }
+  },
+  "trainingSavedCompleted": "训练已保存：完成{sets}组，总时长 {duration}",
+  "@trainingSavedCompleted": {
+    "placeholders": {
+      "sets": { "type": "int" },
+      "duration": { "type": "String" }
+    }
+  }
 }

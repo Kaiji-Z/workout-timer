@@ -133,6 +133,210 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'训练计时器'**
   String get navTimer;
+
+  /// No description provided for @timerSecondsRemaining.
+  ///
+  /// In zh, this message translates to:
+  /// **'剩余 {seconds} 秒'**
+  String timerSecondsRemaining(int seconds);
+
+  /// No description provided for @timerInProgress.
+  ///
+  /// In zh, this message translates to:
+  /// **'进行中'**
+  String get timerInProgress;
+
+  /// No description provided for @timerReady.
+  ///
+  /// In zh, this message translates to:
+  /// **'准备就绪'**
+  String get timerReady;
+
+  /// No description provided for @timerCompletedSets.
+  ///
+  /// In zh, this message translates to:
+  /// **'完成组数'**
+  String get timerCompletedSets;
+
+  /// No description provided for @timerReset.
+  ///
+  /// In zh, this message translates to:
+  /// **'重置计时器'**
+  String get timerReset;
+
+  /// No description provided for @timerPause.
+  ///
+  /// In zh, this message translates to:
+  /// **'暂停'**
+  String get timerPause;
+
+  /// No description provided for @timerStart.
+  ///
+  /// In zh, this message translates to:
+  /// **'开始'**
+  String get timerStart;
+
+  /// No description provided for @timerSkipSet.
+  ///
+  /// In zh, this message translates to:
+  /// **'跳过当前组'**
+  String get timerSkipSet;
+
+  /// No description provided for @timerSecondsLabel.
+  ///
+  /// In zh, this message translates to:
+  /// **'{seconds}秒'**
+  String timerSecondsLabel(int seconds);
+
+  /// No description provided for @trainingNextExercise.
+  ///
+  /// In zh, this message translates to:
+  /// **'下一个：{name}'**
+  String trainingNextExercise(String name);
+
+  /// No description provided for @trainingNextDone.
+  ///
+  /// In zh, this message translates to:
+  /// **'下一个：训练完成'**
+  String get trainingNextDone;
+
+  /// No description provided for @trainingRestCountdown.
+  ///
+  /// In zh, this message translates to:
+  /// **'休息倒计时'**
+  String get trainingRestCountdown;
+
+  /// No description provided for @trainingExercising.
+  ///
+  /// In zh, this message translates to:
+  /// **'运动中'**
+  String get trainingExercising;
+
+  /// No description provided for @trainingRestDuration.
+  ///
+  /// In zh, this message translates to:
+  /// **'休息时长'**
+  String get trainingRestDuration;
+
+  /// No description provided for @trainingExerciseProgress.
+  ///
+  /// In zh, this message translates to:
+  /// **'{name} · 第{set}组 · 运动'**
+  String trainingExerciseProgress(String name, int set);
+
+  /// No description provided for @trainingSetExercising.
+  ///
+  /// In zh, this message translates to:
+  /// **'第 {set} 组 · 运动中'**
+  String trainingSetExercising(int set);
+
+  /// No description provided for @trainingExerciseRest.
+  ///
+  /// In zh, this message translates to:
+  /// **'{name} · 已完成{set}组 · 休息中'**
+  String trainingExerciseRest(String name, int set);
+
+  /// No description provided for @trainingSetRest.
+  ///
+  /// In zh, this message translates to:
+  /// **'第 {set} 组 · 休息中'**
+  String trainingSetRest(int set);
+
+  /// No description provided for @trainingCompleted.
+  ///
+  /// In zh, this message translates to:
+  /// **'训练完成'**
+  String get trainingCompleted;
+
+  /// No description provided for @trainingSetPaused.
+  ///
+  /// In zh, this message translates to:
+  /// **'第 {set} 组 · 已暂停'**
+  String trainingSetPaused(int set);
+
+  /// No description provided for @trainingPlanReady.
+  ///
+  /// In zh, this message translates to:
+  /// **'{name} · 准备开始'**
+  String trainingPlanReady(String name);
+
+  /// No description provided for @trainingReady.
+  ///
+  /// In zh, this message translates to:
+  /// **'准备开始'**
+  String get trainingReady;
+
+  /// No description provided for @trainingSetCount.
+  ///
+  /// In zh, this message translates to:
+  /// **'{set} 组'**
+  String trainingSetCount(int set);
+
+  /// No description provided for @trainingStartExercise.
+  ///
+  /// In zh, this message translates to:
+  /// **'开始运动'**
+  String get trainingStartExercise;
+
+  /// No description provided for @trainingRest.
+  ///
+  /// In zh, this message translates to:
+  /// **'休息'**
+  String get trainingRest;
+
+  /// No description provided for @trainingContinue.
+  ///
+  /// In zh, this message translates to:
+  /// **'继续'**
+  String get trainingContinue;
+
+  /// No description provided for @trainingSkipRest.
+  ///
+  /// In zh, this message translates to:
+  /// **'跳过休息'**
+  String get trainingSkipRest;
+
+  /// No description provided for @trainingSave.
+  ///
+  /// In zh, this message translates to:
+  /// **'保存'**
+  String get trainingSave;
+
+  /// No description provided for @trainingNoPlan.
+  ///
+  /// In zh, this message translates to:
+  /// **'还没有计划，请先创建计划'**
+  String get trainingNoPlan;
+
+  /// No description provided for @trainingSelectPlan.
+  ///
+  /// In zh, this message translates to:
+  /// **'选择训练计划'**
+  String get trainingSelectPlan;
+
+  /// No description provided for @trainingCancelPlan.
+  ///
+  /// In zh, this message translates to:
+  /// **'取消计划'**
+  String get trainingCancelPlan;
+
+  /// No description provided for @trainingPlanSummary.
+  ///
+  /// In zh, this message translates to:
+  /// **'{exerciseCount}动作 · {totalSets}组'**
+  String trainingPlanSummary(int exerciseCount, int totalSets);
+
+  /// No description provided for @trainingSavedDetail.
+  ///
+  /// In zh, this message translates to:
+  /// **'训练已保存：{sets}组，总时长 {duration}'**
+  String trainingSavedDetail(int sets, String duration);
+
+  /// No description provided for @trainingSavedCompleted.
+  ///
+  /// In zh, this message translates to:
+  /// **'训练已保存：完成{sets}组，总时长 {duration}'**
+  String trainingSavedCompleted(int sets, String duration);
 }
 
 class _AppLocalizationsDelegate
