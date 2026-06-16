@@ -1,6 +1,6 @@
 # AGENTS.md - WorkoutTimer Flutter App
 
-**Updated:** 2026-06-14
+**Updated:** 2026-06-16
 **Branch:** master
 
 ## OVERVIEW
@@ -8,7 +8,7 @@
 Cross-platform Flutter workout rest timer with preset durations (30s/60s/90s/120s), multi-channel notifications, SQLite-backed workout history, AI plan generation, per-set recording, and bodyweight volume tracking. Supports Android, iOS, Web, and Desktop.
 
 **Architecture**: MVVM with Provider (ChangeNotifier), services layer, local SQLite.
-**Stack**: Flutter 3.10+ / Dart 3.10.7+ / sqflite + sqflite_common_ffi / provider / flutter_local_notifications / uuid / intl / fuzzy / fl_chart / cached_network_image / google_fonts / string_similarity.
+**Stack**: Flutter 3.10+ / Dart 3.10.7+ / sqflite + sqflite_common_ffi / provider / flutter_local_notifications / uuid / intl / fuzzy / fl_chart / cached_network_image / google_fonts / string_similarity / flutter_localizations (gen-l10n).
 **Design System**: "Flat Vitality" — warm gradients, deep indigo accent (#1A237E), white circular buttons.
 **Database**: SQLite v5 with incremental migrations (v1→v2→v3→v4→v5).
 
@@ -44,7 +44,7 @@ flutter test integration_test/                  # Integration tests (ai_plan_imp
 
 # Analyze & Format
 flutter analyze                    # Static analysis (all files)
-flutter analyze lib/bloc/          # Analyze specific directory
+flutter analyze lib/providers/      # Analyze specific directory
 dart format lib/ test/             # Format code
 dart fix --apply                   # Auto-fix issues
 
@@ -73,7 +73,9 @@ lib/
 │   ├── animation_primitives.dart # AnimatedCard, CountUp, Shimmer
 │   ├── list_animations.dart
 │   └── page_transitions.dart # FadeUpPageRoute, ScaleFadePageRoute (slide-up transition)
-├── bloc/                     # State providers (ChangeNotifier, NOT BLoC)
+├── providers/                   # State providers (ChangeNotifier, MVVM)
+├── core/                        # ServiceLocator (dependency injection)
+├── l10n/                        # Generated AppLocalizations + arb files
 │   ├── timer_provider.dart   # Timer countdown, sets counter
 │   ├── training_provider.dart # Training mode state machine
 │   ├── plan_provider.dart    # Workout plan CRUD
@@ -200,9 +202,38 @@ try {
   // rethrow; // if caller should handle
 }
 
+// DATA-LOSS PATH - surface to user via ErrorReporter (injected via ServiceLocator)
+try {
+  await _repository.saveRecord(record);
+} catch (e, st) {
+  _errorReporter.report(e, severity: ErrorSeverity.userWarning,
+    stackTrace: st, message: '记录保存失败，请重试');
+  rethrow;
+}
+
 // NEVER - empty catch
 try { ... } catch (e) {}
 ```
+
+### Dependency Injection
+Services are registered in `ServiceLocator.setup()` (called once in `main()`).
+Providers resolve them via optional constructor params defaulting to the registry,
+so production call sites stay unchanged but tests can inject mocks:
+```dart
+// Provider - production gets the real service, tests pass a mock
+TimerProvider({
+  NotificationService? notificationService,
+  WorkoutRepository? repository,
+  ErrorReporter? errorReporter,
+})  : _notificationService =
+          notificationService ?? ServiceLocator.get<NotificationService>(),
+      ...;
+
+// Test
+final provider = TimerProvider(repository: mockRepo);
+```
+Static facade classes (`TimerService`, `ExerciseService`, `DatabaseHelper`) are
+NOT registered — they have no per-instance state and are consumed via static methods.
 
 ### Models Pattern
 ```dart
@@ -386,9 +417,9 @@ expect(find.text('开始运动'), findsOneWidget);
 
 | Task | Location |
 |------|----------|
-| Timer countdown | `bloc/timer_provider.dart` (`_tick()`) |
-| Preset times | `bloc/timer_provider.dart:20` (`[30, 60, 90, 120]`) |
-| Training states | `bloc/training_provider.dart` (`TrainingState` enum) |
+| Timer countdown | `providers/timer_provider.dart` (`_tick()`) |
+| Preset times | `providers/timer_provider.dart:20` (`[30, 60, 90, 120]`) |
+| Training states | `providers/training_provider.dart` (`TrainingState` enum) |
 | DB schema + migrations | `services/database_helper.dart` (`_onCreate()`, `_onUpgrade()`) |
 | Theme definitions | `theme/app_theme.dart` |
 | Dark theme getter | `theme/app_theme.dart:79-118` (`AppThemeData.dark`) |
@@ -397,6 +428,10 @@ expect(find.text('开始运动'), findsOneWidget);
 | Exercise data loading | `services/exercise_service.dart` |
 | Exercise fuzzy matching | `services/exercise_matcher_service.dart` |
 | AI prompt generation | `services/ai_prompt_service.dart` |
+| **Dependency injection** | `core/service_locator.dart` (`ServiceLocator.setup/get`) |
+| Stats aggregation | `services/stats_aggregator_service.dart` |
+| Error reporting | `services/error_reporter_service.dart` (`ErrorSeverity.userWarning`) |
+| Localization | `lib/l10n/` (arb + generated `AppLocalizations`) |
 | Stats / 1RM calculation | `services/stats_calculator_service.dart` |
 | Bodyweight volume coeff | `services/bodyweight_coefficient_service.dart` |
 | Exercise favorites | `services/exercise_favorites_service.dart` |
@@ -525,10 +560,10 @@ feat: everything
 
 ## KNOWN ISSUES
 
-- **bloc/ naming**: Directory uses Provider (ChangeNotifier), not BLoC pattern
-- **No dependency injection**: Services instantiated inside providers
 - **Mixed comments**: Code uses both English and Chinese comments
-- **Large screen files**: `stats_screen.dart` (2359 lines), `plan_form_screen.dart` (968 lines), `exercise_selection_screen.dart` (872 lines), `ai_analysis_screen.dart` (899 lines) — consider splitting
+- **Large screen files**: `stats_screen.dart` (~2150 lines, aggregation logic extracted into StatsAggregatorService), `plan_form_screen.dart` (~1040 lines), `exercise_selection_screen.dart` (872 lines), `ai_analysis_screen.dart` (899 lines)
+- **Force-non-null (`!`)**: ~450 usages remain; convert to explicit null checks incrementally
+- **i18n partial**: gen-l10n framework is in place but most UI strings are still hardcoded Chinese
 
 ---
 
