@@ -9,6 +9,7 @@ import '../models/workout_record.dart';
 import '../models/muscle_group.dart';
 import '../services/workout_repository.dart';
 import '../services/stats_calculator_service.dart';
+import '../services/stats_aggregator_service.dart';
 import '../bloc/record_provider.dart';
 import '../widgets/volume_trend_charts.dart';
 import '../animations/animation_primitives.dart';
@@ -28,6 +29,7 @@ class _StatsScreenState extends State<StatsScreen>
   late TabController _tabController;
   final WorkoutRepository _repository = WorkoutRepository();
   final StatsCalculatorService _statsCalc = StatsCalculatorService();
+  final StatsAggregatorService _aggregator = StatsAggregatorService();
   List<WorkoutSession> _oldSessions = [];
   List<WorkoutRecord> _newRecords = [];
   bool _isLoading = true;
@@ -96,50 +98,18 @@ class _StatsScreenState extends State<StatsScreen>
 
   /// 获取所有记录（合并旧记录和新记录）
   List<dynamic> _getAllRecords() {
-    return _cachedAllRecords ??= [..._oldSessions, ..._newRecords];
-  }
-
-  /// 获取记录日期（剥离时间部分，只保留日期）
-  DateTime _getRecordDate(dynamic record) {
-    if (record is WorkoutSession) {
-      final parsed = DateTime.parse(record.createdAt);
-      return DateTime(parsed.year, parsed.month, parsed.day);
-    } else if (record is WorkoutRecord) {
-      return DateTime(record.date.year, record.date.month, record.date.day);
-    }
-    throw ArgumentError('Unknown record type: ${record.runtimeType}');
-  }
-
-  /// 获取记录组数
-  int _getRecordSets(dynamic record) {
-    if (record is WorkoutSession) {
-      return record.totalSets;
-    } else if (record is WorkoutRecord) {
-      return record.totalSets;
-    }
-    return 0;
-  }
-
-  /// 获取记录时长（秒）
-  int _getRecordDuration(dynamic record) {
-    if (record is WorkoutSession) {
-      return record.totalRestTimeMs ~/ 1000;
-    } else if (record is WorkoutRecord) {
-      return record.durationSeconds;
-    }
-    return 0;
+    return _cachedAllRecords ??= StatsAggregatorService.mergeRecords(
+      _oldSessions,
+      _newRecords,
+    );
   }
 
   /// 获取一周的开始日期（周一），剥离时间部分
-  DateTime _getStartOfWeek(DateTime date) {
-    final normalized = DateTime(date.year, date.month, date.day);
-    return normalized.subtract(Duration(days: date.weekday - 1));
-  }
+  DateTime _getStartOfWeek(DateTime date) => _aggregator.getStartOfWeek(date);
 
   /// 获取一周的7天列表
-  List<DateTime> _getWeekDays(DateTime weekStart) {
-    return List.generate(7, (i) => weekStart.add(Duration(days: i)));
-  }
+  List<DateTime> _getWeekDays(DateTime weekStart) =>
+      _aggregator.getWeekDays(weekStart);
 
   /// 导航周（-1上一周，1下一周）
   void _navigateWeek(int direction) {
@@ -213,257 +183,79 @@ class _StatsScreenState extends State<StatsScreen>
 
   /// 按选中的周筛选记录
   List<dynamic> _filterBySelectedWeek() {
-    final weekStart = _getStartOfWeek(_selectedWeekStart);
-    final startOfWeek = DateTime(
-      weekStart.year,
-      weekStart.month,
-      weekStart.day,
+    return _aggregator.filterByWeek(
+      _getAllRecords(),
+      _getStartOfWeek(_selectedWeekStart),
     );
-    final endOfWeek = startOfWeek.add(const Duration(days: 7));
-
-    return _getAllRecords().where((record) {
-      DateTime date = _getRecordDate(record);
-      return date.isAfter(
-            startOfWeek.subtract(const Duration(milliseconds: 1)),
-          ) &&
-          date.isBefore(endOfWeek);
-    }).toList();
   }
 
   /// 按选中的月份筛选记录
   List<dynamic> _filterBySelectedMonth() {
-    return _getAllRecords().where((record) {
-      DateTime date = _getRecordDate(record);
-      return date.year == _selectedYear && date.month == _selectedMonth;
-    }).toList();
+    return _aggregator.filterByMonth(
+      _getAllRecords(),
+      _selectedYear,
+      _selectedMonth,
+    );
   }
 
   /// 按指定周的周一筛选记录（参数化版本，用于获取上一周期数据）
   List<dynamic> _filterByWeek(DateTime referenceDate) {
-    final weekStart = _getStartOfWeek(referenceDate);
-    final startOfWeek = DateTime(
-      weekStart.year,
-      weekStart.month,
-      weekStart.day,
+    return _aggregator.filterByWeek(
+      _getAllRecords(),
+      _getStartOfWeek(referenceDate),
     );
-    final endOfWeek = startOfWeek.add(const Duration(days: 7));
-    return _getAllRecords().where((record) {
-      DateTime date = _getRecordDate(record);
-      return date.isAfter(
-            startOfWeek.subtract(const Duration(milliseconds: 1)),
-          ) &&
-          date.isBefore(endOfWeek);
-    }).toList();
   }
 
   /// 按指定年月筛选记录（参数化版本，用于获取上一周期数据）
   List<dynamic> _filterByMonth(int year, int month) {
-    return _getAllRecords().where((record) {
-      DateTime date = _getRecordDate(record);
-      return date.year == year && date.month == month;
-    }).toList();
+    return _aggregator.filterByMonth(_getAllRecords(), year, month);
   }
 
   /// 获取一年中每月的训练次数
   Map<int, int> _getMonthlyCounts(int year) {
-    final counts = <int, int>{};
-    for (int i = 1; i <= 12; i++) {
-      counts[i] = 0;
-    }
-
-    for (final record in _getAllRecords()) {
-      final date = _getRecordDate(record);
-      if (date.year == year) {
-        counts[date.month] = (counts[date.month] ?? 0) + 1;
-      }
-    }
-
-    return counts;
+    return _aggregator.getMonthlyCounts(_getAllRecords(), year);
   }
 
   /// 获取选中周内有训练的天数
   Set<int> _getWorkoutDaysInWeek() {
-    final days = <int>{};
-    final records = _filterBySelectedWeek();
-    final weekStart = _getStartOfWeek(_selectedWeekStart);
-
-    for (final record in records) {
-      final date = _getRecordDate(record);
-      final dayIndex = date.difference(weekStart).inDays;
-      if (dayIndex >= 0 && dayIndex < 7) {
-        days.add(dayIndex);
-      }
-    }
-
-    return days;
+    return _aggregator.getWorkoutDaysInWeek(
+      _getAllRecords(),
+      _getStartOfWeek(_selectedWeekStart),
+    );
   }
 
   /// 获取每日训练时长（周视图或月视图）
   Map<int, int> _getDailyDurations(List<dynamic> records, bool isWeek) {
-    final durations = <int, int>{};
-
-    if (isWeek) {
-      final weekStart = _getStartOfWeek(_selectedWeekStart);
-      for (int i = 0; i < 7; i++) {
-        durations[i] = 0;
-      }
-
-      for (final record in records) {
-        final date = _getRecordDate(record);
-        final dayIndex = date.difference(weekStart).inDays;
-        if (dayIndex >= 0 && dayIndex < 7) {
-          durations[dayIndex] =
-              (durations[dayIndex] ?? 0) + _getRecordDuration(record);
-        }
-      }
-    } else {
-      final daysInMonth = DateTime(_selectedYear, _selectedMonth + 1, 0).day;
-      for (int i = 1; i <= daysInMonth; i++) {
-        durations[i] = 0;
-      }
-
-      for (final record in records) {
-        final date = _getRecordDate(record);
-        if (date.year == _selectedYear && date.month == _selectedMonth) {
-          durations[date.day] =
-              (durations[date.day] ?? 0) + _getRecordDuration(record);
-        }
-      }
-    }
-
-    return durations;
+    return _aggregator.getDailyDurations(
+      records,
+      isWeek: isWeek,
+      weekStart: _selectedWeekStart,
+      year: _selectedYear,
+      month: _selectedMonth,
+    );
   }
 
   /// 获取每日训练组数（周视图或月视图）
   Map<int, int> _getDailySets(List<dynamic> records, bool isWeek) {
-    final sets = <int, int>{};
-
-    if (isWeek) {
-      final weekStart = _getStartOfWeek(_selectedWeekStart);
-      for (int i = 0; i < 7; i++) {
-        sets[i] = 0;
-      }
-
-      for (final record in records) {
-        final date = _getRecordDate(record);
-        final dayIndex = date.difference(weekStart).inDays;
-        if (dayIndex >= 0 && dayIndex < 7) {
-          sets[dayIndex] = (sets[dayIndex] ?? 0) + _getRecordSets(record);
-        }
-      }
-    } else {
-      final daysInMonth = DateTime(_selectedYear, _selectedMonth + 1, 0).day;
-      for (int i = 1; i <= daysInMonth; i++) {
-        sets[i] = 0;
-      }
-
-      for (final record in records) {
-        final date = _getRecordDate(record);
-        if (date.year == _selectedYear && date.month == _selectedMonth) {
-          sets[date.day] = (sets[date.day] ?? 0) + _getRecordSets(record);
-        }
-      }
-    }
-
-    return sets;
+    return _aggregator.getDailySets(
+      records,
+      isWeek: isWeek,
+      weekStart: _selectedWeekStart,
+      year: _selectedYear,
+      month: _selectedMonth,
+    );
   }
 
   /// 计算训练频率统计
-  Map<String, dynamic> _calculateFrequencyStats(List<dynamic> records) {
-    if (records.isEmpty) {
-      return {
-        'sessionCount': 0,
-        'workoutDays': 0,
-        'avgSessionsPerWeek': 0.0,
-        'muscleFrequency': <PrimaryMuscleGroup, int>{},
-      };
-    }
-
-    final uniqueDays = <String>{};
-    final muscleFrequency = <PrimaryMuscleGroup, int>{};
-
-    for (final record in records) {
-      final date = _getRecordDate(record);
-      uniqueDays.add('${date.year}-${date.month}-${date.day}');
-
-      if (record is WorkoutRecord && record.trainedMuscles.isNotEmpty) {
-        for (final muscle in record.trainedMuscles) {
-          muscleFrequency[muscle] = (muscleFrequency[muscle] ?? 0) + 1;
-        }
-      }
-    }
-
-    // Calculate actual sessions per week based on the time span
-    final dates = uniqueDays.map((d) {
-      final parts = d.split('-');
-      return DateTime(
-        int.parse(parts[0]),
-        int.parse(parts[1]),
-        int.parse(parts[2]),
-      );
-    }).toList();
-    dates.sort();
-
-    final double avgSessionsPerWeek;
-    if (dates.length >= 2) {
-      final spanDays = dates.last.difference(dates.first).inDays + 1;
-      final spanWeeks = spanDays / 7.0;
-      avgSessionsPerWeek = spanWeeks > 0
-          ? records.length / spanWeeks
-          : records.length.toDouble();
-    } else {
-      // Single day of data — can't compute meaningful weekly average
-      avgSessionsPerWeek = records.length.toDouble();
-    }
-
-    return {
-      'sessionCount': records.length,
-      'workoutDays': uniqueDays.length,
-      'avgSessionsPerWeek': avgSessionsPerWeek,
-      'muscleFrequency': muscleFrequency,
-    };
-  }
+  Map<String, dynamic> _calculateFrequencyStats(List<dynamic> records) =>
+      _aggregator.calculateFrequencyStats(records);
 
   /// 计算训练量统计
-  Map<String, dynamic> _calculateVolumeStats(List<dynamic> records) {
-    if (records.isEmpty) {
-      return {
-        'totalSets': 0,
-        'totalDuration': 0,
-        'avgSetsPerSession': 0.0,
-        'avgDurationPerSession': 0,
-      };
-    }
+  Map<String, dynamic> _calculateVolumeStats(List<dynamic> records) =>
+      _aggregator.calculateVolumeStats(records);
 
-    int totalSets = 0;
-    int totalDuration = 0;
-
-    for (final record in records) {
-      totalSets += _getRecordSets(record);
-      totalDuration += _getRecordDuration(record);
-    }
-
-    return {
-      'totalSets': totalSets,
-      'totalDuration': totalDuration,
-      'avgSetsPerSession': totalSets / records.length,
-      'avgDurationPerSession': totalDuration ~/ records.length,
-    };
-  }
-
-  String formatDuration(int seconds) {
-    final hours = seconds ~/ 3600;
-    final minutes = (seconds % 3600) ~/ 60;
-    final secs = seconds % 60;
-
-    if (hours > 0) {
-      return '${hours}h ${minutes}m';
-    } else if (secs > 0) {
-      return '${minutes}m ${secs}s';
-    } else {
-      return '${minutes}m';
-    }
-  }
+  String formatDuration(int seconds) =>
+      StatsAggregatorService.formatDuration(seconds);
 
   @override
   Widget build(BuildContext context) {
@@ -630,29 +422,11 @@ class _StatsScreenState extends State<StatsScreen>
     List<dynamic> currentRecords,
     List<dynamic> previousRecords,
   ) {
-    final currentWorkoutRecords = currentRecords
-        .whereType<WorkoutRecord>()
-        .toList();
-    final previousWorkoutRecords = previousRecords
-        .whereType<WorkoutRecord>()
-        .toList();
-
-    if (currentWorkoutRecords.isEmpty || previousWorkoutRecords.isEmpty) {
-      return null;
-    }
-
-    final currentVolume = _statsCalc.calculateTotalVolume(
-      currentWorkoutRecords,
+    return _aggregator.calculateVolumeChange(
+      currentRecords,
+      previousRecords,
       bodyWeight: _userBodyWeight,
     );
-    final previousVolume = _statsCalc.calculateTotalVolume(
-      previousWorkoutRecords,
-      bodyWeight: _userBodyWeight,
-    );
-
-    if (previousVolume == 0) return null;
-
-    return ((currentVolume - previousVolume) / previousVolume) * 100;
   }
 
   /// 训练量概览
@@ -1610,25 +1384,8 @@ class _StatsScreenState extends State<StatsScreen>
   // ==================== 图表数据计算方法 ====================
 
   /// 计算常用动作数据（TOP 10）
-  Map<String, int> _calculateCommonExercises(List<dynamic> records) {
-    final exerciseCounts = <String, int>{};
-
-    for (final record in records) {
-      if (record is WorkoutRecord) {
-        for (final exercise in record.exercises) {
-          final name = exercise.name;
-          if (name.isNotEmpty) {
-            exerciseCounts[name] = (exerciseCounts[name] ?? 0) + 1;
-          }
-        }
-      }
-    }
-
-    final sorted = exerciseCounts.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
-
-    return Map.fromEntries(sorted.take(10));
-  }
+  Map<String, int> _calculateCommonExercises(List<dynamic> records) =>
+      _aggregator.calculateCommonExercises(records);
 
   // ==================== 新增统计组件 ====================
 
@@ -1864,12 +1621,8 @@ class _StatsScreenState extends State<StatsScreen>
   }
 
   /// Format volume with thousand separators
-  String _formatVolume(double volume) {
-    if (volume >= 1000) {
-      return '${(volume / 1000).toStringAsFixed(1)}k kg';
-    }
-    return '${volume.toStringAsFixed(0)} kg';
-  }
+  String _formatVolume(double volume) =>
+      StatsAggregatorService.formatVolume(volume);
 
   /// 主肌群恢复天数（简化版：只显示6个主肌群）
   Widget _buildPrimaryRecoveryList(
