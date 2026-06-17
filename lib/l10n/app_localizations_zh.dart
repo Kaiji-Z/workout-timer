@@ -210,4 +210,29 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get calNextMonth => '下个月';
+
+  @override
+  String get oemSectionTitle => '厂商后台管理';
+
+  @override
+  String oemCardTitle(String name) {
+    return '$name手机省电管理';
+  }
+
+  @override
+  String oemExplanation(String name) {
+    return '您的$name手机有独立的省电管理，标准电池优化白名单可能不够。请点击下方按钮，在打开的设置页面中允许本应用自启动/后台运行。';
+  }
+
+  @override
+  String get oemFlowHint =>
+      '提示：请先完成上方「允许后台活动」（标准白名单），再进行下方的厂商专属设置，两者配合才能确保后台计时正常。';
+
+  @override
+  String oemGoButton(String name) {
+    return '前往$name设置';
+  }
+
+  @override
+  String get oemDefaultInstruction => '请在系统设置中允许本应用自启动和后台运行';
 }

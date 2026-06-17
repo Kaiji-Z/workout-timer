@@ -210,4 +210,30 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get calNextMonth => 'Next month';
+
+  @override
+  String get oemSectionTitle => 'OEM Background Manager';
+
+  @override
+  String oemCardTitle(String name) {
+    return '$name Power Manager';
+  }
+
+  @override
+  String oemExplanation(String name) {
+    return 'Your $name phone has its own power management that may override the standard battery whitelist. Tap below and allow this app to run in the background.';
+  }
+
+  @override
+  String get oemFlowHint =>
+      'Tip: complete \'Allow background activity\' (the standard whitelist) above first, then do the OEM-specific setting below — both are needed for reliable background timing.';
+
+  @override
+  String oemGoButton(String name) {
+    return 'Open $name Settings';
+  }
+
+  @override
+  String get oemDefaultInstruction =>
+      'Allow this app to auto-start and run in the background in system settings';
 }
