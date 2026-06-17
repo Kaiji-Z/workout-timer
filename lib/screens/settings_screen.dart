@@ -10,6 +10,7 @@ import '../services/notification_sound_service.dart';
 import '../services/data_transfer_service.dart';
 import '../theme/theme_provider.dart';
 import '../theme/app_theme.dart';
+import '../l10n/app_localizations.dart';
 import '../utils/dimensions.dart';
 import '../animations/page_transitions.dart';
 import 'user_preferences_screen.dart';
@@ -74,13 +75,13 @@ class _SettingsScreenState extends State<SettingsScreen>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed && !kIsWeb && Platform.isAndroid) {
       // Refresh battery optimization status when user returns from system settings
-      BatteryOptimizationService.isIgnoringBatteryOptimizations().then(
-        (ignored) {
-          if (mounted) {
-            setState(() => _isBatteryOptimizationIgnored = ignored);
-          }
-        },
-      );
+      BatteryOptimizationService.isIgnoringBatteryOptimizations().then((
+        ignored,
+      ) {
+        if (mounted) {
+          setState(() => _isBatteryOptimizationIgnored = ignored);
+        }
+      });
       _checkOemStatus();
     }
   }
@@ -299,8 +300,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                     ),
                     onTap: () async {
                       if (!_isBatteryOptimizationIgnored) {
-                        await BatteryOptimizationService
-                            .requestIgnoreBatteryOptimizations();
+                        await BatteryOptimizationService.requestIgnoreBatteryOptimizations();
                       }
                     },
                   ),
@@ -466,9 +466,7 @@ class _SettingsScreenState extends State<SettingsScreen>
               onTap: () {
                 Navigator.push(
                   context,
-                  FadeUpPageRoute(
-                    page: const UserPreferencesScreen(),
-                  ),
+                  FadeUpPageRoute(page: const UserPreferencesScreen()),
                 );
               },
             ),
@@ -482,8 +480,7 @@ class _SettingsScreenState extends State<SettingsScreen>
             child: Column(
               children: [
                 ListTile(
-                  title:
-                      Text('隐私政策', style: TextStyle(color: theme.textColor)),
+                  title: Text('隐私政策', style: TextStyle(color: theme.textColor)),
                   subtitle: Text(
                     '查看本应用的隐私政策',
                     style: Theme.of(context).textTheme.bodySmall!,
@@ -496,8 +493,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                 ),
                 Divider(color: theme.dividerColor, height: 1),
                 ListTile(
-                  title:
-                      Text('版本', style: TextStyle(color: theme.textColor)),
+                  title: Text('版本', style: TextStyle(color: theme.textColor)),
                   trailing: Text(
                     '1.0.0',
                     style: TextStyle(color: theme.secondaryTextColor),
@@ -505,8 +501,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                 ),
                 Divider(color: theme.dividerColor, height: 1),
                 ListTile(
-                  title:
-                      Text('开发者', style: TextStyle(color: theme.textColor)),
+                  title: Text('开发者', style: TextStyle(color: theme.textColor)),
                   subtitle: Text(
                     '深圳市露凯文化传播有限公司',
                     style: Theme.of(context).textTheme.bodySmall!,
@@ -514,8 +509,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                 ),
                 Divider(color: theme.dividerColor, height: 1),
                 ListTile(
-                  title: Text('联系邮箱',
-                      style: TextStyle(color: theme.textColor)),
+                  title: Text('联系邮箱', style: TextStyle(color: theme.textColor)),
                   subtitle: Text(
                     'lookatmedia@163.com',
                     style: Theme.of(context).textTheme.bodySmall!,
@@ -527,7 +521,8 @@ class _SettingsScreenState extends State<SettingsScreen>
                   ),
                   onTap: () {
                     Clipboard.setData(
-                        const ClipboardData(text: 'lookatmedia@163.com'));
+                      const ClipboardData(text: 'lookatmedia@163.com'),
+                    );
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text('邮箱已复制'),
@@ -566,25 +561,32 @@ class _SettingsScreenState extends State<SettingsScreen>
                   ),
                 ),
                 const SizedBox(height: 16),
-                Text('数据存储',
-                    style: TextStyle(
-                        color: theme.textColor,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14)),
+                Text(
+                  '数据存储',
+                  style: TextStyle(
+                    color: theme.textColor,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
+                ),
                 const SizedBox(height: 4),
                 Text(
                   '所有训练数据均存储在您的设备本地（SQLite 数据库），不上传至任何服务器。卸载应用将永久删除所有数据。',
                   style: TextStyle(
-                      color: theme.secondaryTextColor,
-                      fontSize: 13,
-                      height: 1.6),
+                    color: theme.secondaryTextColor,
+                    fontSize: 13,
+                    height: 1.6,
+                  ),
                 ),
                 const SizedBox(height: 12),
-                Text('设备权限',
-                    style: TextStyle(
-                        color: theme.textColor,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14)),
+                Text(
+                  '设备权限',
+                  style: TextStyle(
+                    color: theme.textColor,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
+                ),
                 const SizedBox(height: 4),
                 Text(
                   '• 通知：计时结束提醒\n'
@@ -593,23 +595,28 @@ class _SettingsScreenState extends State<SettingsScreen>
                   '• 网络：仅下载开源健身图片（CC0）\n'
                   '• 电池优化豁免：防止计时器被系统中断',
                   style: TextStyle(
-                      color: theme.secondaryTextColor,
-                      fontSize: 13,
-                      height: 1.6),
+                    color: theme.secondaryTextColor,
+                    fontSize: 13,
+                    height: 1.6,
+                  ),
                 ),
                 const SizedBox(height: 12),
-                Text('第三方服务',
-                    style: TextStyle(
-                        color: theme.textColor,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14)),
+                Text(
+                  '第三方服务',
+                  style: TextStyle(
+                    color: theme.textColor,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
+                ),
                 const SizedBox(height: 4),
                 Text(
                   '本应用不集成任何第三方数据分析、广告或追踪 SDK。',
                   style: TextStyle(
-                      color: theme.secondaryTextColor,
-                      fontSize: 13,
-                      height: 1.6),
+                    color: theme.secondaryTextColor,
+                    fontSize: 13,
+                    height: 1.6,
+                  ),
                 ),
                 const SizedBox(height: 16),
                 Text(
@@ -626,8 +633,11 @@ class _SettingsScreenState extends State<SettingsScreen>
         actions: [
           TextButton(
             onPressed: () {
-              Clipboard.setData(const ClipboardData(
-                  text: 'https://kaiji-z.github.io/workout-timer/'));
+              Clipboard.setData(
+                const ClipboardData(
+                  text: 'https://kaiji-z.github.io/workout-timer/',
+                ),
+              );
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
@@ -966,12 +976,13 @@ class _SettingsScreenState extends State<SettingsScreen>
   /// is null (defensive guard — the build method already checks non-null).
   List<Widget> _buildOemSection(String? manufacturer, AppThemeData theme) {
     if (manufacturer == null) return const [];
+    final l10n = AppLocalizations.of(context)!;
     final displayName = _oemDisplayNames[manufacturer] ?? manufacturer;
-    final instruction = _oemInstructions[manufacturer] ??
-        '请在系统设置中允许本应用自启动和后台运行';
+    final instruction =
+        _oemInstructions[manufacturer] ?? l10n.oemDefaultInstruction;
 
     return [
-      _buildSectionHeader('厂商后台管理', theme),
+      _buildSectionHeader(l10n.oemSectionTitle, theme),
       _buildSettingsCard(
         theme: theme,
         padding: const EdgeInsets.all(AppDimensions.screenPadding),
@@ -981,15 +992,11 @@ class _SettingsScreenState extends State<SettingsScreen>
             // Title row with manufacturer name
             Row(
               children: [
-                Icon(
-                  Icons.phone_android,
-                  size: 20,
-                  color: theme.accentColor,
-                ),
+                Icon(Icons.phone_android, size: 20, color: theme.accentColor),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    '$displayName手机省电管理',
+                    l10n.oemCardTitle(displayName),
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
@@ -1002,22 +1009,53 @@ class _SettingsScreenState extends State<SettingsScreen>
             const SizedBox(height: 12),
             // Explanation text
             Text(
-              '您的$displayName手机有独立的省电管理，标准电池优化白名单可能不够。'
-              '请点击下方按钮，在打开的设置页面中允许本应用自启动/后台运行。',
+              l10n.oemExplanation(displayName),
               style: TextStyle(
                 fontSize: 13,
                 height: 1.5,
                 color: theme.secondaryTextColor,
               ),
             ),
+            // Flow hint: do standard whitelist first, then OEM setting.
+            // Show only when standard whitelist is NOT yet granted.
+            if (!_isBatteryOptimizationIgnored) ...[
+              Container(
+                margin: const EdgeInsets.only(top: 4, bottom: 12),
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: theme.warningColor.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(
+                      Icons.lightbulb_outline,
+                      size: 16,
+                      color: theme.warningColor,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        l10n.oemFlowHint,
+                        style: TextStyle(
+                          fontSize: 12,
+                          height: 1.5,
+                          color: theme.textColor,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
             const SizedBox(height: 12),
             // Step-by-step instructions box
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: theme.accentColor.withValues(alpha: 0.08),
-                borderRadius:
-                    BorderRadius.circular(AppDimensions.radiusMd),
+                borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
                 border: Border.all(
                   color: theme.accentColor.withValues(alpha: 0.2),
                 ),
@@ -1025,11 +1063,7 @@ class _SettingsScreenState extends State<SettingsScreen>
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(
-                    Icons.checklist,
-                    size: 16,
-                    color: theme.accentColor,
-                  ),
+                  Icon(Icons.checklist, size: 16, color: theme.accentColor),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -1053,14 +1087,13 @@ class _SettingsScreenState extends State<SettingsScreen>
                   BatteryOptimizationService.requestOemAutoStart();
                 },
                 icon: const Icon(Icons.open_in_new, size: 18),
-                label: Text('前往$displayName设置'),
+                label: Text(l10n.oemGoButton(displayName)),
                 style: FilledButton.styleFrom(
                   backgroundColor: theme.accentColor,
                   foregroundColor: theme.onAccentColor,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(AppDimensions.radiusMd),
+                    borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
                   ),
                 ),
               ),

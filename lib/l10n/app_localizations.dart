@@ -451,6 +451,42 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'下个月'**
   String get calNextMonth;
+
+  /// No description provided for @oemSectionTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'厂商后台管理'**
+  String get oemSectionTitle;
+
+  /// No description provided for @oemCardTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'{name}手机省电管理'**
+  String oemCardTitle(String name);
+
+  /// No description provided for @oemExplanation.
+  ///
+  /// In zh, this message translates to:
+  /// **'您的{name}手机有独立的省电管理，标准电池优化白名单可能不够。请点击下方按钮，在打开的设置页面中允许本应用自启动/后台运行。'**
+  String oemExplanation(String name);
+
+  /// No description provided for @oemFlowHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'提示：请先完成上方「允许后台活动」（标准白名单），再进行下方的厂商专属设置，两者配合才能确保后台计时正常。'**
+  String get oemFlowHint;
+
+  /// No description provided for @oemGoButton.
+  ///
+  /// In zh, this message translates to:
+  /// **'前往{name}设置'**
+  String oemGoButton(String name);
+
+  /// No description provided for @oemDefaultInstruction.
+  ///
+  /// In zh, this message translates to:
+  /// **'请在系统设置中允许本应用自启动和后台运行'**
+  String get oemDefaultInstruction;
 }
 
 class _AppLocalizationsDelegate

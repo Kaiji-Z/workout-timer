@@ -180,4 +180,17 @@
   "@calPrevMonth": {},
   "calNextMonth": "下个月",
   "@calNextMonth": {}
+,
+  "oemSectionTitle": "厂商后台管理",
+  "@oemSectionTitle": {},
+  "oemCardTitle": "{name}手机省电管理",
+  "@oemCardTitle": { "placeholders": { "name": { "type": "String" } } },
+  "oemExplanation": "您的{name}手机有独立的省电管理，标准电池优化白名单可能不够。请点击下方按钮，在打开的设置页面中允许本应用自启动/后台运行。",
+  "@oemExplanation": { "placeholders": { "name": { "type": "String" } } },
+  "oemFlowHint": "提示：请先完成上方「允许后台活动」（标准白名单），再进行下方的厂商专属设置，两者配合才能确保后台计时正常。",
+  "@oemFlowHint": {},
+  "oemGoButton": "前往{name}设置",
+  "@oemGoButton": { "placeholders": { "name": { "type": "String" } } },
+  "oemDefaultInstruction": "请在系统设置中允许本应用自启动和后台运行",
+  "@oemDefaultInstruction": {}
 }
