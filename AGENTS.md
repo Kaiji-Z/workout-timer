@@ -286,6 +286,31 @@ Dark mode uses derived colors from light theme via `AppThemeData.dark` getter.
 
 ---
 
+## OEM 后台保活 (Background Keep-Alive on Chinese ROMs)
+
+国产 ROM 的"自启动"和"省电/后台耗电"是**两套独立**的设置。仅开自启动无法保证 app 切到后台后继续倒计时——真正决定后台存活的是省电设置。设置页提供两层引导:
+
+1. **标准"后台运行"卡片** → `requestIgnoreBatteryOptimizations()`:标准 Android 电池优化白名单。
+2. **"厂商后台管理"卡片** → `requestOemAutoStart()`:打开厂商专属省电页(由 `MainActivity.getOemAutoStartIntents()` 跳转)。
+
+**各厂商后台计时存活的关键设置**(intent 列表在 `MainActivity.kt` 按此优先级排序,省电页面优先、自启动降级):
+
+| 厂商 | 关键设置(决定后台存活) | intent 入口 |
+|------|------------------------|------------|
+| 华为/荣耀 HarmonyOS | 应用启动管理→关自动管理→勾"允许后台活动" | `StartupNormalAppListActivity` |
+| 小米 MIUI/HyperOS | 省电策略→"无限制"(核心);神隐模式白名单(旧版) | `powerkeeper/HiddenAppsContainerManagementActivity` |
+| OPPO ColorOS | 关闭"耗电保护"/后台冻结 | `safecenter/StartupAppListActivity` |
+| vivo OriginOS | "后台高耗电"→允许(核心);电池白名单 | `AddWhiteListActivity` / `ExcessivePowerManagerActivity` |
+| 三星 One UI | 电池→"不受限制"(包名多变) | `lool/BatteryActivity` |
+| 魅族 Flyme | 智能休眠白名单 | `SmartBGActivity` |
+| 一加 OxygenOS | 电池优化→"不优化" | `ChainLaunchAppListActivity` |
+
+**探测逻辑**:`requestOemAutoStart` 遍历 intent 列表,用 `resolveActivity` 找第一个存在的并打开(try-catch 兜底回退到应用详情页)。修改某厂商跳转目标时,**调整列表顺序即可**,探测逻辑无需动。
+
+**维护提示**:各厂商不同系统版本的 Activity 类名会变。更新时保持"省电/电池页面在前、自启动在后"的优先级,并广撒网(多个已知 ComponentName)让 `resolveActivity` 自动兜底。不要把自启动页排在最前——否则会复现"跳到自启动而非后台耗电"的 bug。
+
+---
+
 ## DATABASE
 
 ### Schema (v5)
