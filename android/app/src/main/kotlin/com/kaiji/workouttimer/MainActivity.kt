@@ -166,101 +166,106 @@ class MainActivity : FlutterActivity() {
         val brand = Build.BRAND.lowercase(Locale.ROOT)
         val intents = mutableListOf<Intent>()
 
-        // Intents are ordered by priority: power-saving / battery-management
-        // pages come FIRST (those are what actually keep the timer alive when
-        // the app is backgrounded), auto-start pages come LAST as a fallback.
-        // requestOemAutoStart() resolves them in order and opens the first one
-        // that exists on this device, so the ordering below is load-bearing.
+        // Each OEM's intent list is ordered: power-saving / battery pages FIRST
+        // (those actually keep the timer alive in background), auto-start LAST
+        // (fallback). requestOemAutoStart() opens the first resolvable one.
+        //
+        // VERIFICATION STATUS legend (in the per-OEM comments below):
+        //   [VERIFIED]   confirmed working on a real device
+        //   [OFFICIAL]   path confirmed by OEM official docs, Activity name from community
+        //   [UNVERIFIED] Activity name from community reverse-engineering, not tested
+        //   [RESTRICTED] known to reject third-party startActivity on new OS versions
         when {
-            brand.contains("huawei") -> {
-                // HarmonyOS / EMUI — 应用启动管理 is the single page that holds
-                // both auto-start AND "allow background activity" toggles, so it
-                // stays first. Older EMUI used ProtectActivity (受保护应用).
+            brand.contains("huawei") || brand.contains("honor") -> {
+                // HarmonyOS / EMUI. "App launch management" is the ONE page that
+                // holds auto-start + "allow background activity" toggles together.
+                // Official doc: consumer.huawei.com/cn/support/content/zh-cn00428704
+                // [OFFICIAL] app launch management (the critical page)
                 intents.add(Intent().setComponent(ComponentName("com.huawei.systemmanager",
                     "com.huawei.systemmanager.startupmgr.ui.StartupNormalAppListActivity")))
+                // [UNVERIFIED] older EMUI "protected apps"
                 intents.add(Intent().setComponent(ComponentName("com.huawei.systemmanager",
                     "com.huawei.systemmanager.optimize.process.ProtectActivity")))
-                // 电源优化 (power manager) — last-resort battery entry
-                intents.add(Intent().setComponent(ComponentName("com.huawei.systemmanager",
-                    "com.huawei.systemmanager.power.ui.HwPowerManagerActivity")))
-                intents.add(Intent().setComponent(ComponentName("com.huawei.systemmanager",
-                    "com.huawei.systemmanager.appcontrol.activity.StartupAppControlActivity")))
-            }
-            brand.contains("honor") -> {
-                // Honor MagicOS — reuses Huawei systemmanager
-                intents.add(Intent().setComponent(ComponentName("com.huawei.systemmanager",
-                    "com.huawei.systemmanager.startupmgr.ui.StartupNormalAppListActivity")))
-                intents.add(Intent().setComponent(ComponentName("com.huawei.systemmanager",
-                    "com.huawei.systemmanager.optimize.process.ProtectActivity")))
+                // [UNVERIFIED] power optimization
                 intents.add(Intent().setComponent(ComponentName("com.huawei.systemmanager",
                     "com.huawei.systemmanager.power.ui.HwPowerManagerActivity")))
             }
             brand.contains("xiaomi") || brand.contains("redmi") || brand.contains("poco") -> {
-                // MIUI / HyperOS — the power-saver ("神隐模式"/省电策略) is what
-                // keeps the app alive; auto-start alone is NOT enough.
-                // 省电策略 / 神隐模式 (power keeper — the critical one)
+                // MIUI / HyperOS. The "power strategy = unrestricted" setting is
+                // what keeps apps alive; auto-start alone is NOT enough.
+                // Official doc: dev.mi.com Powerkeeper (confirms the strategy, not the Activity name)
+                // [UNVERIFIED] power-saver / hidden-mode container (the critical one)
                 intents.add(Intent().setComponent(ComponentName("com.miui.powerkeeper",
                     "com.miui.powerkeeper.ui.HiddenAppsContainerManagementActivity")))
-                // 省电策略另一入口
+                // [UNVERIFIED] per-app power config entry
                 intents.add(Intent().setComponent(ComponentName("com.miui.powerkeeper",
-                    "com.miui.powerkeeper.powercfg.PowercfgEnterActivity")))
-                // 自启动管理 (auto-start — fallback only)
+                    "com.miui.powerkeeper.ui.PowercfgEnterActivity")))
+                // [UNVERIFIED] auto-start management (fallback only).
+                // NOTE: on Android 13+ startActivity may throw SecurityException
+                // even when resolveActivity succeeds; the outer try-catch handles it.
                 intents.add(Intent().setComponent(ComponentName("com.miui.securitycenter",
                     "com.miui.permcenter.autostart.AutoStartManagementActivity")))
             }
             brand.contains("oppo") || brand.contains("realme") -> {
-                // ColorOS — newer versions merge power + auto-start into the safe
-                // center; older versions split them. List both orders.
+                // ColorOS. Safe-center package name varies across versions:
+                //   com.coloros.safecenter (newer) / com.color.safecenter / com.oppo.safe
+                // [UNVERIFIED] safe-center startup list (newer ColorOS)
                 intents.add(Intent().setComponent(ComponentName("com.coloros.safecenter",
                     "com.coloros.safecenter.permission.startup.StartupAppListActivity")))
                 intents.add(Intent().setComponent(ComponentName("com.coloros.safecenter",
                     "com.coloros.safecenter.startupapp.StartupAppListActivity")))
-                // 耗电保护 (power-usage protection) entry
+                // [UNVERIFIED] power-usage model
                 intents.add(Intent().setComponent(ComponentName("com.coloros.safecenter",
                     "com.coloros.safecenter.powerusage.PowerUsageModelActivity")))
+                // [UNVERIFIED] older ColorOS safe-center
                 intents.add(Intent().setComponent(ComponentName("com.oppo.safe",
                     "com.oppo.safe.permission.startup.StartupAppListActivity")))
+                // [RESTRICTED] newer ColorOS rejects direct startActivity for these
+                // components even when declared; resolveActivity may still pass.
+                // If all above fail, requestOemAutoStart falls back to app-details page.
             }
             brand.contains("vivo") || brand.contains("iqoo") -> {
-                // vivo OriginOS / Funtouch OS — "后台高耗电" allow-list is the
-                // critical setting for background survival. Several Activity
-                // names vary across versions, so list all known ones before
-                // falling back to the auto-start page.
-                // 后台高耗电白名单 (high-power-usage allow-list — the critical one)
+                // OriginOS / Funtouch OS. "Background high power usage" allow-list
+                // is the critical setting for background survival.
+                // [VERIFIED on OriginOS 6, iQOO 12, Android 16] background high-power
+                // usage page — opens without privileged permission.
+                intents.add(Intent().setComponent(ComponentName("com.iqoo.powersaving",
+                    "com.iqoo.powersaving.BackgroundHighUsageActivity")))
+                // [UNVERIFIED] older Funtouch OS high-power allow-list
                 intents.add(Intent().setComponent(ComponentName("com.iqoo.secure",
                     "com.iqoo.secure.ui.phoneoptimize.AddWhiteListActivity")))
-                // 后台耗电管理 (excessive power manager — older Funtouch core)
-                intents.add(Intent().setComponent(ComponentName("com.vivo.abe",
-                    "com.vivo.applicationbehaviorengine.ui.ExcessivePowerManagerActivity")))
-                // 后台优化 (newer OriginOS)
-                intents.add(Intent().setComponent(ComponentName("com.iqoo.secure",
-                    "com.iqoo.secure.ui.phoneoptimize.BgOptimizeActivity")))
-                // 自启动 (auto-start — fallback only, what users mistakenly see today)
-                intents.add(Intent().setComponent(ComponentName("com.iqoo.secure",
-                    "com.iqoo.secure.ui.phoneoptimize.BgStartUpManager")))
+                // [VERIFIED on OriginOS 6] auto-start management (opens, but is the
+                // wrong page — fallback only, NOT what users should configure).
                 intents.add(Intent().setComponent(ComponentName("com.vivo.permissionmanager",
                     "com.vivo.permissionmanager.activity.BgStartUpManagerActivity")))
+                intents.add(Intent().setComponent(ComponentName("com.iqoo.secure",
+                    "com.iqoo.secure.ui.phoneoptimize.BgStartUpManager")))
             }
             brand.contains("meizu") -> {
-                // Flyme — 智能休眠 is the background-keep-alive entry.
+                // Flyme. "Smart background" is the keep-alive entry.
+                // [UNVERIFIED] smart background
                 intents.add(Intent().setComponent(ComponentName("com.meizu.safe",
                     "com.meizu.safe.permission.SmartBGActivity")))
+                // [UNVERIFIED] app security
                 intents.add(Intent().setComponent(ComponentName("com.meizu.safe",
                     "com.meizu.safe.security.AppSecActivity")))
             }
             brand.contains("samsung") -> {
-                // One UI — device-maintenance battery page; package/activity
-                // names vary a lot across One UI versions, so cover both.
+                // One UI. Device-care battery page; package/activity names vary
+                // a lot across One UI versions.
+                // [UNVERIFIED] device-care battery
                 intents.add(Intent().setComponent(ComponentName("com.samsung.android.lool",
                     "com.samsung.android.sm.ui.battery.BatteryActivity")))
+                // [UNVERIFIED] checkable app list
                 intents.add(Intent().setComponent(ComponentName("com.samsung.android.lool",
                     "com.samsung.android.sm.battery.ui.usage.CheckableAppListActivity")))
             }
             brand.contains("oneplus") -> {
-                // OxygenOS — 链式启动 merges auto-start + battery; battery
-                // optimize is a separate entry on some versions.
+                // OxygenOS. Chain-launch merges auto-start + battery.
+                // [UNVERIFIED] chain launch list
                 intents.add(Intent().setComponent(ComponentName("com.oneplus.security",
                     "com.oneplus.security.chainlaunch.view.ChainLaunchAppListActivity")))
+                // [UNVERIFIED] alternate chain launch activity
                 intents.add(Intent().setComponent(ComponentName("com.oneplus.security",
                     "com.oneplus.security.chainlaunch.view.ChainLaunchAppListActivity2")))
             }
