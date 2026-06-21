@@ -27,10 +27,9 @@ require File.expand_path(File.join('packages', 'flutter_tools', 'bin', 'podhelpe
 
 flutter_ios_podfile_setup
 
-# 国内镜像源配置 - 加速CocoaPods下载
-# 推荐使用清华大学镜像或阿里云镜像
-source 'https://mirrors.tuna.tsinghua.edu.cn/git/CocoaPods/Specs.git'
-# source 'https://mirrors.aliyun.com/rubygems/'
+# 使用 CDN 官方源，GitHub Actions (美国机房) 全球加速，避免国内镜像拖慢 CI
+source 'https://cdn.cocoapods.org/'
+# source 'https://mirrors.tuna.tsinghua.edu.cn/git/CocoaPods/Specs.git'
 
 target 'Runner' do
   use_frameworks!
