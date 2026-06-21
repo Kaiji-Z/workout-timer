@@ -40,6 +40,10 @@ jobs:
           FLUTTER_ROOT=$(dirname $(dirname $(which flutter)))
           echo "FLUTTER_ROOT=${FLUTTER_ROOT}" > ios/Flutter/ephemeral/Flutter-Generated.xcconfig
 
+      - name: Install CocoaPods
+        working-directory: ios
+        run: pod install --repo-update
+
       - name: Build iOS (no codesign)
         run: flutter build ios --no-codesign --release --no-tree-shake-icons
 
