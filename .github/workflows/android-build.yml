@@ -37,6 +37,15 @@ jobs:
           channel: stable
           cache: true
 
+      - name: Strip China mirrors from Gradle (CI-only)
+        # 阿里云/腾讯镜像只对中国本地有用，GitHub runner 在美国会拉不到
+        # Kotlin 2.1.0 等插件（"was not found"）。仅删 CI 工作副本，git 仓库文件不变，
+        # 本地构建镜像配置完全不受影响。
+        run: |
+          for f in android/settings.gradle.kts android/build.gradle.kts; do
+            sed -i -E '/maven.aliyun.com|mirrors.tencent.com/d' "$f"
+          done
+
       - name: Get dependencies
         run: flutter pub get
 
