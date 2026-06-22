@@ -1,6 +1,6 @@
 # AGENTS.md - WorkoutTimer Flutter App
 
-**Updated:** 2026-06-16
+**Updated:** 2026-06-22
 **Branch:** master
 
 ## OVERVIEW
@@ -488,6 +488,61 @@ if (!kIsWeb) {
 ```
 
 Web uses in-memory SQLite database; native uses persistent storage.
+
+---
+
+## GIT REMOTES & 推送规则
+
+**主仓库是 GitHub**(CI 在 GitHub Actions 上跑),Gitee 是国内镜像副仓。
+
+| Remote | URL | 角色 |
+|--------|-----|------|
+| `origin` | `github.com/Kaiji-Z/workout-timer` | **主仓库**,跑 CI,默认 push/pull 目标 |
+| `gitee` | `gitee.com/kaiji1126/workout-timer` | 国内镜像副仓,需显式推送 |
+
+### 推送命令
+
+```bash
+git push                 # → GitHub(默认,触发 CI)
+git push origin          # → 同上
+git push gitee master    # → Gitee(显式,同步镜像)
+git pushall              # → 两边都推(见下方 alias)
+```
+
+master 的 upstream 已设为 `origin/master`,所以 `git push`/`git pull` 默认走 GitHub。
+
+### 双推 alias(可选,推荐)
+
+```bash
+git config alias.pushall '!git push origin && git push gitee'
+# 以后 git pushall 一条命令推两边
+```
+
+### 踩过的坑(别再踩)
+
+1. **`origin` 曾是 Gitee**:历史上 `origin` 指向 Gitee,导致只 `git push` 不触发 GitHub CI。已于 2026-06-22 对调,`origin` 现为 GitHub。**接手时先 `git remote -v` 确认**。
+2. **改了 workflow 自身不一定触发该 workflow**:Android workflow 的 `paths-ignore` 含 `.github/workflows/ios-build.yml`(反之亦然)。改 workflow 文件本身后,push 可能因 paths 规则不触发对应 CI。**保险做法:改完 workflow 后用 `gh workflow run "<name>" --ref master` 手动补一次验证**。
+3. **国内镜像只在本地有用,在海外 CI 上有害**:阿里云/清华镜像在 GitHub runner(美国机房)上会拉不到依赖或超时。镜像配置规则见下方「CI 镜像规则」。
+
+---
+
+## CI 镜像规则(国内镜像 vs 海外 CI)
+
+项目本地用国内镜像加速依赖下载,但这些镜像在 GitHub Actions runner(海外)上会拖慢甚至搞挂构建。两类处理方式:
+
+| 场景 | 做法 | 本次案例 |
+|------|------|---------|
+| 镜像对本地无实际价值 | 直接换成官方 CDN 源 | iOS Podfile → `cdn.cocoapods.org`(原来是清华镜像) |
+| 镜像对本地真有用 | CI 里 sed 临时删镜像行,git 仓库文件不动 | Android gradle → CI-only sed 去阿里云镜像 |
+
+### 当前镜像配置位置
+
+- **Android**:`android/settings.gradle.kts`、`android/build.gradle.kts` 的 `maven.aliyun.com` / `mirrors.tencent.com` 行。CI 在 `android-build.yml` 的 `Strip China mirrors from Gradle (CI-only)` 步骤用 sed 删除(仅 CI 工作副本)。
+- **iOS**:`ios/Podfile` 已改为官方 CDN(`cdn.cocoapods.org`),本地构建不受影响(开发者本就不在 Windows 跑 iOS)。
+
+### 加镜像前的自检
+
+> 凡是要加国内镜像源,先问:这个镜像在 GitHub runner(海外)上会怎样?想清楚再写,并配套 CI 处理。
 
 ---
 
