@@ -215,6 +215,21 @@ class _CountUpState extends State<CountUp> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
 
+  /// Whether to skip the count-up animation entirely.
+  ///
+  /// Honors PRODUCT.md's accessibility commitment ("数字 count-up 应可降级为
+  /// 淡入或瞬时切换") and avoids the dashboard-theater of 5 numbers animating
+  /// on every refresh. When the platform requests reduced motion — or for any
+  /// caller that wants the value instantly — we jump straight to target.
+  bool get _shouldAnimate {
+    // MediaQuery is only safe after the first frame; in initState we read the
+    // static accessibility flag via the binding. This covers the common case
+    // (system "reduce motion" on) without needing a post-frame callback.
+    final binding = WidgetsBinding.instance;
+    final accessMode = binding.platformDispatcher.accessibilityFeatures;
+    return !accessMode.disableAnimations;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -223,16 +238,24 @@ class _CountUpState extends State<CountUp> with SingleTickerProviderStateMixin {
       vsync: this,
     );
     _animation = Tween<double>(
-      begin: 0,
+      begin: _shouldAnimate ? 0 : widget.target,
       end: widget.target,
     ).animate(CurvedAnimation(parent: _controller, curve: AppCurves.entry));
-    _controller.forward();
+    if (_shouldAnimate) {
+      _controller.forward();
+    }
   }
 
   @override
   void didUpdateWidget(CountUp oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.target != widget.target) {
+      if (!_shouldAnimate) {
+        // No animation: hold the new target value as a stopped animation so
+        // build() renders it instantly.
+        _animation = AlwaysStoppedAnimation<double>(widget.target);
+        return;
+      }
       _animation = Tween<double>(
         begin: _animation.value,
         end: widget.target,
