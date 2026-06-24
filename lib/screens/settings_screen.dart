@@ -120,10 +120,12 @@ class _SettingsScreenState extends State<SettingsScreen>
     await _soundService.init();
 
     // Read app version at runtime so the About screen never lags behind a
-    // release. Falls back to empty string (renders nothing) if unavailable.
+    // release. Shows only the version (e.g. "1.2.0") to match the version
+    // registered for software copyright / store listing — not the build
+    // number, which is an internal detail users don't see elsewhere.
     try {
       final info = await PackageInfo.fromPlatform();
-      if (mounted) setState(() => _appVersion = '${info.version}+${info.buildNumber}');
+      if (mounted) setState(() => _appVersion = info.version);
     } catch (e) {
       debugPrint('Failed to read package info: $e');
     }
