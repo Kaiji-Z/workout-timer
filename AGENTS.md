@@ -662,3 +662,27 @@ Use Gitee mirror for exercise images in China:
 ```
 https://gitee.com/kaiji-z/free-exercise-db/raw/main/exercises/{exercise_id}/images/{image_id}.jpg
 ```
+
+---
+
+## Design Context
+
+视觉设计规范文档见 `PRODUCT.md`(战略)与 `DESIGN.md`(视觉系统)。以下是精炼摘要,便于 agent 快速对齐:
+
+- **Register**: product(应用 UI,设计服务于产品)
+- **创意北极星**: "汗水与冷静" — 暖背景(汗水)对决深靛蓝 #1A237E(冷静),缺一不可。
+- **品牌人格**: 温暖 · 克制 · 专一(Warm · Disciplined · Single-minded)。
+- **5 条设计原则**: 单核不妥协 / 温暖即立场 / 克制比丰富更难 / 扫一眼就懂 / 数据归用户。
+
+**必守的命名规则**(变体生成与改稿时强制遵守):
+- **The Duality Rule** — 暖背景与深靛蓝必须同场;不能只有暖色或只有深蓝。
+- **The 15% Tint Rule** — 激活态背景统一 `accentColor.withValues(alpha: 0.15)`。
+- **The No-Glow Rule** — 禁止发光/玻璃/彩色光晕;仅进度环抗锯齿柔化例外。
+- **The Tabular-Numbers Rule** — 所有会变化的数字用 `FontFeature.tabularFigures()`。
+- **The One Display Font Rule** — Orbitron/Rajdhani 只用于计时器倒计时数字。
+
+**反例(永远不做)**:广告堆满的健身 App / 冷冰冰的临床记录器 / 过度玻璃动画堆砌 / 千篇一律的 SaaS 仪表盘。
+
+**取色铁律**: 永远走 `ThemeProvider.currentTheme`,永不硬编码 `Colors.white`/`Colors.black`。图表用 `ChartPalette`(Okabe-Ito 色盲安全),不用品牌深靛蓝。
+
+> 完整 token、组件规范、Do's/Don'ts 见 `DESIGN.md`;机器可读 sidecar 见 `.impeccable/design.json`。

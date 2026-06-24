@@ -1,0 +1,272 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-06-24T00:00:00Z",
+  "title": "Design System: 撸铁计时器 (WorkoutTimer)",
+  "extensions": {
+    "colorMeta": {
+      "amber-primary": {
+        "role": "primary",
+        "displayName": "琥珀金主色",
+        "canonical": "#FFB74D",
+        "tonalRamp": [
+          "#664A1F", "#8C6529", "#B38033", "#FFB74D", "#FFC778", "#FFD7A1", "#FFE7CA", "#FFF4E3"
+        ]
+      },
+      "coral-primary": {
+        "role": "primary",
+        "displayName": "珊瑚橙主色",
+        "canonical": "#FF8A65",
+        "tonalRamp": [
+          "#663729", "#8C4B3A", "#B35F4E", "#FF8A65", "#FFA688", "#FFC3AA", "#FFDFCC", "#FFEFE5"
+        ]
+      },
+      "sky-primary": {
+        "role": "primary",
+        "displayName": "天际蓝主色",
+        "canonical": "#64B5F6",
+        "tonalRamp": [
+          "#284A66", "#3A648C", "#4D7EB3", "#64B5F6", "#8AC5F8", "#B0D6FA", "#D6E8FC", "#EBF3FE"
+        ]
+      },
+      "accent-indigo-deep": {
+        "role": "secondary",
+        "displayName": "深靛蓝 (冷静)",
+        "canonical": "#1A237E",
+        "tonalRamp": [
+          "#0A0E33", "#0F164B", "#141A62", "#1A237E", "#4A53A1", "#7A83C4", "#ABB4E0", "#D6DBF0"
+        ]
+      },
+      "surface-base": {
+        "role": "neutral",
+        "displayName": "纯白基底",
+        "canonical": "#FFFFFF",
+        "tonalRamp": [
+          "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF"
+        ]
+      },
+      "surface-base-dark": {
+        "role": "neutral",
+        "displayName": "近黑基底 (深色)",
+        "canonical": "#1E1E2E",
+        "tonalRamp": [
+          "#0A0A14", "#101018", "#1E1E2E", "#2A2A3C", "#404050", "#5A5A6E", "#8A8A9C", "#C0C0CC"
+        ]
+      },
+      "text-primary": {
+        "role": "neutral",
+        "displayName": "主文字",
+        "canonical": "#212121",
+        "tonalRamp": [
+          "#0A0A0A", "#141414", "#212121", "#3A3A3A", "#5C5C5C", "#7E7E7E", "#A8A8A8", "#D4D4D4"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "最大级标题,极少使用 (.SF Pro Display w700)."
+      },
+      "display-medium": {
+        "displayName": "Display Medium",
+        "purpose": "屏幕主标题 (.SF Pro Display w700)."
+      },
+      "timer-display": {
+        "displayName": "Timer Display",
+        "purpose": "计时器倒计时大号数字 — 唯一使用 Orbitron 的角色,全屏视觉中心."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "卡片/列表项标题 (.SF Pro Text w600, tabular-nums)."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "按钮/徽章/芯片文字 (.SF Pro Text w500, tabular-nums)."
+      }
+    },
+    "shadows": [
+      {
+        "name": "resting",
+        "value": "0 2px 8px rgba(33,33,33,0.12)",
+        "purpose": "卡片静止时的微妙阴影,让卡片浮一点."
+      },
+      {
+        "name": "raised",
+        "value": "0 4px 16px rgba(33,33,33,0.12), 0 2px 10px transparent",
+        "purpose": "激活/提升卡片、CircularControlButton、PrimaryActionButton."
+      },
+      {
+        "name": "floating",
+        "value": "0 8px 24px rgba(33,33,33,0.12), 0 4px 16px transparent",
+        "purpose": "FAB、对话框、底部弹层,打断层级的最大阴影."
+      }
+    ],
+    "motion": [
+      {
+        "name": "press-scale",
+        "value": "scale 1.0 → 0.92-0.95, easeOut, 100ms",
+        "purpose": "所有可按压按钮的统一反馈 (PressableMixin). 圆形按钮 0.92, 胶囊按钮 0.95."
+      },
+      {
+        "name": "page-fade-up",
+        "value": "FadeUpPageRoute (slide-up + fade)",
+        "purpose": "全局页面转场,所有导航使用."
+      },
+      {
+        "name": "page-scale-fade",
+        "value": "ScaleFadePageRoute",
+        "purpose": "强调性页面转场 (如详情页)."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "timer-size-clamp",
+        "value": "min 280px / factor 0.9vw / max 400px",
+        "purpose": "计时器圆形尺寸响应式 — screenWidth × 0.9 clamp(280, 400)."
+      },
+      {
+        "name": "timer-small-clamp",
+        "value": "min 60px / factor 0.18vw / max 90px",
+        "purpose": "小号计时器尺寸 (训练进行中的迷你倒计时)."
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Circular Control Button",
+      "kind": "custom",
+      "refersTo": "button-circular",
+      "description": "计时器周围的圆形操作按钮 — 参考图核心样式,白色圆 + 深色图标 + 按下缩放.",
+      "html": "<button class=\"ds-circular-btn\" aria-label=\"开始\"><svg width=\"25\" height=\"25\" viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M8 5v14l11-7z\"/></svg></button>",
+      "css": ".ds-circular-btn { width: 56px; height: 56px; border-radius: 9999px; background: #FFFFFF; color: #212121; border: none; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 16px rgba(33,33,33,0.12), 0 2px 10px transparent; transition: transform 0.1s ease-out; } .ds-circular-btn:hover { box-shadow: 0 6px 20px rgba(33,33,33,0.16); } .ds-circular-btn:active { transform: scale(0.92); } .ds-circular-btn:focus-visible { outline: 2px solid #1A237E; outline-offset: 2px; }"
+    },
+    {
+      "name": "Primary Action Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "深靛蓝胶囊主操作按钮 — 承载'开始训练''保存'等主要动作.",
+      "html": "<button class=\"ds-btn-primary\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M8 5v14l11-7z\"/></svg><span>开始训练</span></button>",
+      "css": ".ds-btn-primary { height: 56px; padding: 0 24px; border-radius: 28px; background: #1A237E; color: #FFFFFF; border: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-family: '.SF Pro Text', -apple-system, system-ui, sans-serif; font-weight: 600; font-size: 16px; letter-spacing: 0.5px; cursor: pointer; box-shadow: 0 4px 16px rgba(26,35,126,0.3), 0 2px 10px transparent; transition: transform 0.1s ease-out, box-shadow 0.1s ease-out; } .ds-btn-primary:hover { box-shadow: 0 6px 20px rgba(26,35,126,0.4); } .ds-btn-primary:active { transform: scale(0.95); } .ds-btn-primary:focus-visible { outline: 2px solid #536DFE; outline-offset: 2px; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "描边胶囊次要按钮 — 透明背景 + 强调色描边,用于'取消''查看全部'.",
+      "html": "<button class=\"ds-btn-secondary\"><span>取消</span></button>",
+      "css": ".ds-btn-secondary { height: 56px; padding: 0 20px; border-radius: 28px; background: transparent; color: #1A237E; border: 2px solid rgba(26,35,126,0.5); display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-family: '.SF Pro Text', -apple-system, system-ui, sans-serif; font-weight: 600; font-size: 15px; cursor: pointer; transition: transform 0.1s ease-out; } .ds-btn-secondary:active { transform: scale(0.95); } .ds-btn-secondary:focus-visible { outline: 2px solid #536DFE; outline-offset: 2px; }"
+    },
+    {
+      "name": "Flat Card",
+      "kind": "card",
+      "refersTo": "card-flat",
+      "description": "列表项/信息块的标准容器 — raised 表面层级 + 16px 圆角 + raised 阴影.",
+      "html": "<div class=\"ds-flat-card\"><h3 class=\"ds-card-title\">卧推</h3><p class=\"ds-card-body\">4 组 × 8-10 次</p></div>",
+      "css": ".ds-flat-card { padding: 16px; border-radius: 16px; background: #F5F5F5; box-shadow: 0 4px 16px rgba(33,33,33,0.12), 0 2px 10px transparent; } .ds-card-title { margin: 0 0 4px 0; font-family: '.SF Pro Text', -apple-system, system-ui, sans-serif; font-weight: 600; font-size: 16px; color: #212121; font-variant-numeric: tabular-nums; } .ds-card-body { margin: 0; font-family: '.SF Pro Text', -apple-system, system-ui, sans-serif; font-weight: 400; font-size: 14px; color: #757575; font-variant-numeric: tabular-nums; }"
+    },
+    {
+      "name": "Flat Badge",
+      "kind": "chip",
+      "refersTo": "badge-flat",
+      "description": "强调色胶囊标签 — 15% tint 背景 + 强调色文字 (The 15% Tint Rule).",
+      "html": "<span class=\"ds-flat-badge\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z\"/></svg>已完成</span>",
+      "css": ".ds-flat-badge { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 20px; background: rgba(26,35,126,0.15); color: #1A237E; font-family: '.SF Pro Text', -apple-system, system-ui, sans-serif; font-weight: 500; font-size: 13px; font-variant-numeric: tabular-nums; }"
+    },
+    {
+      "name": "Status Badge",
+      "kind": "chip",
+      "refersTo": "badge-status",
+      "description": "状态徽章 — 任意 color 的 15% tint 背景 + 30% tint 描边,用于状态标记.",
+      "html": "<span class=\"ds-status-badge\">休息中</span>",
+      "css": ".ds-status-badge { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 20px; background: rgba(76,175,80,0.15); border: 1px solid rgba(76,175,80,0.3); color: #4CAF50; font-family: '.SF Pro Text', -apple-system, system-ui, sans-serif; font-weight: 500; font-size: 13px; font-variant-numeric: tabular-nums; }"
+    },
+    {
+      "name": "Progress Ring",
+      "kind": "custom",
+      "refersTo": "button-circular",
+      "description": "计时器核心视觉 — 10px 描边深靛蓝渐变进度环,起始角顶部,唯一允许的 MaskFilter 柔化.",
+      "html": "<div class=\"ds-progress-ring\"><div class=\"ds-progress-track\"></div><div class=\"ds-progress-value\">45</div></div>",
+      "css": ".ds-progress-ring { position: relative; width: 280px; height: 280px; display: flex; align-items: center; justify-content: center; } .ds-progress-track { position: absolute; inset: 0; border-radius: 9999px; border: 10px solid rgba(255,255,255,0.2); } .ds-progress-track::after { content: ''; position: absolute; inset: -10px; border-radius: 9999px; border: 10px solid #1A237E; border-color: #1A237E transparent transparent transparent; transform: rotate(135deg); filter: blur(8px); opacity: 0.999; } .ds-progress-value { font-family: 'Orbitron', monospace; font-weight: 700; font-size: 72px; color: #212121; font-variant-numeric: tabular-nums; }"
+    },
+    {
+      "name": "Floating Nav Bar",
+      "kind": "nav",
+      "refersTo": "badge-flat",
+      "description": "浮动底部导航 — extendBody, 70px 高, 25px 4角圆角, 中心 70px 计时按钮为锚点.",
+      "html": "<nav class=\"ds-navbar\"><button class=\"ds-nav-btn\">计划</button><button class=\"ds-nav-btn\">历史</button><button class=\"ds-nav-center\">计时</button><button class=\"ds-nav-btn\">统计</button><button class=\"ds-nav-btn\">设置</button></nav>",
+      "css": ".ds-navbar { position: absolute; left: 16px; right: 16px; bottom: 16px; height: 70px; border-radius: 25px; background: #FFFFFF; box-shadow: 0 8px 24px rgba(33,33,33,0.12), 0 4px 16px transparent; display: flex; align-items: center; justify-content: space-around; padding: 0 8px; } .ds-nav-btn { background: none; border: none; color: #757575; font-family: '.SF Pro Text', -apple-system, system-ui, sans-serif; font-size: 12px; cursor: pointer; } .ds-nav-center { width: 70px; height: 70px; border-radius: 9999px; border: none; background: linear-gradient(135deg, #FFB74D, #FFA726); color: #1A237E; margin-top: -20px; box-shadow: 0 8px 24px rgba(255,167,38,0.4); cursor: pointer; font-weight: 600; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "汗水与冷静",
+    "overview": "撸铁计时器的视觉系统是一场温度的对决:背景是汗水——温暖的渐变(琥珀金/珊瑚橙/天际蓝),传递'运动值得,坚持值得'的活力;强调色是冷静——深靛蓝 (#1A237E) 像纪律一样压在暖背景上,给整个界面重量、方向、可读性。一个负责燃烧,一个负责专注。缺了任何一个,系统就塌了。这是一个扁平系统:没有玻璃模糊、没有发光辉光、没有装饰性渐变文字。深度由三层 elevation 通过克制的阴影传达。计时器是绝对的视觉中心,其他一切退后。",
+    "keyCharacteristics": [
+      "温度对决:暖背景 vs 深靛蓝,缺一不可",
+      "彻底扁平:无发光、无玻璃、无渐变文字",
+      "大号可扫读:计时器数字是绝对中心",
+      "温柔圆角 + 实在按钮:16-28px 圆角,白色圆形按钮按下缩放",
+      "三层 elevation:resting / raised / floating,克制阴影",
+      "色盲安全:数据可视化用 Okabe-Ito 调色板"
+    ],
+    "rules": [
+      {
+        "name": "The Duality Rule",
+        "body": "暖背景与深靛蓝强调必须同时在场。一个屏幕不能只有暖色(轻浮),也不能只有深蓝(冰冷)。",
+        "section": "colors"
+      },
+      {
+        "name": "The 15% Tint Rule",
+        "body": "强调色作为'激活态'背景时,一律用 accentColor.withValues(alpha: 0.15)。15% 是甜点:够看见,不喧宾夺主。",
+        "section": "colors"
+      },
+      {
+        "name": "The Sky-Blue Exception Rule",
+        "body": "skyBlue 主题背景已是蓝色,强调色改用更深的 #0D47A1。每个主题的强调色必须能'压住'自己的背景。",
+        "section": "colors"
+      },
+      {
+        "name": "The Tabular-Numbers Rule",
+        "body": "任何会变化的数字(倒计时、组数、重量、统计值)必须用 FontFeature.tabularFigures()。等宽数字防止跳动。",
+        "section": "typography"
+      },
+      {
+        "name": "The One Display Font Rule",
+        "body": "Orbitron/Rajdhani 只用于计时器倒计时数字,不用于标题、按钮、正文。它的稀缺性正是它的力量。",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat-By-Default Rule",
+        "body": "表面静止时是平的。阴影只在状态改变时出现(提升、悬浮、聚焦)。",
+        "section": "elevation"
+      },
+      {
+        "name": "The No-Glow Rule",
+        "body": "禁止发光效果(glow、外辉光、彩色光晕)。进度环的 MaskFilter.blur(8) 是唯一例外且仅用于抗锯齿柔化。",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do 保持暖背景与深靛蓝强调同时在场 (The Duality Rule)",
+      "Do 用 AppThemeData 字段取色,永不硬编码 Colors.white/Colors.black",
+      "Do 让计时器倒计时数字用 Orbitron 并占据视觉中心",
+      "Do 给所有会变化的数字加 FontFeature.tabularFigures()",
+      "Do 用 AppElevation.resting/raised/floating 三层阴影",
+      "Do 用 AppDimensions 的 8 级圆角 token",
+      "Do 激活态背景统一用 accentColor.withValues(alpha: 0.15)",
+      "Do 所有可交互元素 >= 48dp 触控目标",
+      "Do 图表用 ChartPalette (Okabe-Ito),不用品牌深靛蓝",
+      "Do 所有 CircularControlButton 传 semanticLabel"
+    ],
+    "donts": [
+      "Don't 做成'广告堆满的健身 App' — 计时器界面永不出现推销元素",
+      "Don't 做成'冷冰冰的临床记录器' — 温度由暖背景对决承载",
+      "Don't 用 glassmorphism / 毛玻璃作为默认装饰",
+      "Don't 加发光效果 (glow、彩色光晕、外辉光)",
+      "Don't 用 background-clip: text 渐变文字 — 用单色",
+      "Don't 做成'千篇一律的 SaaS 仪表盘' — 英雄数字大卡片是反例",
+      "Don't 用 border-left/border-right > 1px 做彩色侧条",
+      "Don't 在卡片上同时堆 1px border + 宽软阴影 — 选其一",
+      "Don't 卡片圆角超过 16px — radiusXl 是卡片上限",
+      "Don't 让 Orbitron 出现在标题、按钮或正文"
+    ]
+  }
+}
