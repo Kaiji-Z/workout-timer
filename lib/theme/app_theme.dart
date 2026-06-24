@@ -193,7 +193,11 @@ class AppThemeData {
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: cardColor,
-          foregroundColor: accentColor,
+          // NOTE: 不再在全局主题硬设 foregroundColor。项目里所有 ElevatedButton
+          // 都是"深靛蓝底 + 白字"的主操作按钮,各自通过 styleFrom(foregroundColor)
+          // 控制;全局这里硬设 accentColor 会在 M3 下与局部 style 的 label 文字色
+          // 冲突,导致白字按钮渲染成深色文字不可读(见 set_record_dialog /
+          // exercise_selection 等多处)。移除后局部 style 正常生效。
           shape: const CircleBorder(),
           elevation: 4,
           shadowColor: Colors.black26,

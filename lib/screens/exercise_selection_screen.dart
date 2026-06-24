@@ -594,9 +594,12 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
                 ),
                 child: Text(
                   '确认',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleLarge!.copyWith(fontSize: 15),
+                  // 必须显式设 color:深底按钮的 Text 若继承 titleLarge.color
+                  // (textColor 黑),会渲染成黑字印在深靛蓝底上不可读。
+                  style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                    fontSize: 15,
+                    color: theme.onAccentColor,
+                  ),
                 ),
               ),
             ],
