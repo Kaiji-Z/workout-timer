@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/battery_optimization_service.dart';
@@ -38,6 +39,10 @@ class _SettingsScreenState extends State<SettingsScreen>
   String? _oemManufacturer;
   bool _oemAutoStartAvailable = false;
   late final TextEditingController _messageController;
+  // App version read at runtime from pubspec (package_info_plus). Avoids the
+  // stale-hardcoded-version bug where the About screen fell 2 minor versions
+  // behind the actual release.
+  String _appVersion = '';
 
   /// OEM manufacturer code -> Chinese display name.
   static const Map<String, String> _oemDisplayNames = {
@@ -113,6 +118,16 @@ class _SettingsScreenState extends State<SettingsScreen>
   Future<void> _loadSettings() async {
     _prefs = await SharedPreferences.getInstance();
     await _soundService.init();
+
+    // Read app version at runtime so the About screen never lags behind a
+    // release. Falls back to empty string (renders nothing) if unavailable.
+    try {
+      final info = await PackageInfo.fromPlatform();
+      if (mounted) setState(() => _appVersion = '${info.version}+${info.buildNumber}');
+    } catch (e) {
+      debugPrint('Failed to read package info: $e');
+    }
+
     setState(() {
       _soundEnabled = _prefs.getBool('sound_enabled') ?? true;
       _vibrationEnabled = _prefs.getBool('vibration_enabled') ?? true;
@@ -495,7 +510,8 @@ class _SettingsScreenState extends State<SettingsScreen>
                 ListTile(
                   title: Text('版本', style: TextStyle(color: theme.textColor)),
                   trailing: Text(
-                    '1.0.0',
+                    // Dynamic, read from pubspec at runtime (see _loadSettings).
+                    _appVersion.isEmpty ? '加载中…' : _appVersion,
                     style: TextStyle(color: theme.secondaryTextColor),
                   ),
                 ),
