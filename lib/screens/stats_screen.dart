@@ -266,26 +266,13 @@ class _StatsScreenState extends State<StatsScreen>
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: Row(
-          children: [
-            Container(
-              width: 4,
-              height: 20,
-              margin: const EdgeInsets.only(right: 12),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(colors: theme.timerGradientColors),
-                borderRadius: BorderRadius.circular(AppDimensions.radiusXxs),
-              ),
-            ),
-            Text(
-              '训练统计',
-              style: Theme.of(context).textTheme.headlineMedium!.copyWith(
+        title: Text(
+          '训练统计',
+          style: Theme.of(context).textTheme.headlineMedium!.copyWith(
                 fontWeight: FontWeight.w700,
                 letterSpacing: -0.5,
                 color: theme.textColor,
               ),
-            ),
-          ],
         ),
         actions: [
           TextButton.icon(
@@ -369,7 +356,10 @@ class _StatsScreenState extends State<StatsScreen>
     );
   }
 
-  /// 训练频率概览
+  /// 训练频率概览 — 降级为紧凑的次要指标行
+  ///
+  /// 重构后不再是等权重的卡片网格（DESIGN.md 反例：SaaS 仪表盘）。
+  /// 次要指标用统一的 15% tint + 紧凑布局，把视觉中心让给英雄数字。
   Widget _buildFrequencyOverview(
     Map<String, dynamic> stats,
     AppThemeData theme,
@@ -382,7 +372,7 @@ class _StatsScreenState extends State<StatsScreen>
             '',
             '次',
             Icons.fitness_center,
-            theme.primaryColor,
+            theme.accentColor,
             theme,
             numValue: (stats['sessionCount'] as num).toDouble(),
           ),
@@ -394,7 +384,7 @@ class _StatsScreenState extends State<StatsScreen>
             '',
             '天',
             Icons.calendar_today,
-            theme.secondaryColor,
+            theme.accentColor,
             theme,
             numValue: (stats['workoutDays'] as num).toDouble(),
           ),
@@ -416,6 +406,122 @@ class _StatsScreenState extends State<StatsScreen>
     );
   }
 
+  /// 英雄数字 — 周期总训练量 (kg)。
+  ///
+  /// 这是整屏唯一的视觉中心（DESIGN.md「扫一眼就懂」+ PRODUCT.md「单核」）。
+  /// 36px 深靛蓝大号数字 + vs 上期变化作为唯一伴随元素。次要指标降级到
+  /// _buildFrequencyOverview / _buildVolumeOverview 的紧凑行。
+  Widget _buildHeroVolume(
+    List<WorkoutRecord> workoutRecords,
+    AppThemeData theme, {
+    double? volumeChange,
+  }) {
+    final totalVolume = _statsCalc.calculateTotalVolume(
+      workoutRecords,
+      bodyWeight: _userBodyWeight,
+    );
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(20, 22, 20, 18),
+      decoration: BoxDecoration(
+        // The hero is the ONE element that breaks the tint convention: a solid
+        // indigo fill (the disciplined "冷静" half of the duality) makes total
+        // volume the screen's unambiguous focal point, distinct from the five
+        // 15%-tint subordinate boxes beneath it. White number on deep indigo
+        // clears WCAG (DESIGN.md §1 Duality).
+        color: theme.accentColor,
+        borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.whatshot_rounded,
+                size: 18,
+                color: theme.onAccentColor.withValues(alpha: 0.85),
+              ),
+              const SizedBox(width: 6),
+              Text(
+                '总训练量',
+                style: Theme.of(context).textTheme.labelLarge!.copyWith(
+                      color: theme.onAccentColor.withValues(alpha: 0.85),
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.5,
+                    ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          // Hero number — the screen's single dominant typographic moment.
+          CountUp(
+            target: totalVolume,
+            decimalPlaces: totalVolume >= 1000 ? 0 : 1,
+            style: Theme.of(context).textTheme.displaySmall!.copyWith(
+                  fontSize: 40,
+                  fontWeight: FontWeight.w700,
+                  color: theme.onAccentColor,
+                  height: 1.05,
+                  letterSpacing: -1,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
+            suffix: ' kg',
+          ),
+          const SizedBox(height: 8),
+          if (volumeChange != null)
+            _buildVolumeChangeBadge(volumeChange, theme)
+          else
+            Text(
+              '暂无上期数据对比',
+              style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                    fontSize: 11,
+                    color: theme.onAccentColor.withValues(alpha: 0.7),
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                  ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  /// vs 上期 变化徽章 — 英雄数字的唯一伴随元素。
+  /// 在深靛蓝 hero 上用半透明白底徽章，保持高对比可读。
+  Widget _buildVolumeChangeBadge(double volumeChange, AppThemeData theme) {
+    final isUp = volumeChange >= 0;
+    // On the indigo hero, encode direction by icon + sign, not by green/red
+    // (which would fight the deep-blue ground). A translucent white chip reads
+    // cleanly and stays on-brand.
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: theme.onAccentColor.withValues(alpha: 0.18),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusChip),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            isUp ? Icons.trending_up : Icons.trending_down,
+            size: 14,
+            color: theme.onAccentColor,
+          ),
+          const SizedBox(width: 4),
+          Text(
+            '${isUp ? '+' : ''}${volumeChange.toStringAsFixed(1)}% vs 上期',
+            style: Theme.of(context).textTheme.labelLarge!.copyWith(
+                  fontSize: 12,
+                  color: theme.onAccentColor,
+                  fontWeight: FontWeight.w600,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
+          ),
+        ],
+      ),
+    );
+  }
+
   /// Calculate volume change percentage between current and previous period
   /// Returns null if no comparison is available
   double? _calculateVolumeChange(
@@ -429,12 +535,13 @@ class _StatsScreenState extends State<StatsScreen>
     );
   }
 
-  /// 训练量概览
+  /// 训练量概览 — 降级为紧凑次要指标行（总组数 / 总时长）
+  ///
+  /// 英雄数字（总训练量 kg）已移到 _buildHeroVolume。这里只保留辅助量。
   Widget _buildVolumeOverview(
     Map<String, dynamic> stats,
-    AppThemeData theme, {
-    double? volumeChange,
-  }) {
+    AppThemeData theme,
+  ) {
     return Column(
       children: [
         Row(
@@ -445,7 +552,7 @@ class _StatsScreenState extends State<StatsScreen>
                 '',
                 '组',
                 Icons.repeat,
-                theme.primaryColor,
+                theme.accentColor,
                 theme,
                 numValue: (stats['totalSets'] as num).toDouble(),
               ),
@@ -457,7 +564,7 @@ class _StatsScreenState extends State<StatsScreen>
                 formatDuration(stats['totalDuration'] as int),
                 '',
                 Icons.timer,
-                theme.secondaryColor,
+                theme.accentColor,
                 theme,
               ),
             ),
@@ -467,7 +574,8 @@ class _StatsScreenState extends State<StatsScreen>
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: theme.accentColor.withValues(alpha: 0.1),
+            // The 15% Tint Rule — was 0.1, now system-standard 0.15.
+            color: theme.accentColor.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
           ),
           child: Row(
@@ -491,33 +599,6 @@ class _StatsScreenState extends State<StatsScreen>
             ],
           ),
         ),
-        if (volumeChange != null)
-          Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  volumeChange >= 0 ? Icons.trending_up : Icons.trending_down,
-                  size: 14,
-                  color: volumeChange >= 0
-                      ? theme.successColor
-                      : theme.errorColor,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  '${volumeChange >= 0 ? '+' : ''}${volumeChange.toStringAsFixed(1)}% vs 上期',
-                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                    fontSize: 11,
-                    color: volumeChange >= 0
-                        ? theme.successColor
-                        : theme.errorColor,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          ),
       ],
     );
   }
@@ -535,7 +616,9 @@ class _StatsScreenState extends State<StatsScreen>
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
+        // The 15% Tint Rule — was 0.1. Tint is always the accent (disciplined
+        // indigo) so secondary metrics stay calm and cede focus to the hero.
+        color: color.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
       ),
       child: Column(
@@ -549,17 +632,19 @@ class _StatsScreenState extends State<StatsScreen>
               target: numValue,
               decimalPlaces: decimalPlaces,
               style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                fontWeight: FontWeight.w700,
-                color: theme.textColor,
-              ),
+                    fontWeight: FontWeight.w700,
+                    color: theme.textColor,
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                  ),
             )
           else
             Text(
               value,
               style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                fontWeight: FontWeight.w700,
-                color: theme.textColor,
-              ),
+                    fontWeight: FontWeight.w700,
+                    color: theme.textColor,
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                  ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -585,7 +670,10 @@ class _StatsScreenState extends State<StatsScreen>
           value,
           style: Theme.of(
             context,
-          ).textTheme.titleLarge!.copyWith(color: theme.accentColor),
+          ).textTheme.titleLarge!.copyWith(
+                color: theme.accentColor,
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
         ),
         Text(
           label,
@@ -634,18 +722,21 @@ class _StatsScreenState extends State<StatsScreen>
           _buildWeekSelector(theme),
           const SizedBox(height: 20),
 
-          // 概览 (频率 + 训练量 + 训练密度)
+          // 概览 (英雄数字 + 频率 + 训练量 + 训练密度)
           _CollapsibleSection(
             title: '概览',
             theme: theme,
             children: [
-              _buildFrequencyOverview(frequencyStats, theme),
-              const SizedBox(height: 16),
-              _buildVolumeOverview(
-                volumeStats,
+              // Hero — the screen's single visual center (DESIGN.md「扫一眼就懂」).
+              _buildHeroVolume(
+                workoutRecords,
                 theme,
                 volumeChange: volumeChange,
               ),
+              const SizedBox(height: 16),
+              _buildFrequencyOverview(frequencyStats, theme),
+              const SizedBox(height: 16),
+              _buildVolumeOverview(volumeStats, theme),
               const SizedBox(height: 12),
               _buildDensityMetric(workoutRecords, theme),
             ],
@@ -742,18 +833,20 @@ class _StatsScreenState extends State<StatsScreen>
           _buildMonthGrid(monthlyCounts, theme),
           const SizedBox(height: 20),
 
-          // 概览 (频率 + 训练量 + 训练密度)
+          // 概览 (英雄数字 + 频率 + 训练量 + 训练密度)
           _CollapsibleSection(
             title: '概览 ($_selectedMonth月)',
             theme: theme,
             children: [
-              _buildFrequencyOverview(frequencyStats, theme),
-              const SizedBox(height: 16),
-              _buildVolumeOverview(
-                volumeStats,
+              _buildHeroVolume(
+                workoutRecords,
                 theme,
                 volumeChange: volumeChange,
               ),
+              const SizedBox(height: 16),
+              _buildFrequencyOverview(frequencyStats, theme),
+              const SizedBox(height: 16),
+              _buildVolumeOverview(volumeStats, theme),
               const SizedBox(height: 12),
               _buildDensityMetric(workoutRecords, theme),
             ],
@@ -1069,6 +1162,10 @@ class _StatsScreenState extends State<StatsScreen>
                 final isSelected = month == _selectedMonth;
                 final isFuture = _selectedYear == now.year && month > now.month;
                 final intensity = maxCount > 0 ? count / maxCount : 0.0;
+                // Sequential intensity scale uses the Okabe-Ito "blue" hue so the
+                // heatmap reads as data, not decoration, and stays colorblind-safe
+                // (DESIGN.md §2). Selection state below is UI accent, not data.
+                const heatBlue = Color(0xFF0072B2); // Okabe-Ito blue
 
                 return Material(
                   color: Colors.transparent,
@@ -1077,23 +1174,19 @@ class _StatsScreenState extends State<StatsScreen>
                     borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
                     child: Container(
                       decoration: BoxDecoration(
-                        gradient: isSelected
-                            ? LinearGradient(
-                                colors: [
-                                  theme.primaryColor,
-                                  theme.secondaryColor,
-                                ],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              )
-                            : null,
+                        // Selection is a UI state, not data — use the solid
+                        // indigo accent (the "冷静" half of the duality), matching
+                        // every other selected/active state in the app. The prior
+                        // warm gradient was both an off-brand gradient reflex and
+                        // a WCAG failure (white text on amber ≈ 1.6:1). Solid
+                        // #1A237E with white text clears 3:1 large-text floor.
                         color: isSelected
-                            ? null
+                            ? theme.accentColor
                             : isFuture
                             ? theme.textColor.withValues(alpha: 0.05)
                             : intensity > 0
-                            ? theme.primaryColor.withValues(
-                                alpha: 0.1 + intensity * 0.3,
+                            ? heatBlue.withValues(
+                                alpha: 0.12 + intensity * 0.55,
                               )
                             : theme.textColor.withValues(alpha: 0.05),
                         borderRadius: BorderRadius.circular(
@@ -1102,9 +1195,7 @@ class _StatsScreenState extends State<StatsScreen>
                         border: isSelected
                             ? null
                             : Border.all(
-                                color: isSelected
-                                    ? Colors.transparent
-                                    : theme.textColor.withValues(alpha: 0.1),
+                                color: theme.textColor.withValues(alpha: 0.1),
                               ),
                       ),
                       child: Column(
@@ -1118,7 +1209,7 @@ class _StatsScreenState extends State<StatsScreen>
                                       ? FontWeight.w600
                                       : FontWeight.w500,
                                   color: isSelected
-                                      ? theme.surfaceColor
+                                      ? theme.onAccentColor
                                       : isFuture
                                       ? theme.secondaryTextColor.withValues(
                                           alpha: 0.3,
@@ -1134,8 +1225,11 @@ class _StatsScreenState extends State<StatsScreen>
                                   .copyWith(
                                     fontWeight: FontWeight.w700,
                                     color: isSelected
-                                        ? theme.surfaceColor
-                                        : theme.primaryColor,
+                                        ? theme.onAccentColor
+                                        : heatBlue,
+                                    fontFeatures: const [
+                                      FontFeature.tabularFigures(),
+                                    ],
                                   ),
                             ),
                           ],
@@ -1218,9 +1312,9 @@ class _StatsScreenState extends State<StatsScreen>
               width: 12,
               height: 12,
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [theme.primaryColor, theme.secondaryColor],
-                ),
+                // Data series use the Okabe-Ito palette (ChartPalette), not the
+                // brand warm gradient — see DESIGN.md §2 / The Okabe-Ito rule.
+                color: ChartPalette.byIndex(0),
                 borderRadius: BorderRadius.circular(AppDimensions.radiusXxs),
               ),
             ),
@@ -1269,18 +1363,12 @@ class _StatsScreenState extends State<StatsScreen>
                                 height: barHeight,
                                 width: isWeekView ? 24 : 8,
                                 decoration: BoxDecoration(
-                                  gradient: duration > 0
-                                      ? LinearGradient(
-                                          begin: Alignment.bottomCenter,
-                                          end: Alignment.topCenter,
-                                          colors: [
-                                            theme.primaryColor,
-                                            theme.secondaryColor,
-                                          ],
-                                        )
-                                      : null,
+                                  // Single quantitative series: solid Okabe-Ito
+                                  // color, not a brand-warm gradient. Avoids the
+                                  // "gradient bar = looks premium" reflex and
+                                  // keeps data viz colorblind-safe (DESIGN.md §2).
                                   color: duration > 0
-                                      ? null
+                                      ? ChartPalette.byIndex(0)
                                       : theme.textColor.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(
                                     isWeekView
@@ -1309,6 +1397,9 @@ class _StatsScreenState extends State<StatsScreen>
                                                   fontSize: isWeekView ? 11 : 9,
                                                   color:
                                                       theme.secondaryTextColor,
+                                                  fontFeatures: const [
+                                                    FontFeature.tabularFigures(),
+                                                  ],
                                                 ),
                                           ),
                                           if (setCount > 0)
@@ -1324,6 +1415,9 @@ class _StatsScreenState extends State<StatsScreen>
                                                         : 8,
                                                     color: theme
                                                         .secondaryTextColor,
+                                                    fontFeatures: const [
+                                                      FontFeature.tabularFigures(),
+                                                    ],
                                                   ),
                                             ),
                                         ],
@@ -1452,12 +1546,12 @@ class _StatsScreenState extends State<StatsScreen>
                       child: Container(
                         height: 20,
                         decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              theme.accentColor,
-                              theme.accentColor.withValues(alpha: 0.7),
-                            ],
-                          ),
+                          // Ranked data series — solid Okabe-Ito fill, not the
+                          // brand-indigo gradient. Colorblind-safe (DESIGN.md §2).
+                          // Uses bluish-green (index 2), distinct from the
+                          // daily-duration bars' orange (index 0) so the two
+                          // unrelated series don't share a hue.
+                          color: ChartPalette.byIndex(2),
                           borderRadius: BorderRadius.circular(
                             AppDimensions.radiusSm,
                           ),
@@ -1475,7 +1569,8 @@ class _StatsScreenState extends State<StatsScreen>
                   style: Theme.of(context).textTheme.bodySmall!.copyWith(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
-                    color: theme.accentColor,
+                    color: ChartPalette.byIndex(2),
+                    fontFeatures: const [FontFeature.tabularFigures()],
                   ),
                   textAlign: TextAlign.right,
                 ),
@@ -1546,6 +1641,7 @@ class _StatsScreenState extends State<StatsScreen>
             fontSize: 20,
             fontWeight: FontWeight.w700,
             color: theme.textColor,
+            fontFeatures: const [FontFeature.tabularFigures()],
           ),
         ),
         Text(
@@ -1703,7 +1799,8 @@ class _StatsScreenState extends State<StatsScreen>
             return Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
-                color: chipColor.withValues(alpha: 0.1),
+                // The 15% Tint Rule — was 0.1.
+                color: chipColor.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
                 border: Border.all(color: chipColor.withValues(alpha: 0.3)),
               ),
@@ -1717,6 +1814,7 @@ class _StatsScreenState extends State<StatsScreen>
                     style: Theme.of(context).textTheme.bodySmall!.copyWith(
                       fontWeight: FontWeight.w500,
                       color: chipColor,
+                      fontFeatures: const [FontFeature.tabularFigures()],
                     ),
                   ),
                 ],
@@ -1742,9 +1840,11 @@ class _StatsScreenState extends State<StatsScreen>
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: theme.accentColor.withValues(alpha: 0.08),
+        // The 15% Tint Rule — was 0.08 fill / 0.2 border. Border at 0.3 keeps it
+        // consistent with StatusBadge styling (DESIGN.md §5).
+        color: theme.accentColor.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-        border: Border.all(color: theme.accentColor.withValues(alpha: 0.2)),
+        border: Border.all(color: theme.accentColor.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
@@ -1766,6 +1866,7 @@ class _StatsScreenState extends State<StatsScreen>
                   style: Theme.of(context).textTheme.titleLarge!.copyWith(
                     fontWeight: FontWeight.w700,
                     color: theme.textColor,
+                    fontFeatures: const [FontFeature.tabularFigures()],
                   ),
                 ),
               ],
@@ -1776,6 +1877,7 @@ class _StatsScreenState extends State<StatsScreen>
             style: Theme.of(context).textTheme.bodySmall!.copyWith(
               fontSize: 11,
               color: theme.secondaryTextColor,
+              fontFeatures: const [FontFeature.tabularFigures()],
             ),
           ),
         ],
@@ -2063,9 +2165,9 @@ class _StatsScreenState extends State<StatsScreen>
                             child: Container(
                               height: 20,
                               decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [color, color.withValues(alpha: 0.7)],
-                                ),
+                                // Solid fill, not a gradient — categorical data
+                                // (the hue already encodes the muscle group).
+                                color: color,
                                 borderRadius: BorderRadius.circular(
                                   AppDimensions.radiusSm,
                                 ),
@@ -2086,6 +2188,7 @@ class _StatsScreenState extends State<StatsScreen>
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
                       color: isAboveMEV ? color : theme.secondaryTextColor,
+                      fontFeatures: const [FontFeature.tabularFigures()],
                     ),
                     textAlign: TextAlign.right,
                   ),
