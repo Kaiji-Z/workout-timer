@@ -241,9 +241,12 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
                   ),
                   child: Text(
                     AppLocalizations.of(context)!.recSave,
-                    style: Theme.of(
-                      context,
-                    ).textTheme.titleLarge!.copyWith(fontSize: 14),
+                    // 必须显式设 color:深底按钮的 Text 若继承 titleLarge.color
+                    // (textColor 黑),会渲染成黑字印在深靛蓝底上不可读。
+                    style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                      fontSize: 14,
+                      color: theme.onAccentColor,
+                    ),
                   ),
                 ),
               ],
