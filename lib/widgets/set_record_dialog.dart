@@ -284,11 +284,15 @@ class _SetRecordDialogState extends State<SetRecordDialog> {
                   ),
                 ),
                 const SizedBox(width: 12),
-                // 保存按钮
+                // 保存按钮 — FilledButton 语义即"深色填充主操作",默认深底白字,
+                // 不受全局 elevatedButtonTheme (为白色圆形图标按钮设计) 干扰。
+                // 之前用 ElevatedButton + 局部 style 时,全局主题的
+                // foregroundColor: accentColor 让文字渲染成深靛蓝,印在深靛蓝底上
+                // 完全不可读(像素采样确认无白色像素)。改用 FilledButton 根治。
                 Expanded(
-                  child: ElevatedButton(
+                  child: FilledButton(
                     onPressed: _save,
-                    style: ElevatedButton.styleFrom(
+                    style: FilledButton.styleFrom(
                       backgroundColor: theme.accentColor,
                       foregroundColor: theme.onAccentColor,
                       padding: const EdgeInsets.symmetric(vertical: 14),
