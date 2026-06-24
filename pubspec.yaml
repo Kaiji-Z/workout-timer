@@ -15,6 +15,9 @@ dependencies:
 
   cupertino_icons: ^1.0.8
 
+  # 运行时读取版本号(设置页「关于」显示真实版本,避免硬编码滞后)
+  package_info_plus: ^8.1.2
+
   provider: ^6.1.1
 
   sqflite: ^2.3.0
