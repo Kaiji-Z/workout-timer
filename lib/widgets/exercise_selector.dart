@@ -97,6 +97,7 @@ class _ExerciseSelectorState extends State<ExerciseSelector> {
   }
 
   Widget _buildSearchBar(AppThemeData theme) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       decoration: BoxDecoration(
         color: theme.surfaceColorRaised,
@@ -111,14 +112,14 @@ class _ExerciseSelectorState extends State<ExerciseSelector> {
           });
         },
         decoration: InputDecoration(
-          hintText: '搜索动作...',
+          hintText: l10n.widgetSearchExerciseHint,
           hintStyle: Theme.of(
             context,
           ).textTheme.bodyLarge!.copyWith(color: theme.secondaryTextColor),
           prefixIcon: Icon(Icons.search, color: theme.secondaryTextColor),
           suffixIcon: _searchQuery.isNotEmpty
               ? IconButton(
-                  tooltip: '清除搜索',
+                  tooltip: l10n.widgetClearSearch,
                   icon: Icon(Icons.clear, color: theme.secondaryTextColor),
                   onPressed: () {
                     _searchController.clear();
@@ -142,6 +143,7 @@ class _ExerciseSelectorState extends State<ExerciseSelector> {
   }
 
   Widget _buildMuscleFilterChips(AppThemeData theme) {
+    final l10n = AppLocalizations.of(context)!;
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
@@ -170,7 +172,7 @@ class _ExerciseSelectorState extends State<ExerciseSelector> {
                   ),
                 ),
                 child: Text(
-                  '全部',
+                  l10n.widgetAll,
                   style: Theme.of(context).textTheme.labelLarge!.copyWith(
                     fontWeight: _filterMuscle == null
                         ? FontWeight.w600
@@ -227,6 +229,7 @@ class _ExerciseSelectorState extends State<ExerciseSelector> {
   }
 
   Widget _buildExerciseList(PlanProvider planProvider, AppThemeData theme) {
+    final l10n = AppLocalizations.of(context)!;
     // 获取所有动作
     List<Exercise> exercises = planProvider.exercises;
 
@@ -264,7 +267,7 @@ class _ExerciseSelectorState extends State<ExerciseSelector> {
             ),
             const SizedBox(height: 16),
             Text(
-              '没有找到动作',
+              l10n.widgetNoExerciseFound,
               style: Theme.of(
                 context,
               ).textTheme.bodyLarge!.copyWith(color: theme.secondaryTextColor),
@@ -293,6 +296,7 @@ class _ExerciseSelectorState extends State<ExerciseSelector> {
   }
 
   Widget _buildSelectedPreview(AppThemeData theme) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       constraints: const BoxConstraints(maxHeight: 110),
       padding: const EdgeInsets.all(AppDimensions.screenPadding),
@@ -308,7 +312,7 @@ class _ExerciseSelectorState extends State<ExerciseSelector> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                '已选 ${widget.selectedExercises.length} 个动作',
+                l10n.widgetSelectedCount(widget.selectedExercises.length),
                 style: Theme.of(context).textTheme.labelLarge!.copyWith(
                   fontWeight: FontWeight.w600,
                   color: theme.textColor,
@@ -317,7 +321,7 @@ class _ExerciseSelectorState extends State<ExerciseSelector> {
               TextButton(
                 onPressed: () => widget.onSelectionChanged([]),
                 child: Text(
-                  '清空',
+                  l10n.widgetClearAll,
                   style: Theme.of(
                     context,
                   ).textTheme.labelLarge!.copyWith(color: theme.accentColor),
@@ -354,7 +358,7 @@ class _ExerciseSelectorState extends State<ExerciseSelector> {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          '(${planExercise.targetSets}组)',
+                          '(${l10n.widgetSetsSuffix(planExercise.targetSets)})',
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
                         const SizedBox(width: 4),
@@ -723,7 +727,7 @@ class _ExerciseDetailSheetState extends State<ExerciseDetailSheet>
                       // 次要肌肉部位
                       if (widget.exercise.secondaryMuscles.isNotEmpty) ...[
                         Text(
-                          '涉及部位',
+                          l10n.widgetInvolvedMuscles,
                           style: Theme.of(context).textTheme.labelLarge!
                               .copyWith(
                                 fontWeight: FontWeight.w600,
@@ -788,7 +792,9 @@ class _ExerciseDetailSheetState extends State<ExerciseDetailSheet>
                               elevation: 0,
                             ),
                             child: Text(
-                              widget.isSelected ? '从计划中移除' : '添加到计划',
+                              widget.isSelected
+                                  ? l10n.widgetRemoveFromPlan
+                                  : l10n.widgetAddToPlan,
                               style: Theme.of(context).textTheme.titleLarge!
                                   .copyWith(color: theme.onAccentColor),
                             ),
@@ -808,6 +814,7 @@ class _ExerciseDetailSheetState extends State<ExerciseDetailSheet>
 
   /// 图片轮播组件（交叉渐隐自动轮播）
   Widget _buildImageCarousel(AppThemeData theme) {
+    final l10n = AppLocalizations.of(context)!;
     final images = widget.exercise.images;
 
     return Column(
@@ -894,7 +901,7 @@ class _ExerciseDetailSheetState extends State<ExerciseDetailSheet>
 
         // 图片说明
         Text(
-          '第 ${_currentPage + 1} 步 / 共 ${images.length} 步',
+          l10n.widgetImageStepIndicator(_currentPage + 1, images.length),
           style: Theme.of(context).textTheme.bodySmall,
         ),
       ],
@@ -903,6 +910,7 @@ class _ExerciseDetailSheetState extends State<ExerciseDetailSheet>
 
   /// 动作指导组件
   Widget _buildInstructions(AppThemeData theme) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -911,7 +919,7 @@ class _ExerciseDetailSheetState extends State<ExerciseDetailSheet>
             Icon(Icons.list_alt, size: 20, color: theme.accentColor),
             const SizedBox(width: 8),
             Text(
-              '动作指导',
+              l10n.widgetExerciseInstructions,
               style: Theme.of(
                 context,
               ).textTheme.titleLarge!.copyWith(color: theme.textColor),
@@ -986,7 +994,7 @@ class _ExerciseDetailSheetState extends State<ExerciseDetailSheet>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '推荐配置',
+            l10n.widgetRecommendedConfig,
             style: Theme.of(context).textTheme.labelLarge!.copyWith(
               fontWeight: FontWeight.w600,
               color: theme.textColor,
@@ -997,8 +1005,10 @@ class _ExerciseDetailSheetState extends State<ExerciseDetailSheet>
             children: [
               Expanded(
                 child: _buildStatItem(
-                  '${widget.exercise.recommendation.recommendedSets} 组',
-                  '推荐组数',
+                  l10n.widgetRecommendedSetsValue(
+                    widget.exercise.recommendation.recommendedSets,
+                  ),
+                  l10n.widgetRecommendedSets,
                   Icons.repeat,
                   theme,
                 ),
@@ -1006,7 +1016,7 @@ class _ExerciseDetailSheetState extends State<ExerciseDetailSheet>
               Expanded(
                 child: _buildStatItem(
                   widget.exercise.recommendation.repsRangeText(l10n),
-                  '次数范围',
+                  l10n.widgetRepsRangeLabel,
                   Icons.filter_list,
                   theme,
                 ),
@@ -1014,7 +1024,7 @@ class _ExerciseDetailSheetState extends State<ExerciseDetailSheet>
               Expanded(
                 child: _buildStatItem(
                   widget.exercise.recommendation.restText(l10n),
-                  '组间休息',
+                  l10n.widgetRestLabel,
                   Icons.timer,
                   theme,
                 ),
@@ -1139,6 +1149,7 @@ class _FullscreenImageGalleryState extends State<_FullscreenImageGallery>
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().currentTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Dialog(
       backgroundColor: Colors.black,
@@ -1205,7 +1216,7 @@ class _FullscreenImageGalleryState extends State<_FullscreenImageGallery>
                 child: Row(
                   children: [
                     IconButton(
-                      tooltip: '关闭',
+                      tooltip: l10n.widgetClose,
                       icon: Icon(Icons.close, color: theme.onAccentColor),
                       onPressed: () => Navigator.pop(context),
                     ),

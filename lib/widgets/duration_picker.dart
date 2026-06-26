@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import '../l10n/app_localizations.dart';
 import '../theme/theme_provider.dart';
 import '../theme/app_theme.dart';
 import '../utils/dimensions.dart';
@@ -12,13 +13,13 @@ import 'package:provider/provider.dart';
 class DurationPicker extends StatefulWidget {
   final int initialDurationSeconds;
   final Function(int seconds) onDurationSelected;
-  final String title;
+  final String? title;
 
   const DurationPicker({
     super.key,
     required this.initialDurationSeconds,
     required this.onDurationSelected,
-    this.title = '设置休息时长',
+    this.title,
   });
 
   /// 显示底部弹出的时间选择器 - iOS 26 风格
@@ -26,7 +27,7 @@ class DurationPicker extends StatefulWidget {
     BuildContext context, {
     required int initialDurationSeconds,
     required Function(int seconds) onDurationSelected,
-    String title = '设置休息时长',
+    String? title,
   }) {
     return showModalBottomSheet(
       context: context,
@@ -87,8 +88,8 @@ class _DurationPickerState extends State<DurationPicker> {
       Navigator.pop(context);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('休息时长至少需要10秒'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.widgetRestMinDuration),
           duration: Duration(seconds: 2),
         ),
       );
@@ -98,6 +99,7 @@ class _DurationPickerState extends State<DurationPicker> {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().currentTheme;
+    final l10n = AppLocalizations.of(context)!;
     // iPhone 5c 主题统一使用浅色风格
     final screenHeight = MediaQuery.of(context).size.height;
 
@@ -152,7 +154,7 @@ class _DurationPickerState extends State<DurationPicker> {
                         child: _buildWheel(
                           controller: _minuteController,
                           items: _minuteOptions,
-                          suffix: '分',
+                          suffix: l10n.widgetMinuteSuffix,
                           theme: theme,
                           onChanged: (index) {
                             setState(() {
@@ -166,7 +168,7 @@ class _DurationPickerState extends State<DurationPicker> {
                         child: _buildWheel(
                           controller: _secondController,
                           items: _secondOptions,
-                          suffix: '秒',
+                          suffix: l10n.widgetSecondSuffix,
                           theme: theme,
                           onChanged: (index) {
                             setState(() {
@@ -190,6 +192,7 @@ class _DurationPickerState extends State<DurationPicker> {
   }
 
   Widget _buildHeader(AppThemeData theme) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
@@ -205,7 +208,7 @@ class _DurationPickerState extends State<DurationPicker> {
             padding: EdgeInsets.zero,
             onPressed: () => Navigator.pop(context),
             child: Text(
-              '取消',
+              l10n.widgetCancel,
               style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                 fontSize: 17,
                 color: theme.primaryColor,
@@ -214,7 +217,7 @@ class _DurationPickerState extends State<DurationPicker> {
           ),
           // 标题
           Text(
-            widget.title,
+            widget.title ?? l10n.widgetSetRestDuration,
             style: Theme.of(context).textTheme.titleLarge!.copyWith(
               fontSize: 17,
               color: theme.textColor,
@@ -225,7 +228,7 @@ class _DurationPickerState extends State<DurationPicker> {
             padding: EdgeInsets.zero,
             onPressed: _onConfirm,
             child: Text(
-              '确定',
+              l10n.widgetConfirm,
               style: Theme.of(context).textTheme.titleLarge!.copyWith(
                 fontSize: 17,
                 color: theme.primaryColor,
@@ -238,6 +241,7 @@ class _DurationPickerState extends State<DurationPicker> {
   }
 
   Widget _buildBottomSection(AppThemeData theme) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       child: Column(
@@ -246,7 +250,7 @@ class _DurationPickerState extends State<DurationPicker> {
           Container(
             padding: const EdgeInsets.symmetric(vertical: 12),
             child: Text(
-              '已选择: ${_formatDuration(_totalSeconds)}',
+              l10n.widgetSelectedDuration(_formatDuration(_totalSeconds, l10n)),
               style: Theme.of(context).textTheme.titleLarge!.copyWith(
                 fontSize: 15,
                 fontWeight: FontWeight.w500,
@@ -262,6 +266,7 @@ class _DurationPickerState extends State<DurationPicker> {
   }
 
   Widget _buildConfirmButton(AppThemeData theme) {
+    final l10n = AppLocalizations.of(context)!;
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -279,7 +284,7 @@ class _DurationPickerState extends State<DurationPicker> {
           ),
           child: Center(
             child: Text(
-              '确认',
+              l10n.widgetConfirmButton,
               style: Theme.of(context).textTheme.titleLarge!.copyWith(
                 fontSize: 17,
                 color: theme.onAccentColor,
@@ -344,15 +349,15 @@ class _DurationPickerState extends State<DurationPicker> {
     );
   }
 
-  String _formatDuration(int seconds) {
+  String _formatDuration(int seconds, AppLocalizations l10n) {
     final minutes = seconds ~/ 60;
     final remainingSeconds = seconds % 60;
     if (minutes > 0 && remainingSeconds > 0) {
-      return '$minutes分$remainingSeconds秒';
+      return l10n.unitMinutesSeconds(minutes, remainingSeconds);
     } else if (minutes > 0) {
-      return '$minutes分钟';
+      return l10n.unitMinutes(minutes);
     } else {
-      return '$remainingSeconds秒';
+      return l10n.unitSeconds(remainingSeconds);
     }
   }
 }

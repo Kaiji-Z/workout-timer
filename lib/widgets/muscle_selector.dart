@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
 import '../models/muscle_group.dart';
 import '../theme/theme_provider.dart';
-import 'package:provider/provider.dart';
 import '../theme/app_theme.dart';
 import '../utils/dimensions.dart';
 
@@ -33,7 +34,10 @@ class MuscleSelector extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (showTitle) ...[
-          Text('选择训练部位', style: Theme.of(context).textTheme.headlineMedium!),
+          Text(
+            AppLocalizations.of(context)!.widgetSelectMuscleTitle,
+            style: Theme.of(context).textTheme.headlineMedium!,
+          ),
           const SizedBox(height: 16),
         ],
         Wrap(

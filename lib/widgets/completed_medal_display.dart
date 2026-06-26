@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 
 /// 训练完成奖牌显示组件
@@ -214,7 +215,7 @@ class _CompletedMedalDisplayState extends State<CompletedMedalDisplay>
           ),
           const SizedBox(height: 4),
           Text(
-            '训练完成',
+            AppLocalizations.of(context)!.widgetTrainingComplete,
             style: Theme.of(context).textTheme.bodyMedium!.copyWith(
               fontSize: 13,
               fontWeight: FontWeight.w500,

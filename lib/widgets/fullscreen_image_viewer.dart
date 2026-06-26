@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import '../l10n/app_localizations.dart';
 import '../utils/dimensions.dart';
 
 /// 全屏图片查看器
@@ -35,7 +36,7 @@ class FullscreenImageViewer extends StatefulWidget {
         opaque: false,
         barrierColor: Colors.black87,
         barrierDismissible: true,
-        barrierLabel: '关闭',
+        barrierLabel: AppLocalizations.of(context)!.widgetClose,
         transitionDuration: const Duration(milliseconds: 200),
         pageBuilder: (context, _, _) =>
             FullscreenImageViewer(imageUrl: imageUrl, title: title),
@@ -61,7 +62,7 @@ class FullscreenImageViewer extends StatefulWidget {
         opaque: false,
         barrierColor: Colors.black87,
         barrierDismissible: true,
-        barrierLabel: '关闭',
+        barrierLabel: AppLocalizations.of(context)!.widgetClose,
         transitionDuration: const Duration(milliseconds: 200),
         pageBuilder: (context, _, _) => FullscreenImageViewer(
           imageUrl: images.isNotEmpty ? images.first : '',
@@ -159,7 +160,7 @@ class _FullscreenImageViewerState extends State<FullscreenImageViewer>
                           color: Colors.grey[800],
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: const Column(
+                        child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(
@@ -169,7 +170,7 @@ class _FullscreenImageViewerState extends State<FullscreenImageViewer>
                             ),
                             SizedBox(height: 8),
                             Text(
-                              '图片加载失败',
+                              AppLocalizations.of(context)!.widgetImageLoadFailed,
                               style: TextStyle(
                                 color: Colors.white54,
                                 fontSize: 14,
@@ -218,7 +219,7 @@ class _FullscreenImageViewerState extends State<FullscreenImageViewer>
                   ),
                 ),
               // 关闭提示
-              const Positioned(
+              Positioned(
                 bottom: 0,
                 left: 0,
                 right: 0,
@@ -226,7 +227,7 @@ class _FullscreenImageViewerState extends State<FullscreenImageViewer>
                   child: Padding(
                     padding: EdgeInsets.all(AppDimensions.screenPadding),
                     child: Text(
-                      '点击任意位置关闭',
+                      AppLocalizations.of(context)!.widgetTapToClose,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Colors.white54,
@@ -315,7 +316,7 @@ class _FullscreenImageViewerState extends State<FullscreenImageViewer>
                     child: Row(
                       children: [
                         IconButton(
-                          tooltip: '关闭',
+                          tooltip: AppLocalizations.of(context)!.widgetClose,
                           icon: Icon(Icons.close, color: Colors.white),
                           onPressed: () => Navigator.pop(context),
                         ),

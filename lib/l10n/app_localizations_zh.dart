@@ -365,4 +365,159 @@ class AppLocalizationsZh extends AppLocalizations {
   ) {
     return '$date，$plan$today$selected';
   }
+
+  @override
+  String get widgetSearchExercise => '搜索动作';
+
+  @override
+  String get widgetClearSearch => '清除搜索';
+
+  @override
+  String get widgetAll => '全部';
+
+  @override
+  String get widgetNoExerciseFound => '没有找到动作';
+
+  @override
+  String widgetSelectedCount(int count) {
+    return '已选 $count 个动作';
+  }
+
+  @override
+  String get widgetClearAll => '清空';
+
+  @override
+  String widgetSetsSuffix(int n) {
+    return '$n组';
+  }
+
+  @override
+  String widgetPlanExercisesCount(int n) {
+    return '$n 个动作';
+  }
+
+  @override
+  String widgetPlanSetsCount(int n) {
+    return '$n 组';
+  }
+
+  @override
+  String widgetPlanDuration(int n) {
+    return '~$n 分钟';
+  }
+
+  @override
+  String widgetPlanSummaryShort(int exerciseCount, int totalSets) {
+    return '$exerciseCount动作 · $totalSets组';
+  }
+
+  @override
+  String widgetCurrentExercise(String name, int set, int total) {
+    return '当前：$name 第$set/$total组';
+  }
+
+  @override
+  String widgetExerciseProgressHeader(String plan, String exercise, int set) {
+    return '$plan · $exercise 第$set组';
+  }
+
+  @override
+  String widgetNoDetail(String name) {
+    return '$name (无详情)';
+  }
+
+  @override
+  String get widgetSwitchNextExercise => '切换下一动作';
+
+  @override
+  String get widgetEmptyPlanTitle => '还没有计划';
+
+  @override
+  String get widgetEmptyPlanSubtitle => '点击创建你的第一个训练计划';
+
+  @override
+  String widgetProgressSummary(String name, int current, int total) {
+    return '$name · $current/$total组';
+  }
+
+  @override
+  String get widgetSelectMuscleTitle => '选择训练部位';
+
+  @override
+  String get widgetNoDailyData => '暂无每日训练量数据';
+
+  @override
+  String get widgetTrainingComplete => '训练完成';
+
+  @override
+  String get widgetImageLoadFailed => '图片加载失败';
+
+  @override
+  String get widgetTapToClose => '点击任意位置关闭';
+
+  @override
+  String get widgetClose => '关闭';
+
+  @override
+  String get widgetSetRestDuration => '设置休息时长';
+
+  @override
+  String get widgetRestMinDuration => '休息时长至少需要10秒';
+
+  @override
+  String get widgetMinuteSuffix => '分';
+
+  @override
+  String get widgetSecondSuffix => '秒';
+
+  @override
+  String get widgetCancel => '取消';
+
+  @override
+  String get widgetConfirm => '确定';
+
+  @override
+  String widgetSelectedDuration(String duration) {
+    return '已选择: $duration';
+  }
+
+  @override
+  String get widgetConfirmButton => '确认';
+
+  @override
+  String get widgetSearchExerciseHint => '搜索动作...';
+
+  @override
+  String get widgetInvolvedMuscles => '涉及部位';
+
+  @override
+  String get widgetRemoveFromPlan => '从计划中移除';
+
+  @override
+  String get widgetAddToPlan => '添加到计划';
+
+  @override
+  String widgetImageStepIndicator(int current, int total) {
+    return '第 $current 步 / 共 $total 步';
+  }
+
+  @override
+  String get widgetExerciseInstructions => '动作指导';
+
+  @override
+  String get widgetRecommendedConfig => '推荐配置';
+
+  @override
+  String get widgetRecommendedSets => '推荐组数';
+
+  @override
+  String widgetRecommendedSetsValue(int n) {
+    return '$n 组';
+  }
+
+  @override
+  String get widgetRepsRangeLabel => '次数范围';
+
+  @override
+  String get widgetRestLabel => '组间休息';
 }
