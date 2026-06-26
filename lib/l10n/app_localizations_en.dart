@@ -298,4 +298,29 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorGeneric => 'Operation failed, please retry';
+
+  @override
+  String get dataTransferShareText => 'Iron Timer data backup';
+
+  @override
+  String get dataTransferWebUnsupported =>
+      'File import is not supported on Web';
+
+  @override
+  String get dataTransferInvalidFormat => 'Invalid backup file format';
+
+  @override
+  String aiPromptOutputInstructions(
+    int frequency,
+    String goal,
+    String experience,
+    String equipment,
+  ) {
+    return 'Please structure your reply in the following two parts:\n\n**Part 1: Plan Design Rationale**\n\nExplain in detail why you designed the plan this way, including:\n- The reasoning behind the split you chose (e.g. push/pull/legs, upper/lower, full body, etc., considering my training frequency of $frequency days/week)\n- The exercise selection logic for each training day (why these exercises were chosen, and the compound/isolation pairing principles)\n- The volume allocation rationale (weekly sets per muscle group, and how they match my goal of $goal)\n- How the plan fits my experience level $experience and equipment access $equipment\n\n**Part 2: Workout Plan JSON**\n\nAfter your analysis, provide the structured workout plan in a ```json code block:';
+  }
+
+  @override
+  String aiPromptClosing(int frequency) {
+    return 'Based on the above information (training frequency of $frequency days/week), first explain your design rationale, then generate the workout plan.';
+  }
 }

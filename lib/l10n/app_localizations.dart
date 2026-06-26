@@ -595,6 +595,41 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'操作失败，请重试'**
   String get errorGeneric;
+
+  /// 分享备份文件时的文本
+  ///
+  /// In zh, this message translates to:
+  /// **'撸铁计时器数据备份'**
+  String get dataTransferShareText;
+
+  /// Web 平台不支持导入时抛出的错误
+  ///
+  /// In zh, this message translates to:
+  /// **'Web 平台暂不支持文件导入'**
+  String get dataTransferWebUnsupported;
+
+  /// 备份文件格式无效时抛出的错误
+  ///
+  /// In zh, this message translates to:
+  /// **'无效的备份文件格式'**
+  String get dataTransferInvalidFormat;
+
+  /// AI 提示词中的输出格式说明（第一部分设计思路 + 第二部分 JSON）
+  ///
+  /// In zh, this message translates to:
+  /// **'请按以下两部分输出你的回复：\n\n**第一部分：计划设计说明**\n\n详细说明你为什么这样设计这个训练计划，包括：\n- 分化方式的选择理由（如推/拉/腿、上下肢、全身等，结合我的训练频率 {frequency} 天/周）\n- 每个训练日的动作选择逻辑（为什么选这些动作，复合/孤立的搭配原则）\n- 容量分配依据（每个肌群每周的训练组数，如何匹配我的目标 {goal}）\n- 与我的经验水平 {experience} 和器材条件 {equipment} 的适配考虑\n\n**第二部分：训练计划 JSON**\n\n在分析之后，用 ```json 代码块提供结构化训练计划：'**
+  String aiPromptOutputInstructions(
+    int frequency,
+    String goal,
+    String experience,
+    String equipment,
+  );
+
+  /// AI 提示词的结尾指令
+  ///
+  /// In zh, this message translates to:
+  /// **'请根据以上信息（训练频率 {frequency} 天/周），先解释你的设计思路，然后生成训练计划。'**
+  String aiPromptClosing(int frequency);
 }
 
 class _AppLocalizationsDelegate
