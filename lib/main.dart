@@ -15,6 +15,7 @@ import 'providers/training_provider.dart';
 import 'providers/plan_provider.dart';
 import 'providers/record_provider.dart';
 import 'providers/training_progress_provider.dart';
+import 'providers/locale_provider.dart';
 import 'theme/theme_provider.dart';
 import 'theme/app_theme.dart';
 import 'utils/dimensions.dart';
@@ -29,8 +30,10 @@ void main() async {
   // Lock to portrait orientation
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
-  // Initialize date formatting for Chinese locale
+  // Initialize date formatting for all supported locales (zh + en) so the
+  // active locale's date symbols are always available regardless of switch.
   await initializeDateFormatting('zh_CN', null);
+  await initializeDateFormatting('en_US', null);
 
   // Register all service dependencies for DI (before any Provider is created)
   ServiceLocator.setup();
@@ -54,6 +57,18 @@ void main() async {
   final themeProvider = ThemeProvider();
   await themeProvider.initialize();
 
+  // Initialize locale provider (in-app language switching, persisted).
+  final localeProvider = LocaleProvider();
+  await localeProvider.initialize();
+
+  // Keep the root locale (consumed by services without a BuildContext) in
+  // sync with the user's language preference.
+  void syncRootLocale() =>
+      ServiceLocator.get<ValueNotifier<Locale>>().value =
+          localeProvider.effectiveLocale;
+  syncRootLocale();
+  localeProvider.addListener(syncRootLocale);
+
   // Skip notification initialization on web
   if (!kIsWeb) {
     final notificationService = NotificationService();
@@ -73,6 +88,7 @@ void main() async {
   runApp(
     MyApp(
       themeProvider: themeProvider,
+      localeProvider: localeProvider,
       scaffoldMessengerKey: scaffoldMessengerKey,
     ),
   );
@@ -80,11 +96,13 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   final ThemeProvider themeProvider;
+  final LocaleProvider localeProvider;
   final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey;
 
   const MyApp({
     super.key,
     required this.themeProvider,
+    required this.localeProvider,
     required this.scaffoldMessengerKey,
   });
 
@@ -93,6 +111,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider.value(value: themeProvider),
+        ChangeNotifierProvider.value(value: localeProvider),
         ChangeNotifierProvider(create: (_) => TimerProvider()),
         ChangeNotifierProvider(create: (_) => TrainingProvider()),
         // 健身计划相关Providers
@@ -100,10 +119,12 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => RecordProvider()..loadRecords()),
         ChangeNotifierProvider(create: (_) => TrainingProgressProvider()),
       ],
-      child: Consumer<ThemeProvider>(
-        builder: (context, themeProvider, child) {
+      child: Consumer2<ThemeProvider, LocaleProvider>(
+        builder: (context, themeProvider, localeProvider, child) {
+          final l10n = lookupAppLocalizations(localeProvider.effectiveLocale);
           return MaterialApp(
-            title: '撸铁计时器',
+            title: l10n.appTitle,
+            locale: localeProvider.effectiveLocale,
             scaffoldMessengerKey: scaffoldMessengerKey,
             theme: themeProvider.currentTheme.toThemeData(),
             localizationsDelegates: AppLocalizations.localizationsDelegates,
