@@ -1,12 +1,28 @@
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../core/service_locator.dart';
+import '../l10n/app_localizations.dart';
 
 class NotificationService {
   final FlutterLocalNotificationsPlugin _notifications =
       FlutterLocalNotificationsPlugin();
+
+  /// Resolve the current [AppLocalizations] for service-layer use (services
+  /// have no BuildContext). Reads the root locale registered in
+  /// [ServiceLocator]; falls back to Chinese if not yet registered.
+  AppLocalizations _currentLocalizations() {
+    try {
+      final locale = ServiceLocator.get<ValueNotifier<Locale>>().value;
+      return lookupAppLocalizations(locale);
+    } catch (_) {
+      return lookupAppLocalizations(const Locale('zh'));
+    }
+  }
 
   Future<void> initialize() async {
     try {
@@ -56,7 +72,9 @@ class NotificationService {
       final prefs = await SharedPreferences.getInstance();
       final soundEnabled = prefs.getBool('sound_enabled') ?? true;
       final vibrationEnabled = prefs.getBool('vibration_enabled') ?? true;
-      final customMessage = prefs.getString('custom_message') ?? '准备开始下一组！';
+      final l10n = _currentLocalizations();
+      final customMessage =
+          prefs.getString('custom_message') ?? l10n.notifNextSet;
 
       final AndroidNotificationDetails androidDetails =
           AndroidNotificationDetails(
@@ -88,7 +106,7 @@ class NotificationService {
 
       await _notifications.show(
         id: 0,
-        title: '休息结束！',
+        title: l10n.notifRestDone,
         body: customMessage,
         notificationDetails: details,
       );
