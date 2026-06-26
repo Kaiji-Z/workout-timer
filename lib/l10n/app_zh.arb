@@ -227,5 +227,7 @@
   "equipmentEzBarbell": "曲杆杠铃",
   "@equipmentEzBarbell": {},
   "equipmentSmithMachine": "史密斯机",
-  "@equipmentSmithMachine": {}
+  "@equipmentSmithMachine": {},
+  "errorGeneric": "操作失败，请重试",
+  "@errorGeneric": {}
 }

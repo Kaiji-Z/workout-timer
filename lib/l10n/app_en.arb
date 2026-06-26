@@ -84,5 +84,6 @@
   "equipmentBands": "Bands",
   "equipmentMedicineBall": "Medicine Ball",
   "equipmentEzBarbell": "EZ Barbell",
-  "equipmentSmithMachine": "Smith Machine"
+  "equipmentSmithMachine": "Smith Machine",
+  "errorGeneric": "Operation failed, please retry"
 }

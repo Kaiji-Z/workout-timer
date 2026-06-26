@@ -294,4 +294,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get equipmentSmithMachine => '史密斯机';
+
+  @override
+  String get errorGeneric => '操作失败，请重试';
 }
