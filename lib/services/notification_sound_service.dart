@@ -1,4 +1,8 @@
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../core/service_locator.dart';
+import '../l10n/app_localizations.dart';
 
 /// Manages notification sound selection and persistence.
 class NotificationSoundService {
@@ -11,14 +15,6 @@ class NotificationSoundService {
     'bell',
     'whistle',
   ];
-
-  static const Map<String, String> _displayNames = {
-    'default': '默认',
-    'beep': '哔声',
-    'chime': '铃声',
-    'bell': '钟声',
-    'whistle': '哨声',
-  };
 
   late SharedPreferences _prefs;
 
@@ -45,8 +41,39 @@ class NotificationSoundService {
     await _prefs.setString(_prefsKey, name);
   }
 
-  /// Returns a human-readable display name for the given sound identifier.
+  /// Resolve the current [AppLocalizations] for service-layer use (no
+  /// BuildContext available). Falls back to Chinese if not registered yet.
+  AppLocalizations _currentLocalizations() {
+    try {
+      final locale = ServiceLocator.get<ValueNotifier<Locale>>().value;
+      return lookupAppLocalizations(locale);
+    } catch (_) {
+      return lookupAppLocalizations(const Locale('zh'));
+    }
+  }
+
+  /// Returns a human-readable, locale-aware display name for the given sound
+  /// identifier.
+  ///
+  /// Note: the internal sound ids predate localization and don't line up 1:1
+  /// with the ARB key suffixes — `chime` renders as the "ring" label and
+  /// `bell` as the "chime" label, matching the original Chinese semantics.
   String getSoundDisplayName(String name) {
-    return _displayNames[name] ?? name;
+    final l10n = _currentLocalizations();
+    switch (name) {
+      case 'default':
+        return l10n.soundDefault;
+      case 'beep':
+        return l10n.soundBeep;
+      case 'chime':
+        return l10n.soundRing;
+      case 'bell':
+        return l10n.soundChime;
+      case 'whistle':
+        return l10n.soundWhistle;
+      default:
+        return name;
+    }
   }
 }
+
