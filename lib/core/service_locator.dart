@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import '../services/error_reporter_service.dart';
 import '../services/notification_service.dart';
 import '../services/record_repository.dart';
@@ -68,6 +70,13 @@ class ServiceLocator {
     register<RecordRepository>(RecordRepository());
     register<StatsCalculatorService>(StatsCalculatorService());
     register<ErrorReporter>(ErrorReporter());
+
+    // Root locale for services without a BuildContext. LocaleProvider updates
+    // this value whenever the in-app language changes; services read it and
+    // call `lookupAppLocalizations(locale)` to resolve localized strings.
+    register<ValueNotifier<Locale>>(
+      ValueNotifier<Locale>(const Locale('zh')),
+    );
 
     // UserPreferencesService performs async I/O per call; create lazily so the
     // first request pays the cost instead of blocking startup.
