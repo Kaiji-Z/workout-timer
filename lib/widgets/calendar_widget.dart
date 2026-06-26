@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../theme/theme_provider.dart';
@@ -77,22 +78,8 @@ class _CalendarWidgetState extends State<CalendarWidget> {
   }
 
   Widget _buildMonthNavigation(AppThemeData theme) {
-    final year = _currentMonth.year;
-    final month = _currentMonth.month;
-    final monthNames = [
-      '1月',
-      '2月',
-      '3月',
-      '4月',
-      '5月',
-      '6月',
-      '7月',
-      '8月',
-      '9月',
-      '10月',
-      '11月',
-      '12月',
-    ];
+    final locale = Localizations.localeOf(context).languageCode;
+    final monthYearText = DateFormat.yMMM(locale).format(_currentMonth);
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -113,7 +100,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
 
         // 当前月份
         Text(
-          '$year年 ${monthNames[month - 1]}',
+          monthYearText,
           style: Theme.of(
             context,
           ).textTheme.headlineMedium!.copyWith(color: theme.textColor),
@@ -137,7 +124,12 @@ class _CalendarWidgetState extends State<CalendarWidget> {
   }
 
   Widget _buildWeekdayHeaders(AppThemeData theme) {
-    const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+    final locale = Localizations.localeOf(context).languageCode;
+    // 2024-01-07 is a Sunday; build Sun..Sat in locale-aware short form.
+    final weekdays = [
+      for (var i = 0; i < 7; i++)
+        DateFormat.E(locale).format(DateTime(2024, 1, 7 + i)),
+    ];
 
     return Row(
       children: weekdays.map((day) {
@@ -189,6 +181,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
       cells.add(
         _DateCell(
           day: day,
+          date: date,
           isSelected: isSelected,
           isToday: isToday,
           hasPlan: hasPlan,
@@ -234,6 +227,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
 /// 日期单元格
 class _DateCell extends StatelessWidget {
   final int day;
+  final DateTime date;
   final bool isSelected;
   final bool isToday;
   final bool hasPlan;
@@ -242,6 +236,7 @@ class _DateCell extends StatelessWidget {
 
   const _DateCell({
     required this.day,
+    required this.date,
     required this.isSelected,
     required this.isToday,
     required this.hasPlan,
@@ -251,8 +246,15 @@ class _DateCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final semanticsLabel =
-        '$day日${hasPlan ? "，有训练计划" : ""}${isToday ? "，今天" : ""}${isSelected ? "，已选中" : ""}';
+    final l10n = AppLocalizations.of(context)!;
+    final locale = Localizations.localeOf(context).languageCode;
+    final dateStr = DateFormat.yMd(locale).format(date);
+    final semanticsLabel = l10n.calDaySemantics(
+      dateStr,
+      hasPlan ? l10n.calDayHasPlan : '',
+      isToday ? l10n.calDayToday : '',
+      isSelected ? l10n.calDaySelected : '',
+    );
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -377,7 +379,8 @@ class _CompactCalendarState extends State<CompactCalendar> {
                 constraints: const BoxConstraints(),
               ),
               Text(
-                '${_currentMonth.year}年${_currentMonth.month}月',
+                DateFormat.yM(Localizations.localeOf(context).languageCode)
+                    .format(_currentMonth),
                 style: Theme.of(context).textTheme.titleLarge!.copyWith(
                   fontSize: 15,
                   color: theme.textColor,
@@ -428,17 +431,15 @@ class _CompactCalendarState extends State<CompactCalendar> {
         final isToday = _isSameDay(date, todayNormalized);
         final hasPlan = markedDates.any((d) => _isSameDay(d, date));
 
-        final weekDayName = [
-          '日',
-          '一',
-          '二',
-          '三',
-          '四',
-          '五',
-          '六',
-        ][date.weekday % 7];
-        final semanticsLabel =
-            '${date.month}月${date.day}日 星期$weekDayName${hasPlan ? '，有训练计划' : ''}${isSelected ? '，已选中' : ''}${isToday ? '，今天' : ''}';
+        final l10n = AppLocalizations.of(context)!;
+        final locale = Localizations.localeOf(context).languageCode;
+        final weekDayName = DateFormat.E(locale).format(date);
+        final semanticsLabel = l10n.calDaySemantics(
+          DateFormat.yMd(locale).format(date),
+          hasPlan ? l10n.calDayHasPlan : '',
+          isToday ? l10n.calDayToday : '',
+          isSelected ? l10n.calDaySelected : '',
+        );
 
         return Material(
           color: Colors.transparent,
@@ -455,7 +456,7 @@ class _CompactCalendarState extends State<CompactCalendar> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      ['日', '一', '二', '三', '四', '五', '六'][date.weekday % 7],
+                      weekDayName,
                       style: Theme.of(
                         context,
                       ).textTheme.bodySmall!.copyWith(fontSize: 11),
@@ -585,17 +586,15 @@ class _WeekDatePickerState extends State<WeekDatePicker> {
             date,
             DateTime(today.year, today.month, today.day),
           );
-          final weekDayName = [
-            '日',
-            '一',
-            '二',
-            '三',
-            '四',
-            '五',
-            '六',
-          ][date.weekday % 7];
-          final semanticsLabel =
-              '${date.month}月${date.day}日 星期$weekDayName${hasPlan ? '，有训练计划' : ''}${isSelected ? '，已选中' : ''}${isToday ? '，今天' : ''}';
+          final l10n = AppLocalizations.of(context)!;
+          final locale = Localizations.localeOf(context).languageCode;
+          final weekDayName = DateFormat.E(locale).format(date);
+          final semanticsLabel = l10n.calDaySemantics(
+            DateFormat.yMd(locale).format(date),
+            hasPlan ? l10n.calDayHasPlan : '',
+            isToday ? l10n.calDayToday : '',
+            isSelected ? l10n.calDaySelected : '',
+          );
 
           return Material(
             color: Colors.transparent,
@@ -612,7 +611,7 @@ class _WeekDatePickerState extends State<WeekDatePicker> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        ['日', '一', '二', '三', '四', '五', '六'][date.weekday % 7],
+                        weekDayName,
                         style: Theme.of(
                           context,
                         ).textTheme.bodySmall!.copyWith(fontSize: 11),

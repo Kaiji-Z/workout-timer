@@ -348,7 +348,11 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
                 borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
               ),
               child: Text(
-                '体重 ${_bodyWeight!.toStringAsFixed(0)}kg × ${(coeff * 100).toStringAsFixed(0)}% = ${eqWeight.toStringAsFixed(1)}kg',
+                AppLocalizations.of(context)!.bodyweightReference(
+                  _bodyWeight!.toStringAsFixed(0),
+                  (coeff * 100).toStringAsFixed(0),
+                  eqWeight.toStringAsFixed(1),
+                ),
                 style: Theme.of(context).textTheme.bodySmall!.copyWith(
                   fontSize: 10,
                   color: theme.accentColor,
@@ -366,7 +370,7 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
                   fit: BoxFit.scaleDown,
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    '第$setNumber组',
+                    AppLocalizations.of(context)!.dialogSetTitle(setNumber),
                     style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                       color: theme.secondaryTextColor,
                     ),

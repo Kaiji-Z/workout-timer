@@ -321,4 +321,48 @@ class AppLocalizationsZh extends AppLocalizations {
   String aiPromptClosing(int frequency) {
     return '请根据以上信息（训练频率 $frequency 天/周），先解释你的设计思路，然后生成训练计划。';
   }
+
+  @override
+  String dialogSetTitle(int set) {
+    return '第$set组';
+  }
+
+  @override
+  String dialogSetTitleWithName(int set, String name) {
+    return '第$set组 - $name';
+  }
+
+  @override
+  String repsWithValue(int reps) {
+    return '$reps 次';
+  }
+
+  @override
+  String bodyweightReference(String bw, String pct, String result) {
+    return '体重 ${bw}kg × $pct% = ${result}kg';
+  }
+
+  @override
+  String trainingSaveFailed(String error) {
+    return '保存失败: $error';
+  }
+
+  @override
+  String get calDayHasPlan => '有训练计划';
+
+  @override
+  String get calDayToday => '今天';
+
+  @override
+  String get calDaySelected => '已选中';
+
+  @override
+  String calDaySemantics(
+    String date,
+    String plan,
+    String today,
+    String selected,
+  ) {
+    return '$date，$plan$today$selected';
+  }
 }

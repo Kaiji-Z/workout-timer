@@ -127,7 +127,7 @@ class _SetRecordDialogState extends State<SetRecordDialog> {
             ),
             const SizedBox(height: 4),
             Text(
-              '第${widget.setNumber}组',
+              AppLocalizations.of(context)!.dialogSetTitle(widget.setNumber),
               style: Theme.of(
                 context,
               ).textTheme.bodyMedium!.copyWith(color: theme.secondaryTextColor),
@@ -164,7 +164,7 @@ class _SetRecordDialogState extends State<SetRecordDialog> {
                   final reps = index + 1;
                   return Center(
                     child: Text(
-                      '$reps 次',
+                      AppLocalizations.of(context)!.repsWithValue(reps),
                       style: Theme.of(context).textTheme.headlineMedium!
                           .copyWith(
                             color: reps == _selectedReps
@@ -199,7 +199,11 @@ class _SetRecordDialogState extends State<SetRecordDialog> {
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(
-                        '体重 ${_bodyWeight!.toStringAsFixed(0)}kg × ${(_coefficient * 100).toStringAsFixed(0)}% = ${(_bodyWeight! * _coefficient).toStringAsFixed(1)}kg',
+                        AppLocalizations.of(context)!.bodyweightReference(
+                          _bodyWeight!.toStringAsFixed(0),
+                          (_coefficient * 100).toStringAsFixed(0),
+                          (_bodyWeight! * _coefficient).toStringAsFixed(1),
+                        ),
                         style: Theme.of(context).textTheme.bodySmall!.copyWith(
                           color: theme.accentColor,
                         ),

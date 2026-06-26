@@ -259,5 +259,24 @@
     "placeholders": {
       "frequency": { "type": "int" }
     }
-  }
+  },
+
+  "dialogSetTitle": "第{set}组",
+  "@dialogSetTitle": { "placeholders": { "set": { "type": "int" } } },
+  "dialogSetTitleWithName": "第{set}组 - {name}",
+  "@dialogSetTitleWithName": { "placeholders": { "set": { "type": "int" }, "name": { "type": "String" } } },
+  "repsWithValue": "{reps} 次",
+  "@repsWithValue": { "placeholders": { "reps": { "type": "int" } } },
+  "bodyweightReference": "体重 {bw}kg × {pct}% = {result}kg",
+  "@bodyweightReference": { "placeholders": { "bw": { "type": "String" }, "pct": { "type": "String" }, "result": { "type": "String" } } },
+  "trainingSaveFailed": "保存失败: {error}",
+  "@trainingSaveFailed": { "placeholders": { "error": { "type": "String" } } },
+  "calDayHasPlan": "有训练计划",
+  "@calDayHasPlan": {},
+  "calDayToday": "今天",
+  "@calDayToday": {},
+  "calDaySelected": "已选中",
+  "@calDaySelected": {},
+  "calDaySemantics": "{date}，{plan}{today}{selected}",
+  "@calDaySemantics": { "placeholders": { "date": { "type": "String" }, "plan": { "type": "String" }, "today": { "type": "String" }, "selected": { "type": "String" } } }
 }
