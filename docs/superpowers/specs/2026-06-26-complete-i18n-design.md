@@ -119,29 +119,19 @@ class LocaleProvider extends ChangeNotifier {
 
 **问题**：服务（NotificationService、ErrorReporter 等）无 BuildContext，无法 `AppLocalizations.of(context)`。
 
-**方案**：在 `ServiceLocator` 注册一个 **可变引用** `AppLocalizations`，由 LocaleProvider 在 locale 变化时刷新。
+**方案**：gen-l10n 生成了一个**顶层函数** `lookupAppLocalizations(Locale locale)`（见 `app_localizations.dart:509`），可无 context 直接调用。服务层只需注入一个 **当前 Locale**，需要本地化时调用 `lookupAppLocalizations(locale)`。
 
-```dart
-// core/service_locator.dart 新增
-final _localeLocalizations = ValueNotifier<AppLocalizations?>(null);
-// 注册为可获取
-locator.registerSingleton<ValueNotifier<AppLocalizations?>>(_localeLocalizations);
-
-// LocaleProvider.locale 变化时调用：
-void _refreshRootLocalizations() {
-  final lookup = AppLocalizations.lookup(effectiveLocale); // 静态 lookup
-  ServiceLocator.get<ValueNotifier<AppLocalizations?>>().value = lookup;
-}
-```
-
-服务层用法：
+具体做法：
+- `ServiceLocator` 注册一个 `ValueNotifier<Locale>`（root locale），由 LocaleProvider 在 locale 变化时刷新其 `value`
+- 服务层用法：
 ```dart
 // notification_service.dart
-final l10n = ServiceLocator.get<ValueNotifier<AppLocalizations?>>().value;
-title: l10n?.notifRestDone ?? '休息结束！'; // 兜底中文
+final locale = ServiceLocator.get<ValueNotifier<Locale>>().value;
+final l10n = lookupAppLocalizations(locale);
+title: l10n.notifRestDone;
 ```
-
-**注意**：`AppLocalizations.lookup()` 是 gen-l10n 生成的静态方法，可无 context 调用。
+- 启动早期未初始化时，`ValueNotifier` value 默认 `Locale('zh')`（兜底中文），避免崩溃
+- 服务层若在非常早期（ServiceLocator.setup 之前）就被调用，用 try/catch 回退中文硬编码字面量
 
 ### 3.4 数据层本地化
 
@@ -187,7 +177,7 @@ Text(LocalizedDisplay.primaryMuscle(muscle, locale))
 | # | 类型 | 范围 | 内容 |
 |---|------|------|------|
 | 1 | `feat(i18n)` | providers | 新增 `LocaleProvider`（ChangeNotifier + SharedPreferences + system/zh/en） |
-| 2 | `feat(i18n)` | core | ServiceLocator 注册 `ValueNotifier<AppLocalizations?>` + LocaleProvider 刷新逻辑 |
+| 2 | `feat(i18n)` | core | ServiceLocator 注册 `ValueNotifier<Locale>`（root locale），LocaleProvider 刷新其 value；服务层用 `lookupAppLocalizations(locale)` 取本地化文本 |
 | 3 | `refactor(main)` | main | main.dart 接入 LocaleProvider，MaterialApp 挂 `locale:`，移除硬编码 `initializeDateFormatting('zh_CN')` 改为动态 |
 
 ### 阶段 1：数据层本地化 — 3 commits
@@ -267,10 +257,11 @@ Text(LocalizedDisplay.primaryMuscle(muscle, locale))
 
 ## 6. 关键技术决策
 
-### 6.1 为什么用 `ValueNotifier<AppLocalizations?>` 注入服务层而非传参？
-- **传参**（每个方法加 `AppLocalizations` 参数）：侵入性大，每个调用栈都要透传，易漏
-- **ValueNotifier 单例**：服务层 `ServiceLocator.get` 一行拿到，locale 变化自动刷新，与现有 ServiceLocator 模式一致
-- 兜底 `null`（启动早期未初始化）时回退中文硬编码字面量，避免崩溃
+### 6.1 为什么用 `ValueNotifier<Locale>` 注入服务层而非传参？
+- **传参**（每个方法加 `AppLocalizations`/`Locale` 参数）：侵入性大，每个调用栈都要透传，易漏
+- **ValueNotifier 单例**：服务层 `ServiceLocator.get<ValueNotifier<Locale>>().value` 一行拿到当前 locale，再调用 `lookupAppLocalizations(locale)` 即可；与现有 ServiceLocator 模式一致
+- 兜底：启动早期 `ValueNotifier` 默认 value 为 `Locale('zh')`，避免崩溃
+- 比 `ValueNotifier<AppLocalizations?>` 更简洁——locale 是单一原子值，且 `lookupAppLocalizations` 是现成的顶层函数
 
 ### 6.2 数据层为何不改 schema？
 - locale 是**显示**关注点，非**存储**关注点
