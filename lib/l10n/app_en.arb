@@ -66,5 +66,23 @@
   "oemExplanation": "Your {name} phone has its own power management that may override the standard battery whitelist. Tap below and allow this app to run in the background.",
   "oemFlowHint": "Tip: complete 'Allow background activity' (the standard whitelist) above first, then do the OEM-specific setting below — both are needed for reliable background timing.",
   "oemGoButton": "Open {name} Settings",
-  "oemDefaultInstruction": "Allow this app to auto-start and run in the background in system settings"
+  "oemDefaultInstruction": "Allow this app to auto-start and run in the background in system settings",
+
+  "unitMinutes": "{m} min",
+  "unitMinutesSeconds": "{m}m {s}s",
+  "unitSeconds": "{s}s",
+  "unitRepsRange": "{min}-{max} reps",
+  "levelBeginner": "Beginner",
+  "levelIntermediate": "Intermediate",
+  "levelExpert": "Advanced",
+  "equipmentBarbell": "Barbell",
+  "equipmentDumbbell": "Dumbbell",
+  "equipmentBodyweight": "Bodyweight",
+  "equipmentCable": "Cable",
+  "equipmentMachine": "Machine",
+  "equipmentKettlebells": "Kettlebells",
+  "equipmentBands": "Bands",
+  "equipmentMedicineBall": "Medicine Ball",
+  "equipmentEzBarbell": "EZ Barbell",
+  "equipmentSmithMachine": "Smith Machine"
 }

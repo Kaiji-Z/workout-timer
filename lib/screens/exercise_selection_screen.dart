@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
 import '../models/exercise.dart';
 import '../models/muscle_group.dart';
 import '../models/workout_plan.dart';
@@ -432,6 +433,7 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
   }
 
   Widget _buildExerciseList(PlanProvider planProvider, AppThemeData theme) {
+    final l10n = AppLocalizations.of(context)!;
     // 获取所有动作
     List<Exercise> exercises = planProvider.exercises;
 
@@ -460,7 +462,7 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
       exercises = exercises.where((e) {
         final name = e.name.toLowerCase();
         final nameEn = e.nameEn.toLowerCase();
-        final equipmentName = e.equipmentDisplayName.toLowerCase();
+        final equipmentName = e.equipmentDisplayName(l10n).toLowerCase();
         final equipmentEn = e.equipment.toLowerCase();
 
         // 支持多个关键词搜索（空格分隔）
@@ -756,6 +758,7 @@ class _ExerciseListItem extends StatefulWidget {
 class _ExerciseListItemState extends State<_ExerciseListItem> {
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -874,7 +877,7 @@ class _ExerciseListItemState extends State<_ExerciseListItem> {
                 ),
                 const SizedBox(width: 6),
                 Text(
-                  widget.exercise.equipmentDisplayName,
+                  widget.exercise.equipmentDisplayName(l10n),
                   style: Theme.of(context).textTheme.bodySmall!.copyWith(
                     color: widget.theme.secondaryTextColor,
                   ),

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'muscle_group.dart';
+import '../l10n/app_localizations.dart';
 
 /// 动作推荐配置
 class ExerciseRecommendation {
@@ -33,20 +34,21 @@ class ExerciseRecommendation {
     };
   }
 
-  /// 格式化的推荐次数范围
-  String get repsRangeText => '$minReps-$maxReps次';
+  /// 格式化的推荐次数范围（按 locale 本地化）
+  String repsRangeText(AppLocalizations l10n) =>
+      l10n.unitRepsRange(minReps, maxReps);
 
-  /// 格式化的休息时间
-  String get restText {
+  /// 格式化的休息时间（按 locale 本地化）
+  String restText(AppLocalizations l10n) {
     if (restSeconds >= 60) {
       final minutes = restSeconds ~/ 60;
       final seconds = restSeconds % 60;
       if (seconds == 0) {
-        return '$minutes分钟';
+        return l10n.unitMinutes(minutes);
       }
-      return '$minutes分$seconds秒';
+      return l10n.unitMinutesSeconds(minutes, seconds);
     }
-    return '$restSeconds秒';
+    return l10n.unitSeconds(restSeconds);
   }
 
   @override
@@ -285,18 +287,18 @@ class Exercise {
     };
   }
 
-  /// 难度显示名称
-  String get levelDisplayName {
+  /// 难度显示名称（按 locale 本地化）
+  String levelDisplayName(AppLocalizations l10n) {
     switch (level) {
       case 'beginner':
-        return '初级';
+        return l10n.levelBeginner;
       case 'intermediate':
-        return '中级';
+        return l10n.levelIntermediate;
       case 'expert':
       case 'advanced':
-        return '高级';
+        return l10n.levelExpert;
       default:
-        return '中级';
+        return l10n.levelIntermediate;
     }
   }
 
@@ -309,33 +311,33 @@ class Exercise {
         eq.isEmpty;
   }
 
-  /// 器械显示名称
-  String get equipmentDisplayName {
+  /// 器械显示名称（按 locale 本地化）
+  String equipmentDisplayName(AppLocalizations l10n) {
     switch (equipment.toLowerCase()) {
       case 'barbell':
-        return '杠铃';
+        return l10n.equipmentBarbell;
       case 'dumbbell':
       case 'dumbbells':
-        return '哑铃';
+        return l10n.equipmentDumbbell;
       case 'body only':
       case 'bodyweight':
       case 'none':
-        return '自重';
+        return l10n.equipmentBodyweight;
       case 'cable':
-        return '绳索';
+        return l10n.equipmentCable;
       case 'machine':
       case 'leverage machine':
-        return '器械';
+        return l10n.equipmentMachine;
       case 'kettlebells':
-        return '壶铃';
+        return l10n.equipmentKettlebells;
       case 'bands':
-        return '弹力带';
+        return l10n.equipmentBands;
       case 'medicine ball':
-        return '药球';
+        return l10n.equipmentMedicineBall;
       case 'ez-barbell':
-        return '曲杆杠铃';
+        return l10n.equipmentEzBarbell;
       case 'smith machine':
-        return '史密斯机';
+        return l10n.equipmentSmithMachine;
       default:
         return equipment;
     }

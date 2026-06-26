@@ -235,4 +235,63 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get oemDefaultInstruction => '请在系统设置中允许本应用自启动和后台运行';
+
+  @override
+  String unitMinutes(int m) {
+    return '$m分钟';
+  }
+
+  @override
+  String unitMinutesSeconds(int m, int s) {
+    return '$m分$s秒';
+  }
+
+  @override
+  String unitSeconds(int s) {
+    return '$s秒';
+  }
+
+  @override
+  String unitRepsRange(int min, int max) {
+    return '$min-$max次';
+  }
+
+  @override
+  String get levelBeginner => '初级';
+
+  @override
+  String get levelIntermediate => '中级';
+
+  @override
+  String get levelExpert => '高级';
+
+  @override
+  String get equipmentBarbell => '杠铃';
+
+  @override
+  String get equipmentDumbbell => '哑铃';
+
+  @override
+  String get equipmentBodyweight => '自重';
+
+  @override
+  String get equipmentCable => '绳索';
+
+  @override
+  String get equipmentMachine => '器械';
+
+  @override
+  String get equipmentKettlebells => '壶铃';
+
+  @override
+  String get equipmentBands => '弹力带';
+
+  @override
+  String get equipmentMedicineBall => '药球';
+
+  @override
+  String get equipmentEzBarbell => '曲杆杠铃';
+
+  @override
+  String get equipmentSmithMachine => '史密斯机';
 }

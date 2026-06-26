@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import '../l10n/app_localizations.dart';
 import '../theme/theme_provider.dart';
 import '../utils/dimensions.dart';
 import '../providers/plan_provider.dart';
@@ -762,6 +763,7 @@ class _PlanDetailSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().currentTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Container(
       decoration: BoxDecoration(
@@ -1026,7 +1028,7 @@ class _PlanDetailSheet extends StatelessWidget {
                                     Text(
                                       planExercise
                                           .exercise!
-                                          .equipmentDisplayName,
+                                          .equipmentDisplayName(l10n),
                                       style: Theme.of(
                                         context,
                                       ).textTheme.bodySmall!,

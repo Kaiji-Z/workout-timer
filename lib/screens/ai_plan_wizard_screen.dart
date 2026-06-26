@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
 import '../theme/theme_provider.dart';
 import '../theme/app_theme.dart';
 import '../models/exercise.dart';
@@ -1469,6 +1470,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
                     final candidate = matchResult.candidates[index];
                     final isSelected =
                         _manualSelections[matchKey]?.id == candidate.id;
+                    final l10n = AppLocalizations.of(context)!;
 
                     return ListTile(
                       leading: Container(
@@ -1495,7 +1497,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
                       title: Text(candidate.name),
                       subtitle: Text(
                         '${candidate.primaryMuscle.displayName}'
-                        ' · ${candidate.equipmentDisplayName}',
+                        ' · ${candidate.equipmentDisplayName(l10n)}',
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                       trailing: isSelected

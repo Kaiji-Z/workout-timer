@@ -487,6 +487,108 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'请在系统设置中允许本应用自启动和后台运行'**
   String get oemDefaultInstruction;
+
+  /// No description provided for @unitMinutes.
+  ///
+  /// In zh, this message translates to:
+  /// **'{m}分钟'**
+  String unitMinutes(int m);
+
+  /// No description provided for @unitMinutesSeconds.
+  ///
+  /// In zh, this message translates to:
+  /// **'{m}分{s}秒'**
+  String unitMinutesSeconds(int m, int s);
+
+  /// No description provided for @unitSeconds.
+  ///
+  /// In zh, this message translates to:
+  /// **'{s}秒'**
+  String unitSeconds(int s);
+
+  /// No description provided for @unitRepsRange.
+  ///
+  /// In zh, this message translates to:
+  /// **'{min}-{max}次'**
+  String unitRepsRange(int min, int max);
+
+  /// No description provided for @levelBeginner.
+  ///
+  /// In zh, this message translates to:
+  /// **'初级'**
+  String get levelBeginner;
+
+  /// No description provided for @levelIntermediate.
+  ///
+  /// In zh, this message translates to:
+  /// **'中级'**
+  String get levelIntermediate;
+
+  /// No description provided for @levelExpert.
+  ///
+  /// In zh, this message translates to:
+  /// **'高级'**
+  String get levelExpert;
+
+  /// No description provided for @equipmentBarbell.
+  ///
+  /// In zh, this message translates to:
+  /// **'杠铃'**
+  String get equipmentBarbell;
+
+  /// No description provided for @equipmentDumbbell.
+  ///
+  /// In zh, this message translates to:
+  /// **'哑铃'**
+  String get equipmentDumbbell;
+
+  /// No description provided for @equipmentBodyweight.
+  ///
+  /// In zh, this message translates to:
+  /// **'自重'**
+  String get equipmentBodyweight;
+
+  /// No description provided for @equipmentCable.
+  ///
+  /// In zh, this message translates to:
+  /// **'绳索'**
+  String get equipmentCable;
+
+  /// No description provided for @equipmentMachine.
+  ///
+  /// In zh, this message translates to:
+  /// **'器械'**
+  String get equipmentMachine;
+
+  /// No description provided for @equipmentKettlebells.
+  ///
+  /// In zh, this message translates to:
+  /// **'壶铃'**
+  String get equipmentKettlebells;
+
+  /// No description provided for @equipmentBands.
+  ///
+  /// In zh, this message translates to:
+  /// **'弹力带'**
+  String get equipmentBands;
+
+  /// No description provided for @equipmentMedicineBall.
+  ///
+  /// In zh, this message translates to:
+  /// **'药球'**
+  String get equipmentMedicineBall;
+
+  /// No description provided for @equipmentEzBarbell.
+  ///
+  /// In zh, this message translates to:
+  /// **'曲杆杠铃'**
+  String get equipmentEzBarbell;
+
+  /// No description provided for @equipmentSmithMachine.
+  ///
+  /// In zh, this message translates to:
+  /// **'史密斯机'**
+  String get equipmentSmithMachine;
 }
 
 class _AppLocalizationsDelegate
