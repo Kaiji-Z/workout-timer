@@ -295,4 +295,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get equipmentSmithMachine => 'Smith Machine';
+
+  @override
+  String get errorGeneric => 'Operation failed, please retry';
 }

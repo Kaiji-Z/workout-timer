@@ -589,6 +589,12 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'史密斯机'**
   String get equipmentSmithMachine;
+
+  /// No description provided for @errorGeneric.
+  ///
+  /// In zh, this message translates to:
+  /// **'操作失败，请重试'**
+  String get errorGeneric;
 }
 
 class _AppLocalizationsDelegate

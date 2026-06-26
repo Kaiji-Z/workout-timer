@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../core/service_locator.dart';
+import '../l10n/app_localizations.dart';
+
 /// Severity of a reported failure, controlling how it surfaces to the user.
 enum ErrorSeverity {
   /// Logged via [debugPrint] only — invisible to the user.
@@ -31,8 +34,16 @@ class ErrorReporter {
   /// `main()` so [report] can show SnackBars without a BuildContext.
   GlobalKey<ScaffoldMessengerState>? scaffoldMessengerKey;
 
-  /// Default SnackBar text for [userWarning] when no message is provided.
-  static const String _defaultWarningMessage = '操作失败，请重试';
+  /// Resolve the current [AppLocalizations] for service-layer use (no
+  /// BuildContext available). Falls back to Chinese if not registered yet.
+  AppLocalizations _currentLocalizations() {
+    try {
+      final locale = ServiceLocator.get<ValueNotifier<Locale>>().value;
+      return lookupAppLocalizations(locale);
+    } catch (_) {
+      return lookupAppLocalizations(const Locale('zh'));
+    }
+  }
 
   /// Report [error] at the given [severity].
   ///
@@ -54,7 +65,8 @@ class ErrorReporter {
     }
 
     if (severity == ErrorSeverity.userWarning) {
-      _showSnackBar(message ?? _defaultWarningMessage);
+      final msg = message ?? _currentLocalizations().errorGeneric;
+      _showSnackBar(msg);
     }
   }
 
