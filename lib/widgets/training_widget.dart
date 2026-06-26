@@ -187,9 +187,10 @@ class _TrainingWidgetState extends State<TrainingWidget>
     if (_isPlanMode && progressProvider.currentPlan != null) {
       final nextExercise = progressProvider.getNextExercise();
       if (nextExercise != null) {
-        nextHint = '下一个：${nextExercise.name}';
+        nextHint =
+            AppLocalizations.of(context)!.trainingNextExercise(nextExercise.name);
       } else {
-        nextHint = '下一个：训练完成';
+        nextHint = AppLocalizations.of(context)!.trainingNextDone;
       }
     }
 
@@ -295,20 +296,26 @@ class _TrainingWidgetState extends State<TrainingWidget>
       color = theme.progressRingColor;
       if (_isPlanMode && progressProvider.currentExercise != null) {
         final exercise = progressProvider.currentExercise!;
-        text =
-            '${exercise.name} · 第${progressProvider.currentSetInExercise + 1}组 · 运动中';
+        text = AppLocalizations.of(context)!.trainingExerciseProgress(
+          exercise.name,
+          progressProvider.currentSetInExercise + 1,
+        );
       } else {
-        text = '第 ${training.currentSet} 组 · 运动中';
+        text = AppLocalizations.of(context)!
+            .trainingSetExercising(training.currentSet);
       }
       icon = Icons.fitness_center;
     } else if (training.isResting) {
       color = theme.progressRingColor;
       if (_isPlanMode && progressProvider.currentExercise != null) {
         final exercise = progressProvider.currentExercise!;
-        text =
-            '${exercise.name} · 已完成${progressProvider.currentSetInExercise}组 · 休息中';
+        text = AppLocalizations.of(context)!.trainingExerciseRest(
+          exercise.name,
+          progressProvider.currentSetInExercise,
+        );
       } else {
-        text = '第 ${training.currentSet} 组 · 休息中';
+        text =
+            AppLocalizations.of(context)!.trainingSetRest(training.currentSet);
       }
       icon = Icons.self_improvement;
     } else if (training.isCompleted) {
@@ -317,12 +324,14 @@ class _TrainingWidgetState extends State<TrainingWidget>
       icon = Icons.emoji_events;
     } else if (training.isExercisePaused) {
       color = theme.progressRingColor;
-      text = '第 ${training.currentSet} 组 · 已暂停';
+      text =
+          AppLocalizations.of(context)!.trainingSetPaused(training.currentSet);
       icon = Icons.pause_circle_outline;
     } else {
       color = theme.secondaryTextColor;
       if (_isPlanMode && _selectedPlan != null) {
-        text = '${_selectedPlan!.name} · 准备开始';
+        text = AppLocalizations.of(context)!
+            .trainingPlanReady(_selectedPlan!.name);
       } else {
         text = AppLocalizations.of(context)!.trainingReady;
       }
@@ -343,7 +352,8 @@ class _TrainingWidgetState extends State<TrainingWidget>
             ),
             const SizedBox(width: 10),
             StatusBadge(
-              text: '${training.currentSet} 组',
+              text: AppLocalizations.of(context)!
+                  .trainingSetCount(training.currentSet),
               color: theme.progressRingColor,
               icon: Icons.fitness_center,
             ),
@@ -669,7 +679,8 @@ class _TrainingWidgetState extends State<TrainingWidget>
                     title: Text(plan.name),
                     subtitle: Text(plan.targetMusclesText),
                     trailing: Text(
-                      '${plan.exerciseCount}动作 · ${plan.totalSets}组',
+                      AppLocalizations.of(context)!
+                          .trainingPlanSummary(plan.exerciseCount, plan.totalSets),
                     ),
                     selected: isSelected,
                     onTap: () {
@@ -818,7 +829,10 @@ class _TrainingWidgetState extends State<TrainingWidget>
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                '训练已保存：${record.totalSets}组，总时长 ${record.durationText}',
+                AppLocalizations.of(context)!.trainingSavedDetail(
+                  record.totalSets,
+                  record.durationText,
+                ),
               ),
               backgroundColor: theme.progressRingColor,
               behavior: SnackBarBehavior.floating,
@@ -841,7 +855,10 @@ class _TrainingWidgetState extends State<TrainingWidget>
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                '训练已保存：完成${data['totalSets']}组，总时长 ${training.sessionDurationFormatted}',
+                AppLocalizations.of(context)!.trainingSavedCompleted(
+                  data['totalSets'] as int,
+                  training.sessionDurationFormatted,
+                ),
               ),
               backgroundColor: theme.progressRingColor,
               behavior: SnackBarBehavior.floating,
@@ -853,7 +870,9 @@ class _TrainingWidgetState extends State<TrainingWidget>
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('保存失败: $e'),
+            content: Text(
+              AppLocalizations.of(context)!.trainingSaveFailed('$e'),
+            ),
             backgroundColor: theme.errorColor,
             behavior: SnackBarBehavior.floating,
           ),

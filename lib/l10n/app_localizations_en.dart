@@ -323,4 +323,48 @@ class AppLocalizationsEn extends AppLocalizations {
   String aiPromptClosing(int frequency) {
     return 'Based on the above information (training frequency of $frequency days/week), first explain your design rationale, then generate the workout plan.';
   }
+
+  @override
+  String dialogSetTitle(int set) {
+    return 'Set $set';
+  }
+
+  @override
+  String dialogSetTitleWithName(int set, String name) {
+    return 'Set $set - $name';
+  }
+
+  @override
+  String repsWithValue(int reps) {
+    return '$reps reps';
+  }
+
+  @override
+  String bodyweightReference(String bw, String pct, String result) {
+    return 'Bodyweight ${bw}kg × $pct% = ${result}kg';
+  }
+
+  @override
+  String trainingSaveFailed(String error) {
+    return 'Save failed: $error';
+  }
+
+  @override
+  String get calDayHasPlan => 'has workout plan';
+
+  @override
+  String get calDayToday => 'today';
+
+  @override
+  String get calDaySelected => 'selected';
+
+  @override
+  String calDaySemantics(
+    String date,
+    String plan,
+    String today,
+    String selected,
+  ) {
+    return '$date, $plan$today$selected';
+  }
 }

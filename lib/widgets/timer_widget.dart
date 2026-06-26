@@ -129,8 +129,8 @@ class _TimerWidgetState extends State<TimerWidget> with WidgetsBindingObserver {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               LiveTimer(
-                value:
-                    '剩余 ${timer.remainingSeconds} 秒', // TODO(l10n): use timerSecondsRemaining
+                value: AppLocalizations.of(context)!
+                    .timerSecondsRemaining(timer.remainingSeconds),
                 child: Text(
                   _formatTime(timer.remainingSeconds),
                   style: Theme.of(context).textTheme.headlineLarge!.copyWith(
@@ -353,7 +353,7 @@ class _PresetChip extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppDimensions.radiusChip),
         child: Semantics(
           button: true,
-          label: '$seconds秒', // TODO(l10n): use timerSecondsLabel
+          label: AppLocalizations.of(context)!.timerSecondsLabel(seconds),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             decoration: BoxDecoration(

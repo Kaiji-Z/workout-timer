@@ -630,6 +630,65 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'请根据以上信息（训练频率 {frequency} 天/周），先解释你的设计思路，然后生成训练计划。'**
   String aiPromptClosing(int frequency);
+
+  /// No description provided for @dialogSetTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'第{set}组'**
+  String dialogSetTitle(int set);
+
+  /// No description provided for @dialogSetTitleWithName.
+  ///
+  /// In zh, this message translates to:
+  /// **'第{set}组 - {name}'**
+  String dialogSetTitleWithName(int set, String name);
+
+  /// No description provided for @repsWithValue.
+  ///
+  /// In zh, this message translates to:
+  /// **'{reps} 次'**
+  String repsWithValue(int reps);
+
+  /// No description provided for @bodyweightReference.
+  ///
+  /// In zh, this message translates to:
+  /// **'体重 {bw}kg × {pct}% = {result}kg'**
+  String bodyweightReference(String bw, String pct, String result);
+
+  /// No description provided for @trainingSaveFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'保存失败: {error}'**
+  String trainingSaveFailed(String error);
+
+  /// No description provided for @calDayHasPlan.
+  ///
+  /// In zh, this message translates to:
+  /// **'有训练计划'**
+  String get calDayHasPlan;
+
+  /// No description provided for @calDayToday.
+  ///
+  /// In zh, this message translates to:
+  /// **'今天'**
+  String get calDayToday;
+
+  /// No description provided for @calDaySelected.
+  ///
+  /// In zh, this message translates to:
+  /// **'已选中'**
+  String get calDaySelected;
+
+  /// No description provided for @calDaySemantics.
+  ///
+  /// In zh, this message translates to:
+  /// **'{date}，{plan}{today}{selected}'**
+  String calDaySemantics(
+    String date,
+    String plan,
+    String today,
+    String selected,
+  );
 }
 
 class _AppLocalizationsDelegate

@@ -90,7 +90,10 @@ class _WeightInputDialogState extends State<WeightInputDialog> {
             Row(
               children: [
                 Text(
-                  '第${widget.setNumber}组 - ${widget.exerciseName}',
+                  AppLocalizations.of(context)!.dialogSetTitleWithName(
+                    widget.setNumber,
+                    widget.exerciseName,
+                  ),
                   style: Theme.of(context).textTheme.headlineLarge!.copyWith(
                     fontSize: 18,
                     color: theme.textColor,
@@ -121,7 +124,11 @@ class _WeightInputDialogState extends State<WeightInputDialog> {
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(
-                        '体重 ${_bodyWeight!.toStringAsFixed(0)}kg × ${(_coefficient * 100).toStringAsFixed(0)}% = ${(_bodyWeight! * _coefficient).toStringAsFixed(1)}kg',
+                        AppLocalizations.of(context)!.bodyweightReference(
+                          _bodyWeight!.toStringAsFixed(0),
+                          (_coefficient * 100).toStringAsFixed(0),
+                          (_bodyWeight! * _coefficient).toStringAsFixed(1),
+                        ),
                         style: Theme.of(context).textTheme.bodySmall!.copyWith(
                           color: theme.accentColor,
                         ),
