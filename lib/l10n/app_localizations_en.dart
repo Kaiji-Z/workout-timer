@@ -367,4 +367,160 @@ class AppLocalizationsEn extends AppLocalizations {
   ) {
     return '$date, $plan$today$selected';
   }
+
+  @override
+  String get widgetSearchExercise => 'Search exercises';
+
+  @override
+  String get widgetClearSearch => 'Clear search';
+
+  @override
+  String get widgetAll => 'All';
+
+  @override
+  String get widgetNoExerciseFound => 'No exercises found';
+
+  @override
+  String widgetSelectedCount(int count) {
+    return '$count exercises selected';
+  }
+
+  @override
+  String get widgetClearAll => 'Clear';
+
+  @override
+  String widgetSetsSuffix(int n) {
+    return '$n sets';
+  }
+
+  @override
+  String widgetPlanExercisesCount(int n) {
+    return '$n exercises';
+  }
+
+  @override
+  String widgetPlanSetsCount(int n) {
+    return '$n sets';
+  }
+
+  @override
+  String widgetPlanDuration(int n) {
+    return '~$n min';
+  }
+
+  @override
+  String widgetPlanSummaryShort(int exerciseCount, int totalSets) {
+    return '$exerciseCount exercises · $totalSets sets';
+  }
+
+  @override
+  String widgetCurrentExercise(String name, int set, int total) {
+    return 'Current: $name Set $set/$total';
+  }
+
+  @override
+  String widgetExerciseProgressHeader(String plan, String exercise, int set) {
+    return '$plan · $exercise Set $set';
+  }
+
+  @override
+  String widgetNoDetail(String name) {
+    return '$name (no details)';
+  }
+
+  @override
+  String get widgetSwitchNextExercise => 'Next exercise';
+
+  @override
+  String get widgetEmptyPlanTitle => 'No plan yet';
+
+  @override
+  String get widgetEmptyPlanSubtitle => 'Tap to create your first workout plan';
+
+  @override
+  String widgetProgressSummary(String name, int current, int total) {
+    return '$name · $current/$total sets';
+  }
+
+  @override
+  String get widgetSelectMuscleTitle => 'Select target muscles';
+
+  @override
+  String get widgetNoDailyData => 'No daily volume data yet';
+
+  @override
+  String get widgetTrainingComplete => 'Workout complete';
+
+  @override
+  String get widgetImageLoadFailed => 'Image failed to load';
+
+  @override
+  String get widgetTapToClose => 'Tap anywhere to close';
+
+  @override
+  String get widgetClose => 'Close';
+
+  @override
+  String get widgetSetRestDuration => 'Set rest duration';
+
+  @override
+  String get widgetRestMinDuration =>
+      'Rest duration must be at least 10 seconds';
+
+  @override
+  String get widgetMinuteSuffix => 'min';
+
+  @override
+  String get widgetSecondSuffix => 'sec';
+
+  @override
+  String get widgetCancel => 'Cancel';
+
+  @override
+  String get widgetConfirm => 'Done';
+
+  @override
+  String widgetSelectedDuration(String duration) {
+    return 'Selected: $duration';
+  }
+
+  @override
+  String get widgetConfirmButton => 'Confirm';
+
+  @override
+  String get widgetSearchExerciseHint => 'Search exercises...';
+
+  @override
+  String get widgetInvolvedMuscles => 'Muscles';
+
+  @override
+  String get widgetRemoveFromPlan => 'Remove from plan';
+
+  @override
+  String get widgetAddToPlan => 'Add to plan';
+
+  @override
+  String widgetImageStepIndicator(int current, int total) {
+    return 'Step $current of $total';
+  }
+
+  @override
+  String get widgetExerciseInstructions => 'Instructions';
+
+  @override
+  String get widgetRecommendedConfig => 'Recommended';
+
+  @override
+  String get widgetRecommendedSets => 'Sets';
+
+  @override
+  String widgetRecommendedSetsValue(int n) {
+    return '$n sets';
+  }
+
+  @override
+  String get widgetRepsRangeLabel => 'Reps';
+
+  @override
+  String get widgetRestLabel => 'Rest';
 }

@@ -4,6 +4,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:workout_timer/l10n/app_localizations.dart';
 import 'package:workout_timer/theme/app_theme.dart';
 import 'package:workout_timer/theme/theme_provider.dart';
 
@@ -63,7 +64,7 @@ class DailyVolumeChart extends StatelessWidget {
     if (data.isEmpty) {
       return Center(
         child: Text(
-          '暂无每日训练量数据',
+          AppLocalizations.of(context)!.widgetNoDailyData,
           style: TextStyle(color: theme.secondaryTextColor, fontSize: 14),
         ),
       );

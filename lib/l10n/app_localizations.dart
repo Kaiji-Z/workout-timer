@@ -689,6 +689,264 @@ abstract class AppLocalizations {
     String today,
     String selected,
   );
+
+  /// No description provided for @widgetSearchExercise.
+  ///
+  /// In zh, this message translates to:
+  /// **'搜索动作'**
+  String get widgetSearchExercise;
+
+  /// No description provided for @widgetClearSearch.
+  ///
+  /// In zh, this message translates to:
+  /// **'清除搜索'**
+  String get widgetClearSearch;
+
+  /// No description provided for @widgetAll.
+  ///
+  /// In zh, this message translates to:
+  /// **'全部'**
+  String get widgetAll;
+
+  /// No description provided for @widgetNoExerciseFound.
+  ///
+  /// In zh, this message translates to:
+  /// **'没有找到动作'**
+  String get widgetNoExerciseFound;
+
+  /// No description provided for @widgetSelectedCount.
+  ///
+  /// In zh, this message translates to:
+  /// **'已选 {count} 个动作'**
+  String widgetSelectedCount(int count);
+
+  /// No description provided for @widgetClearAll.
+  ///
+  /// In zh, this message translates to:
+  /// **'清空'**
+  String get widgetClearAll;
+
+  /// No description provided for @widgetSetsSuffix.
+  ///
+  /// In zh, this message translates to:
+  /// **'{n}组'**
+  String widgetSetsSuffix(int n);
+
+  /// No description provided for @widgetPlanExercisesCount.
+  ///
+  /// In zh, this message translates to:
+  /// **'{n} 个动作'**
+  String widgetPlanExercisesCount(int n);
+
+  /// No description provided for @widgetPlanSetsCount.
+  ///
+  /// In zh, this message translates to:
+  /// **'{n} 组'**
+  String widgetPlanSetsCount(int n);
+
+  /// No description provided for @widgetPlanDuration.
+  ///
+  /// In zh, this message translates to:
+  /// **'~{n} 分钟'**
+  String widgetPlanDuration(int n);
+
+  /// No description provided for @widgetPlanSummaryShort.
+  ///
+  /// In zh, this message translates to:
+  /// **'{exerciseCount}动作 · {totalSets}组'**
+  String widgetPlanSummaryShort(int exerciseCount, int totalSets);
+
+  /// No description provided for @widgetCurrentExercise.
+  ///
+  /// In zh, this message translates to:
+  /// **'当前：{name} 第{set}/{total}组'**
+  String widgetCurrentExercise(String name, int set, int total);
+
+  /// No description provided for @widgetExerciseProgressHeader.
+  ///
+  /// In zh, this message translates to:
+  /// **'{plan} · {exercise} 第{set}组'**
+  String widgetExerciseProgressHeader(String plan, String exercise, int set);
+
+  /// No description provided for @widgetNoDetail.
+  ///
+  /// In zh, this message translates to:
+  /// **'{name} (无详情)'**
+  String widgetNoDetail(String name);
+
+  /// No description provided for @widgetSwitchNextExercise.
+  ///
+  /// In zh, this message translates to:
+  /// **'切换下一动作'**
+  String get widgetSwitchNextExercise;
+
+  /// No description provided for @widgetEmptyPlanTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'还没有计划'**
+  String get widgetEmptyPlanTitle;
+
+  /// No description provided for @widgetEmptyPlanSubtitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'点击创建你的第一个训练计划'**
+  String get widgetEmptyPlanSubtitle;
+
+  /// No description provided for @widgetProgressSummary.
+  ///
+  /// In zh, this message translates to:
+  /// **'{name} · {current}/{total}组'**
+  String widgetProgressSummary(String name, int current, int total);
+
+  /// No description provided for @widgetSelectMuscleTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'选择训练部位'**
+  String get widgetSelectMuscleTitle;
+
+  /// No description provided for @widgetNoDailyData.
+  ///
+  /// In zh, this message translates to:
+  /// **'暂无每日训练量数据'**
+  String get widgetNoDailyData;
+
+  /// No description provided for @widgetTrainingComplete.
+  ///
+  /// In zh, this message translates to:
+  /// **'训练完成'**
+  String get widgetTrainingComplete;
+
+  /// No description provided for @widgetImageLoadFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'图片加载失败'**
+  String get widgetImageLoadFailed;
+
+  /// No description provided for @widgetTapToClose.
+  ///
+  /// In zh, this message translates to:
+  /// **'点击任意位置关闭'**
+  String get widgetTapToClose;
+
+  /// No description provided for @widgetClose.
+  ///
+  /// In zh, this message translates to:
+  /// **'关闭'**
+  String get widgetClose;
+
+  /// No description provided for @widgetSetRestDuration.
+  ///
+  /// In zh, this message translates to:
+  /// **'设置休息时长'**
+  String get widgetSetRestDuration;
+
+  /// No description provided for @widgetRestMinDuration.
+  ///
+  /// In zh, this message translates to:
+  /// **'休息时长至少需要10秒'**
+  String get widgetRestMinDuration;
+
+  /// No description provided for @widgetMinuteSuffix.
+  ///
+  /// In zh, this message translates to:
+  /// **'分'**
+  String get widgetMinuteSuffix;
+
+  /// No description provided for @widgetSecondSuffix.
+  ///
+  /// In zh, this message translates to:
+  /// **'秒'**
+  String get widgetSecondSuffix;
+
+  /// No description provided for @widgetCancel.
+  ///
+  /// In zh, this message translates to:
+  /// **'取消'**
+  String get widgetCancel;
+
+  /// No description provided for @widgetConfirm.
+  ///
+  /// In zh, this message translates to:
+  /// **'确定'**
+  String get widgetConfirm;
+
+  /// No description provided for @widgetSelectedDuration.
+  ///
+  /// In zh, this message translates to:
+  /// **'已选择: {duration}'**
+  String widgetSelectedDuration(String duration);
+
+  /// No description provided for @widgetConfirmButton.
+  ///
+  /// In zh, this message translates to:
+  /// **'确认'**
+  String get widgetConfirmButton;
+
+  /// No description provided for @widgetSearchExerciseHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'搜索动作...'**
+  String get widgetSearchExerciseHint;
+
+  /// No description provided for @widgetInvolvedMuscles.
+  ///
+  /// In zh, this message translates to:
+  /// **'涉及部位'**
+  String get widgetInvolvedMuscles;
+
+  /// No description provided for @widgetRemoveFromPlan.
+  ///
+  /// In zh, this message translates to:
+  /// **'从计划中移除'**
+  String get widgetRemoveFromPlan;
+
+  /// No description provided for @widgetAddToPlan.
+  ///
+  /// In zh, this message translates to:
+  /// **'添加到计划'**
+  String get widgetAddToPlan;
+
+  /// No description provided for @widgetImageStepIndicator.
+  ///
+  /// In zh, this message translates to:
+  /// **'第 {current} 步 / 共 {total} 步'**
+  String widgetImageStepIndicator(int current, int total);
+
+  /// No description provided for @widgetExerciseInstructions.
+  ///
+  /// In zh, this message translates to:
+  /// **'动作指导'**
+  String get widgetExerciseInstructions;
+
+  /// No description provided for @widgetRecommendedConfig.
+  ///
+  /// In zh, this message translates to:
+  /// **'推荐配置'**
+  String get widgetRecommendedConfig;
+
+  /// No description provided for @widgetRecommendedSets.
+  ///
+  /// In zh, this message translates to:
+  /// **'推荐组数'**
+  String get widgetRecommendedSets;
+
+  /// No description provided for @widgetRecommendedSetsValue.
+  ///
+  /// In zh, this message translates to:
+  /// **'{n} 组'**
+  String widgetRecommendedSetsValue(int n);
+
+  /// No description provided for @widgetRepsRangeLabel.
+  ///
+  /// In zh, this message translates to:
+  /// **'次数范围'**
+  String get widgetRepsRangeLabel;
+
+  /// No description provided for @widgetRestLabel.
+  ///
+  /// In zh, this message translates to:
+  /// **'组间休息'**
+  String get widgetRestLabel;
 }
 
 class _AppLocalizationsDelegate

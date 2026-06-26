@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:workout_timer/l10n/app_localizations.dart';
 import 'package:workout_timer/theme/theme_provider.dart';
 import 'package:workout_timer/widgets/volume_trend_charts.dart';
 
@@ -15,7 +16,11 @@ void main() {
     final themeProvider = ThemeProvider();
     return MultiProvider(
       providers: [ChangeNotifierProvider.value(value: themeProvider)],
-      child: MaterialApp(home: Scaffold(body: child)),
+      child: MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Scaffold(body: child),
+      ),
     );
   }
 

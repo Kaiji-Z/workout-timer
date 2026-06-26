@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
 import '../models/workout_plan.dart';
 import '../theme/theme_provider.dart';
 import 'muscle_selector.dart';
@@ -25,6 +26,7 @@ class PlanCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().currentTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return AnimatedCard(
       onTap: onTap,
@@ -96,21 +98,21 @@ class PlanCard extends StatelessWidget {
                         children: [
                           _buildStat(
                             context,
-                            '${plan.exerciseCount} 个动作',
+                            l10n.widgetPlanExercisesCount(plan.exerciseCount),
                             Icons.list_alt,
                             theme,
                           ),
                           const SizedBox(width: 16),
                           _buildStat(
                             context,
-                            '${plan.totalSets} 组',
+                            l10n.widgetPlanSetsCount(plan.totalSets),
                             Icons.repeat,
                             theme,
                           ),
                           const SizedBox(width: 16),
                           _buildStat(
                             context,
-                            '~${plan.estimatedDuration} 分钟',
+                            l10n.widgetPlanDuration(plan.estimatedDuration),
                             Icons.timer_outlined,
                             theme,
                           ),
@@ -165,6 +167,7 @@ class CompactPlanCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().currentTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Material(
       color: Colors.transparent,
@@ -232,7 +235,7 @@ class CompactPlanCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
                 ),
                 child: Text(
-                  '${plan.exerciseCount}动作 · ${plan.totalSets}组',
+                  l10n.widgetPlanSummaryShort(plan.exerciseCount, plan.totalSets),
                   style: Theme.of(context).textTheme.bodySmall!.copyWith(
                     fontSize: 11,
                     fontWeight: FontWeight.w500,
@@ -315,6 +318,7 @@ class _PlanProgressCardState extends State<PlanProgressCard>
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().currentTheme;
+    final l10n = AppLocalizations.of(context)!;
     final currentExercise =
         widget.plan.exercises.isNotEmpty &&
             widget.currentExerciseIndex < widget.plan.exercises.length
@@ -362,7 +366,11 @@ class _PlanProgressCardState extends State<PlanProgressCard>
                         alignment: Alignment.centerLeft,
                         child: currentExercise != null
                             ? Text(
-                                '${widget.plan.name} · ${currentExercise.name} 第${_getCurrentSetNumber(currentExercise)}组',
+                                l10n.widgetExerciseProgressHeader(
+                                  widget.plan.name,
+                                  currentExercise.name,
+                                  _getCurrentSetNumber(currentExercise),
+                                ),
                                 style: Theme.of(context).textTheme.labelLarge!
                                     .copyWith(color: theme.textColor),
                               )
@@ -399,7 +407,11 @@ class _PlanProgressCardState extends State<PlanProgressCard>
                       // 当前动作进度
                       if (currentExercise != null) ...[
                         Text(
-                          '当前：${currentExercise.name} 第${_getCurrentSetNumber(currentExercise)}/${currentExercise.effectiveSets}组',
+                          l10n.widgetCurrentExercise(
+                            currentExercise.name,
+                            _getCurrentSetNumber(currentExercise),
+                            currentExercise.effectiveSets,
+                          ),
                           style: Theme.of(context).textTheme.labelLarge!
                               .copyWith(
                                 fontWeight: FontWeight.w600,
@@ -440,7 +452,7 @@ class _PlanProgressCardState extends State<PlanProgressCard>
                                 child: Text(
                                   exercise.hasDetails
                                       ? exercise.name
-                                      : '${exercise.name} (无详情)',
+                                      : l10n.widgetNoDetail(exercise.name),
                                   style: Theme.of(context).textTheme.bodyMedium!
                                       .copyWith(
                                         color: exercise.hasDetails
@@ -517,7 +529,7 @@ class _PlanProgressCardState extends State<PlanProgressCard>
                                     ),
                                     const SizedBox(width: 8),
                                     Text(
-                                      '切换下一动作',
+                                      l10n.widgetSwitchNextExercise,
                                       style: Theme.of(context)
                                           .textTheme
                                           .titleLarge!
@@ -556,19 +568,20 @@ class _PlanProgressCardState extends State<PlanProgressCard>
 /// 空计划占位卡片
 class EmptyPlanCard extends StatelessWidget {
   final VoidCallback? onTap;
-  final String title;
-  final String subtitle;
+  final String? title;
+  final String? subtitle;
 
   const EmptyPlanCard({
     super.key,
     this.onTap,
-    this.title = '还没有计划',
-    this.subtitle = '点击创建你的第一个训练计划',
+    this.title,
+    this.subtitle,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().currentTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Material(
       color: Colors.transparent,
@@ -599,7 +612,7 @@ class EmptyPlanCard extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                title,
+                title ?? l10n.widgetEmptyPlanTitle,
                 style: Theme.of(context).textTheme.titleLarge!.copyWith(
                   fontSize: 17,
                   color: theme.textColor,
@@ -607,7 +620,7 @@ class EmptyPlanCard extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                subtitle,
+                subtitle ?? l10n.widgetEmptyPlanSubtitle,
                 style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                   color: theme.secondaryTextColor,
                 ),
@@ -639,6 +652,7 @@ class PlanProgressCompact extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().currentTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
@@ -656,7 +670,7 @@ class PlanProgressCompact extends StatelessWidget {
               fit: BoxFit.scaleDown,
               alignment: Alignment.centerLeft,
               child: Text(
-                '$exerciseName · $currentSet/$totalSets组',
+                l10n.widgetProgressSummary(exerciseName, currentSet, totalSets),
                 style: Theme.of(
                   context,
                 ).textTheme.labelLarge!.copyWith(color: theme.textColor),
