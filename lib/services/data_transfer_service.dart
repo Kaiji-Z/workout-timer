@@ -1,15 +1,29 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:file_picker/file_picker.dart';
+import '../core/service_locator.dart';
+import '../l10n/app_localizations.dart';
 import 'database_helper.dart';
 
 /// 数据导出/导入服务
 /// 导出全部8个SQLite表为JSON文件，支持跨设备数据迁移
 class DataTransferService {
   final DatabaseHelper _dbHelper = DatabaseHelper.instance;
+
+  /// Resolve the current [AppLocalizations] for service-layer use (no
+  /// BuildContext available). Falls back to Chinese if not registered yet.
+  AppLocalizations _currentLocalizations() {
+    try {
+      final locale = ServiceLocator.get<ValueNotifier<Locale>>().value;
+      return lookupAppLocalizations(locale);
+    } catch (_) {
+      return lookupAppLocalizations(const Locale('zh'));
+    }
+  }
 
   /// 需要导出的表名列表（按外键依赖顺序排列）
   static const _tables = [
@@ -69,7 +83,10 @@ class DataTransferService {
 
     // 同时弹出系统分享面板（用户可以额外发到微信等）
     if (!kIsWeb) {
-      await Share.shareXFiles([XFile(savedPath)], text: '撸铁计时器数据备份');
+      await Share.shareXFiles(
+        [XFile(savedPath)],
+        text: _currentLocalizations().dataTransferShareText,
+      );
     }
 
     return savedPath;
@@ -185,7 +202,7 @@ class DataTransferService {
   /// 返回导入的记录总数
   Future<int> pickAndImport() async {
     if (kIsWeb) {
-      throw UnsupportedError('Web 平台暂不支持文件导入');
+      throw UnsupportedError(_currentLocalizations().dataTransferWebUnsupported);
     }
 
     final result = await FilePicker.platform.pickFiles(
@@ -218,7 +235,7 @@ class DataTransferService {
     // 验证格式
     if (!data.containsKey('version') ||
         !data.containsKey(DatabaseHelper.tableWorkoutSessions)) {
-      throw const FormatException('无效的备份文件格式');
+      throw FormatException(_currentLocalizations().dataTransferInvalidFormat);
     }
 
     final db = await _dbHelper.database;
