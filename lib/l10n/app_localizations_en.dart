@@ -236,4 +236,63 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get oemDefaultInstruction =>
       'Allow this app to auto-start and run in the background in system settings';
+
+  @override
+  String unitMinutes(int m) {
+    return '$m min';
+  }
+
+  @override
+  String unitMinutesSeconds(int m, int s) {
+    return '${m}m ${s}s';
+  }
+
+  @override
+  String unitSeconds(int s) {
+    return '${s}s';
+  }
+
+  @override
+  String unitRepsRange(int min, int max) {
+    return '$min-$max reps';
+  }
+
+  @override
+  String get levelBeginner => 'Beginner';
+
+  @override
+  String get levelIntermediate => 'Intermediate';
+
+  @override
+  String get levelExpert => 'Advanced';
+
+  @override
+  String get equipmentBarbell => 'Barbell';
+
+  @override
+  String get equipmentDumbbell => 'Dumbbell';
+
+  @override
+  String get equipmentBodyweight => 'Bodyweight';
+
+  @override
+  String get equipmentCable => 'Cable';
+
+  @override
+  String get equipmentMachine => 'Machine';
+
+  @override
+  String get equipmentKettlebells => 'Kettlebells';
+
+  @override
+  String get equipmentBands => 'Bands';
+
+  @override
+  String get equipmentMedicineBall => 'Medicine Ball';
+
+  @override
+  String get equipmentEzBarbell => 'EZ Barbell';
+
+  @override
+  String get equipmentSmithMachine => 'Smith Machine';
 }

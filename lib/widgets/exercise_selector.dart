@@ -2,6 +2,7 @@ import 'dart:async';
 import 'fullscreen_image_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
 import '../models/exercise.dart';
 import '../models/muscle_group.dart';
 import '../models/workout_plan.dart';
@@ -429,6 +430,7 @@ class _ExerciseListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
       decoration: BoxDecoration(
@@ -526,7 +528,7 @@ class _ExerciseListItem extends StatelessWidget {
             ),
             const SizedBox(width: 6),
             Text(
-              exercise.equipmentDisplayName,
+              exercise.equipmentDisplayName(l10n),
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ],
@@ -620,6 +622,7 @@ class _ExerciseDetailSheetState extends State<ExerciseDetailSheet>
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().currentTheme;
+    final l10n = AppLocalizations.of(context)!;
     final hasImages = widget.exercise.images.isNotEmpty;
 
     return DraggableScrollableSheet(
@@ -688,12 +691,12 @@ class _ExerciseDetailSheetState extends State<ExerciseDetailSheet>
                             theme,
                           ),
                           _buildTag(
-                            widget.exercise.equipmentDisplayName,
+                            widget.exercise.equipmentDisplayName(l10n),
                             Icons.sports_gymnastics,
                             theme,
                           ),
                           _buildTag(
-                            widget.exercise.levelDisplayName,
+                            widget.exercise.levelDisplayName(l10n),
                             Icons.signal_cellular_alt,
                             theme,
                           ),
@@ -972,6 +975,7 @@ class _ExerciseDetailSheetState extends State<ExerciseDetailSheet>
 
   /// 推荐配置组件
   Widget _buildRecommendation(AppThemeData theme) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(AppDimensions.screenPadding),
       decoration: BoxDecoration(
@@ -1001,7 +1005,7 @@ class _ExerciseDetailSheetState extends State<ExerciseDetailSheet>
               ),
               Expanded(
                 child: _buildStatItem(
-                  widget.exercise.recommendation.repsRangeText,
+                  widget.exercise.recommendation.repsRangeText(l10n),
                   '次数范围',
                   Icons.filter_list,
                   theme,
@@ -1009,7 +1013,7 @@ class _ExerciseDetailSheetState extends State<ExerciseDetailSheet>
               ),
               Expanded(
                 child: _buildStatItem(
-                  widget.exercise.recommendation.restText,
+                  widget.exercise.recommendation.restText(l10n),
                   '组间休息',
                   Icons.timer,
                   theme,
