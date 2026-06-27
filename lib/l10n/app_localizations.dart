@@ -3406,6 +3406,348 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'  - {muscle}: 已休息{days}天 {status}'**
   String anPromptRecoveryLine(String muscle, int days, String status);
+
+  /// No description provided for @statsAiAnalysis.
+  ///
+  /// In zh, this message translates to:
+  /// **'AI 分析'**
+  String get statsAiAnalysis;
+
+  /// No description provided for @statsWeekView.
+  ///
+  /// In zh, this message translates to:
+  /// **'周视图'**
+  String get statsWeekView;
+
+  /// No description provided for @statsMonthView.
+  ///
+  /// In zh, this message translates to:
+  /// **'月视图'**
+  String get statsMonthView;
+
+  /// No description provided for @statsOverview.
+  ///
+  /// In zh, this message translates to:
+  /// **'概览'**
+  String get statsOverview;
+
+  /// No description provided for @statsOverviewMonth.
+  ///
+  /// In zh, this message translates to:
+  /// **'概览 ({month}月)'**
+  String statsOverviewMonth(int month);
+
+  /// No description provided for @statsDailyDurationTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'每日训练时长'**
+  String get statsDailyDurationTitle;
+
+  /// No description provided for @statsVolumeTrendTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'训练量趋势'**
+  String get statsVolumeTrendTitle;
+
+  /// No description provided for @statsProgressTracking.
+  ///
+  /// In zh, this message translates to:
+  /// **'进步追踪'**
+  String get statsProgressTracking;
+
+  /// No description provided for @statsBodyAnalysis.
+  ///
+  /// In zh, this message translates to:
+  /// **'身体分析'**
+  String get statsBodyAnalysis;
+
+  /// No description provided for @statsSessionCount.
+  ///
+  /// In zh, this message translates to:
+  /// **'训练次数'**
+  String get statsSessionCount;
+
+  /// No description provided for @statsSessionCountUnit.
+  ///
+  /// In zh, this message translates to:
+  /// **'次'**
+  String get statsSessionCountUnit;
+
+  /// No description provided for @statsWorkoutDays.
+  ///
+  /// In zh, this message translates to:
+  /// **'训练天数'**
+  String get statsWorkoutDays;
+
+  /// No description provided for @statsDaysUnit.
+  ///
+  /// In zh, this message translates to:
+  /// **'天'**
+  String get statsDaysUnit;
+
+  /// No description provided for @statsAvgPerWeek.
+  ///
+  /// In zh, this message translates to:
+  /// **'周均训练'**
+  String get statsAvgPerWeek;
+
+  /// No description provided for @statsTotalVolume.
+  ///
+  /// In zh, this message translates to:
+  /// **'总训练量'**
+  String get statsTotalVolume;
+
+  /// No description provided for @statsNoPrevComparison.
+  ///
+  /// In zh, this message translates to:
+  /// **'暂无上期数据对比'**
+  String get statsNoPrevComparison;
+
+  /// No description provided for @statsVolumeChangeVsPrev.
+  ///
+  /// In zh, this message translates to:
+  /// **'{sign}{percent}% vs 上期'**
+  String statsVolumeChangeVsPrev(String sign, int percent);
+
+  /// No description provided for @statsTotalSets.
+  ///
+  /// In zh, this message translates to:
+  /// **'总组数'**
+  String get statsTotalSets;
+
+  /// No description provided for @statsSetsUnit.
+  ///
+  /// In zh, this message translates to:
+  /// **'组'**
+  String get statsSetsUnit;
+
+  /// No description provided for @statsTotalDuration.
+  ///
+  /// In zh, this message translates to:
+  /// **'总时长'**
+  String get statsTotalDuration;
+
+  /// No description provided for @statsAvgSetsPerSession.
+  ///
+  /// In zh, this message translates to:
+  /// **'平均组数/次'**
+  String get statsAvgSetsPerSession;
+
+  /// No description provided for @statsAvgDurationPerSession.
+  ///
+  /// In zh, this message translates to:
+  /// **'平均时长/次'**
+  String get statsAvgDurationPerSession;
+
+  /// No description provided for @statsPrevWeek.
+  ///
+  /// In zh, this message translates to:
+  /// **'上一周'**
+  String get statsPrevWeek;
+
+  /// No description provided for @statsNextWeek.
+  ///
+  /// In zh, this message translates to:
+  /// **'下一周'**
+  String get statsNextWeek;
+
+  /// No description provided for @statsPrevYear.
+  ///
+  /// In zh, this message translates to:
+  /// **'上一年'**
+  String get statsPrevYear;
+
+  /// No description provided for @statsNextYear.
+  ///
+  /// In zh, this message translates to:
+  /// **'下一年'**
+  String get statsNextYear;
+
+  /// No description provided for @statsToday.
+  ///
+  /// In zh, this message translates to:
+  /// **'今天'**
+  String get statsToday;
+
+  /// No description provided for @statsYearLabel.
+  ///
+  /// In zh, this message translates to:
+  /// **'{year}年'**
+  String statsYearLabel(int year);
+
+  /// No description provided for @statsWeekRange.
+  ///
+  /// In zh, this message translates to:
+  /// **'{sm}月{sd}日 - {em}月{ed}日'**
+  String statsWeekRange(int sm, int sd, int em, int ed);
+
+  /// No description provided for @statsNoData.
+  ///
+  /// In zh, this message translates to:
+  /// **'暂无训练数据'**
+  String get statsNoData;
+
+  /// No description provided for @statsEmptyHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'完成几次训练后这里会显示统计信息'**
+  String get statsEmptyHint;
+
+  /// No description provided for @statsDurationPerSetsLegend.
+  ///
+  /// In zh, this message translates to:
+  /// **'时长/组数'**
+  String get statsDurationPerSetsLegend;
+
+  /// No description provided for @statsNoExerciseData.
+  ///
+  /// In zh, this message translates to:
+  /// **'暂无动作数据'**
+  String get statsNoExerciseData;
+
+  /// No description provided for @statsTotalCapacity.
+  ///
+  /// In zh, this message translates to:
+  /// **'总容量'**
+  String get statsTotalCapacity;
+
+  /// No description provided for @statsOtherPercent.
+  ///
+  /// In zh, this message translates to:
+  /// **'其他 {value}%'**
+  String statsOtherPercent(String value);
+
+  /// No description provided for @statsNoRecoveryData.
+  ///
+  /// In zh, this message translates to:
+  /// **'暂无恢复数据'**
+  String get statsNoRecoveryData;
+
+  /// No description provided for @statsRecoveryStatus.
+  ///
+  /// In zh, this message translates to:
+  /// **'恢复状态'**
+  String get statsRecoveryStatus;
+
+  /// No description provided for @statsDensity.
+  ///
+  /// In zh, this message translates to:
+  /// **'训练密度'**
+  String get statsDensity;
+
+  /// No description provided for @statsSetsPerMinute.
+  ///
+  /// In zh, this message translates to:
+  /// **'{value} 组/分钟'**
+  String statsSetsPerMinute(String value);
+
+  /// No description provided for @statsSetsOverMinutes.
+  ///
+  /// In zh, this message translates to:
+  /// **'{sets}组 / {minutes}分钟'**
+  String statsSetsOverMinutes(int sets, String minutes);
+
+  /// No description provided for @statsNo1rmData.
+  ///
+  /// In zh, this message translates to:
+  /// **'暂无1RM数据'**
+  String get statsNo1rmData;
+
+  /// No description provided for @statsEstimated1rmTrend.
+  ///
+  /// In zh, this message translates to:
+  /// **'估算1RM趋势'**
+  String get statsEstimated1rmTrend;
+
+  /// No description provided for @statsNoMuscleSetsData.
+  ///
+  /// In zh, this message translates to:
+  /// **'暂无肌群组数数据'**
+  String get statsNoMuscleSetsData;
+
+  /// No description provided for @statsSetsPerMuscleTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'每肌群组数'**
+  String get statsSetsPerMuscleTitle;
+
+  /// No description provided for @statsMevReference.
+  ///
+  /// In zh, this message translates to:
+  /// **'参考线: MEV 10组/周 (Schoenfeld 2017)'**
+  String get statsMevReference;
+
+  /// No description provided for @statsWeekdayMon.
+  ///
+  /// In zh, this message translates to:
+  /// **'一'**
+  String get statsWeekdayMon;
+
+  /// No description provided for @statsWeekdayTue.
+  ///
+  /// In zh, this message translates to:
+  /// **'二'**
+  String get statsWeekdayTue;
+
+  /// No description provided for @statsWeekdayWed.
+  ///
+  /// In zh, this message translates to:
+  /// **'三'**
+  String get statsWeekdayWed;
+
+  /// No description provided for @statsWeekdayThu.
+  ///
+  /// In zh, this message translates to:
+  /// **'四'**
+  String get statsWeekdayThu;
+
+  /// No description provided for @statsWeekdayFri.
+  ///
+  /// In zh, this message translates to:
+  /// **'五'**
+  String get statsWeekdayFri;
+
+  /// No description provided for @statsWeekdaySat.
+  ///
+  /// In zh, this message translates to:
+  /// **'六'**
+  String get statsWeekdaySat;
+
+  /// No description provided for @statsWeekdaySun.
+  ///
+  /// In zh, this message translates to:
+  /// **'日'**
+  String get statsWeekdaySun;
+
+  /// No description provided for @statsMonthLabel.
+  ///
+  /// In zh, this message translates to:
+  /// **'{n}月'**
+  String statsMonthLabel(int n);
+
+  /// No description provided for @statsSetsCount.
+  ///
+  /// In zh, this message translates to:
+  /// **'{count} 组'**
+  String statsSetsCount(int count);
+
+  /// No description provided for @statsExerciseCount.
+  ///
+  /// In zh, this message translates to:
+  /// **'{count}次'**
+  String statsExerciseCount(int count);
+
+  /// No description provided for @statsRecoveryDays.
+  ///
+  /// In zh, this message translates to:
+  /// **'{muscle} {days}天'**
+  String statsRecoveryDays(String muscle, int days);
+
+  /// No description provided for @statsRecordsCount.
+  ///
+  /// In zh, this message translates to:
+  /// **'{count}次记录'**
+  String statsRecordsCount(int count);
 }
 
 class _AppLocalizationsDelegate

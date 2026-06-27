@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
 import '../theme/theme_provider.dart';
 import '../utils/dimensions.dart';
 import '../theme/app_theme.dart';
@@ -260,6 +261,7 @@ class _StatsScreenState extends State<StatsScreen>
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().currentTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -267,7 +269,7 @@ class _StatsScreenState extends State<StatsScreen>
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Text(
-          '训练统计',
+          l10n.navStats,
           style: Theme.of(context).textTheme.headlineMedium!.copyWith(
                 fontWeight: FontWeight.w700,
                 letterSpacing: -0.5,
@@ -279,7 +281,7 @@ class _StatsScreenState extends State<StatsScreen>
             onPressed: () => _navigateToAIAnalysis(theme),
             icon: Icon(Icons.psychology, size: 20, color: theme.accentColor),
             label: Text(
-              'AI 分析',
+              l10n.statsAiAnalysis,
               style: Theme.of(context).textTheme.labelLarge!.copyWith(
                 fontWeight: FontWeight.w600,
                 color: theme.accentColor,
@@ -296,9 +298,9 @@ class _StatsScreenState extends State<StatsScreen>
           labelStyle: Theme.of(
             context,
           ).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.w600),
-          tabs: const [
-            Tab(text: '周视图'),
-            Tab(text: '月视图'),
+          tabs: [
+            Tab(text: l10n.statsWeekView),
+            Tab(text: l10n.statsMonthView),
           ],
         ),
       ),
@@ -364,13 +366,14 @@ class _StatsScreenState extends State<StatsScreen>
     Map<String, dynamic> stats,
     AppThemeData theme,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     return Row(
       children: [
         Expanded(
           child: _buildMetricCard(
-            '训练次数',
+            l10n.statsSessionCount,
             '',
-            '次',
+            l10n.statsSessionCountUnit,
             Icons.fitness_center,
             theme.accentColor,
             theme,
@@ -380,9 +383,9 @@ class _StatsScreenState extends State<StatsScreen>
         const SizedBox(width: 12),
         Expanded(
           child: _buildMetricCard(
-            '训练天数',
+            l10n.statsWorkoutDays,
             '',
-            '天',
+            l10n.statsDaysUnit,
             Icons.calendar_today,
             theme.accentColor,
             theme,
@@ -392,9 +395,9 @@ class _StatsScreenState extends State<StatsScreen>
         const SizedBox(width: 12),
         Expanded(
           child: _buildMetricCard(
-            '周均训练',
+            l10n.statsAvgPerWeek,
             '',
-            '次',
+            l10n.statsSessionCountUnit,
             Icons.trending_up,
             theme.accentColor,
             theme,
@@ -416,6 +419,7 @@ class _StatsScreenState extends State<StatsScreen>
     AppThemeData theme, {
     double? volumeChange,
   }) {
+    final l10n = AppLocalizations.of(context)!;
     final totalVolume = _statsCalc.calculateTotalVolume(
       workoutRecords,
       bodyWeight: _userBodyWeight,
@@ -445,7 +449,7 @@ class _StatsScreenState extends State<StatsScreen>
               ),
               const SizedBox(width: 6),
               Text(
-                '总训练量',
+                l10n.statsTotalVolume,
                 style: Theme.of(context).textTheme.labelLarge!.copyWith(
                       color: theme.onAccentColor.withValues(alpha: 0.85),
                       fontWeight: FontWeight.w600,
@@ -474,7 +478,7 @@ class _StatsScreenState extends State<StatsScreen>
             _buildVolumeChangeBadge(volumeChange, theme)
           else
             Text(
-              '暂无上期数据对比',
+              l10n.statsNoPrevComparison,
               style: Theme.of(context).textTheme.bodySmall!.copyWith(
                     fontSize: 11,
                     color: theme.onAccentColor.withValues(alpha: 0.7),
@@ -489,7 +493,9 @@ class _StatsScreenState extends State<StatsScreen>
   /// vs 上期 变化徽章 — 英雄数字的唯一伴随元素。
   /// 在深靛蓝 hero 上用半透明白底徽章，保持高对比可读。
   Widget _buildVolumeChangeBadge(double volumeChange, AppThemeData theme) {
+    final l10n = AppLocalizations.of(context)!;
     final isUp = volumeChange >= 0;
+    final changeRounded = volumeChange.round();
     // On the indigo hero, encode direction by icon + sign, not by green/red
     // (which would fight the deep-blue ground). A translucent white chip reads
     // cleanly and stays on-brand.
@@ -509,7 +515,7 @@ class _StatsScreenState extends State<StatsScreen>
           ),
           const SizedBox(width: 4),
           Text(
-            '${isUp ? '+' : ''}${volumeChange.toStringAsFixed(1)}% vs 上期',
+            l10n.statsVolumeChangeVsPrev(isUp ? '+' : '', changeRounded),
             style: Theme.of(context).textTheme.labelLarge!.copyWith(
                   fontSize: 12,
                   color: theme.onAccentColor,
@@ -542,15 +548,16 @@ class _StatsScreenState extends State<StatsScreen>
     Map<String, dynamic> stats,
     AppThemeData theme,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       children: [
         Row(
           children: [
             Expanded(
               child: _buildMetricCard(
-                '总组数',
+                l10n.statsTotalSets,
                 '',
-                '组',
+                l10n.statsSetsUnit,
                 Icons.repeat,
                 theme.accentColor,
                 theme,
@@ -560,7 +567,7 @@ class _StatsScreenState extends State<StatsScreen>
             const SizedBox(width: 12),
             Expanded(
               child: _buildMetricCard(
-                '总时长',
+                l10n.statsTotalDuration,
                 formatDuration(stats['totalDuration'] as int),
                 '',
                 Icons.timer,
@@ -582,8 +589,9 @@ class _StatsScreenState extends State<StatsScreen>
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               _buildSubMetric(
-                '平均组数/次',
-                '${(stats['avgSetsPerSession'] as double).toStringAsFixed(1)} 组',
+                l10n.statsAvgSetsPerSession,
+                l10n.statsSetsCount(
+                    (stats['avgSetsPerSession'] as double).round()),
                 theme,
               ),
               Container(
@@ -592,7 +600,7 @@ class _StatsScreenState extends State<StatsScreen>
                 color: theme.textColor.withValues(alpha: 0.1),
               ),
               _buildSubMetric(
-                '平均时长/次',
+                l10n.statsAvgDurationPerSession,
                 formatDuration(stats['avgDurationPerSession'] as int),
                 theme,
               ),
@@ -690,6 +698,7 @@ class _StatsScreenState extends State<StatsScreen>
 
   /// 周视图
   Widget _buildWeekView(AppThemeData theme) {
+    final l10n = AppLocalizations.of(context)!;
     // Show global empty state if no records at all
     if (_getAllRecords().isEmpty) {
       return _buildGlobalEmptyState(theme);
@@ -724,7 +733,7 @@ class _StatsScreenState extends State<StatsScreen>
 
           // 概览 (英雄数字 + 频率 + 训练量 + 训练密度)
           _CollapsibleSection(
-            title: '概览',
+            title: l10n.statsOverview,
             theme: theme,
             children: [
               // Hero — the screen's single visual center (DESIGN.md「扫一眼就懂」).
@@ -744,7 +753,7 @@ class _StatsScreenState extends State<StatsScreen>
           const SizedBox(height: 20),
 
           // 每日训练时长图表
-          _buildSection('每日训练时长', theme, [
+          _buildSection(l10n.statsDailyDurationTitle, theme, [
             _buildDailyDurationChart(
               dailyDurations,
               dailySets,
@@ -756,7 +765,7 @@ class _StatsScreenState extends State<StatsScreen>
           const SizedBox(height: 20),
 
           // 训练量趋势（周）
-          _buildSection('训练量趋势', theme, [
+          _buildSection(l10n.statsVolumeTrendTitle, theme, [
             DailyVolumeChart(
               data: _statsCalc.calculateDailyVolumeTrend(
                 workoutRecords,
@@ -768,7 +777,7 @@ class _StatsScreenState extends State<StatsScreen>
 
           // 进步追踪 (常用动作)
           _CollapsibleSection(
-            title: '进步追踪',
+            title: l10n.statsProgressTracking,
             theme: theme,
             children: [
               _buildCommonExercisesChart(
@@ -781,7 +790,7 @@ class _StatsScreenState extends State<StatsScreen>
 
           // 身体分析 (每肌群组数 + 肌群容量 + 恢复状态)
           _CollapsibleSection(
-            title: '身体分析',
+            title: l10n.statsBodyAnalysis,
             theme: theme,
             children: [
               _buildSetsPerMuscleGroupChart(workoutRecords, theme),
@@ -815,6 +824,7 @@ class _StatsScreenState extends State<StatsScreen>
     final previousMonthRecords = _filterByMonth(prevYear, prevMonth);
     final volumeChange = _calculateVolumeChange(records, previousMonthRecords);
 
+    final l10n = AppLocalizations.of(context)!;
     return SingleChildScrollView(
       padding: EdgeInsets.only(
         left: 16,
@@ -835,7 +845,7 @@ class _StatsScreenState extends State<StatsScreen>
 
           // 概览 (英雄数字 + 频率 + 训练量 + 训练密度)
           _CollapsibleSection(
-            title: '概览 ($_selectedMonth月)',
+            title: l10n.statsOverviewMonth(_selectedMonth),
             theme: theme,
             children: [
               _buildHeroVolume(
@@ -854,7 +864,7 @@ class _StatsScreenState extends State<StatsScreen>
           const SizedBox(height: 20),
 
           // 训练量趋势（月）
-          _buildSection('训练量趋势', theme, [
+          _buildSection(l10n.statsVolumeTrendTitle, theme, [
             DailyVolumeChart(
               data: _statsCalc.calculateDailyVolumeTrend(
                 workoutRecords,
@@ -866,7 +876,7 @@ class _StatsScreenState extends State<StatsScreen>
 
           // 进步追踪 (估算1RM趋势 + 常用动作)
           _CollapsibleSection(
-            title: '进步追踪',
+            title: l10n.statsProgressTracking,
             theme: theme,
             children: [
               _buildEstimated1RMTrend(workoutRecords, theme),
@@ -881,7 +891,7 @@ class _StatsScreenState extends State<StatsScreen>
 
           // 身体分析 (每肌群组数 + 肌群容量 + 恢复状态)
           _CollapsibleSection(
-            title: '身体分析',
+            title: l10n.statsBodyAnalysis,
             theme: theme,
             children: [
               _buildSetsPerMuscleGroupChart(workoutRecords, theme),
@@ -896,8 +906,31 @@ class _StatsScreenState extends State<StatsScreen>
     );
   }
 
+  /// Locale-aware weekday short name (0=Mon..6=Sun for the 7-day grid).
+  String _weekdayShort(int index, AppLocalizations l10n) {
+    switch (index) {
+      case 0:
+        return l10n.statsWeekdayMon;
+      case 1:
+        return l10n.statsWeekdayTue;
+      case 2:
+        return l10n.statsWeekdayWed;
+      case 3:
+        return l10n.statsWeekdayThu;
+      case 4:
+        return l10n.statsWeekdayFri;
+      case 5:
+        return l10n.statsWeekdaySat;
+      case 6:
+        return l10n.statsWeekdaySun;
+      default:
+        return '';
+    }
+  }
+
   /// 周选择器
   Widget _buildWeekSelector(AppThemeData theme) {
+    final l10n = AppLocalizations.of(context)!;
     final weekStart = _getStartOfWeek(_selectedWeekStart);
     final weekDays = _getWeekDays(weekStart);
     final today = DateTime.now();
@@ -926,20 +959,21 @@ class _StatsScreenState extends State<StatsScreen>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               IconButton(
-                tooltip: '上一周',
+                tooltip: l10n.statsPrevWeek,
                 onPressed: () => _navigateWeek(-1),
                 icon: Icon(Icons.chevron_left, color: theme.textColor),
               ),
               Column(
                 children: [
                   Text(
-                    '${weekStart.month}月 ${weekStart.day}日 - ${weekDays.last.month}月 ${weekDays.last.day}日',
+                    l10n.statsWeekRange(weekStart.month, weekStart.day,
+                        weekDays.last.month, weekDays.last.day),
                     style: Theme.of(
                       context,
                     ).textTheme.titleLarge!.copyWith(color: theme.textColor),
                   ),
                   Text(
-                    '${weekStart.year}年',
+                    l10n.statsYearLabel(weekStart.year),
                     style: Theme.of(context).textTheme.bodySmall!,
                   ),
                 ],
@@ -953,7 +987,7 @@ class _StatsScreenState extends State<StatsScreen>
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 4),
                         child: Text(
-                          '今天',
+                          l10n.statsToday,
                           style: Theme.of(context).textTheme.bodySmall!
                               .copyWith(
                                 fontWeight: FontWeight.w500,
@@ -963,7 +997,7 @@ class _StatsScreenState extends State<StatsScreen>
                       ),
                     ),
                   IconButton(
-                    tooltip: '下一周',
+                    tooltip: l10n.statsNextWeek,
                     onPressed: canGoNext ? () => _navigateWeek(1) : null,
                     icon: Icon(
                       Icons.chevron_right,
@@ -987,13 +1021,12 @@ class _StatsScreenState extends State<StatsScreen>
                   day.month == today.month &&
                   day.day == today.day;
               final hasWorkout = workoutDays.contains(index);
-              final dayNames = ['一', '二', '三', '四', '五', '六', '日'];
 
               return Expanded(
                 child: Column(
                   children: [
                     Text(
-                      dayNames[index],
+                      _weekdayShort(index, l10n),
                       style: Theme.of(context).textTheme.bodySmall!.copyWith(
                         fontSize: 11,
                         color: theme.secondaryTextColor,
@@ -1050,6 +1083,7 @@ class _StatsScreenState extends State<StatsScreen>
 
   /// 年份选择器
   Widget _buildYearSelector(AppThemeData theme) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
@@ -1061,12 +1095,12 @@ class _StatsScreenState extends State<StatsScreen>
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           IconButton(
-            tooltip: '上一年',
+            tooltip: l10n.statsPrevYear,
             onPressed: () => _navigateYear(-1),
             icon: Icon(Icons.chevron_left, color: theme.textColor),
           ),
           Text(
-            '$_selectedYear 年',
+            l10n.statsYearLabel(_selectedYear),
             style: Theme.of(
               context,
             ).textTheme.headlineMedium!.copyWith(color: theme.textColor),
@@ -1077,7 +1111,7 @@ class _StatsScreenState extends State<StatsScreen>
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 4),
                 child: Text(
-                  '今天',
+                  l10n.statsToday,
                   style: Theme.of(context).textTheme.bodySmall!.copyWith(
                     fontWeight: FontWeight.w500,
                     color: theme.accentColor,
@@ -1086,7 +1120,7 @@ class _StatsScreenState extends State<StatsScreen>
               ),
             ),
           IconButton(
-            tooltip: '下一年',
+            tooltip: l10n.statsNextYear,
             onPressed: _selectedYear < DateTime.now().year
                 ? () => _navigateYear(1)
                 : null,
@@ -1104,20 +1138,7 @@ class _StatsScreenState extends State<StatsScreen>
 
   /// 月份网格
   Widget _buildMonthGrid(Map<int, int> counts, AppThemeData theme) {
-    final monthNames = [
-      '1月',
-      '2月',
-      '3月',
-      '4月',
-      '5月',
-      '6月',
-      '7月',
-      '8月',
-      '9月',
-      '10月',
-      '11月',
-      '12月',
-    ];
+    final l10n = AppLocalizations.of(context)!;
     final now = DateTime.now();
     final maxCount = counts.values.fold(0, (max, e) => e > max ? e : max);
 
@@ -1202,7 +1223,7 @@ class _StatsScreenState extends State<StatsScreen>
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            monthNames[index],
+                            l10n.statsMonthLabel(month),
                             style: Theme.of(context).textTheme.bodySmall!
                                 .copyWith(
                                   fontWeight: isSelected
@@ -1248,6 +1269,7 @@ class _StatsScreenState extends State<StatsScreen>
 
   /// Global empty state when there are no records at all
   Widget _buildGlobalEmptyState(AppThemeData theme) {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -1259,7 +1281,7 @@ class _StatsScreenState extends State<StatsScreen>
           ),
           const SizedBox(height: 16),
           Text(
-            '暂无训练数据',
+            l10n.statsNoData,
             style: Theme.of(context).textTheme.titleLarge!.copyWith(
               color: theme.textColor,
               letterSpacing: 1,
@@ -1267,7 +1289,7 @@ class _StatsScreenState extends State<StatsScreen>
           ),
           const SizedBox(height: 8),
           Text(
-            '完成几次训练后这里会显示统计信息',
+            l10n.statsEmptyHint,
             style: Theme.of(context).textTheme.bodyMedium!.copyWith(
               color: theme.secondaryTextColor.withValues(alpha: 0.6),
             ),
@@ -1285,6 +1307,7 @@ class _StatsScreenState extends State<StatsScreen>
     required bool isWeekView,
     int? days,
   }) {
+    final l10n = AppLocalizations.of(context)!;
     final maxDuration = durations.values.fold(0, (max, e) => e > max ? e : max);
     final displayDays = days ?? (isWeekView ? 7 : 31);
 
@@ -1293,7 +1316,7 @@ class _StatsScreenState extends State<StatsScreen>
         child: Padding(
           padding: const EdgeInsets.all(AppDimensions.screenPadding),
           child: Text(
-            '暂无训练数据',
+            l10n.statsNoData,
             style: Theme.of(
               context,
             ).textTheme.bodyMedium!.copyWith(color: theme.secondaryTextColor),
@@ -1320,7 +1343,7 @@ class _StatsScreenState extends State<StatsScreen>
             ),
             const SizedBox(width: 6),
             Text(
-              '时长/组数',
+              l10n.statsDurationPerSetsLegend,
               style: Theme.of(context).textTheme.bodySmall!.copyWith(
                 fontSize: 11,
                 color: theme.secondaryTextColor,
@@ -1404,7 +1427,7 @@ class _StatsScreenState extends State<StatsScreen>
                                           ),
                                           if (setCount > 0)
                                             Text(
-                                              '$setCount 组',
+                                              l10n.statsSetsCount(setCount),
                                               textAlign: TextAlign.center,
                                               style: Theme.of(context)
                                                   .textTheme
@@ -1456,7 +1479,7 @@ class _StatsScreenState extends State<StatsScreen>
                   return Expanded(
                     child: Text(
                       isWeekView
-                          ? ['一', '二', '三', '四', '五', '六', '日'][index]
+                          ? _weekdayShort(index, l10n)
                           : (showLabel ? '$key' : ''),
                       textAlign: TextAlign.center,
                       overflow: TextOverflow.visible,
@@ -1488,12 +1511,13 @@ class _StatsScreenState extends State<StatsScreen>
     Map<String, int> exercises,
     AppThemeData theme,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     if (exercises.isEmpty) {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(AppDimensions.screenPadding),
           child: Text(
-            '暂无动作数据',
+            l10n.statsNoExerciseData,
             style: Theme.of(
               context,
             ).textTheme.bodyMedium!.copyWith(color: theme.secondaryTextColor),
@@ -1565,7 +1589,7 @@ class _StatsScreenState extends State<StatsScreen>
               SizedBox(
                 width: 30,
                 child: Text(
-                  '${entry.value}次',
+                  l10n.statsExerciseCount(entry.value),
                   style: Theme.of(context).textTheme.bodySmall!.copyWith(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
@@ -1587,6 +1611,7 @@ class _StatsScreenState extends State<StatsScreen>
     List<WorkoutRecord> records,
     AppThemeData theme,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     final distribution = _statsCalc.calculateMuscleVolumeDistribution(
       records,
       bodyWeight: _userBodyWeight,
@@ -1597,7 +1622,7 @@ class _StatsScreenState extends State<StatsScreen>
         child: Padding(
           padding: const EdgeInsets.all(AppDimensions.screenPadding),
           child: Text(
-            '暂无训练数据',
+            l10n.statsNoData,
             style: Theme.of(
               context,
             ).textTheme.bodyMedium!.copyWith(color: theme.secondaryTextColor),
@@ -1645,7 +1670,7 @@ class _StatsScreenState extends State<StatsScreen>
           ),
         ),
         Text(
-          '总容量',
+          l10n.statsTotalCapacity,
           style: Theme.of(context).textTheme.bodySmall!.copyWith(
             fontSize: 11,
             color: theme.secondaryTextColor,
@@ -1675,7 +1700,7 @@ class _StatsScreenState extends State<StatsScreen>
             if (otherPercentage > 0) {
               legendItems.add(
                 MapEntry(
-                  '其他 ${(otherPercentage * 100).toStringAsFixed(1)}%',
+                  l10n.statsOtherPercent((otherPercentage * 100).toStringAsFixed(1)),
                   theme.secondaryTextColor,
                 ),
               );
@@ -1725,6 +1750,7 @@ class _StatsScreenState extends State<StatsScreen>
     List<WorkoutRecord> records,
     AppThemeData theme,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     // 计算每个主肌群的最后训练日期
     final lastTrained = <PrimaryMuscleGroup, DateTime>{};
     final now = DateTime.now();
@@ -1746,7 +1772,7 @@ class _StatsScreenState extends State<StatsScreen>
         child: Padding(
           padding: const EdgeInsets.all(AppDimensions.screenPadding),
           child: Text(
-            '暂无恢复数据',
+            l10n.statsNoRecoveryData,
             style: Theme.of(
               context,
             ).textTheme.bodyMedium!.copyWith(color: theme.secondaryTextColor),
@@ -1768,7 +1794,7 @@ class _StatsScreenState extends State<StatsScreen>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '恢复状态',
+          l10n.statsRecoveryStatus,
           style: Theme.of(context).textTheme.bodyMedium!.copyWith(
             fontSize: 13,
             fontWeight: FontWeight.w600,
@@ -1810,7 +1836,7 @@ class _StatsScreenState extends State<StatsScreen>
                   Icon(icon, size: 14, color: chipColor),
                   const SizedBox(width: 6),
                   Text(
-                    '${muscle.displayName} $days天',
+                    l10n.statsRecoveryDays(muscle.displayName, days),
                     style: Theme.of(context).textTheme.bodySmall!.copyWith(
                       fontWeight: FontWeight.w500,
                       color: chipColor,
@@ -1830,6 +1856,7 @@ class _StatsScreenState extends State<StatsScreen>
 
   /// 训练密度指标（组/分钟）
   Widget _buildDensityMetric(List<WorkoutRecord> records, AppThemeData theme) {
+    final l10n = AppLocalizations.of(context)!;
     if (records.isEmpty) return const SizedBox.shrink();
 
     final density = _statsCalc.calculateDensity(records);
@@ -1855,14 +1882,14 @@ class _StatsScreenState extends State<StatsScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '训练密度',
+                  l10n.statsDensity,
                   style: Theme.of(context).textTheme.bodySmall!.copyWith(
                     fontSize: 11,
                     color: theme.secondaryTextColor,
                   ),
                 ),
                 Text(
-                  '${density.toStringAsFixed(1)} 组/分钟',
+                  l10n.statsSetsPerMinute(density.toStringAsFixed(1)),
                   style: Theme.of(context).textTheme.titleLarge!.copyWith(
                     fontWeight: FontWeight.w700,
                     color: theme.textColor,
@@ -1873,7 +1900,8 @@ class _StatsScreenState extends State<StatsScreen>
             ),
           ),
           Text(
-            '$totalSets组 / ${totalMinutes.toStringAsFixed(0)}分钟',
+            l10n.statsSetsOverMinutes(
+                totalSets, totalMinutes.toStringAsFixed(0)),
             style: Theme.of(context).textTheme.bodySmall!.copyWith(
               fontSize: 11,
               color: theme.secondaryTextColor,
@@ -1893,6 +1921,7 @@ class _StatsScreenState extends State<StatsScreen>
     List<WorkoutRecord> records,
     AppThemeData theme,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     final trend = _statsCalc.calculateEstimated1RMTrend(records);
 
     if (trend.isEmpty) {
@@ -1900,7 +1929,7 @@ class _StatsScreenState extends State<StatsScreen>
         child: Padding(
           padding: const EdgeInsets.all(AppDimensions.screenPadding),
           child: Text(
-            '暂无1RM数据',
+            l10n.statsNo1rmData,
             style: Theme.of(
               context,
             ).textTheme.bodyMedium!.copyWith(color: theme.secondaryTextColor),
@@ -1923,7 +1952,7 @@ class _StatsScreenState extends State<StatsScreen>
             Icon(Icons.trending_up, size: 16, color: theme.accentColor),
             const SizedBox(width: 6),
             Text(
-              '估算1RM趋势',
+              l10n.statsEstimated1rmTrend,
               style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -1976,7 +2005,7 @@ class _StatsScreenState extends State<StatsScreen>
                     ),
                   ),
                   Text(
-                    '${points.length}次记录',
+                    l10n.statsRecordsCount(points.length),
                     style: Theme.of(context).textTheme.bodySmall!.copyWith(
                       fontSize: 10,
                       color: theme.secondaryTextColor,
@@ -2030,7 +2059,7 @@ class _StatsScreenState extends State<StatsScreen>
                   ),
                   child: Text(
                     '${change >= 0 ? '+' : ''}${change.toStringAsFixed(1)}%'
-                    '${weeks > 0 ? ' / ${weeks.toStringAsFixed(0)}周' : ''}',
+                    '${weeks > 0 ? l10n.anPrompt1rmWeeksSuffix(weeks.toStringAsFixed(0)) : ''}',
                     style: Theme.of(context).textTheme.bodySmall!.copyWith(
                       fontSize: 10,
                       fontWeight: FontWeight.w600,
@@ -2053,6 +2082,7 @@ class _StatsScreenState extends State<StatsScreen>
     List<WorkoutRecord> records,
     AppThemeData theme,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     final setsPerMuscle = _statsCalc.calculateSetsPerMuscleGroup(records);
 
     if (setsPerMuscle.isEmpty) {
@@ -2060,7 +2090,7 @@ class _StatsScreenState extends State<StatsScreen>
         child: Padding(
           padding: const EdgeInsets.all(AppDimensions.screenPadding),
           child: Text(
-            '暂无肌群组数数据',
+            l10n.statsNoMuscleSetsData,
             style: Theme.of(
               context,
             ).textTheme.bodyMedium!.copyWith(color: theme.secondaryTextColor),
@@ -2088,7 +2118,7 @@ class _StatsScreenState extends State<StatsScreen>
             Icon(Icons.bar_chart, size: 16, color: theme.accentColor),
             const SizedBox(width: 6),
             Text(
-              '每肌群组数',
+              l10n.statsSetsPerMuscleTitle,
               style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -2099,7 +2129,7 @@ class _StatsScreenState extends State<StatsScreen>
         ),
         const SizedBox(height: 4),
         Text(
-          '参考线: MEV 10组/周 (Schoenfeld 2017)',
+          l10n.statsMevReference,
           style: Theme.of(context).textTheme.bodySmall!.copyWith(
             fontSize: 10,
             color: theme.secondaryTextColor,
@@ -2183,7 +2213,7 @@ class _StatsScreenState extends State<StatsScreen>
                 SizedBox(
                   width: 36,
                   child: Text(
-                    '$sets组',
+                    l10n.statsSetsCount(sets),
                     style: Theme.of(context).textTheme.bodySmall!.copyWith(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,

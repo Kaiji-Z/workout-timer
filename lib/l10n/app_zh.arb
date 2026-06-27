@@ -1482,5 +1482,173 @@
       "days": { "type": "int" },
       "status": { "type": "String" }
     }
+  },
+  "statsAiAnalysis": "AI 分析",
+  "@statsAiAnalysis": {},
+  "statsWeekView": "周视图",
+  "@statsWeekView": {},
+  "statsMonthView": "月视图",
+  "@statsMonthView": {},
+  "statsOverview": "概览",
+  "@statsOverview": {},
+  "statsOverviewMonth": "概览 ({month}月)",
+  "@statsOverviewMonth": {
+    "placeholders": {
+      "month": { "type": "int" }
+    }
+  },
+  "statsDailyDurationTitle": "每日训练时长",
+  "@statsDailyDurationTitle": {},
+  "statsVolumeTrendTitle": "训练量趋势",
+  "@statsVolumeTrendTitle": {},
+  "statsProgressTracking": "进步追踪",
+  "@statsProgressTracking": {},
+  "statsBodyAnalysis": "身体分析",
+  "@statsBodyAnalysis": {},
+  "statsSessionCount": "训练次数",
+  "@statsSessionCount": {},
+  "statsSessionCountUnit": "次",
+  "@statsSessionCountUnit": {},
+  "statsWorkoutDays": "训练天数",
+  "@statsWorkoutDays": {},
+  "statsDaysUnit": "天",
+  "@statsDaysUnit": {},
+  "statsAvgPerWeek": "周均训练",
+  "@statsAvgPerWeek": {},
+  "statsTotalVolume": "总训练量",
+  "@statsTotalVolume": {},
+  "statsNoPrevComparison": "暂无上期数据对比",
+  "@statsNoPrevComparison": {},
+  "statsVolumeChangeVsPrev": "{sign}{percent}% vs 上期",
+  "@statsVolumeChangeVsPrev": {
+    "placeholders": {
+      "sign": { "type": "String" },
+      "percent": { "type": "int" }
+    }
+  },
+  "statsTotalSets": "总组数",
+  "@statsTotalSets": {},
+  "statsSetsUnit": "组",
+  "@statsSetsUnit": {},
+  "statsTotalDuration": "总时长",
+  "@statsTotalDuration": {},
+  "statsAvgSetsPerSession": "平均组数/次",
+  "@statsAvgSetsPerSession": {},
+  "statsAvgDurationPerSession": "平均时长/次",
+  "@statsAvgDurationPerSession": {},
+  "statsPrevWeek": "上一周",
+  "@statsPrevWeek": {},
+  "statsNextWeek": "下一周",
+  "@statsNextWeek": {},
+  "statsPrevYear": "上一年",
+  "@statsPrevYear": {},
+  "statsNextYear": "下一年",
+  "@statsNextYear": {},
+  "statsToday": "今天",
+  "@statsToday": {},
+  "statsYearLabel": "{year}年",
+  "@statsYearLabel": {
+    "placeholders": {
+      "year": { "type": "int" }
+    }
+  },
+  "statsWeekRange": "{sm}月{sd}日 - {em}月{ed}日",
+  "@statsWeekRange": {
+    "placeholders": {
+      "sm": { "type": "int" },
+      "sd": { "type": "int" },
+      "em": { "type": "int" },
+      "ed": { "type": "int" }
+    }
+  },
+  "statsNoData": "暂无训练数据",
+  "@statsNoData": {},
+  "statsEmptyHint": "完成几次训练后这里会显示统计信息",
+  "@statsEmptyHint": {},
+  "statsDurationPerSetsLegend": "时长/组数",
+  "@statsDurationPerSetsLegend": {},
+  "statsNoExerciseData": "暂无动作数据",
+  "@statsNoExerciseData": {},
+  "statsTotalCapacity": "总容量",
+  "@statsTotalCapacity": {},
+  "statsOtherPercent": "其他 {value}%",
+  "@statsOtherPercent": {
+    "placeholders": {
+      "value": { "type": "String" }
+    }
+  },
+  "statsNoRecoveryData": "暂无恢复数据",
+  "@statsNoRecoveryData": {},
+  "statsRecoveryStatus": "恢复状态",
+  "@statsRecoveryStatus": {},
+  "statsDensity": "训练密度",
+  "@statsDensity": {},
+  "statsSetsPerMinute": "{value} 组/分钟",
+  "@statsSetsPerMinute": {
+    "placeholders": {
+      "value": { "type": "String" }
+    }
+  },
+  "statsSetsOverMinutes": "{sets}组 / {minutes}分钟",
+  "@statsSetsOverMinutes": {
+    "placeholders": {
+      "sets": { "type": "int" },
+      "minutes": { "type": "String" }
+    }
+  },
+  "statsNo1rmData": "暂无1RM数据",
+  "@statsNo1rmData": {},
+  "statsEstimated1rmTrend": "估算1RM趋势",
+  "@statsEstimated1rmTrend": {},
+  "statsNoMuscleSetsData": "暂无肌群组数数据",
+  "@statsNoMuscleSetsData": {},
+  "statsSetsPerMuscleTitle": "每肌群组数",
+  "@statsSetsPerMuscleTitle": {},
+  "statsMevReference": "参考线: MEV 10组/周 (Schoenfeld 2017)",
+  "@statsMevReference": {},
+  "statsWeekdayMon": "一",
+  "@statsWeekdayMon": {},
+  "statsWeekdayTue": "二",
+  "@statsWeekdayTue": {},
+  "statsWeekdayWed": "三",
+  "@statsWeekdayWed": {},
+  "statsWeekdayThu": "四",
+  "@statsWeekdayThu": {},
+  "statsWeekdayFri": "五",
+  "@statsWeekdayFri": {},
+  "statsWeekdaySat": "六",
+  "@statsWeekdaySat": {},
+  "statsWeekdaySun": "日",
+  "@statsWeekdaySun": {},
+  "statsMonthLabel": "{n}月",
+  "@statsMonthLabel": {
+    "placeholders": {
+      "n": { "type": "int" }
+    }
+  },
+  "statsSetsCount": "{count} 组",
+  "@statsSetsCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "statsExerciseCount": "{count}次",
+  "@statsExerciseCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "statsRecoveryDays": "{muscle} {days}天",
+  "@statsRecoveryDays": {
+    "placeholders": {
+      "muscle": { "type": "String" },
+      "days": { "type": "int" }
+    }
+  },
+  "statsRecordsCount": "{count}次记录",
+  "@statsRecordsCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
   }
 }

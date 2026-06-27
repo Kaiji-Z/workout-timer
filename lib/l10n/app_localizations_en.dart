@@ -1957,4 +1957,200 @@ class AppLocalizationsEn extends AppLocalizations {
   String anPromptRecoveryLine(String muscle, int days, String status) {
     return '  - $muscle: rested $days day(s) $status';
   }
+
+  @override
+  String get statsAiAnalysis => 'AI analysis';
+
+  @override
+  String get statsWeekView => 'Week';
+
+  @override
+  String get statsMonthView => 'Month';
+
+  @override
+  String get statsOverview => 'Overview';
+
+  @override
+  String statsOverviewMonth(int month) {
+    return 'Overview (month $month)';
+  }
+
+  @override
+  String get statsDailyDurationTitle => 'Daily training duration';
+
+  @override
+  String get statsVolumeTrendTitle => 'Volume trend';
+
+  @override
+  String get statsProgressTracking => 'Progress tracking';
+
+  @override
+  String get statsBodyAnalysis => 'Body analysis';
+
+  @override
+  String get statsSessionCount => 'Sessions';
+
+  @override
+  String get statsSessionCountUnit => '';
+
+  @override
+  String get statsWorkoutDays => 'Workout days';
+
+  @override
+  String get statsDaysUnit => 'days';
+
+  @override
+  String get statsAvgPerWeek => 'Avg / week';
+
+  @override
+  String get statsTotalVolume => 'Total volume';
+
+  @override
+  String get statsNoPrevComparison => 'No previous period to compare';
+
+  @override
+  String statsVolumeChangeVsPrev(String sign, int percent) {
+    return '$sign$percent% vs prev';
+  }
+
+  @override
+  String get statsTotalSets => 'Total sets';
+
+  @override
+  String get statsSetsUnit => 'sets';
+
+  @override
+  String get statsTotalDuration => 'Total duration';
+
+  @override
+  String get statsAvgSetsPerSession => 'Avg sets / session';
+
+  @override
+  String get statsAvgDurationPerSession => 'Avg duration / session';
+
+  @override
+  String get statsPrevWeek => 'Previous week';
+
+  @override
+  String get statsNextWeek => 'Next week';
+
+  @override
+  String get statsPrevYear => 'Previous year';
+
+  @override
+  String get statsNextYear => 'Next year';
+
+  @override
+  String get statsToday => 'Today';
+
+  @override
+  String statsYearLabel(int year) {
+    return '$year';
+  }
+
+  @override
+  String statsWeekRange(int sm, int sd, int em, int ed) {
+    return '$sm/$sd - $em/$ed';
+  }
+
+  @override
+  String get statsNoData => 'No training data';
+
+  @override
+  String get statsEmptyHint => 'Complete a few workouts to see statistics here';
+
+  @override
+  String get statsDurationPerSetsLegend => 'Duration / sets';
+
+  @override
+  String get statsNoExerciseData => 'No exercise data';
+
+  @override
+  String get statsTotalCapacity => 'Total volume';
+
+  @override
+  String statsOtherPercent(String value) {
+    return 'Other $value%';
+  }
+
+  @override
+  String get statsNoRecoveryData => 'No recovery data';
+
+  @override
+  String get statsRecoveryStatus => 'Recovery status';
+
+  @override
+  String get statsDensity => 'Density';
+
+  @override
+  String statsSetsPerMinute(String value) {
+    return '$value sets/min';
+  }
+
+  @override
+  String statsSetsOverMinutes(int sets, String minutes) {
+    return '$sets sets / $minutes min';
+  }
+
+  @override
+  String get statsNo1rmData => 'No 1RM data';
+
+  @override
+  String get statsEstimated1rmTrend => 'Estimated 1RM trend';
+
+  @override
+  String get statsNoMuscleSetsData => 'No muscle sets data';
+
+  @override
+  String get statsSetsPerMuscleTitle => 'Sets per muscle';
+
+  @override
+  String get statsMevReference =>
+      'Reference: MEV 10 sets/week (Schoenfeld 2017)';
+
+  @override
+  String get statsWeekdayMon => 'M';
+
+  @override
+  String get statsWeekdayTue => 'T';
+
+  @override
+  String get statsWeekdayWed => 'W';
+
+  @override
+  String get statsWeekdayThu => 'T';
+
+  @override
+  String get statsWeekdayFri => 'F';
+
+  @override
+  String get statsWeekdaySat => 'S';
+
+  @override
+  String get statsWeekdaySun => 'S';
+
+  @override
+  String statsMonthLabel(int n) {
+    return 'Month $n';
+  }
+
+  @override
+  String statsSetsCount(int count) {
+    return '$count sets';
+  }
+
+  @override
+  String statsExerciseCount(int count) {
+    return '$count×';
+  }
+
+  @override
+  String statsRecoveryDays(String muscle, int days) {
+    return '$muscle ${days}d';
+  }
+
+  @override
+  String statsRecordsCount(int count) {
+    return '$count records';
+  }
 }
