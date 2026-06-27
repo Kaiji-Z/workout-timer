@@ -688,5 +688,118 @@
     }
   },
   "recDetailDeleteAction": "删除",
-  "@recDetailDeleteAction": {}
+  "@recDetailDeleteAction": {},
+  "planTitle": "训练计划",
+  "@planTitle": {},
+  "planAiButton": "AI训练计划",
+  "@planAiButton": {},
+  "planTodayPlans": "今日计划",
+  "@planTodayPlans": {},
+  "plansForDate": "{date} 的计划",
+  "@plansForDate": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+  "planAddButton": "+ 添加",
+  "@planAddButton": {},
+  "planRemoveTitle": "移除计划",
+  "@planRemoveTitle": {},
+  "planRemoveFromDateConfirm": "确定要从 {month}月{day}日 移除「{name}」吗？",
+  "@planRemoveFromDateConfirm": {
+    "placeholders": {
+      "month": { "type": "int" },
+      "day": { "type": "int" },
+      "name": { "type": "String" }
+    }
+  },
+  "planRemoveAction": "移除",
+  "@planRemoveAction": {},
+  "planRemovedToast": "已从{month}月{day}日移除「{name}」",
+  "@planRemovedToast": {
+    "placeholders": {
+      "month": { "type": "int" },
+      "day": { "type": "int" },
+      "name": { "type": "String" }
+    }
+  },
+  "planLibraryButton": "📚 我的计划库",
+  "@planLibraryButton": {},
+  "planEmptyAddToday": "添加今日计划",
+  "@planEmptyAddToday": {},
+  "planSelectToAddTitle": "选择计划添加到 {month}月{day}日",
+  "@planSelectToAddTitle": {
+    "placeholders": {
+      "month": { "type": "int" },
+      "day": { "type": "int" }
+    }
+  },
+  "planCreateNew": "创建新计划",
+  "@planCreateNew": {},
+  "planLibraryTitle": "我的计划库",
+  "@planLibraryTitle": {},
+  "planEdit": "编辑",
+  "@planEdit": {},
+  "planDelete": "删除",
+  "@planDelete": {},
+  "planAddedToDateToast": "已将「{name}」添加到 {month}月{day}日",
+  "@planAddedToDateToast": {
+    "placeholders": {
+      "month": { "type": "int" },
+      "day": { "type": "int" },
+      "name": { "type": "String" }
+    }
+  },
+  "planAddFailed": "添加失败: {error}",
+  "@planAddFailed": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "planDeleteTitle": "删除计划",
+  "@planDeleteTitle": {},
+  "planDeleteConfirm": "确定要删除「{name}」吗？此操作无法撤销。",
+  "@planDeleteConfirm": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "planDeletedToast": "已删除「{name}」",
+  "@planDeletedToast": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "planDeleteFailed": "删除失败: {error}",
+  "@planDeleteFailed": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "planDetailTargetMuscles": "目标部位：{muscles}",
+  "@planDetailTargetMuscles": {
+    "placeholders": {
+      "muscles": { "type": "String" }
+    }
+  },
+  "planDetailExerciseCountUnit": "个动作",
+  "@planDetailExerciseCountUnit": {},
+  "planDetailSetsUnit": "组",
+  "@planDetailSetsUnit": {},
+  "planDetailMinutesUnit": "分钟",
+  "@planDetailMinutesUnit": {},
+  "planDetailExerciseList": "动作列表",
+  "@planDetailExerciseList": {},
+  "planDetailNoDetailsSuffix": "(无详情)",
+  "@planDetailNoDetailsSuffix": {},
+  "planDetailEffectiveSets": "{count}组",
+  "@planDetailEffectiveSets": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "planDetailAddToCalendar": "添加到日历",
+  "@planDetailAddToCalendar": {},
+  "planDetailStartTraining": "开始训练",
+  "@planDetailStartTraining": {}
 }

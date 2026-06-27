@@ -996,4 +996,119 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get recDetailDeleteAction => '删除';
+
+  @override
+  String get planTitle => '训练计划';
+
+  @override
+  String get planAiButton => 'AI训练计划';
+
+  @override
+  String get planTodayPlans => '今日计划';
+
+  @override
+  String plansForDate(String date) {
+    return '$date 的计划';
+  }
+
+  @override
+  String get planAddButton => '+ 添加';
+
+  @override
+  String get planRemoveTitle => '移除计划';
+
+  @override
+  String planRemoveFromDateConfirm(int month, int day, String name) {
+    return '确定要从 $month月$day日 移除「$name」吗？';
+  }
+
+  @override
+  String get planRemoveAction => '移除';
+
+  @override
+  String planRemovedToast(int month, int day, String name) {
+    return '已从$month月$day日移除「$name」';
+  }
+
+  @override
+  String get planLibraryButton => '📚 我的计划库';
+
+  @override
+  String get planEmptyAddToday => '添加今日计划';
+
+  @override
+  String planSelectToAddTitle(int month, int day) {
+    return '选择计划添加到 $month月$day日';
+  }
+
+  @override
+  String get planCreateNew => '创建新计划';
+
+  @override
+  String get planLibraryTitle => '我的计划库';
+
+  @override
+  String get planEdit => '编辑';
+
+  @override
+  String get planDelete => '删除';
+
+  @override
+  String planAddedToDateToast(int month, int day, String name) {
+    return '已将「$name」添加到 $month月$day日';
+  }
+
+  @override
+  String planAddFailed(String error) {
+    return '添加失败: $error';
+  }
+
+  @override
+  String get planDeleteTitle => '删除计划';
+
+  @override
+  String planDeleteConfirm(String name) {
+    return '确定要删除「$name」吗？此操作无法撤销。';
+  }
+
+  @override
+  String planDeletedToast(String name) {
+    return '已删除「$name」';
+  }
+
+  @override
+  String planDeleteFailed(String error) {
+    return '删除失败: $error';
+  }
+
+  @override
+  String planDetailTargetMuscles(String muscles) {
+    return '目标部位：$muscles';
+  }
+
+  @override
+  String get planDetailExerciseCountUnit => '个动作';
+
+  @override
+  String get planDetailSetsUnit => '组';
+
+  @override
+  String get planDetailMinutesUnit => '分钟';
+
+  @override
+  String get planDetailExerciseList => '动作列表';
+
+  @override
+  String get planDetailNoDetailsSuffix => '(无详情)';
+
+  @override
+  String planDetailEffectiveSets(int count) {
+    return '$count组';
+  }
+
+  @override
+  String get planDetailAddToCalendar => '添加到日历';
+
+  @override
+  String get planDetailStartTraining => '开始训练';
 }

@@ -1023,4 +1023,119 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get recDetailDeleteAction => 'Delete';
+
+  @override
+  String get planTitle => 'Training Plans';
+
+  @override
+  String get planAiButton => 'AI Plan';
+
+  @override
+  String get planTodayPlans => 'Today\'s plans';
+
+  @override
+  String plansForDate(String date) {
+    return 'Plans for $date';
+  }
+
+  @override
+  String get planAddButton => '+ Add';
+
+  @override
+  String get planRemoveTitle => 'Remove plan';
+
+  @override
+  String planRemoveFromDateConfirm(int month, int day, String name) {
+    return 'Remove \"$name\" from $month/$day?';
+  }
+
+  @override
+  String get planRemoveAction => 'Remove';
+
+  @override
+  String planRemovedToast(int month, int day, String name) {
+    return 'Removed \"$name\" from $month/$day';
+  }
+
+  @override
+  String get planLibraryButton => '📚 My plan library';
+
+  @override
+  String get planEmptyAddToday => 'Add today\'s plan';
+
+  @override
+  String planSelectToAddTitle(int month, int day) {
+    return 'Select a plan to add to $month/$day';
+  }
+
+  @override
+  String get planCreateNew => 'Create new plan';
+
+  @override
+  String get planLibraryTitle => 'My plan library';
+
+  @override
+  String get planEdit => 'Edit';
+
+  @override
+  String get planDelete => 'Delete';
+
+  @override
+  String planAddedToDateToast(int month, int day, String name) {
+    return 'Added \"$name\" to $month/$day';
+  }
+
+  @override
+  String planAddFailed(String error) {
+    return 'Add failed: $error';
+  }
+
+  @override
+  String get planDeleteTitle => 'Delete plan';
+
+  @override
+  String planDeleteConfirm(String name) {
+    return 'Delete \"$name\"? This action cannot be undone.';
+  }
+
+  @override
+  String planDeletedToast(String name) {
+    return 'Deleted \"$name\"';
+  }
+
+  @override
+  String planDeleteFailed(String error) {
+    return 'Delete failed: $error';
+  }
+
+  @override
+  String planDetailTargetMuscles(String muscles) {
+    return 'Target muscles: $muscles';
+  }
+
+  @override
+  String get planDetailExerciseCountUnit => 'exercises';
+
+  @override
+  String get planDetailSetsUnit => 'sets';
+
+  @override
+  String get planDetailMinutesUnit => 'min';
+
+  @override
+  String get planDetailExerciseList => 'Exercise list';
+
+  @override
+  String get planDetailNoDetailsSuffix => '(no details)';
+
+  @override
+  String planDetailEffectiveSets(int count) {
+    return '$count sets';
+  }
+
+  @override
+  String get planDetailAddToCalendar => 'Add to calendar';
+
+  @override
+  String get planDetailStartTraining => 'Start workout';
 }

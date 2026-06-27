@@ -35,6 +35,7 @@ class _PlanScreenState extends State<PlanScreen> {
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().currentTheme;
     final planProvider = context.watch<PlanProvider>();
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -53,7 +54,7 @@ class _PlanScreenState extends State<PlanScreen> {
               ),
             ),
             Text(
-              '训练计划',
+              l10n.planTitle,
               style: Theme.of(context).textTheme.headlineLarge!.copyWith(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
@@ -81,7 +82,7 @@ class _PlanScreenState extends State<PlanScreen> {
                 Icon(Icons.auto_awesome, size: 18, color: theme.accentColor),
                 const SizedBox(width: 4),
                 Text(
-                  'AI训练计划',
+                  l10n.planAiButton,
                   style: Theme.of(context).textTheme.labelLarge!.copyWith(
                     fontWeight: FontWeight.w600,
                     color: theme.accentColor,
@@ -126,11 +127,13 @@ class _PlanScreenState extends State<PlanScreen> {
   }
 
   Widget _buildPlanList(PlanProvider planProvider, AppThemeData theme) {
+    final l10n = AppLocalizations.of(context)!;
     // 获取选中日期的计划
     final plansForDate = planProvider.getPlansForDate(_selectedDate);
 
-    // 格式化日期显示
-    final dateFormat = DateFormat('M月d日 E', 'zh_CN');
+    // 格式化日期显示（locale-aware pattern）
+    final localeCode = Localizations.localeOf(context).languageCode;
+    final dateFormat = DateFormat('MMM d EEE', localeCode);
     final dateStr = dateFormat.format(_selectedDate);
     final isToday = _isToday(_selectedDate);
 
@@ -144,14 +147,14 @@ class _PlanScreenState extends State<PlanScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                isToday ? '今日计划' : '$dateStr 的计划',
+                isToday ? l10n.planTodayPlans : l10n.plansForDate(dateStr),
                 style: Theme.of(context).textTheme.titleLarge!,
               ),
               if (plansForDate.isNotEmpty)
                 TextButton(
                   onPressed: () => _showAddPlanToDateSheet(planProvider),
                   child: Text(
-                    '+ 添加',
+                    l10n.planAddButton,
                     style: Theme.of(
                       context,
                     ).textTheme.bodyMedium!.copyWith(color: theme.accentColor),
@@ -192,19 +195,20 @@ class _PlanScreenState extends State<PlanScreen> {
                     return await showDialog<bool>(
                       context: context,
                       builder: (context) => AlertDialog(
-                        title: const Text('移除计划'),
+                        title: Text(l10n.planRemoveTitle),
                         content: Text(
-                          '确定要从 ${_selectedDate.month}月${_selectedDate.day}日 移除「${plan.name}」吗？',
+                          l10n.planRemoveFromDateConfirm(
+                              _selectedDate.month, _selectedDate.day, plan.name),
                         ),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.pop(context, false),
-                            child: const Text('取消'),
+                            child: Text(l10n.widgetCancel),
                           ),
                           TextButton(
                             onPressed: () => Navigator.pop(context, true),
                             child: Text(
-                              '移除',
+                              l10n.planRemoveAction,
                               style: TextStyle(color: theme.errorColor),
                             ),
                           ),
@@ -217,7 +221,8 @@ class _PlanScreenState extends State<PlanScreen> {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text(
-                          '已从${_selectedDate.month}月${_selectedDate.day}日移除「${plan.name}」',
+                          l10n.planRemovedToast(_selectedDate.month,
+                              _selectedDate.day, plan.name),
                         ),
                         behavior: SnackBarBehavior.floating,
                       ),
@@ -250,7 +255,7 @@ class _PlanScreenState extends State<PlanScreen> {
                 elevation: 0,
               ),
               child: Text(
-                '📚 我的计划库',
+                l10n.planLibraryButton,
                 style: Theme.of(
                   context,
                 ).textTheme.titleLarge!.copyWith(color: theme.onAccentColor),
@@ -263,6 +268,7 @@ class _PlanScreenState extends State<PlanScreen> {
   }
 
   Widget _buildEmptyDayPlan(AppThemeData theme) {
+    final l10n = AppLocalizations.of(context)!;
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -289,7 +295,7 @@ class _PlanScreenState extends State<PlanScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  '添加今日计划',
+                  l10n.planEmptyAddToday,
                   style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                     color: theme.secondaryTextColor,
                   ),
@@ -339,6 +345,7 @@ class _PlanScreenState extends State<PlanScreen> {
   void _showAddPlanToDateSheet(PlanProvider planProvider) {
     final allPlans = planProvider.plans;
     final theme = context.read<ThemeProvider>().currentTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     if (allPlans.isEmpty) {
       _navigateToCreatePlan();
@@ -381,7 +388,8 @@ class _PlanScreenState extends State<PlanScreen> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    '选择计划添加到 ${_selectedDate.month}月${_selectedDate.day}日',
+                    l10n.planSelectToAddTitle(
+                        _selectedDate.month, _selectedDate.day),
                     style: Theme.of(
                       context,
                     ).textTheme.headlineLarge!.copyWith(fontSize: 18),
@@ -428,7 +436,7 @@ class _PlanScreenState extends State<PlanScreen> {
                         _navigateToCreatePlan();
                       },
                       icon: const Icon(Icons.add),
-                      label: const Text('创建新计划'),
+                      label: Text(l10n.planCreateNew),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: theme.accentColor,
                         side: BorderSide(color: theme.accentColor),
@@ -452,6 +460,7 @@ class _PlanScreenState extends State<PlanScreen> {
 
   void _showPlanLibraryModal(PlanProvider planProvider) {
     final theme = context.read<ThemeProvider>().currentTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     showModalBottomSheet(
       context: context,
@@ -489,7 +498,7 @@ class _PlanScreenState extends State<PlanScreen> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    '我的计划库',
+                    l10n.planLibraryTitle,
                     style: Theme.of(
                       context,
                     ).textTheme.headlineLarge!.copyWith(fontSize: 18),
@@ -601,7 +610,7 @@ class _PlanScreenState extends State<PlanScreen> {
                                           Icons.edit_outlined,
                                           size: 16,
                                         ),
-                                        label: Text('编辑'),
+                                        label: Text(l10n.planEdit),
                                         style: TextButton.styleFrom(
                                           padding: const EdgeInsets.symmetric(
                                             horizontal: 8,
@@ -620,7 +629,7 @@ class _PlanScreenState extends State<PlanScreen> {
                                           color: theme.errorColor,
                                         ),
                                         label: Text(
-                                          '删除',
+                                          l10n.planDelete,
                                           style: TextStyle(
                                             color: theme.errorColor,
                                           ),
@@ -653,7 +662,7 @@ class _PlanScreenState extends State<PlanScreen> {
                         _navigateToCreatePlan();
                       },
                       icon: const Icon(Icons.add),
-                      label: const Text('创建新计划'),
+                      label: Text(l10n.planCreateNew),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: theme.accentColor,
                         side: BorderSide(color: theme.accentColor),
@@ -677,13 +686,15 @@ class _PlanScreenState extends State<PlanScreen> {
 
   void _addPlanToDate(PlanProvider planProvider, WorkoutPlan plan) async {
     final theme = context.read<ThemeProvider>().currentTheme;
+    final l10n = AppLocalizations.of(context)!;
     try {
       await planProvider.assignPlanToDate(plan.id, _selectedDate);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              '已将「${plan.name}」添加到 ${_selectedDate.month}月${_selectedDate.day}日',
+              l10n.planAddedToDateToast(
+                  _selectedDate.month, _selectedDate.day, plan.name),
             ),
             behavior: SnackBarBehavior.floating,
           ),
@@ -693,7 +704,7 @@ class _PlanScreenState extends State<PlanScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('添加失败: $e'),
+            content: Text(l10n.planAddFailed(e.toString())),
             backgroundColor: theme.errorColor,
             behavior: SnackBarBehavior.floating,
           ),
@@ -704,15 +715,16 @@ class _PlanScreenState extends State<PlanScreen> {
 
   void _confirmDeletePlan(PlanProvider planProvider, WorkoutPlan plan) {
     final theme = context.read<ThemeProvider>().currentTheme;
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('删除计划'),
-        content: Text('确定要删除「${plan.name}」吗？此操作无法撤销。'),
+        title: Text(l10n.planDeleteTitle),
+        content: Text(l10n.planDeleteConfirm(plan.name)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('取消'),
+            child: Text(l10n.widgetCancel),
           ),
           TextButton(
             onPressed: () async {
@@ -723,7 +735,7 @@ class _PlanScreenState extends State<PlanScreen> {
                 if (mounted) {
                   messenger.showSnackBar(
                     SnackBar(
-                      content: Text('已删除「${plan.name}」'),
+                      content: Text(l10n.planDeletedToast(plan.name)),
                       behavior: SnackBarBehavior.floating,
                     ),
                   );
@@ -732,7 +744,7 @@ class _PlanScreenState extends State<PlanScreen> {
                 if (mounted) {
                   messenger.showSnackBar(
                     SnackBar(
-                      content: Text('删除失败: $e'),
+                      content: Text(l10n.planDeleteFailed(e.toString())),
                       backgroundColor: theme.errorColor,
                       behavior: SnackBarBehavior.floating,
                     ),
@@ -740,7 +752,8 @@ class _PlanScreenState extends State<PlanScreen> {
                 }
               }
             },
-            child: Text('删除', style: TextStyle(color: theme.errorColor)),
+            child:
+                Text(l10n.planDelete, style: TextStyle(color: theme.errorColor)),
           ),
         ],
       ),
@@ -809,14 +822,14 @@ class _PlanDetailSheet extends StatelessWidget {
                     onDelete!();
                   },
                   icon: Icon(Icons.delete_outline, color: theme.errorColor),
-                  tooltip: '删除计划',
+                  tooltip: l10n.planDeleteTitle,
                 ),
               ),
             const SizedBox(height: 8),
 
             // 目标部位
             Text(
-              '目标部位：${plan.targetMusclesText}',
+              l10n.planDetailTargetMuscles(plan.targetMusclesText),
               style: Theme.of(
                 context,
               ).textTheme.bodyMedium!.copyWith(color: theme.secondaryTextColor),
@@ -826,14 +839,16 @@ class _PlanDetailSheet extends StatelessWidget {
             // 统计
             Row(
               children: [
-                _buildStatItem(context, '${plan.exerciseCount}', '个动作', theme),
+                _buildStatItem(
+                    context, '${plan.exerciseCount}', l10n.planDetailExerciseCountUnit, theme),
                 const SizedBox(width: 24),
-                _buildStatItem(context, '${plan.totalSets}', '组', theme),
+                _buildStatItem(
+                    context, '${plan.totalSets}', l10n.planDetailSetsUnit, theme),
                 const SizedBox(width: 24),
                 _buildStatItem(
                   context,
                   '~${plan.estimatedDuration}',
-                  '分钟',
+                  l10n.planDetailMinutesUnit,
                   theme,
                 ),
               ],
@@ -841,7 +856,8 @@ class _PlanDetailSheet extends StatelessWidget {
             const SizedBox(height: 24),
 
             // 动作列表
-            Text('动作列表', style: Theme.of(context).textTheme.titleLarge!),
+            Text(l10n.planDetailExerciseList,
+                style: Theme.of(context).textTheme.titleLarge!),
             const SizedBox(height: 12),
             ...plan.exercises.asMap().entries.map((entry) {
               final index = entry.key;
@@ -977,7 +993,7 @@ class _PlanDetailSheet extends StatelessWidget {
                               Text(
                                 hasDetails
                                     ? planExercise.name
-                                    : '${planExercise.name} (无详情)',
+                                    : '${planExercise.name} ${l10n.planDetailNoDetailsSuffix}',
                                 style: Theme.of(context).textTheme.bodyMedium!
                                     .copyWith(
                                       fontSize: 15,
@@ -1040,7 +1056,7 @@ class _PlanDetailSheet extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          '${planExercise.effectiveSets}组',
+                          l10n.planDetailEffectiveSets(planExercise.effectiveSets),
                           style: Theme.of(context).textTheme.bodyMedium!
                               .copyWith(color: theme.secondaryTextColor),
                         ),
@@ -1060,7 +1076,7 @@ class _PlanDetailSheet extends StatelessWidget {
                     onPressed: onAddToDate,
                     icon: Icon(Icons.calendar_today, color: theme.accentColor),
                     label: Text(
-                      '添加到日历',
+                      l10n.planDetailAddToCalendar,
                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                         color: theme.accentColor,
                       ),
@@ -1086,7 +1102,7 @@ class _PlanDetailSheet extends StatelessWidget {
                     },
                     icon: Icon(Icons.play_arrow, color: theme.onAccentColor),
                     label: Text(
-                      '开始训练',
+                      l10n.planDetailStartTraining,
                       style: Theme.of(context).textTheme.titleLarge!.copyWith(
                         color: theme.onAccentColor,
                       ),
