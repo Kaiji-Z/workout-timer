@@ -2039,6 +2039,30 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'开始训练'**
   String get planDetailStartTraining;
+
+  /// No description provided for @exSelectTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'选择训练动作'**
+  String get exSelectTitle;
+
+  /// No description provided for @exFavoritesChip.
+  ///
+  /// In zh, this message translates to:
+  /// **'收藏'**
+  String get exFavoritesChip;
+
+  /// No description provided for @exSelectHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'点击动作卡片选择'**
+  String get exSelectHint;
+
+  /// No description provided for @equipmentAll.
+  ///
+  /// In zh, this message translates to:
+  /// **'全部'**
+  String get equipmentAll;
 }
 
 class _AppLocalizationsDelegate

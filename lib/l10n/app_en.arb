@@ -328,5 +328,9 @@
   "planDetailNoDetailsSuffix": "(no details)",
   "planDetailEffectiveSets": "{count} sets",
   "planDetailAddToCalendar": "Add to calendar",
-  "planDetailStartTraining": "Start workout"
+  "planDetailStartTraining": "Start workout",
+  "exSelectTitle": "Select exercises",
+  "exFavoritesChip": "Favorites",
+  "exSelectHint": "Tap an exercise card to select",
+  "equipmentAll": "All"
 }
