@@ -923,4 +923,77 @@ class AppLocalizationsZh extends AppLocalizations {
   String historyExercisesSuffix(int count) {
     return '$count动作';
   }
+
+  @override
+  String get recDetailTitle => '训练详情';
+
+  @override
+  String get recDetailBackTooltip => '返回';
+
+  @override
+  String get recDetailExercisesSection => '动作详情';
+
+  @override
+  String get recDetailStatTotalSets => '总组数';
+
+  @override
+  String get recDetailStatExerciseCount => '动作数';
+
+  @override
+  String get recDetailStatMuscles => '训练部位';
+
+  @override
+  String get recDetailNone => '无';
+
+  @override
+  String get recDetailAddSet => '添加组';
+
+  @override
+  String get recDetailTotalVolume => '总容量';
+
+  @override
+  String get recDetailAddDataPrompt => '点击添加训练数据';
+
+  @override
+  String get recDetailSaved => '已保存';
+
+  @override
+  String recDetailSaveFailed(String error) {
+    return '保存失败: $error';
+  }
+
+  @override
+  String get recDetailUnsavedTitle => '保存更改？';
+
+  @override
+  String get recDetailUnsavedBody => '你有未保存的更改，是否保存？';
+
+  @override
+  String get recDetailDontSave => '不保存';
+
+  @override
+  String get recDetailUnknownExercise => '未知动作';
+
+  @override
+  String get recDetailUnspecifiedMuscle => '未指定';
+
+  @override
+  String get recDetailDeleteButton => '删除此记录';
+
+  @override
+  String get recDetailDeleteTitle => '删除记录';
+
+  @override
+  String get recDetailDeleteBody => '确定要删除这条训练记录吗？此操作无法撤销。';
+
+  @override
+  String get recDetailDeleted => '已删除';
+
+  @override
+  String recDetailDeleteFailed(String error) {
+    return '删除失败: $error';
+  }
+
+  @override
+  String get recDetailDeleteAction => '删除';
 }

@@ -1715,6 +1715,144 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'{count}动作'**
   String historyExercisesSuffix(int count);
+
+  /// No description provided for @recDetailTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'训练详情'**
+  String get recDetailTitle;
+
+  /// No description provided for @recDetailBackTooltip.
+  ///
+  /// In zh, this message translates to:
+  /// **'返回'**
+  String get recDetailBackTooltip;
+
+  /// No description provided for @recDetailExercisesSection.
+  ///
+  /// In zh, this message translates to:
+  /// **'动作详情'**
+  String get recDetailExercisesSection;
+
+  /// No description provided for @recDetailStatTotalSets.
+  ///
+  /// In zh, this message translates to:
+  /// **'总组数'**
+  String get recDetailStatTotalSets;
+
+  /// No description provided for @recDetailStatExerciseCount.
+  ///
+  /// In zh, this message translates to:
+  /// **'动作数'**
+  String get recDetailStatExerciseCount;
+
+  /// No description provided for @recDetailStatMuscles.
+  ///
+  /// In zh, this message translates to:
+  /// **'训练部位'**
+  String get recDetailStatMuscles;
+
+  /// No description provided for @recDetailNone.
+  ///
+  /// In zh, this message translates to:
+  /// **'无'**
+  String get recDetailNone;
+
+  /// No description provided for @recDetailAddSet.
+  ///
+  /// In zh, this message translates to:
+  /// **'添加组'**
+  String get recDetailAddSet;
+
+  /// No description provided for @recDetailTotalVolume.
+  ///
+  /// In zh, this message translates to:
+  /// **'总容量'**
+  String get recDetailTotalVolume;
+
+  /// No description provided for @recDetailAddDataPrompt.
+  ///
+  /// In zh, this message translates to:
+  /// **'点击添加训练数据'**
+  String get recDetailAddDataPrompt;
+
+  /// No description provided for @recDetailSaved.
+  ///
+  /// In zh, this message translates to:
+  /// **'已保存'**
+  String get recDetailSaved;
+
+  /// No description provided for @recDetailSaveFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'保存失败: {error}'**
+  String recDetailSaveFailed(String error);
+
+  /// No description provided for @recDetailUnsavedTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'保存更改？'**
+  String get recDetailUnsavedTitle;
+
+  /// No description provided for @recDetailUnsavedBody.
+  ///
+  /// In zh, this message translates to:
+  /// **'你有未保存的更改，是否保存？'**
+  String get recDetailUnsavedBody;
+
+  /// No description provided for @recDetailDontSave.
+  ///
+  /// In zh, this message translates to:
+  /// **'不保存'**
+  String get recDetailDontSave;
+
+  /// No description provided for @recDetailUnknownExercise.
+  ///
+  /// In zh, this message translates to:
+  /// **'未知动作'**
+  String get recDetailUnknownExercise;
+
+  /// No description provided for @recDetailUnspecifiedMuscle.
+  ///
+  /// In zh, this message translates to:
+  /// **'未指定'**
+  String get recDetailUnspecifiedMuscle;
+
+  /// No description provided for @recDetailDeleteButton.
+  ///
+  /// In zh, this message translates to:
+  /// **'删除此记录'**
+  String get recDetailDeleteButton;
+
+  /// No description provided for @recDetailDeleteTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'删除记录'**
+  String get recDetailDeleteTitle;
+
+  /// No description provided for @recDetailDeleteBody.
+  ///
+  /// In zh, this message translates to:
+  /// **'确定要删除这条训练记录吗？此操作无法撤销。'**
+  String get recDetailDeleteBody;
+
+  /// No description provided for @recDetailDeleted.
+  ///
+  /// In zh, this message translates to:
+  /// **'已删除'**
+  String get recDetailDeleted;
+
+  /// No description provided for @recDetailDeleteFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'删除失败: {error}'**
+  String recDetailDeleteFailed(String error);
+
+  /// No description provided for @recDetailDeleteAction.
+  ///
+  /// In zh, this message translates to:
+  /// **'删除'**
+  String get recDetailDeleteAction;
 }
 
 class _AppLocalizationsDelegate

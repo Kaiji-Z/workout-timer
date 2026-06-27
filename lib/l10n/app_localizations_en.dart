@@ -949,4 +949,78 @@ class AppLocalizationsEn extends AppLocalizations {
   String historyExercisesSuffix(int count) {
     return '$count exercises';
   }
+
+  @override
+  String get recDetailTitle => 'Workout Detail';
+
+  @override
+  String get recDetailBackTooltip => 'Back';
+
+  @override
+  String get recDetailExercisesSection => 'Exercise Details';
+
+  @override
+  String get recDetailStatTotalSets => 'Total Sets';
+
+  @override
+  String get recDetailStatExerciseCount => 'Exercises';
+
+  @override
+  String get recDetailStatMuscles => 'Muscles';
+
+  @override
+  String get recDetailNone => 'None';
+
+  @override
+  String get recDetailAddSet => 'Add Set';
+
+  @override
+  String get recDetailTotalVolume => 'Total Volume';
+
+  @override
+  String get recDetailAddDataPrompt => 'Tap to add training data';
+
+  @override
+  String get recDetailSaved => 'Saved';
+
+  @override
+  String recDetailSaveFailed(String error) {
+    return 'Save failed: $error';
+  }
+
+  @override
+  String get recDetailUnsavedTitle => 'Save changes?';
+
+  @override
+  String get recDetailUnsavedBody => 'You have unsaved changes. Save them?';
+
+  @override
+  String get recDetailDontSave => 'Don\'t save';
+
+  @override
+  String get recDetailUnknownExercise => 'Unknown exercise';
+
+  @override
+  String get recDetailUnspecifiedMuscle => 'Unspecified';
+
+  @override
+  String get recDetailDeleteButton => 'Delete this record';
+
+  @override
+  String get recDetailDeleteTitle => 'Delete record';
+
+  @override
+  String get recDetailDeleteBody =>
+      'Delete this workout record? This action cannot be undone.';
+
+  @override
+  String get recDetailDeleted => 'Deleted';
+
+  @override
+  String recDetailDeleteFailed(String error) {
+    return 'Delete failed: $error';
+  }
+
+  @override
+  String get recDetailDeleteAction => 'Delete';
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
 import '../theme/theme_provider.dart';
 import '../providers/record_provider.dart';
 import '../models/workout_record.dart';
@@ -60,6 +61,7 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().currentTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: theme.backgroundColor,
@@ -67,12 +69,12 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          tooltip: '返回',
+          tooltip: l10n.recDetailBackTooltip,
           icon: Icon(Icons.arrow_back, color: theme.textColor),
           onPressed: () => _onBackPressed(),
         ),
         title: Text(
-          '训练详情',
+          l10n.recDetailTitle,
           style: Theme.of(
             context,
           ).textTheme.headlineMedium!.copyWith(fontWeight: FontWeight.w700),
@@ -82,7 +84,7 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
             TextButton(
               onPressed: _saveChanges,
               child: Text(
-                '保存',
+                l10n.recSave,
                 style: Theme.of(context).textTheme.labelLarge!.copyWith(
                   color: theme.accentColor,
                   fontWeight: FontWeight.w600,
@@ -102,7 +104,8 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
 
             // 动作详情
             if (_exercises.isNotEmpty) ...[
-              Text('动作详情', style: Theme.of(context).textTheme.titleLarge!),
+              Text(l10n.recDetailExercisesSection,
+                  style: Theme.of(context).textTheme.titleLarge!),
               const SizedBox(height: 12),
               ..._exercises.asMap().entries.map((entry) {
                 return _buildExerciseItem(entry.key, entry.value, theme);
@@ -256,6 +259,7 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
   }
 
   Widget _buildSummaryCard(AppThemeData theme) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -307,7 +311,7 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
                             const SizedBox(width: 4),
                             Flexible(
                               child: Text(
-                                widget.record.planName ?? '计划模式',
+                                widget.record.planName ?? l10n.historyPlanMode,
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
                                 style: Theme.of(context).textTheme.bodySmall!
@@ -362,7 +366,7 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
               Expanded(
                 child: _buildStatItem(
                   '${widget.record.totalSets}',
-                  '总组数',
+                  l10n.recDetailStatTotalSets,
                   Icons.repeat,
                   theme,
                 ),
@@ -375,7 +379,7 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
               Expanded(
                 child: _buildStatItem(
                   '${widget.record.exerciseCount}',
-                  '动作数',
+                  l10n.recDetailStatExerciseCount,
                   Icons.fitness_center,
                   theme,
                 ),
@@ -388,11 +392,11 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
               Expanded(
                 child: _buildStatItem(
                   widget.record.trainedMuscles.isEmpty
-                      ? '无'
+                      ? l10n.recDetailNone
                       : widget.record.trainedMuscles
                             .map((m) => m.displayName)
                             .join('/'),
-                  '训练部位',
+                  l10n.recDetailStatMuscles,
                   Icons.accessibility_new,
                   theme,
                 ),
@@ -436,6 +440,7 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
     RecordedExercise exercise,
     AppThemeData theme,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     final hasSetData =
         exercise.setsData != null && exercise.setsData!.isNotEmpty;
     final exerciseControllers = _weightControllers[index] ?? {};
@@ -478,7 +483,7 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
                         fit: BoxFit.scaleDown,
                         alignment: Alignment.centerLeft,
                         child: Text(
-                          '第${setData.setNumber}组',
+                          l10n.dialogSetTitle(setData.setNumber),
                           style: Theme.of(context).textTheme.bodyMedium!
                               .copyWith(color: theme.secondaryTextColor),
                         ),
@@ -579,7 +584,7 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
                   Icon(Icons.add, size: 16, color: theme.accentColor),
                   const SizedBox(width: 4),
                   Text(
-                    '添加组',
+                    l10n.recDetailAddSet,
                     style: Theme.of(
                       context,
                     ).textTheme.bodyMedium!.copyWith(color: theme.accentColor),
@@ -600,7 +605,8 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('总容量', style: Theme.of(context).textTheme.bodySmall!),
+                  Text(l10n.recDetailTotalVolume,
+                      style: Theme.of(context).textTheme.bodySmall!),
                   Text(
                     '${exercise.totalVolume.toStringAsFixed(1)} kg',
                     style: Theme.of(context).textTheme.bodySmall!.copyWith(
@@ -625,7 +631,7 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
                     borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
                   ),
                   child: Text(
-                    '点击添加训练数据',
+                    l10n.recDetailAddDataPrompt,
                     style: Theme.of(
                       context,
                     ).textTheme.bodyMedium!.copyWith(color: theme.accentColor),
@@ -640,6 +646,7 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
   }
 
   Future<void> _saveChanges() async {
+    final l10n = AppLocalizations.of(context)!;
     final updatedRecord = widget.record.copyWith(exercises: _exercises);
 
     try {
@@ -649,8 +656,8 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('已保存'),
+          SnackBar(
+            content: Text(l10n.recDetailSaved),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -660,7 +667,7 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
         final theme = context.read<ThemeProvider>().currentTheme;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('保存失败: $e'),
+            content: Text(l10n.recDetailSaveFailed(e.toString())),
             backgroundColor: theme.errorColor,
           ),
         );
@@ -674,19 +681,20 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
       return;
     }
 
+    final l10n = AppLocalizations.of(context)!;
     final shouldSave = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('保存更改？'),
-        content: const Text('你有未保存的更改，是否保存？'),
+        title: Text(l10n.recDetailUnsavedTitle),
+        content: Text(l10n.recDetailUnsavedBody),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('不保存'),
+            child: Text(l10n.recDetailDontSave),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('保存'),
+            child: Text(l10n.recSave),
           ),
         ],
       ),
@@ -702,16 +710,18 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
   }
 
   String _getExerciseDisplayName(int index, RecordedExercise exercise) {
+    final l10n = AppLocalizations.of(context)!;
     if (exercise.exercise != null) {
       return '${index + 1}-${exercise.name}/${_getMuscleGroupName(exercise)}';
     }
     // 旧记录可能没有关联的动作数据，显示未知动作
-    return '${index + 1}-未知动作';
+    return '${index + 1}-${l10n.recDetailUnknownExercise}';
   }
 
   String _getMuscleGroupName(RecordedExercise exercise) {
+    final l10n = AppLocalizations.of(context)!;
     final muscle = exercise.exercise?.primaryMuscle;
-    return muscle?.displayName ?? '未指定';
+    return muscle?.displayName ?? l10n.recDetailUnspecifiedMuscle;
   }
 
   /// Calculate max weight from sets data
@@ -726,13 +736,14 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
   }
 
   Widget _buildDeleteButton(AppThemeData theme) {
+    final l10n = AppLocalizations.of(context)!;
     return SizedBox(
       width: double.infinity,
       child: OutlinedButton.icon(
         onPressed: () => _confirmDelete(),
         icon: Icon(Icons.delete_outline, color: theme.errorColor),
         label: Text(
-          '删除此记录',
+          l10n.recDetailDeleteButton,
           style: Theme.of(
             context,
           ).textTheme.labelLarge!.copyWith(color: theme.errorColor),
@@ -750,15 +761,16 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
 
   void _confirmDelete() {
     final theme = context.read<ThemeProvider>().currentTheme;
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('删除记录'),
-        content: const Text('确定要删除这条训练记录吗？此操作无法撤销。'),
+        title: Text(l10n.recDetailDeleteTitle),
+        content: Text(l10n.recDetailDeleteBody),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('取消'),
+            child: Text(l10n.widgetCancel),
           ),
           TextButton(
             onPressed: () async {
@@ -772,8 +784,8 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
                 if (mounted) {
                   navigator.pop();
                   messenger.showSnackBar(
-                    const SnackBar(
-                      content: Text('已删除'),
+                    SnackBar(
+                      content: Text(l10n.recDetailDeleted),
                       behavior: SnackBarBehavior.floating,
                     ),
                   );
@@ -782,14 +794,15 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
                 if (mounted) {
                   messenger.showSnackBar(
                     SnackBar(
-                      content: Text('删除失败: $e'),
+                      content: Text(l10n.recDetailDeleteFailed(e.toString())),
                       backgroundColor: theme.errorColor,
                     ),
                   );
                 }
               }
             },
-            child: Text('删除', style: TextStyle(color: theme.errorColor)),
+            child: Text(l10n.recDetailDeleteAction,
+                style: TextStyle(color: theme.errorColor)),
           ),
         ],
       ),
