@@ -643,7 +643,8 @@ feat: everything
 - **Mixed comments**: Code uses both English and Chinese comments
 - **Large screen files**: `stats_screen.dart` (~2150 lines, aggregation logic extracted into StatsAggregatorService), `plan_form_screen.dart` (~1040 lines), `exercise_selection_screen.dart` (872 lines), `ai_analysis_screen.dart` (899 lines)
 - **Force-non-null (`!`)**: ~450 usages remain; convert to explicit null checks incrementally
-- **i18n partial**: gen-l10n framework is in place but most UI strings are still hardcoded Chinese
+
+> **i18n is complete.** All user-visible strings in screens, widgets, and the service layer flow through `AppLocalizations` (zh/en). The `test/i18n/no_hardcoded_chinese_test.dart` guard enforces this for `lib/screens/`, `lib/widgets/`, and `lib/main.dart` — regressions fail CI. Comments may stay Chinese.
 
 ---
 
