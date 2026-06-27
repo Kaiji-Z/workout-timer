@@ -1853,6 +1853,192 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'删除'**
   String get recDetailDeleteAction;
+
+  /// No description provided for @planTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'训练计划'**
+  String get planTitle;
+
+  /// No description provided for @planAiButton.
+  ///
+  /// In zh, this message translates to:
+  /// **'AI训练计划'**
+  String get planAiButton;
+
+  /// No description provided for @planTodayPlans.
+  ///
+  /// In zh, this message translates to:
+  /// **'今日计划'**
+  String get planTodayPlans;
+
+  /// No description provided for @plansForDate.
+  ///
+  /// In zh, this message translates to:
+  /// **'{date} 的计划'**
+  String plansForDate(String date);
+
+  /// No description provided for @planAddButton.
+  ///
+  /// In zh, this message translates to:
+  /// **'+ 添加'**
+  String get planAddButton;
+
+  /// No description provided for @planRemoveTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'移除计划'**
+  String get planRemoveTitle;
+
+  /// No description provided for @planRemoveFromDateConfirm.
+  ///
+  /// In zh, this message translates to:
+  /// **'确定要从 {month}月{day}日 移除「{name}」吗？'**
+  String planRemoveFromDateConfirm(int month, int day, String name);
+
+  /// No description provided for @planRemoveAction.
+  ///
+  /// In zh, this message translates to:
+  /// **'移除'**
+  String get planRemoveAction;
+
+  /// No description provided for @planRemovedToast.
+  ///
+  /// In zh, this message translates to:
+  /// **'已从{month}月{day}日移除「{name}」'**
+  String planRemovedToast(int month, int day, String name);
+
+  /// No description provided for @planLibraryButton.
+  ///
+  /// In zh, this message translates to:
+  /// **'📚 我的计划库'**
+  String get planLibraryButton;
+
+  /// No description provided for @planEmptyAddToday.
+  ///
+  /// In zh, this message translates to:
+  /// **'添加今日计划'**
+  String get planEmptyAddToday;
+
+  /// No description provided for @planSelectToAddTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'选择计划添加到 {month}月{day}日'**
+  String planSelectToAddTitle(int month, int day);
+
+  /// No description provided for @planCreateNew.
+  ///
+  /// In zh, this message translates to:
+  /// **'创建新计划'**
+  String get planCreateNew;
+
+  /// No description provided for @planLibraryTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'我的计划库'**
+  String get planLibraryTitle;
+
+  /// No description provided for @planEdit.
+  ///
+  /// In zh, this message translates to:
+  /// **'编辑'**
+  String get planEdit;
+
+  /// No description provided for @planDelete.
+  ///
+  /// In zh, this message translates to:
+  /// **'删除'**
+  String get planDelete;
+
+  /// No description provided for @planAddedToDateToast.
+  ///
+  /// In zh, this message translates to:
+  /// **'已将「{name}」添加到 {month}月{day}日'**
+  String planAddedToDateToast(int month, int day, String name);
+
+  /// No description provided for @planAddFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'添加失败: {error}'**
+  String planAddFailed(String error);
+
+  /// No description provided for @planDeleteTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'删除计划'**
+  String get planDeleteTitle;
+
+  /// No description provided for @planDeleteConfirm.
+  ///
+  /// In zh, this message translates to:
+  /// **'确定要删除「{name}」吗？此操作无法撤销。'**
+  String planDeleteConfirm(String name);
+
+  /// No description provided for @planDeletedToast.
+  ///
+  /// In zh, this message translates to:
+  /// **'已删除「{name}」'**
+  String planDeletedToast(String name);
+
+  /// No description provided for @planDeleteFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'删除失败: {error}'**
+  String planDeleteFailed(String error);
+
+  /// No description provided for @planDetailTargetMuscles.
+  ///
+  /// In zh, this message translates to:
+  /// **'目标部位：{muscles}'**
+  String planDetailTargetMuscles(String muscles);
+
+  /// No description provided for @planDetailExerciseCountUnit.
+  ///
+  /// In zh, this message translates to:
+  /// **'个动作'**
+  String get planDetailExerciseCountUnit;
+
+  /// No description provided for @planDetailSetsUnit.
+  ///
+  /// In zh, this message translates to:
+  /// **'组'**
+  String get planDetailSetsUnit;
+
+  /// No description provided for @planDetailMinutesUnit.
+  ///
+  /// In zh, this message translates to:
+  /// **'分钟'**
+  String get planDetailMinutesUnit;
+
+  /// No description provided for @planDetailExerciseList.
+  ///
+  /// In zh, this message translates to:
+  /// **'动作列表'**
+  String get planDetailExerciseList;
+
+  /// No description provided for @planDetailNoDetailsSuffix.
+  ///
+  /// In zh, this message translates to:
+  /// **'(无详情)'**
+  String get planDetailNoDetailsSuffix;
+
+  /// No description provided for @planDetailEffectiveSets.
+  ///
+  /// In zh, this message translates to:
+  /// **'{count}组'**
+  String planDetailEffectiveSets(int count);
+
+  /// No description provided for @planDetailAddToCalendar.
+  ///
+  /// In zh, this message translates to:
+  /// **'添加到日历'**
+  String get planDetailAddToCalendar;
+
+  /// No description provided for @planDetailStartTraining.
+  ///
+  /// In zh, this message translates to:
+  /// **'开始训练'**
+  String get planDetailStartTraining;
 }
 
 class _AppLocalizationsDelegate
