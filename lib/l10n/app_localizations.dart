@@ -2477,6 +2477,306 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'下一步：粘贴JSON'**
   String get aiNextPasteJson;
+
+  /// No description provided for @pfCloseTooltip.
+  ///
+  /// In zh, this message translates to:
+  /// **'关闭'**
+  String get pfCloseTooltip;
+
+  /// No description provided for @pfCreateTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'创建计划'**
+  String get pfCreateTitle;
+
+  /// No description provided for @pfEditTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'编辑计划'**
+  String get pfEditTitle;
+
+  /// No description provided for @pfStepSelectMuscle.
+  ///
+  /// In zh, this message translates to:
+  /// **'选择部位'**
+  String get pfStepSelectMuscle;
+
+  /// No description provided for @pfStepSelectExercise.
+  ///
+  /// In zh, this message translates to:
+  /// **'选择动作'**
+  String get pfStepSelectExercise;
+
+  /// No description provided for @pfStepConfirm.
+  ///
+  /// In zh, this message translates to:
+  /// **'确认计划'**
+  String get pfStepConfirm;
+
+  /// No description provided for @pfSelectMuscleHeading.
+  ///
+  /// In zh, this message translates to:
+  /// **'选择训练部位'**
+  String get pfSelectMuscleHeading;
+
+  /// No description provided for @pfSelectMuscleSubheading.
+  ///
+  /// In zh, this message translates to:
+  /// **'选择计划要覆盖的肌肉部位（可多选）'**
+  String get pfSelectMuscleSubheading;
+
+  /// No description provided for @pfQuickSelect.
+  ///
+  /// In zh, this message translates to:
+  /// **'快速选择'**
+  String get pfQuickSelect;
+
+  /// No description provided for @pfQuickUpper.
+  ///
+  /// In zh, this message translates to:
+  /// **'上肢'**
+  String get pfQuickUpper;
+
+  /// No description provided for @pfQuickLower.
+  ///
+  /// In zh, this message translates to:
+  /// **'下肢'**
+  String get pfQuickLower;
+
+  /// No description provided for @pfQuickFull.
+  ///
+  /// In zh, this message translates to:
+  /// **'全身'**
+  String get pfQuickFull;
+
+  /// No description provided for @pfQuickRemovedToast.
+  ///
+  /// In zh, this message translates to:
+  /// **'已移除：{muscles}'**
+  String pfQuickRemovedToast(String muscles);
+
+  /// No description provided for @pfQuickAddedToast.
+  ///
+  /// In zh, this message translates to:
+  /// **'已添加：{muscles}'**
+  String pfQuickAddedToast(String muscles);
+
+  /// No description provided for @pfSelectExerciseHeading.
+  ///
+  /// In zh, this message translates to:
+  /// **'选择训练动作'**
+  String get pfSelectExerciseHeading;
+
+  /// No description provided for @pfSelectedMusclesLine.
+  ///
+  /// In zh, this message translates to:
+  /// **'已选部位：{muscles}'**
+  String pfSelectedMusclesLine(String muscles);
+
+  /// No description provided for @pfNotSelected.
+  ///
+  /// In zh, this message translates to:
+  /// **'未选择'**
+  String get pfNotSelected;
+
+  /// No description provided for @pfSelectedExercisesHeading.
+  ///
+  /// In zh, this message translates to:
+  /// **'已选动作'**
+  String get pfSelectedExercisesHeading;
+
+  /// No description provided for @pfClearSelectedTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'清空已选动作？'**
+  String get pfClearSelectedTitle;
+
+  /// No description provided for @pfClearSelectedBody.
+  ///
+  /// In zh, this message translates to:
+  /// **'确定要清空所有已选动作吗？此操作无法撤销。'**
+  String get pfClearSelectedBody;
+
+  /// No description provided for @pfNoDetailsSuffix.
+  ///
+  /// In zh, this message translates to:
+  /// **'(无详情)'**
+  String get pfNoDetailsSuffix;
+
+  /// No description provided for @pfSetsSuffix.
+  ///
+  /// In zh, this message translates to:
+  /// **'({count}组)'**
+  String pfSetsSuffix(int count);
+
+  /// No description provided for @pfContinueAdding.
+  ///
+  /// In zh, this message translates to:
+  /// **'继续添加动作'**
+  String get pfContinueAdding;
+
+  /// No description provided for @pfSelectedCountLine.
+  ///
+  /// In zh, this message translates to:
+  /// **'已选 {count} 个动作'**
+  String pfSelectedCountLine(int count);
+
+  /// No description provided for @pfConfirmHeading.
+  ///
+  /// In zh, this message translates to:
+  /// **'确认计划'**
+  String get pfConfirmHeading;
+
+  /// No description provided for @pfPlanNameLabel.
+  ///
+  /// In zh, this message translates to:
+  /// **'计划名称'**
+  String get pfPlanNameLabel;
+
+  /// No description provided for @pfPlanNameHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'例如：上肢训练日'**
+  String get pfPlanNameHint;
+
+  /// No description provided for @pfSummaryHeading.
+  ///
+  /// In zh, this message translates to:
+  /// **'计划摘要'**
+  String get pfSummaryHeading;
+
+  /// No description provided for @pfSummaryMuscles.
+  ///
+  /// In zh, this message translates to:
+  /// **'训练部位'**
+  String get pfSummaryMuscles;
+
+  /// No description provided for @pfSummaryExerciseCount.
+  ///
+  /// In zh, this message translates to:
+  /// **'动作数量'**
+  String get pfSummaryExerciseCount;
+
+  /// No description provided for @pfExerciseCountValue.
+  ///
+  /// In zh, this message translates to:
+  /// **'{count} 个'**
+  String pfExerciseCountValue(int count);
+
+  /// No description provided for @pfSummaryTotalSets.
+  ///
+  /// In zh, this message translates to:
+  /// **'总组数'**
+  String get pfSummaryTotalSets;
+
+  /// No description provided for @pfTotalSetsValue.
+  ///
+  /// In zh, this message translates to:
+  /// **'{count} 组'**
+  String pfTotalSetsValue(int count);
+
+  /// No description provided for @pfSummaryDuration.
+  ///
+  /// In zh, this message translates to:
+  /// **'预估时长'**
+  String get pfSummaryDuration;
+
+  /// No description provided for @pfDurationValue.
+  ///
+  /// In zh, this message translates to:
+  /// **'~{count} 分钟'**
+  String pfDurationValue(int count);
+
+  /// No description provided for @pfDurationFootnote.
+  ///
+  /// In zh, this message translates to:
+  /// **'※ 预估时长 = 总组数 × 2.5分钟（含休息）'**
+  String get pfDurationFootnote;
+
+  /// No description provided for @pfAdjustSetsHeading.
+  ///
+  /// In zh, this message translates to:
+  /// **'调整组数（可拖拽排序）'**
+  String get pfAdjustSetsHeading;
+
+  /// No description provided for @pfDecreaseSets.
+  ///
+  /// In zh, this message translates to:
+  /// **'减少组数'**
+  String get pfDecreaseSets;
+
+  /// No description provided for @pfIncreaseSets.
+  ///
+  /// In zh, this message translates to:
+  /// **'增加组数'**
+  String get pfIncreaseSets;
+
+  /// No description provided for @pfDeleteExercise.
+  ///
+  /// In zh, this message translates to:
+  /// **'删除动作'**
+  String get pfDeleteExercise;
+
+  /// No description provided for @pfNextSelectExercise.
+  ///
+  /// In zh, this message translates to:
+  /// **'下一步：选择动作'**
+  String get pfNextSelectExercise;
+
+  /// No description provided for @pfNextConfirm.
+  ///
+  /// In zh, this message translates to:
+  /// **'下一步：确认计划'**
+  String get pfNextConfirm;
+
+  /// No description provided for @pfSaveChanges.
+  ///
+  /// In zh, this message translates to:
+  /// **'保存修改'**
+  String get pfSaveChanges;
+
+  /// No description provided for @pfPreviousStep.
+  ///
+  /// In zh, this message translates to:
+  /// **'上一步'**
+  String get pfPreviousStep;
+
+  /// No description provided for @pfDefaultPlanName.
+  ///
+  /// In zh, this message translates to:
+  /// **'训练计划'**
+  String get pfDefaultPlanName;
+
+  /// No description provided for @pfSaveFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'保存失败: {error}'**
+  String pfSaveFailed(String error);
+
+  /// No description provided for @pfDiscardTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'放弃编辑？'**
+  String get pfDiscardTitle;
+
+  /// No description provided for @pfDiscardBody.
+  ///
+  /// In zh, this message translates to:
+  /// **'您有未保存的更改，确定要退出吗？'**
+  String get pfDiscardBody;
+
+  /// No description provided for @pfKeepEditing.
+  ///
+  /// In zh, this message translates to:
+  /// **'继续编辑'**
+  String get pfKeepEditing;
+
+  /// No description provided for @pfDiscard.
+  ///
+  /// In zh, this message translates to:
+  /// **'放弃'**
+  String get pfDiscard;
 }
 
 class _AppLocalizationsDelegate
