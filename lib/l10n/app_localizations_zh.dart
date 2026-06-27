@@ -800,4 +800,90 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get oemInstructionOneplus => '在「电池优化」高级设置中找到撸铁计时器，选择「不优化」';
+
+  @override
+  String get prefTitle => '训练偏好';
+
+  @override
+  String get prefCloseTooltip => '关闭';
+
+  @override
+  String get prefSaved => '偏好已保存';
+
+  @override
+  String get prefBodyWeightSection => '体重';
+
+  @override
+  String get prefBodyWeightHint => '用于计算徒手动作的训练容量（如引体向上、俯卧撑等）';
+
+  @override
+  String get prefBodyWeightPlaceholder => '例如 70';
+
+  @override
+  String get prefGoalSection => '训练目标';
+
+  @override
+  String get prefGoalMuscleBuilding => '增肌';
+
+  @override
+  String get prefGoalFatLoss => '减脂';
+
+  @override
+  String get prefGoalStrength => '力量';
+
+  @override
+  String get prefGoalEndurance => '耐力';
+
+  @override
+  String get prefExperienceSection => '经验水平';
+
+  @override
+  String get prefExperienceBeginner => '初学者';
+
+  @override
+  String get prefExperienceIntermediate => '中级';
+
+  @override
+  String get prefExperienceAdvanced => '高级';
+
+  @override
+  String get prefEquipmentSection => '可用设备';
+
+  @override
+  String get prefEquipmentGym => '健身房';
+
+  @override
+  String get prefEquipmentHomeDumbbell => '家用哑铃';
+
+  @override
+  String get prefEquipmentBodyweight => '徒手';
+
+  @override
+  String get prefFrequencySection => '每周频率';
+
+  @override
+  String prefFrequencyDays(int count) {
+    return '$count天';
+  }
+
+  @override
+  String get prefFocusAreaSection => '重点部位';
+
+  @override
+  String get prefFocusAreaChest => '胸部';
+
+  @override
+  String get prefFocusAreaBack => '背部';
+
+  @override
+  String get prefFocusAreaShoulders => '肩部';
+
+  @override
+  String get prefFocusAreaArms => '手臂';
+
+  @override
+  String get prefFocusAreaLegs => '腿部';
+
+  @override
+  String get prefFocusAreaCore => '核心';
 }

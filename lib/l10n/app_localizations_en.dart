@@ -825,4 +825,91 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get oemInstructionOneplus =>
       'In \"Battery optimization\" advanced settings, find Iron Timer and choose \"Don\'t optimize\"';
+
+  @override
+  String get prefTitle => 'Training Preferences';
+
+  @override
+  String get prefCloseTooltip => 'Close';
+
+  @override
+  String get prefSaved => 'Preferences saved';
+
+  @override
+  String get prefBodyWeightSection => 'Body Weight';
+
+  @override
+  String get prefBodyWeightHint =>
+      'Used to calculate training volume for bodyweight exercises (e.g. pull-ups, push-ups)';
+
+  @override
+  String get prefBodyWeightPlaceholder => 'e.g. 70';
+
+  @override
+  String get prefGoalSection => 'Training Goal';
+
+  @override
+  String get prefGoalMuscleBuilding => 'Muscle Building';
+
+  @override
+  String get prefGoalFatLoss => 'Fat Loss';
+
+  @override
+  String get prefGoalStrength => 'Strength';
+
+  @override
+  String get prefGoalEndurance => 'Endurance';
+
+  @override
+  String get prefExperienceSection => 'Experience Level';
+
+  @override
+  String get prefExperienceBeginner => 'Beginner';
+
+  @override
+  String get prefExperienceIntermediate => 'Intermediate';
+
+  @override
+  String get prefExperienceAdvanced => 'Advanced';
+
+  @override
+  String get prefEquipmentSection => 'Available Equipment';
+
+  @override
+  String get prefEquipmentGym => 'Gym';
+
+  @override
+  String get prefEquipmentHomeDumbbell => 'Home Dumbbell';
+
+  @override
+  String get prefEquipmentBodyweight => 'Bodyweight';
+
+  @override
+  String get prefFrequencySection => 'Weekly Frequency';
+
+  @override
+  String prefFrequencyDays(int count) {
+    return '$count days';
+  }
+
+  @override
+  String get prefFocusAreaSection => 'Focus Areas';
+
+  @override
+  String get prefFocusAreaChest => 'Chest';
+
+  @override
+  String get prefFocusAreaBack => 'Back';
+
+  @override
+  String get prefFocusAreaShoulders => 'Shoulders';
+
+  @override
+  String get prefFocusAreaArms => 'Arms';
+
+  @override
+  String get prefFocusAreaLegs => 'Legs';
+
+  @override
+  String get prefFocusAreaCore => 'Core';
 }

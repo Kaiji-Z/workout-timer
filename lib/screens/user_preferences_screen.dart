@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
 import '../services/user_preferences_service.dart';
 import '../theme/theme_provider.dart';
 import '../theme/app_theme.dart';
@@ -21,41 +22,97 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
   bool _isLoading = true;
   final TextEditingController _bodyWeightController = TextEditingController();
 
-  // Options for each section
-  static const List<Map<String, String>> _goalOptions = [
-    {'value': 'muscle_building', 'label': '增肌'},
-    {'value': 'fat_loss', 'label': '减脂'},
-    {'value': 'strength', 'label': '力量'},
-    {'value': 'endurance', 'label': '耐力'},
+  // Stable value keys (locale-independent). Labels are resolved at build time.
+  static const List<String> _goalValues = [
+    'muscle_building',
+    'fat_loss',
+    'strength',
+    'endurance',
   ];
 
-  static const List<Map<String, String>> _experienceOptions = [
-    {'value': 'beginner', 'label': '初学者'},
-    {'value': 'intermediate', 'label': '中级'},
-    {'value': 'advanced', 'label': '高级'},
+  static const List<String> _experienceValues = [
+    'beginner',
+    'intermediate',
+    'advanced',
   ];
 
-  static const List<Map<String, String>> _equipmentOptions = [
-    {'value': 'gym', 'label': '健身房'},
-    {'value': 'home_dumbbell', 'label': '家用哑铃'},
-    {'value': 'bodyweight', 'label': '徒手'},
+  static const List<String> _equipmentValues = [
+    'gym',
+    'home_dumbbell',
+    'bodyweight',
   ];
 
-  static const List<Map<String, dynamic>> _frequencyOptions = [
-    {'value': 3, 'label': '3天'},
-    {'value': 4, 'label': '4天'},
-    {'value': 5, 'label': '5天'},
-    {'value': 6, 'label': '6天'},
+  static const List<int> _frequencyValues = [3, 4, 5, 6];
+
+  static const List<String> _focusAreaValues = [
+    'chest',
+    'back',
+    'shoulders',
+    'arms',
+    'legs',
+    'core',
   ];
 
-  static const List<Map<String, String>> _focusAreaOptions = [
-    {'value': 'chest', 'label': '胸部'},
-    {'value': 'back', 'label': '背部'},
-    {'value': 'shoulders', 'label': '肩部'},
-    {'value': 'arms', 'label': '手臂'},
-    {'value': 'legs', 'label': '腿部'},
-    {'value': 'core', 'label': '核心'},
-  ];
+  // Locale-aware label resolvers.
+  String _goalLabel(String value, AppLocalizations l10n) {
+    switch (value) {
+      case 'muscle_building':
+        return l10n.prefGoalMuscleBuilding;
+      case 'fat_loss':
+        return l10n.prefGoalFatLoss;
+      case 'strength':
+        return l10n.prefGoalStrength;
+      case 'endurance':
+        return l10n.prefGoalEndurance;
+      default:
+        return value;
+    }
+  }
+
+  String _experienceLabel(String value, AppLocalizations l10n) {
+    switch (value) {
+      case 'beginner':
+        return l10n.prefExperienceBeginner;
+      case 'intermediate':
+        return l10n.prefExperienceIntermediate;
+      case 'advanced':
+        return l10n.prefExperienceAdvanced;
+      default:
+        return value;
+    }
+  }
+
+  String _equipmentLabel(String value, AppLocalizations l10n) {
+    switch (value) {
+      case 'gym':
+        return l10n.prefEquipmentGym;
+      case 'home_dumbbell':
+        return l10n.prefEquipmentHomeDumbbell;
+      case 'bodyweight':
+        return l10n.prefEquipmentBodyweight;
+      default:
+        return value;
+    }
+  }
+
+  String _focusAreaLabel(String value, AppLocalizations l10n) {
+    switch (value) {
+      case 'chest':
+        return l10n.prefFocusAreaChest;
+      case 'back':
+        return l10n.prefFocusAreaBack;
+      case 'shoulders':
+        return l10n.prefFocusAreaShoulders;
+      case 'arms':
+        return l10n.prefFocusAreaArms;
+      case 'legs':
+        return l10n.prefFocusAreaLegs;
+      case 'core':
+        return l10n.prefFocusAreaCore;
+      default:
+        return value;
+    }
+  }
 
   @override
   void initState() {
@@ -79,8 +136,11 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
   Future<void> _savePreferences() async {
     await _preferencesService.savePreferences(_preferences);
     if (mounted) {
+      final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('偏好已保存'), duration: Duration(seconds: 1)),
+        SnackBar(
+            content: Text(l10n.prefSaved),
+            duration: const Duration(seconds: 1)),
       );
     }
   }
@@ -137,6 +197,7 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
   Widget build(BuildContext context) {
     final themeProvider = context.watch<ThemeProvider>();
     final theme = themeProvider.currentTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: theme.primaryColor,
@@ -144,7 +205,7 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          tooltip: '关闭',
+          tooltip: l10n.prefCloseTooltip,
           icon: Icon(Icons.close, color: theme.textColor),
           onPressed: () => Navigator.pop(context),
         ),
@@ -160,7 +221,7 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
               ),
             ),
             Text(
-              '训练偏好',
+              l10n.prefTitle,
               style: Theme.of(context).textTheme.headlineMedium!.copyWith(
                 fontWeight: FontWeight.w700,
                 letterSpacing: -0.5,
@@ -178,7 +239,7 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Section: Body Weight
-                  _buildSectionHeader('体重', theme),
+                  _buildSectionHeader(l10n.prefBodyWeightSection, theme),
                   _buildGlassCard(
                     theme: theme,
                     child: Padding(
@@ -189,7 +250,7 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '用于计算徒手动作的训练容量（如引体向上、俯卧撑等）',
+                            l10n.prefBodyWeightHint,
                             style: Theme.of(context).textTheme.bodySmall!,
                           ),
                           const SizedBox(height: 12),
@@ -208,7 +269,7 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
                                     ),
                                   ],
                                   decoration: InputDecoration(
-                                    hintText: '例如 70',
+                                    hintText: l10n.prefBodyWeightPlaceholder,
                                     hintStyle: Theme.of(context)
                                         .textTheme
                                         .bodyMedium!
@@ -269,7 +330,7 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
                   const SizedBox(height: 24),
 
                   // Section 1: Training Goal
-                  _buildSectionHeader('训练目标', theme),
+                  _buildSectionHeader(l10n.prefGoalSection, theme),
                   _buildGlassCard(
                     theme: theme,
                     child: Padding(
@@ -277,13 +338,13 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
                       child: Wrap(
                         spacing: 8,
                         runSpacing: 8,
-                        children: _goalOptions.map((option) {
+                        children: _goalValues.map((value) {
                           final isSelected =
-                              _preferences.goal == option['value'];
+                              _preferences.goal == value;
                           return _buildSelectionChip(
-                            label: option['label'] ?? '',
+                            label: _goalLabel(value, l10n),
                             isSelected: isSelected,
-                            onTap: () => _updateGoal(option['value'] ?? ''),
+                            onTap: () => _updateGoal(value),
                             theme: theme,
                           );
                         }).toList(),
@@ -293,7 +354,7 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
                   const SizedBox(height: 24),
 
                   // Section 2: Experience Level
-                  _buildSectionHeader('经验水平', theme),
+                  _buildSectionHeader(l10n.prefExperienceSection, theme),
                   _buildGlassCard(
                     theme: theme,
                     child: Padding(
@@ -301,14 +362,14 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
                       child: Wrap(
                         spacing: 8,
                         runSpacing: 8,
-                        children: _experienceOptions.map((option) {
+                        children: _experienceValues.map((value) {
                           final isSelected =
-                              _preferences.experience == option['value'];
+                              _preferences.experience == value;
                           return _buildSelectionChip(
-                            label: option['label'] ?? '',
+                            label: _experienceLabel(value, l10n),
                             isSelected: isSelected,
                             onTap: () =>
-                                _updateExperience(option['value'] ?? ''),
+                                _updateExperience(value),
                             theme: theme,
                           );
                         }).toList(),
@@ -318,7 +379,7 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
                   const SizedBox(height: 24),
 
                   // Section 3: Available Equipment
-                  _buildSectionHeader('可用设备', theme),
+                  _buildSectionHeader(l10n.prefEquipmentSection, theme),
                   _buildGlassCard(
                     theme: theme,
                     child: Padding(
@@ -326,14 +387,14 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
                       child: Wrap(
                         spacing: 8,
                         runSpacing: 8,
-                        children: _equipmentOptions.map((option) {
+                        children: _equipmentValues.map((value) {
                           final isSelected =
-                              _preferences.equipment == option['value'];
+                              _preferences.equipment == value;
                           return _buildSelectionChip(
-                            label: option['label'] ?? '',
+                            label: _equipmentLabel(value, l10n),
                             isSelected: isSelected,
                             onTap: () =>
-                                _updateEquipment(option['value'] ?? ''),
+                                _updateEquipment(value),
                             theme: theme,
                           );
                         }).toList(),
@@ -343,7 +404,7 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
                   const SizedBox(height: 24),
 
                   // Section 4: Weekly Frequency
-                  _buildSectionHeader('每周频率', theme),
+                  _buildSectionHeader(l10n.prefFrequencySection, theme),
                   _buildGlassCard(
                     theme: theme,
                     child: Padding(
@@ -351,14 +412,14 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
                       child: Wrap(
                         spacing: 8,
                         runSpacing: 8,
-                        children: _frequencyOptions.map((option) {
+                        children: _frequencyValues.map((value) {
                           final isSelected =
-                              _preferences.frequency == option['value'];
+                              _preferences.frequency == value;
                           return _buildSelectionChip(
-                            label: option['label'] ?? '',
+                            label: l10n.prefFrequencyDays(value),
                             isSelected: isSelected,
                             onTap: () =>
-                                _updateFrequency(option['value'] as int),
+                                _updateFrequency(value),
                             theme: theme,
                           );
                         }).toList(),
@@ -368,7 +429,7 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
                   const SizedBox(height: 24),
 
                   // Section 5: Focus Areas (Multi-select)
-                  _buildSectionHeader('重点部位', theme),
+                  _buildSectionHeader(l10n.prefFocusAreaSection, theme),
                   _buildGlassCard(
                     theme: theme,
                     child: Padding(
@@ -376,12 +437,11 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
                       child: Wrap(
                         spacing: 8,
                         runSpacing: 8,
-                        children: _focusAreaOptions.map((option) {
-                          final value = option['value'] ?? '';
+                        children: _focusAreaValues.map((value) {
                           final isSelected = _preferences.focusAreasList
                               .contains(value);
                           return _buildFilterChip(
-                            label: option['label'] ?? '',
+                            label: _focusAreaLabel(value, l10n),
                             isSelected: isSelected,
                             onTap: () {
                               final currentAreas = _preferences.focusAreasList

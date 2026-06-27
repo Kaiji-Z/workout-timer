@@ -1481,6 +1481,174 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'在「电池优化」高级设置中找到撸铁计时器，选择「不优化」'**
   String get oemInstructionOneplus;
+
+  /// No description provided for @prefTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'训练偏好'**
+  String get prefTitle;
+
+  /// No description provided for @prefCloseTooltip.
+  ///
+  /// In zh, this message translates to:
+  /// **'关闭'**
+  String get prefCloseTooltip;
+
+  /// No description provided for @prefSaved.
+  ///
+  /// In zh, this message translates to:
+  /// **'偏好已保存'**
+  String get prefSaved;
+
+  /// No description provided for @prefBodyWeightSection.
+  ///
+  /// In zh, this message translates to:
+  /// **'体重'**
+  String get prefBodyWeightSection;
+
+  /// No description provided for @prefBodyWeightHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'用于计算徒手动作的训练容量（如引体向上、俯卧撑等）'**
+  String get prefBodyWeightHint;
+
+  /// No description provided for @prefBodyWeightPlaceholder.
+  ///
+  /// In zh, this message translates to:
+  /// **'例如 70'**
+  String get prefBodyWeightPlaceholder;
+
+  /// No description provided for @prefGoalSection.
+  ///
+  /// In zh, this message translates to:
+  /// **'训练目标'**
+  String get prefGoalSection;
+
+  /// No description provided for @prefGoalMuscleBuilding.
+  ///
+  /// In zh, this message translates to:
+  /// **'增肌'**
+  String get prefGoalMuscleBuilding;
+
+  /// No description provided for @prefGoalFatLoss.
+  ///
+  /// In zh, this message translates to:
+  /// **'减脂'**
+  String get prefGoalFatLoss;
+
+  /// No description provided for @prefGoalStrength.
+  ///
+  /// In zh, this message translates to:
+  /// **'力量'**
+  String get prefGoalStrength;
+
+  /// No description provided for @prefGoalEndurance.
+  ///
+  /// In zh, this message translates to:
+  /// **'耐力'**
+  String get prefGoalEndurance;
+
+  /// No description provided for @prefExperienceSection.
+  ///
+  /// In zh, this message translates to:
+  /// **'经验水平'**
+  String get prefExperienceSection;
+
+  /// No description provided for @prefExperienceBeginner.
+  ///
+  /// In zh, this message translates to:
+  /// **'初学者'**
+  String get prefExperienceBeginner;
+
+  /// No description provided for @prefExperienceIntermediate.
+  ///
+  /// In zh, this message translates to:
+  /// **'中级'**
+  String get prefExperienceIntermediate;
+
+  /// No description provided for @prefExperienceAdvanced.
+  ///
+  /// In zh, this message translates to:
+  /// **'高级'**
+  String get prefExperienceAdvanced;
+
+  /// No description provided for @prefEquipmentSection.
+  ///
+  /// In zh, this message translates to:
+  /// **'可用设备'**
+  String get prefEquipmentSection;
+
+  /// No description provided for @prefEquipmentGym.
+  ///
+  /// In zh, this message translates to:
+  /// **'健身房'**
+  String get prefEquipmentGym;
+
+  /// No description provided for @prefEquipmentHomeDumbbell.
+  ///
+  /// In zh, this message translates to:
+  /// **'家用哑铃'**
+  String get prefEquipmentHomeDumbbell;
+
+  /// No description provided for @prefEquipmentBodyweight.
+  ///
+  /// In zh, this message translates to:
+  /// **'徒手'**
+  String get prefEquipmentBodyweight;
+
+  /// No description provided for @prefFrequencySection.
+  ///
+  /// In zh, this message translates to:
+  /// **'每周频率'**
+  String get prefFrequencySection;
+
+  /// No description provided for @prefFrequencyDays.
+  ///
+  /// In zh, this message translates to:
+  /// **'{count}天'**
+  String prefFrequencyDays(int count);
+
+  /// No description provided for @prefFocusAreaSection.
+  ///
+  /// In zh, this message translates to:
+  /// **'重点部位'**
+  String get prefFocusAreaSection;
+
+  /// No description provided for @prefFocusAreaChest.
+  ///
+  /// In zh, this message translates to:
+  /// **'胸部'**
+  String get prefFocusAreaChest;
+
+  /// No description provided for @prefFocusAreaBack.
+  ///
+  /// In zh, this message translates to:
+  /// **'背部'**
+  String get prefFocusAreaBack;
+
+  /// No description provided for @prefFocusAreaShoulders.
+  ///
+  /// In zh, this message translates to:
+  /// **'肩部'**
+  String get prefFocusAreaShoulders;
+
+  /// No description provided for @prefFocusAreaArms.
+  ///
+  /// In zh, this message translates to:
+  /// **'手臂'**
+  String get prefFocusAreaArms;
+
+  /// No description provided for @prefFocusAreaLegs.
+  ///
+  /// In zh, this message translates to:
+  /// **'腿部'**
+  String get prefFocusAreaLegs;
+
+  /// No description provided for @prefFocusAreaCore.
+  ///
+  /// In zh, this message translates to:
+  /// **'核心'**
+  String get prefFocusAreaCore;
 }
 
 class _AppLocalizationsDelegate
