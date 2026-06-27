@@ -520,4 +520,284 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get widgetRestLabel => '组间休息';
+
+  @override
+  String get settingsTitle => '设置';
+
+  @override
+  String get settingsAppearanceSection => '外观设置';
+
+  @override
+  String get settingsDarkMode => '深色模式';
+
+  @override
+  String get settingsTheme => '主题';
+
+  @override
+  String get settingsSelectTheme => '选择主题';
+
+  @override
+  String get settingsNotificationSection => '通知设置';
+
+  @override
+  String get settingsEnableSound => '启用声音';
+
+  @override
+  String get settingsNotificationRingtone => '通知铃声';
+
+  @override
+  String get settingsEnableVibration => '启用振动';
+
+  @override
+  String get settingsDetailedRecording => '详细记录模式';
+
+  @override
+  String get settingsSelectRingtone => '选择铃声';
+
+  @override
+  String get settingsClose => '关闭';
+
+  @override
+  String get settingsCancel => '取消';
+
+  @override
+  String get settingsClear => '清除';
+
+  @override
+  String get settingsCustomMessageDefault => '准备开始下一组！';
+
+  @override
+  String get settingsCustomMessageSection => '自定义提醒消息';
+
+  @override
+  String get settingsCustomMessageHint => '输入提醒消息';
+
+  @override
+  String get settingsBackgroundSection => '后台运行';
+
+  @override
+  String get settingsAllowBackground => '允许后台活动';
+
+  @override
+  String get settingsBackgroundAllowed => '已允许，计时器可在后台正常运行';
+
+  @override
+  String get settingsBackgroundNotAllowed => '未允许，后台计时器可能被系统暂停';
+
+  @override
+  String get settingsBackgroundHint =>
+      '点击上方选项，在弹出的系统对话框中选择\"允许\"，以确保计时器在后台正常运行';
+
+  @override
+  String get settingsDataSection => '数据管理';
+
+  @override
+  String get settingsExportData => '导出数据';
+
+  @override
+  String get settingsExportSubtitle => '导出全部训练记录、计划等数据为文件';
+
+  @override
+  String get settingsImportData => '导入数据';
+
+  @override
+  String get settingsImportSubtitle => '从备份文件恢复全部数据（会覆盖现有数据）';
+
+  @override
+  String get settingsClearHistory => '清除所有历史记录';
+
+  @override
+  String get settingsClearHistoryConfirmTitle => '确认清除';
+
+  @override
+  String get settingsClearHistoryConfirmBody => '确定要清除所有历史记录吗？此操作不可撤销。';
+
+  @override
+  String get settingsHistoryCleared => '历史记录已清除';
+
+  @override
+  String get settingsExport => '导出';
+
+  @override
+  String get settingsExportConfirmBody =>
+      '将导出全部训练记录、计划、练习等数据。\n\n文件会保存到手机 Downloads 目录，同时弹出分享面板。';
+
+  @override
+  String settingsExportFailed(String error) {
+    return '导出失败: $error';
+  }
+
+  @override
+  String get settingsImportConfirmTitle => '确认导入';
+
+  @override
+  String settingsImportConfirmBody(String source) {
+    return '⚠️ 导入将覆盖现有全部数据！\n\n将恢复来自：\n$source';
+  }
+
+  @override
+  String get settingsConfirmImport => '确认导入';
+
+  @override
+  String settingsImportSuccess(int count) {
+    return '导入成功，共恢复 $count 条记录';
+  }
+
+  @override
+  String settingsImportFailed(String error) {
+    return '导入失败: $error';
+  }
+
+  @override
+  String get settingsFoundLocalBackups => '发现本地备份';
+
+  @override
+  String get settingsSelectManually => '手动选择文件';
+
+  @override
+  String get settingsSelectManuallySubtitle => '从其他位置选择 JSON 备份文件';
+
+  @override
+  String get settingsAiPreferencesSection => 'AI 训练偏好';
+
+  @override
+  String get settingsTrainingPreferences => '训练偏好';
+
+  @override
+  String get settingsTrainingPreferencesSubtitle => '设置训练目标、经验水平等，AI功能将自动读取';
+
+  @override
+  String get settingsAboutSection => '关于';
+
+  @override
+  String get settingsPrivacyPolicy => '隐私政策';
+
+  @override
+  String get settingsPrivacyPolicySubtitle => '查看本应用的隐私政策';
+
+  @override
+  String get settingsVersion => '版本';
+
+  @override
+  String get settingsBackupPrefix => '备份';
+
+  @override
+  String get settingsVersionLoading => '加载中…';
+
+  @override
+  String get settingsDeveloper => '开发者';
+
+  @override
+  String get settingsDeveloperName => '深圳市露凯文化传播有限公司';
+
+  @override
+  String get settingsContactEmail => '联系邮箱';
+
+  @override
+  String get settingsEmailCopied => '邮箱已复制';
+
+  @override
+  String get settingsPrivacyHeadline => '撸铁计时器不收集任何个人信息';
+
+  @override
+  String get settingsPrivacyDataStorage => '数据存储';
+
+  @override
+  String get settingsPrivacyDataStorageBody =>
+      '所有训练数据均存储在您的设备本地（SQLite 数据库），不上传至任何服务器。卸载应用将永久删除所有数据。';
+
+  @override
+  String get settingsPrivacyPermissions => '设备权限';
+
+  @override
+  String get settingsPrivacyPermNotifications => '• 通知：计时结束提醒';
+
+  @override
+  String get settingsPrivacyPermVibration => '• 振动：计时结束振动提醒';
+
+  @override
+  String get settingsPrivacyPermForegroundService => '• 前台服务：后台持续计时';
+
+  @override
+  String get settingsPrivacyPermNetwork => '• 网络：仅下载开源健身图片（CC0）';
+
+  @override
+  String get settingsPrivacyPermBatteryExempt => '• 电池优化豁免：防止计时器被系统中断';
+
+  @override
+  String get settingsPrivacyThirdParty => '第三方服务';
+
+  @override
+  String get settingsPrivacyThirdPartyBody => '本应用不集成任何第三方数据分析、广告或追踪 SDK。';
+
+  @override
+  String get settingsPrivacyFullPolicy =>
+      '完整隐私政策：\nhttps://kaiji-z.github.io/workout-timer/';
+
+  @override
+  String get settingsPrivacyLinkCopied => '隐私政策链接已复制';
+
+  @override
+  String get settingsCopyLink => '复制链接';
+
+  @override
+  String get settingsLanguage => '语言';
+
+  @override
+  String get settingsLanguageSystem => '跟随系统';
+
+  @override
+  String get settingsLanguageZh => '简体中文';
+
+  @override
+  String get settingsLanguageEn => 'English';
+
+  @override
+  String get brandHuawei => '华为';
+
+  @override
+  String get brandHonor => '荣耀';
+
+  @override
+  String get brandXiaomi => '小米';
+
+  @override
+  String get brandOppo => 'OPPO';
+
+  @override
+  String get brandVivo => 'vivo';
+
+  @override
+  String get brandMeizu => '魅族';
+
+  @override
+  String get brandSamsung => '三星';
+
+  @override
+  String get brandOneplus => '一加';
+
+  @override
+  String get oemInstructionHuawei => '在「应用启动管理」中找到撸铁计时器，关闭「自动管理」，手动开启全部三个开关';
+
+  @override
+  String get oemInstructionHonor => '在「应用启动管理」中找到撸铁计时器，关闭「自动管理」，手动开启全部三个开关';
+
+  @override
+  String get oemInstructionXiaomi =>
+      '在「自启动管理」中找到撸铁计时器，开启自启动开关。然后在「省电策略」中选择「无限制」';
+
+  @override
+  String get oemInstructionOppo => '在「自启动管理」中找到撸铁计时器，允许自启动';
+
+  @override
+  String get oemInstructionVivo => '在「后台高耗电」或「自启动」中找到撸铁计时器，允许后台运行';
+
+  @override
+  String get oemInstructionMeizu => '在「智能休眠」或「后台管理」中找到撸铁计时器，允许后台运行';
+
+  @override
+  String get oemInstructionSamsung => '在「电池」设置中找到撸铁计时器，选择「不受限制」';
+
+  @override
+  String get oemInstructionOneplus => '在「电池优化」高级设置中找到撸铁计时器，选择「不优化」';
 }

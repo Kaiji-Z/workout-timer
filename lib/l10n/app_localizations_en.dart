@@ -523,4 +523,306 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get widgetRestLabel => 'Rest';
+
+  @override
+  String get settingsTitle => 'Settings';
+
+  @override
+  String get settingsAppearanceSection => 'Appearance';
+
+  @override
+  String get settingsDarkMode => 'Dark Mode';
+
+  @override
+  String get settingsTheme => 'Theme';
+
+  @override
+  String get settingsSelectTheme => 'Select Theme';
+
+  @override
+  String get settingsNotificationSection => 'Notifications';
+
+  @override
+  String get settingsEnableSound => 'Enable Sound';
+
+  @override
+  String get settingsNotificationRingtone => 'Notification Ringtone';
+
+  @override
+  String get settingsEnableVibration => 'Enable Vibration';
+
+  @override
+  String get settingsDetailedRecording => 'Detailed Recording Mode';
+
+  @override
+  String get settingsSelectRingtone => 'Select Ringtone';
+
+  @override
+  String get settingsClose => 'Close';
+
+  @override
+  String get settingsCancel => 'Cancel';
+
+  @override
+  String get settingsClear => 'Clear';
+
+  @override
+  String get settingsCustomMessageDefault => 'Get ready for the next set!';
+
+  @override
+  String get settingsCustomMessageSection => 'Custom Reminder Message';
+
+  @override
+  String get settingsCustomMessageHint => 'Enter reminder message';
+
+  @override
+  String get settingsBackgroundSection => 'Background Running';
+
+  @override
+  String get settingsAllowBackground => 'Allow Background Activity';
+
+  @override
+  String get settingsBackgroundAllowed =>
+      'Allowed — the timer can run normally in the background';
+
+  @override
+  String get settingsBackgroundNotAllowed =>
+      'Not allowed — the background timer may be paused by the system';
+
+  @override
+  String get settingsBackgroundHint =>
+      'Tap the option above and choose \"Allow\" in the system dialog so the timer can keep running in the background';
+
+  @override
+  String get settingsDataSection => 'Data Management';
+
+  @override
+  String get settingsExportData => 'Export Data';
+
+  @override
+  String get settingsExportSubtitle =>
+      'Export all workout records, plans, etc. to a file';
+
+  @override
+  String get settingsImportData => 'Import Data';
+
+  @override
+  String get settingsImportSubtitle =>
+      'Restore all data from a backup file (overwrites existing data)';
+
+  @override
+  String get settingsClearHistory => 'Clear All History';
+
+  @override
+  String get settingsClearHistoryConfirmTitle => 'Confirm Clear';
+
+  @override
+  String get settingsClearHistoryConfirmBody =>
+      'Are you sure you want to clear all history? This action cannot be undone.';
+
+  @override
+  String get settingsHistoryCleared => 'History cleared';
+
+  @override
+  String get settingsExport => 'Export';
+
+  @override
+  String get settingsExportConfirmBody =>
+      'All workout records, plans, exercises, etc. will be exported.\n\nThe file will be saved to your phone\'s Downloads folder and a share sheet will appear.';
+
+  @override
+  String settingsExportFailed(String error) {
+    return 'Export failed: $error';
+  }
+
+  @override
+  String get settingsImportConfirmTitle => 'Confirm Import';
+
+  @override
+  String settingsImportConfirmBody(String source) {
+    return '⚠️ Importing will overwrite all existing data!\n\nRestoring from:\n$source';
+  }
+
+  @override
+  String get settingsConfirmImport => 'Confirm Import';
+
+  @override
+  String settingsImportSuccess(int count) {
+    return 'Import successful — $count records restored';
+  }
+
+  @override
+  String settingsImportFailed(String error) {
+    return 'Import failed: $error';
+  }
+
+  @override
+  String get settingsFoundLocalBackups => 'Local backups found';
+
+  @override
+  String get settingsSelectManually => 'Select file manually';
+
+  @override
+  String get settingsSelectManuallySubtitle =>
+      'Choose a JSON backup file from another location';
+
+  @override
+  String get settingsAiPreferencesSection => 'AI Training Preferences';
+
+  @override
+  String get settingsTrainingPreferences => 'Training Preferences';
+
+  @override
+  String get settingsTrainingPreferencesSubtitle =>
+      'Set training goals, experience level, etc. — AI features will read these automatically';
+
+  @override
+  String get settingsAboutSection => 'About';
+
+  @override
+  String get settingsPrivacyPolicy => 'Privacy Policy';
+
+  @override
+  String get settingsPrivacyPolicySubtitle => 'View this app\'s privacy policy';
+
+  @override
+  String get settingsVersion => 'Version';
+
+  @override
+  String get settingsBackupPrefix => 'Backup';
+
+  @override
+  String get settingsVersionLoading => 'Loading…';
+
+  @override
+  String get settingsDeveloper => 'Developer';
+
+  @override
+  String get settingsDeveloperName =>
+      'Shenzhen Lukai Culture Communication Co., Ltd.';
+
+  @override
+  String get settingsContactEmail => 'Contact Email';
+
+  @override
+  String get settingsEmailCopied => 'Email copied';
+
+  @override
+  String get settingsPrivacyHeadline =>
+      'Iron Timer does not collect any personal information';
+
+  @override
+  String get settingsPrivacyDataStorage => 'Data Storage';
+
+  @override
+  String get settingsPrivacyDataStorageBody =>
+      'All workout data is stored locally on your device (SQLite database) and is never uploaded to any server. Uninstalling the app permanently deletes all data.';
+
+  @override
+  String get settingsPrivacyPermissions => 'Device Permissions';
+
+  @override
+  String get settingsPrivacyPermNotifications =>
+      '• Notifications: end-of-timer reminder';
+
+  @override
+  String get settingsPrivacyPermVibration =>
+      '• Vibration: end-of-timer vibration reminder';
+
+  @override
+  String get settingsPrivacyPermForegroundService =>
+      '• Foreground service: keep timing in the background';
+
+  @override
+  String get settingsPrivacyPermNetwork =>
+      '• Network: only to download open-source fitness images (CC0)';
+
+  @override
+  String get settingsPrivacyPermBatteryExempt =>
+      '• Battery optimization exemption: prevent the timer from being interrupted by the system';
+
+  @override
+  String get settingsPrivacyThirdParty => 'Third-Party Services';
+
+  @override
+  String get settingsPrivacyThirdPartyBody =>
+      'This app does not integrate any third-party analytics, advertising, or tracking SDKs.';
+
+  @override
+  String get settingsPrivacyFullPolicy =>
+      'Full privacy policy:\nhttps://kaiji-z.github.io/workout-timer/';
+
+  @override
+  String get settingsPrivacyLinkCopied => 'Privacy policy link copied';
+
+  @override
+  String get settingsCopyLink => 'Copy Link';
+
+  @override
+  String get settingsLanguage => 'Language';
+
+  @override
+  String get settingsLanguageSystem => 'Follow system';
+
+  @override
+  String get settingsLanguageZh => '简体中文';
+
+  @override
+  String get settingsLanguageEn => 'English';
+
+  @override
+  String get brandHuawei => 'Huawei';
+
+  @override
+  String get brandHonor => 'Honor';
+
+  @override
+  String get brandXiaomi => 'Xiaomi';
+
+  @override
+  String get brandOppo => 'OPPO';
+
+  @override
+  String get brandVivo => 'vivo';
+
+  @override
+  String get brandMeizu => 'Meizu';
+
+  @override
+  String get brandSamsung => 'Samsung';
+
+  @override
+  String get brandOneplus => 'OnePlus';
+
+  @override
+  String get oemInstructionHuawei =>
+      'In \"App launch management\", find Iron Timer, turn off \"Automatic management\", then manually enable all three toggles';
+
+  @override
+  String get oemInstructionHonor =>
+      'In \"App launch management\", find Iron Timer, turn off \"Automatic management\", then manually enable all three toggles';
+
+  @override
+  String get oemInstructionXiaomi =>
+      'In \"Autostart management\", find Iron Timer and enable autostart. Then under \"Battery saver policy\" choose \"No restrictions\"';
+
+  @override
+  String get oemInstructionOppo =>
+      'In \"Autostart management\", find Iron Timer and allow autostart';
+
+  @override
+  String get oemInstructionVivo =>
+      'In \"High background power use\" or \"Autostart\", find Iron Timer and allow background running';
+
+  @override
+  String get oemInstructionMeizu =>
+      'In \"Smart sleep\" or \"Background management\", find Iron Timer and allow background running';
+
+  @override
+  String get oemInstructionSamsung =>
+      'In \"Battery\" settings, find Iron Timer and choose \"Unrestricted\"';
+
+  @override
+  String get oemInstructionOneplus =>
+      'In \"Battery optimization\" advanced settings, find Iron Timer and choose \"Don\'t optimize\"';
 }
