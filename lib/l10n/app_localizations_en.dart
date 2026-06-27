@@ -1138,4 +1138,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get planDetailStartTraining => 'Start workout';
+
+  @override
+  String get exSelectTitle => 'Select exercises';
+
+  @override
+  String get exFavoritesChip => 'Favorites';
+
+  @override
+  String get exSelectHint => 'Tap an exercise card to select';
+
+  @override
+  String get equipmentAll => 'All';
 }

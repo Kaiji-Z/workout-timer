@@ -1111,4 +1111,16 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get planDetailStartTraining => '开始训练';
+
+  @override
+  String get exSelectTitle => '选择训练动作';
+
+  @override
+  String get exFavoritesChip => '收藏';
+
+  @override
+  String get exSelectHint => '点击动作卡片选择';
+
+  @override
+  String get equipmentAll => '全部';
 }

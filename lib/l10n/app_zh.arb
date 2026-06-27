@@ -801,5 +801,13 @@
   "planDetailAddToCalendar": "添加到日历",
   "@planDetailAddToCalendar": {},
   "planDetailStartTraining": "开始训练",
-  "@planDetailStartTraining": {}
+  "@planDetailStartTraining": {},
+  "exSelectTitle": "选择训练动作",
+  "@exSelectTitle": {},
+  "exFavoritesChip": "收藏",
+  "@exFavoritesChip": {},
+  "exSelectHint": "点击动作卡片选择",
+  "@exSelectHint": {},
+  "equipmentAll": "全部",
+  "@equipmentAll": {}
 }

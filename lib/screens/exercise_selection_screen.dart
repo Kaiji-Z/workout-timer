@@ -160,16 +160,17 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
   }
 
   PreferredSizeWidget _buildAppBar(AppThemeData theme) {
+    final l10n = AppLocalizations.of(context)!;
     return AppBar(
       backgroundColor: Colors.transparent,
       elevation: 0,
       leading: IconButton(
-        tooltip: '返回',
+        tooltip: l10n.recDetailBackTooltip,
         icon: Icon(Icons.arrow_back, color: theme.textColor),
         onPressed: () => Navigator.pop(context),
       ),
       title: Text(
-        '选择训练动作',
+        l10n.exSelectTitle,
         style: Theme.of(context).textTheme.headlineMedium!.copyWith(
           fontWeight: FontWeight.w700,
           color: theme.textColor,
@@ -180,7 +181,7 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
           TextButton(
             onPressed: _clearSelection,
             child: Text(
-              '清空',
+              l10n.widgetClearAll,
               style: Theme.of(
                 context,
               ).textTheme.bodyMedium!.copyWith(color: theme.accentColor),
@@ -191,6 +192,7 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
   }
 
   Widget _buildSearchBar(AppThemeData theme) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Container(
@@ -207,14 +209,14 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
             });
           },
           decoration: InputDecoration(
-            hintText: '搜索动作...',
+            hintText: l10n.widgetSearchExerciseHint,
             hintStyle: Theme.of(
               context,
             ).textTheme.bodyMedium!.copyWith(color: theme.secondaryTextColor),
             prefixIcon: Icon(Icons.search, color: theme.secondaryTextColor),
             suffixIcon: _searchQuery.isNotEmpty
                 ? IconButton(
-                    tooltip: '清除搜索',
+                    tooltip: l10n.widgetClearSearch,
                     icon: Icon(Icons.clear, color: theme.secondaryTextColor),
                     onPressed: () {
                       _searchController.clear();
@@ -239,6 +241,7 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
   }
 
   Widget _buildMuscleFilterChips(AppThemeData theme) {
+    final l10n = AppLocalizations.of(context)!;
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -268,7 +271,7 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
                   ),
                 ),
                 child: Text(
-                  '全部',
+                  l10n.widgetAll,
                   style: Theme.of(context).textTheme.labelLarge!.copyWith(
                     fontWeight: _filterMuscle == null
                         ? FontWeight.w600
@@ -326,15 +329,16 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
 
   /// 器械类型筛选标签
   Widget _buildEquipmentFilterChips(AppThemeData theme) {
-    // 器械类型列表（中文名称）
+    final l10n = AppLocalizations.of(context)!;
+    // 器械类型列表（key 匹配 e.equipment；label 走 l10n，与 Exercise.equipmentDisplayName 一致）
     final equipmentTypes = [
-      {'key': null, 'label': '全部'},
-      {'key': 'dumbbell', 'label': '哑铃'},
-      {'key': 'barbell', 'label': '杠铃'},
-      {'key': 'cable', 'label': '绳索'},
-      {'key': 'machine', 'label': '器械'},
-      {'key': 'kettlebells', 'label': '壶铃'},
-      {'key': 'body only', 'label': '自重'},
+      {'key': null, 'label': l10n.equipmentAll},
+      {'key': 'dumbbell', 'label': l10n.equipmentDumbbell},
+      {'key': 'barbell', 'label': l10n.equipmentBarbell},
+      {'key': 'cable', 'label': l10n.equipmentCable},
+      {'key': 'machine', 'label': l10n.equipmentMachine},
+      {'key': 'kettlebells', 'label': l10n.equipmentKettlebells},
+      {'key': 'body only', 'label': l10n.equipmentBodyweight},
     ];
 
     return SingleChildScrollView(
@@ -413,7 +417,7 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
                 ),
                 const SizedBox(width: 4),
                 Text(
-                  '收藏',
+                  AppLocalizations.of(context)!.exFavoritesChip,
                   style: Theme.of(context).textTheme.labelLarge!.copyWith(
                     fontSize: 13,
                     fontWeight: _showFavoritesOnly
@@ -491,7 +495,7 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              '没有找到动作',
+              l10n.widgetNoExerciseFound,
               style: Theme.of(
                 context,
               ).textTheme.bodyLarge!.copyWith(color: theme.secondaryTextColor),
@@ -567,7 +571,7 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
                 child: hasSelection
                     ? _buildSelectedChipsPreview(theme)
                     : Text(
-                        '点击动作卡片选择',
+                        AppLocalizations.of(context)!.exSelectHint,
                         style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                           color: theme.secondaryTextColor,
                         ),
@@ -595,7 +599,7 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
                   elevation: 0,
                 ),
                 child: Text(
-                  '确认',
+                  AppLocalizations.of(context)!.widgetConfirmButton,
                   // 必须显式设 color:深底按钮的 Text 若继承 titleLarge.color
                   // (textColor 黑),会渲染成黑字印在深靛蓝底上不可读。
                   style: Theme.of(context).textTheme.titleLarge!.copyWith(
