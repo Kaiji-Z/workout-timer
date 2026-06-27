@@ -1649,6 +1649,72 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'核心'**
   String get prefFocusAreaCore;
+
+  /// No description provided for @historyTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'历史记录'**
+  String get historyTitle;
+
+  /// No description provided for @historyLoadFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'加载失败'**
+  String get historyLoadFailed;
+
+  /// No description provided for @historyEmpty.
+  ///
+  /// In zh, this message translates to:
+  /// **'暂无记录'**
+  String get historyEmpty;
+
+  /// No description provided for @historyEmptyHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'完成一次训练后查看结果'**
+  String get historyEmptyHint;
+
+  /// No description provided for @historyClearConfirmTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'清除历史'**
+  String get historyClearConfirmTitle;
+
+  /// No description provided for @historyClearConfirmBody.
+  ///
+  /// In zh, this message translates to:
+  /// **'确定要清除所有历史记录吗？'**
+  String get historyClearConfirmBody;
+
+  /// No description provided for @historyPlanMode.
+  ///
+  /// In zh, this message translates to:
+  /// **'计划模式'**
+  String get historyPlanMode;
+
+  /// No description provided for @historyFreeWorkout.
+  ///
+  /// In zh, this message translates to:
+  /// **'自由训练'**
+  String get historyFreeWorkout;
+
+  /// No description provided for @historyCompletedSets.
+  ///
+  /// In zh, this message translates to:
+  /// **'已完成组数'**
+  String get historyCompletedSets;
+
+  /// No description provided for @historySetsSuffix.
+  ///
+  /// In zh, this message translates to:
+  /// **'{count}组'**
+  String historySetsSuffix(int count);
+
+  /// No description provided for @historyExercisesSuffix.
+  ///
+  /// In zh, this message translates to:
+  /// **'{count}动作'**
+  String historyExercisesSuffix(int count);
 }
 
 class _AppLocalizationsDelegate

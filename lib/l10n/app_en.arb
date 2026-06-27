@@ -263,5 +263,16 @@
   "prefFocusAreaShoulders": "Shoulders",
   "prefFocusAreaArms": "Arms",
   "prefFocusAreaLegs": "Legs",
-  "prefFocusAreaCore": "Core"
+  "prefFocusAreaCore": "Core",
+  "historyTitle": "History",
+  "historyLoadFailed": "Load failed",
+  "historyEmpty": "No records yet",
+  "historyEmptyHint": "Complete a workout to see results",
+  "historyClearConfirmTitle": "Clear history",
+  "historyClearConfirmBody": "Clear all history records?",
+  "historyPlanMode": "Plan mode",
+  "historyFreeWorkout": "Free workout",
+  "historyCompletedSets": "Completed sets",
+  "historySetsSuffix": "{count} sets",
+  "historyExercisesSuffix": "{count} exercises"
 }

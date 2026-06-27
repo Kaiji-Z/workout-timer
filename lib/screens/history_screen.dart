@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
 import '../main.dart';
 import '../models/workout_session.dart';
 import '../models/workout_record.dart';
@@ -88,6 +89,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().currentTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -106,7 +108,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
               ),
             ),
             Text(
-              '历史记录',
+              l10n.historyTitle,
               style: Theme.of(context).textTheme.headlineMedium!.copyWith(
                 fontWeight: FontWeight.w700,
                 letterSpacing: -0.5,
@@ -118,7 +120,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
           TextButton(
             onPressed: () => _showClearConfirmDialog(),
             child: Text(
-              '清除',
+              l10n.settingsClear,
               style: Theme.of(
                 context,
               ).textTheme.labelLarge!.copyWith(color: theme.accentColor),
@@ -136,7 +138,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
           } else if (snapshot.hasError) {
             return Center(
               child: Text(
-                '加载失败',
+                l10n.historyLoadFailed,
                 style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                   color: theme.accentColor,
                   letterSpacing: 2,
@@ -155,14 +157,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    '暂无记录',
+                    l10n.historyEmpty,
                     style: Theme.of(
                       context,
                     ).textTheme.titleLarge!.copyWith(letterSpacing: 1),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '完成一次训练后查看结果',
+                    l10n.historyEmptyHint,
                     style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                       color: theme.secondaryTextColor.withValues(alpha: 0.6),
                     ),
@@ -179,7 +181,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       color: theme.accentColor,
                     ),
                     label: Text(
-                      '开始训练',
+                      l10n.trainingStartExercise,
                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                         fontWeight: FontWeight.w600,
                         color: theme.accentColor,
@@ -242,22 +244,24 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   void _showClearConfirmDialog() {
     final theme = context.read<ThemeProvider>().currentTheme;
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('清除历史'),
-        content: const Text('确定要清除所有历史记录吗？'),
+        title: Text(l10n.historyClearConfirmTitle),
+        content: Text(l10n.historyClearConfirmBody),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('取消'),
+            child: Text(l10n.settingsCancel),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(context);
               _clearHistory();
             },
-            child: Text('清除', style: TextStyle(color: theme.errorColor)),
+            child: Text(l10n.settingsClear,
+                style: TextStyle(color: theme.errorColor)),
           ),
         ],
       ),
@@ -296,6 +300,7 @@ class _RecordCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Dismissible(
       key: Key(record.id),
       direction: DismissDirection.endToStart,
@@ -386,7 +391,7 @@ class _RecordCard extends StatelessWidget {
                                   ),
                                 ),
                                 child: Text(
-                                  record.planName ?? '计划模式',
+                                  record.planName ?? l10n.historyPlanMode,
                                   overflow: TextOverflow.ellipsis,
                                   maxLines: 1,
                                   style: Theme.of(context).textTheme.bodySmall!
@@ -416,7 +421,7 @@ class _RecordCard extends StatelessWidget {
                         )
                       else
                         Text(
-                          '自由训练',
+                          l10n.historyFreeWorkout,
                           style: Theme.of(context).textTheme.bodyMedium!
                               .copyWith(fontWeight: FontWeight.w600),
                         ),
@@ -442,7 +447,7 @@ class _RecordCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            '${record.totalSets}组',
+                            l10n.historySetsSuffix(record.totalSets),
                             style: Theme.of(context).textTheme.bodySmall!,
                           ),
                           if (record.exerciseCount > 0) ...[
@@ -454,7 +459,8 @@ class _RecordCard extends StatelessWidget {
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              '${record.exerciseCount}动作',
+                              l10n.historyExercisesSuffix(
+                                  record.exerciseCount),
                               style: Theme.of(context).textTheme.bodySmall!,
                             ),
                           ],
@@ -499,6 +505,7 @@ class _SessionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Dismissible(
       key: Key(session.id),
       direction: DismissDirection.endToStart,
@@ -553,7 +560,7 @@ class _SessionCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '已完成组数',
+                    l10n.historyCompletedSets,
                     style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                       fontWeight: FontWeight.w600,
                       letterSpacing: 0,

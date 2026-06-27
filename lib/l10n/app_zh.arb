@@ -604,5 +604,35 @@
   "prefFocusAreaLegs": "腿部",
   "@prefFocusAreaLegs": {},
   "prefFocusAreaCore": "核心",
-  "@prefFocusAreaCore": {}
+  "@prefFocusAreaCore": {},
+  "historyTitle": "历史记录",
+  "@historyTitle": {},
+  "historyLoadFailed": "加载失败",
+  "@historyLoadFailed": {},
+  "historyEmpty": "暂无记录",
+  "@historyEmpty": {},
+  "historyEmptyHint": "完成一次训练后查看结果",
+  "@historyEmptyHint": {},
+  "historyClearConfirmTitle": "清除历史",
+  "@historyClearConfirmTitle": {},
+  "historyClearConfirmBody": "确定要清除所有历史记录吗？",
+  "@historyClearConfirmBody": {},
+  "historyPlanMode": "计划模式",
+  "@historyPlanMode": {},
+  "historyFreeWorkout": "自由训练",
+  "@historyFreeWorkout": {},
+  "historyCompletedSets": "已完成组数",
+  "@historyCompletedSets": {},
+  "historySetsSuffix": "{count}组",
+  "@historySetsSuffix": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "historyExercisesSuffix": "{count}动作",
+  "@historyExercisesSuffix": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  }
 }
