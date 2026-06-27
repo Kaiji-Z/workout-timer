@@ -1123,4 +1123,235 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get equipmentAll => '全部';
+
+  @override
+  String get aiCloseTooltip => '关闭';
+
+  @override
+  String get aiTitle => 'AI 计划生成器';
+
+  @override
+  String get aiPreviousStep => '上一步';
+
+  @override
+  String get aiStepImportAnalysis => '导入分析';
+
+  @override
+  String get aiStepPreviewImport => '预览导入';
+
+  @override
+  String get aiStepProfile => '个人资料';
+
+  @override
+  String get aiStepGeneratePrompt => '生成提示词';
+
+  @override
+  String get aiStepPasteJson => '粘贴JSON';
+
+  @override
+  String get aiTabNewPlan => '新建计划';
+
+  @override
+  String get aiTabImportAnalysis => '导入分析';
+
+  @override
+  String get aiNewPlanHeading => '个人训练资料';
+
+  @override
+  String get aiNewPlanSubheading => '请回答以下问题，帮助AI生成最适合您的训练计划';
+
+  @override
+  String get aiQuestionFrequency => '每周训练频率';
+
+  @override
+  String get aiQuestionDuration => '训练时长';
+
+  @override
+  String get aiQuestionEquipment => '设备可用性';
+
+  @override
+  String aiDurationMinutes(int count) {
+    return '$count分钟';
+  }
+
+  @override
+  String get aiImportHeading => '导入AI分析计划';
+
+  @override
+  String get aiImportSubheading => '将AI返回的JSON计划粘贴到下方，预览后直接导入';
+
+  @override
+  String get aiJsonLabel => 'JSON内容';
+
+  @override
+  String get aiJsonHelper => '请粘贴AI生成的训练计划JSON';
+
+  @override
+  String get aiParsing => '解析中...';
+
+  @override
+  String get aiParseJson => '解析JSON';
+
+  @override
+  String get aiErrorEmptyJson => '请输入JSON内容';
+
+  @override
+  String get aiErrorInvalidJson => '未能识别有效的训练计划JSON，请确保AI回复中包含 days 数组。';
+
+  @override
+  String aiErrorParseFailed(String error) {
+    return 'JSON解析失败: $error';
+  }
+
+  @override
+  String get aiGeneratePromptHeading => '生成AI提示词';
+
+  @override
+  String get aiGeneratePromptSubheading => '设置开始日期并生成提示词，复制到AI应用获取训练计划';
+
+  @override
+  String get aiStartDateLabel => '开始日期';
+
+  @override
+  String aiDateDisplay(int year, int month, int day) {
+    return '$year年$month月$day日';
+  }
+
+  @override
+  String get aiGeneratePromptButton => '生成提示词';
+
+  @override
+  String get aiGeneratedPromptLabel => '生成的提示词';
+
+  @override
+  String get aiCopyToClipboard => '复制到剪贴板';
+
+  @override
+  String get aiCopyHint => '将此提示词复制到豆包/千问等AI应用，获取JSON后返回粘贴';
+
+  @override
+  String get aiCopiedToast => '已复制到剪贴板';
+
+  @override
+  String get aiPasteJsonHeading => '粘贴AI返回的JSON';
+
+  @override
+  String get aiPasteJsonSubheading => '将AI生成的JSON粘贴到下方文本框';
+
+  @override
+  String get aiPreviewEmpty => '请先解析JSON以预览训练计划';
+
+  @override
+  String get aiPreviewHeading => '预览训练计划';
+
+  @override
+  String aiPlanNameLabel(String name) {
+    return '计划名称: $name';
+  }
+
+  @override
+  String get aiImporting => '导入中...';
+
+  @override
+  String get aiConfirmImport => '确认导入';
+
+  @override
+  String aiMatchSummary(int matched, int candidates, int unmatched) {
+    return '匹配：$matched个 ✅ | 待选：$candidates个 ⚠️ | 未匹配：$unmatched个';
+  }
+
+  @override
+  String get aiDayNameMon => '周一';
+
+  @override
+  String get aiDayNameTue => '周二';
+
+  @override
+  String get aiDayNameWed => '周三';
+
+  @override
+  String get aiDayNameThu => '周四';
+
+  @override
+  String get aiDayNameFri => '周五';
+
+  @override
+  String get aiDayNameSat => '周六';
+
+  @override
+  String get aiDayNameSun => '周日';
+
+  @override
+  String aiDayTitle(int n, String name) {
+    return '第$n天 - $name';
+  }
+
+  @override
+  String get aiRestDay => '休息日';
+
+  @override
+  String aiExerciseCountSuffix(int count) {
+    return '$count个动作';
+  }
+
+  @override
+  String aiTargetMusclesLabel(String muscles) {
+    return '目标肌群: $muscles';
+  }
+
+  @override
+  String aiCandidatesBadge(int count) {
+    return '$count个候选';
+  }
+
+  @override
+  String aiOriginalLabel(String name) {
+    return '原: $name';
+  }
+
+  @override
+  String get aiDecreaseSets => '减少';
+
+  @override
+  String get aiIncreaseSets => '增加';
+
+  @override
+  String get aiSetsUnit => '组';
+
+  @override
+  String get aiSelectMatchTitle => '选择匹配的动作';
+
+  @override
+  String aiSelectMatchSubtitle(String name, int count) {
+    return 'AI生成的\"$name\"有$count个候选';
+  }
+
+  @override
+  String get aiKeepUnmatched => '保持为\"无详情\"';
+
+  @override
+  String get aiImportConfirmTitle => '确认导入';
+
+  @override
+  String get aiImportConfirmBody => '确定要导入这个训练计划吗？计划将被添加到日历中。';
+
+  @override
+  String get aiImportSuccessToast => '训练计划导入成功！';
+
+  @override
+  String aiImportFailedToast(String error) {
+    return '导入失败: $error';
+  }
+
+  @override
+  String get aiNextPreviewImport => '下一步：预览导入';
+
+  @override
+  String get aiComplete => '完成';
+
+  @override
+  String get aiNextGeneratePrompt => '下一步：生成提示词';
+
+  @override
+  String get aiNextPasteJson => '下一步：粘贴JSON';
 }

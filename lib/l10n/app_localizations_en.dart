@@ -1150,4 +1150,242 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get equipmentAll => 'All';
+
+  @override
+  String get aiCloseTooltip => 'Close';
+
+  @override
+  String get aiTitle => 'AI Plan Generator';
+
+  @override
+  String get aiPreviousStep => 'Previous';
+
+  @override
+  String get aiStepImportAnalysis => 'Import analysis';
+
+  @override
+  String get aiStepPreviewImport => 'Preview import';
+
+  @override
+  String get aiStepProfile => 'Profile';
+
+  @override
+  String get aiStepGeneratePrompt => 'Generate prompt';
+
+  @override
+  String get aiStepPasteJson => 'Paste JSON';
+
+  @override
+  String get aiTabNewPlan => 'New plan';
+
+  @override
+  String get aiTabImportAnalysis => 'Import analysis';
+
+  @override
+  String get aiNewPlanHeading => 'Your training profile';
+
+  @override
+  String get aiNewPlanSubheading =>
+      'Answer these questions to help the AI design the best plan for you';
+
+  @override
+  String get aiQuestionFrequency => 'Weekly frequency';
+
+  @override
+  String get aiQuestionDuration => 'Session duration';
+
+  @override
+  String get aiQuestionEquipment => 'Available equipment';
+
+  @override
+  String aiDurationMinutes(int count) {
+    return '$count min';
+  }
+
+  @override
+  String get aiImportHeading => 'Import AI-analyzed plan';
+
+  @override
+  String get aiImportSubheading =>
+      'Paste the JSON plan returned by the AI below, then preview and import';
+
+  @override
+  String get aiJsonLabel => 'JSON content';
+
+  @override
+  String get aiJsonHelper => 'Paste the AI-generated workout plan JSON';
+
+  @override
+  String get aiParsing => 'Parsing...';
+
+  @override
+  String get aiParseJson => 'Parse JSON';
+
+  @override
+  String get aiErrorEmptyJson => 'Please enter JSON content';
+
+  @override
+  String get aiErrorInvalidJson =>
+      'Could not recognize a valid workout plan JSON. Make sure the AI reply contains a \"days\" array.';
+
+  @override
+  String aiErrorParseFailed(String error) {
+    return 'JSON parse failed: $error';
+  }
+
+  @override
+  String get aiGeneratePromptHeading => 'Generate AI prompt';
+
+  @override
+  String get aiGeneratePromptSubheading =>
+      'Set the start date and generate the prompt, then copy it into an AI app to get the plan';
+
+  @override
+  String get aiStartDateLabel => 'Start date';
+
+  @override
+  String aiDateDisplay(int year, int month, int day) {
+    return '$month/$day/$year';
+  }
+
+  @override
+  String get aiGeneratePromptButton => 'Generate prompt';
+
+  @override
+  String get aiGeneratedPromptLabel => 'Generated prompt';
+
+  @override
+  String get aiCopyToClipboard => 'Copy to clipboard';
+
+  @override
+  String get aiCopyHint =>
+      'Copy this prompt into an AI app (Doubao, Qwen, etc.), then return and paste the JSON';
+
+  @override
+  String get aiCopiedToast => 'Copied to clipboard';
+
+  @override
+  String get aiPasteJsonHeading => 'Paste the JSON returned by the AI';
+
+  @override
+  String get aiPasteJsonSubheading =>
+      'Paste the AI-generated JSON into the box below';
+
+  @override
+  String get aiPreviewEmpty => 'Parse the JSON first to preview the plan';
+
+  @override
+  String get aiPreviewHeading => 'Preview workout plan';
+
+  @override
+  String aiPlanNameLabel(String name) {
+    return 'Plan name: $name';
+  }
+
+  @override
+  String get aiImporting => 'Importing...';
+
+  @override
+  String get aiConfirmImport => 'Confirm import';
+
+  @override
+  String aiMatchSummary(int matched, int candidates, int unmatched) {
+    return 'Matched: $matched ✅ | Candidates: $candidates ⚠️ | Unmatched: $unmatched';
+  }
+
+  @override
+  String get aiDayNameMon => 'Mon';
+
+  @override
+  String get aiDayNameTue => 'Tue';
+
+  @override
+  String get aiDayNameWed => 'Wed';
+
+  @override
+  String get aiDayNameThu => 'Thu';
+
+  @override
+  String get aiDayNameFri => 'Fri';
+
+  @override
+  String get aiDayNameSat => 'Sat';
+
+  @override
+  String get aiDayNameSun => 'Sun';
+
+  @override
+  String aiDayTitle(int n, String name) {
+    return 'Day $n - $name';
+  }
+
+  @override
+  String get aiRestDay => 'Rest day';
+
+  @override
+  String aiExerciseCountSuffix(int count) {
+    return '$count exercises';
+  }
+
+  @override
+  String aiTargetMusclesLabel(String muscles) {
+    return 'Target muscles: $muscles';
+  }
+
+  @override
+  String aiCandidatesBadge(int count) {
+    return '$count candidates';
+  }
+
+  @override
+  String aiOriginalLabel(String name) {
+    return 'Orig: $name';
+  }
+
+  @override
+  String get aiDecreaseSets => 'Decrease';
+
+  @override
+  String get aiIncreaseSets => 'Increase';
+
+  @override
+  String get aiSetsUnit => 'sets';
+
+  @override
+  String get aiSelectMatchTitle => 'Select matching exercise';
+
+  @override
+  String aiSelectMatchSubtitle(String name, int count) {
+    return 'AI\'s \"$name\" has $count candidates';
+  }
+
+  @override
+  String get aiKeepUnmatched => 'Keep as \"no details\"';
+
+  @override
+  String get aiImportConfirmTitle => 'Confirm import';
+
+  @override
+  String get aiImportConfirmBody =>
+      'Import this workout plan? The plan will be added to the calendar.';
+
+  @override
+  String get aiImportSuccessToast => 'Workout plan imported successfully!';
+
+  @override
+  String aiImportFailedToast(String error) {
+    return 'Import failed: $error';
+  }
+
+  @override
+  String get aiNextPreviewImport => 'Next: preview import';
+
+  @override
+  String get aiComplete => 'Done';
+
+  @override
+  String get aiNextGeneratePrompt => 'Next: generate prompt';
+
+  @override
+  String get aiNextPasteJson => 'Next: paste JSON';
 }
