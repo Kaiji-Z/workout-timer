@@ -409,9 +409,10 @@ class _MainNavigationState extends State<MainNavigation> {
   Widget _buildCenterTimerButton(AppThemeData appTheme) {
     final activeColor = appTheme.accentColor;
     final isSelected = _currentIndex == 2;
+    final l10n = AppLocalizations.of(context)!;
 
     return Semantics(
-      label: '训练计时器', // TODO(l10n): needs context
+      label: l10n.navTimer,
       button: true,
       child: Material(
         color: Colors.transparent,

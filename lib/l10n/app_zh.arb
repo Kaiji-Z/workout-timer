@@ -1650,5 +1650,7 @@
     "placeholders": {
       "count": { "type": "int" }
     }
-  }
+  },
+  "settingsEmailCopied": "邮箱已复制",
+  "@settingsEmailCopied": {}
 }
