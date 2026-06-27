@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
 import '../models/workout_record.dart';
 import '../models/muscle_group.dart';
 import '../services/stats_calculator_service.dart';
@@ -56,10 +57,12 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
   }
 
   Future<void> _loadUserPreferences() async {
+    final l10n = AppLocalizations.of(context)!;
     try {
       final prefs = await UserPreferencesService().loadPreferences().timeout(
         const Duration(seconds: 2),
       );
+      if (!mounted) return;
       setState(() {
         _selectedGoal = prefs.goal;
         _selectedExperience = prefs.experience;
@@ -67,12 +70,13 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
         _selectedFrequency = prefs.frequency;
         _selectedFocusAreas.clear();
         _selectedFocusAreas.addAll(prefs.focusAreasList);
-        _generatedPrompt = _generatePrompt();
+        _generatedPrompt = _generatePrompt(l10n);
       });
     } catch (e) {
       debugPrint('Error loading user preferences: $e');
+      if (!mounted) return;
       setState(() {
-        _generatedPrompt = _generatePrompt();
+        _generatedPrompt = _generatePrompt(l10n);
       });
     }
   }
@@ -139,9 +143,9 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
   // ==================== Formatting Methods ====================
 
   /// Format muscle volume distribution (weighted by training volume)
-  String _formatMuscleVolumeDistribution() {
+  String _formatMuscleVolumeDistribution(AppLocalizations l10n) {
     final dist = _statsCalc.calculateMuscleVolumeDistribution(widget.records);
-    if (dist.isEmpty) return '- 暂无肌肉训练数据';
+    if (dist.isEmpty) return l10n.anNoMuscleData;
 
     final sorted = dist.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
@@ -157,20 +161,20 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
           ? '${(entry.value / 1000).toStringAsFixed(1)}k'
           : entry.value.toStringAsFixed(0);
       buffer.writeln(
-        '  ${i + 1}. ${entry.key.displayName}: $volumeStr kg ($pct%)',
+        l10n.anPromptMuscleDistLine(i + 1, entry.key.displayName, volumeStr, pct),
       );
     }
     return buffer.toString().trimRight();
   }
 
   /// Format volume trend (current vs previous period)
-  String _formatVolumeTrend() {
+  String _formatVolumeTrend(AppLocalizations l10n) {
     final currentVolume = _statsCalc.calculateTotalVolume(widget.records);
     final previousVolume = _statsCalc.calculateTotalVolume(
       widget.previousRecords,
     );
 
-    if (currentVolume == 0 && previousVolume == 0) return '- 暂无趋势数据';
+    if (currentVolume == 0 && previousVolume == 0) return l10n.anNoTrendData;
 
     final buffer = StringBuffer();
     String fmtVol(double v) => v >= 1000
@@ -187,10 +191,11 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
           ? '↓'
           : '→';
       buffer.writeln(
-        '  - 总训练量: ${fmtVol(currentVolume)} (${change > 0 ? '+' : ''}$change% $arrow)',
+        l10n.anPromptVolumeTrendWithChange(
+            fmtVol(currentVolume), change > 0 ? '+' : '', change, arrow),
       );
     } else {
-      buffer.writeln('  - 总训练量: ${fmtVol(currentVolume)} (新周期)');
+      buffer.writeln(l10n.anPromptVolumeTrendNew(fmtVol(currentVolume)));
     }
 
     // Training frequency trend
@@ -203,7 +208,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
           : diff < 0
           ? '↓'
           : '→';
-      buffer.writeln('  - 训练频率: $currentDays 天 ($diff$arrow)');
+      buffer.writeln(l10n.anPromptFreqTrend(currentDays, diff, arrow));
     }
 
     // Per-muscle volume trend
@@ -226,7 +231,8 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
         if (change.abs() >= 10) {
           final arrow = change > 0 ? '↑' : '↓';
           buffer.writeln(
-            '  - ${muscle.displayName}: ${change > 0 ? '+' : ''}$change% $arrow',
+            l10n.anPromptMuscleTrend(
+                muscle.displayName, change > 0 ? '+' : '', change, arrow),
           );
         }
       }
@@ -236,18 +242,18 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
   }
 
   /// Format sets per muscle group with MEV reference
-  String _formatSetsPerMuscleGroup() {
+  String _formatSetsPerMuscleGroup(AppLocalizations l10n) {
     final setsPerMuscle = _statsCalc.calculateSetsPerMuscleGroup(
       widget.records,
     );
-    if (setsPerMuscle.isEmpty) return '- 暂无组数数据';
+    if (setsPerMuscle.isEmpty) return l10n.anNoSetsData;
 
     final isWeek = widget.periodType == 'week';
     // MEV reference: 10 sets/week (Schoenfeld 2017)
     const weeklyMev = 10;
     final mevLabel = isWeek
-        ? '周MEV参考: $weeklyMev 组'
-        : '月MEV参考: ${weeklyMev * 4} 组';
+        ? l10n.anMevWeekLabel(weeklyMev)
+        : l10n.anMevMonthLabel(weeklyMev * 4);
 
     final sorted = setsPerMuscle.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
@@ -259,21 +265,23 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
       final ratio = isWeek ? sets / weeklyMev : sets / (weeklyMev * 4);
       String status;
       if (ratio >= 1.0) {
-        status = '✅ 充足';
+        status = l10n.anStatusSufficient;
       } else if (ratio >= 0.5) {
-        status = '⚠️ 偏低';
+        status = l10n.anStatusLow;
       } else {
-        status = '🔴 不足';
+        status = l10n.anStatusInsufficient;
       }
-      buffer.writeln('  - ${entry.key.displayName}: $sets 组 $status');
+      buffer.writeln(
+        l10n.anPromptSetsLine(entry.key.displayName, sets, status),
+      );
     }
     return buffer.toString().trimRight();
   }
 
   /// Format estimated 1RM for top exercises (uses English names for AI)
-  String _formatEstimated1RM() {
+  String _formatEstimated1RM(AppLocalizations l10n) {
     final trend = _calculate1RMTrendEn(widget.records);
-    if (trend.isEmpty) return '- 暂无1RM数据（需要每组重量和次数记录）';
+    if (trend.isEmpty) return l10n.anNo1rmData;
 
     // Sort by estimated1RM descending (best session), take top 10
     final sorted = trend.entries.toList()
@@ -283,21 +291,21 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
       );
 
     final buffer = StringBuffer();
-    buffer.writeln('  (基于 Mayhew 公式估算，±5-8kg 误差)');
+    buffer.writeln(l10n.anMayhewNote);
     for (final entry in sorted.take(10)) {
       final point = entry.value.last;
       final e1RM = point.estimated1RM.toStringAsFixed(1);
       final w = point.weight.toStringAsFixed(1);
       final r = point.reps ?? 0;
-      buffer.writeln('  - ${entry.key}: ~$e1RM kg (基于 ${w}kg×$r)');
+      buffer.writeln(l10n.anPrompt1rmLine(entry.key, e1RM, w, r));
     }
     return buffer.toString().trimRight();
   }
 
   /// Format 1RM progression trend (month view only)
-  String _format1RMProgression() {
+  String _format1RMProgression(AppLocalizations l10n) {
     final trend = _calculate1RMTrendEn(widget.records);
-    if (trend.isEmpty) return '- 暂无1RM趋势数据';
+    if (trend.isEmpty) return l10n.anNo1rmTrendData;
 
     // Filter to exercises with 2+ sessions, sort by change%
     final progressable = <MapEntry<String, List<Estimated1RMPoint>>>[];
@@ -307,7 +315,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
       }
     }
 
-    if (progressable.isEmpty) return '- 本周期内各动作仅训练1次，无法计算进步趋势';
+    if (progressable.isEmpty) return l10n.anNoProgressData;
 
     progressable.sort((a, b) {
       final changeA =
@@ -331,20 +339,31 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
           : change < 0
           ? '↓'
           : '→';
+      final weeksStr = weeks > 0
+          ? l10n.anPrompt1rmWeeksSuffix(weeks.toStringAsFixed(0))
+          : '';
       buffer.writeln(
-        '  - ${entry.key}: ${first.estimated1RM.toStringAsFixed(1)} → ${last.estimated1RM.toStringAsFixed(1)} kg (${change > 0 ? '+' : ''}${change.toStringAsFixed(1)}% $arrow${weeks > 0 ? ' / ${weeks.toStringAsFixed(0)}周' : ''})',
+        l10n.anPrompt1rmProgressLine(
+          entry.key,
+          first.estimated1RM.toStringAsFixed(1),
+          last.estimated1RM.toStringAsFixed(1),
+          change > 0 ? '+' : '',
+          change.toStringAsFixed(1),
+          arrow,
+          weeksStr,
+        ),
       );
     }
     return buffer.toString().trimRight();
   }
 
   /// Format recovery management data (calculate rest days per muscle)
-  String _formatRecoveryManagement() {
+  String _formatRecoveryManagement(AppLocalizations l10n) {
     // Recovery is a global state (not period-specific)
     final records = widget.allRecords.isNotEmpty
         ? widget.allRecords
         : widget.records;
-    if (records.isEmpty) return '- 暂无恢复数据';
+    if (records.isEmpty) return l10n.anNoRecoveryData;
 
     final Map<PrimaryMuscleGroup, DateTime> lastTrainedDates = {};
     for (final record in records) {
@@ -357,7 +376,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
       }
     }
 
-    if (lastTrainedDates.isEmpty) return '- 暂无肌肉恢复数据';
+    if (lastTrainedDates.isEmpty) return l10n.anNoMuscleRecoveryData;
 
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -375,13 +394,15 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
       final restDays = today.difference(lastDate).inDays;
       String status;
       if (restDays >= 3) {
-        status = '✅ 可训练';
+        status = l10n.anRecoveryTrainable;
       } else if (restDays >= 1) {
-        status = '⚠️ 建议再休息${3 - restDays}天';
+        status = l10n.anRecoveryRestMore(3 - restDays);
       } else {
-        status = '🔴 今日刚训练';
+        status = l10n.anRecoveryJustTrained;
       }
-      buffer.writeln('  - ${entry.key.displayName}: 已休息$restDays天 $status');
+      buffer.writeln(
+        l10n.anPromptRecoveryLine(entry.key.displayName, restDays, status),
+      );
     }
 
     return buffer.toString().trimRight();
@@ -413,36 +434,72 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
 
   // ==================== Prompt Generation ====================
 
-  String _generatePrompt() {
+  String _generatePrompt(AppLocalizations l10n) {
     final isWeek = widget.periodType == 'week';
-    final periodLabel = isWeek ? '本周' : '本月';
-    final dateRange =
-        '${widget.startDate.month}月${widget.startDate.day}日 - ${widget.endDate.month}月${widget.endDate.day}日';
+    final periodLabel = isWeek ? l10n.anPeriodWeek : l10n.anPeriodMonth;
+    final periodWord = isWeek ? l10n.anWeek : l10n.anMonth;
+    final dateRange = l10n.anDateRange(widget.startDate.month,
+        widget.startDate.day, widget.endDate.month, widget.endDate.day);
 
-    final goalLabels = {
-      'muscle_building': '增肌',
-      'fat_loss': '减脂',
-      'strength': '力量提升',
-      'endurance': '耐力增强',
-    };
-    final experienceLabels = {
-      'beginner': '初学者',
-      'intermediate': '中级',
-      'advanced': '高级',
-    };
-    final equipmentLabels = {
-      'gym': '健身房(全器械)',
-      'home_dumbbell': '家用哑铃',
-      'bodyweight': '徒手',
-    };
-    final muscleLabels = {
-      'chest': '胸部',
-      'back': '背部',
-      'shoulders': '肩部',
-      'arms': '手臂',
-      'legs': '腿部',
-      'core': '核心',
-    };
+    String goalLabel(String code) {
+      switch (code) {
+        case 'muscle_building':
+          return l10n.anGoalMuscleBuilding;
+        case 'fat_loss':
+          return l10n.anGoalFatLoss;
+        case 'strength':
+          return l10n.anGoalStrength;
+        case 'endurance':
+          return l10n.anGoalEndurance;
+        default:
+          return code;
+      }
+    }
+
+    String experienceLabel(String code) {
+      switch (code) {
+        case 'beginner':
+          return l10n.prefExperienceBeginner;
+        case 'intermediate':
+          return l10n.prefExperienceIntermediate;
+        case 'advanced':
+          return l10n.prefExperienceAdvanced;
+        default:
+          return code;
+      }
+    }
+
+    String equipmentLabel(String code) {
+      switch (code) {
+        case 'gym':
+          return l10n.prefEquipmentGym;
+        case 'home_dumbbell':
+          return l10n.prefEquipmentHomeDumbbell;
+        case 'bodyweight':
+          return l10n.prefEquipmentBodyweight;
+        default:
+          return code;
+      }
+    }
+
+    String muscleLabel(String code) {
+      switch (code) {
+        case 'chest':
+          return l10n.prefFocusAreaChest;
+        case 'back':
+          return l10n.prefFocusAreaBack;
+        case 'shoulders':
+          return l10n.prefFocusAreaShoulders;
+        case 'arms':
+          return l10n.prefFocusAreaArms;
+        case 'legs':
+          return l10n.prefFocusAreaLegs;
+        case 'core':
+          return l10n.prefFocusAreaCore;
+        default:
+          return code;
+      }
+    }
 
     // Basic statistics
     final totalVolume = _statsCalc.calculateTotalVolume(widget.records);
@@ -455,93 +512,95 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
     final buffer = StringBuffer();
 
     // Opening — period-adaptive
-    buffer.writeln('你是一位专业的健身教练。根据我的训练数据报告，为我制定下个周期的训练计划。');
+    buffer.writeln(l10n.anPromptOpening);
     if (isWeek) {
-      buffer.writeln('本周数据量较少，重点关注恢复状态和下周的肌群轮换安排。');
+      buffer.writeln(l10n.anPromptWeekNote);
     } else {
-      buffer.writeln('本月数据较充分，重点关注渐进超负荷趋势和肌群容量分配是否均衡。');
+      buffer.writeln(l10n.anPromptMonthNote);
     }
     buffer.writeln();
 
     // Training data report
-    buffer.writeln('## 训练数据报告');
+    buffer.writeln(l10n.anPromptReportHeader);
     buffer.writeln();
 
     // Basic info
-    buffer.writeln('### 基本信息');
-    buffer.writeln('- 分析周期: $periodLabel ($dateRange)');
-    buffer.writeln('- 训练次数: $sessionCount 次 / $workoutDays 天');
-    buffer.writeln('- 总训练量: ${fmtVol(totalVolume)} kg (组×次×重量)');
-    buffer.writeln('- 训练密度: ${density.toStringAsFixed(1)} 组/分钟');
+    buffer.writeln(l10n.anPromptBasicInfoHeader);
+    buffer.writeln(l10n.anPromptPeriod(periodLabel, dateRange));
+    buffer.writeln(l10n.anPromptSessions(sessionCount, workoutDays));
+    buffer.writeln(l10n.anPromptTotalVolume(fmtVol(totalVolume)));
+    buffer.writeln(l10n.anPromptDensity(density.toStringAsFixed(1)));
     buffer.writeln();
 
     // Trend changes
-    buffer.writeln('### 趋势变化（vs 上${isWeek ? '周' : '月'}）');
-    buffer.writeln(_formatVolumeTrend());
+    buffer.writeln(l10n.anPromptTrendHeader(periodWord));
+    buffer.writeln(_formatVolumeTrend(l10n));
     buffer.writeln();
 
     // Muscle volume distribution
-    buffer.writeln('### 肌肉容量分布');
-    buffer.writeln(_formatMuscleVolumeDistribution());
+    buffer.writeln(l10n.anPromptMuscleDistHeader);
+    buffer.writeln(_formatMuscleVolumeDistribution(l10n));
     buffer.writeln();
 
     // Sets per muscle group (NEW)
-    buffer.writeln('### 每肌群组数');
-    buffer.writeln(_formatSetsPerMuscleGroup());
+    buffer.writeln(l10n.anPromptSetsPerMuscleHeader);
+    buffer.writeln(_formatSetsPerMuscleGroup(l10n));
     buffer.writeln();
 
     // Estimated 1RM (REPLACED from PR)
-    buffer.writeln('### 估算1RM（本周期最佳，TOP 10）');
-    buffer.writeln(_formatEstimated1RM());
+    buffer.writeln(l10n.anPrompt1rmHeader);
+    buffer.writeln(_formatEstimated1RM(l10n));
     buffer.writeln();
 
     // 1RM progression — MONTH ONLY
     if (!isWeek) {
-      buffer.writeln('### 估算1RM进步趋势');
-      buffer.writeln(_format1RMProgression());
+      buffer.writeln(l10n.anPrompt1rmProgressionHeader);
+      buffer.writeln(_format1RMProgression(l10n));
       buffer.writeln();
     }
 
     // Recovery status
-    buffer.writeln('### 恢复状态（截至今天，全局数据）');
-    buffer.writeln(_formatRecoveryManagement());
+    buffer.writeln(l10n.anPromptRecoveryHeader);
+    buffer.writeln(_formatRecoveryManagement(l10n));
     buffer.writeln();
 
     // User profile
-    buffer.writeln('## 用户画像');
-    buffer.writeln('- 训练目标: ${goalLabels[_selectedGoal] ?? _selectedGoal}');
+    buffer.writeln(l10n.anPromptProfileHeader);
+    buffer.writeln(l10n.anPromptGoal(goalLabel(_selectedGoal)));
     buffer.writeln(
-      '- 经验水平: ${experienceLabels[_selectedExperience] ?? _selectedExperience}',
+      l10n.anPromptExperience(experienceLabel(_selectedExperience)),
     );
-    buffer.writeln('- 每周频率: $_selectedFrequency 天');
+    buffer.writeln(l10n.anPromptFrequency(_selectedFrequency));
     buffer.writeln(
-      '- 可用设备: ${equipmentLabels[_selectedEquipment] ?? _selectedEquipment}',
+      l10n.anPromptEquipment(equipmentLabel(_selectedEquipment)),
     );
     if (_selectedFocusAreas.isNotEmpty) {
       buffer.writeln(
-        '- 重点加强: ${_selectedFocusAreas.map((m) => muscleLabels[m] ?? m).join('、')}',
+        l10n.anPromptFocusAreas(
+          _selectedFocusAreas.map(muscleLabel).join(', '),
+        ),
       );
     }
     buffer.writeln();
 
     // Output format
-    buffer.writeln('## 输出格式');
-    buffer.writeln('请按以下两部分输出你的回复：');
+    buffer.writeln(l10n.anPromptOutputHeader);
+    buffer.writeln(l10n.anPromptOutputIntro);
     buffer.writeln();
-    buffer.writeln('**第一部分：计划设计说明**');
+    buffer.writeln(l10n.anPromptOutputPart1);
     buffer.writeln();
-    buffer.writeln('根据我的训练数据报告，详细说明你为什么这样设计下个周期的训练计划，包括：');
-    buffer.writeln('- 分化方式的选择理由（结合我每周 $workoutDays 天的训练频率）');
-    buffer.writeln('- 与本周期数据的对比分析（哪些肌群训练不足需要加强，哪些已经过度需要恢复）');
-    buffer.writeln('- 每个训练日的动作选择逻辑和容量分配依据');
-    buffer.writeln('- 渐进超负荷的具体建议（重量、组数、频率的调整方向）');
+    buffer.writeln(l10n.anPromptOutputPart1Detail);
+    buffer.writeln(l10n.anPromptOutputSplit(workoutDays));
+    buffer.writeln(l10n.anPromptOutputComparison);
+    buffer.writeln(l10n.anPromptOutputSelection);
+    buffer.writeln(l10n.anPromptOutputOverload);
     buffer.writeln();
-    buffer.writeln('**第二部分：训练计划 JSON**');
+    buffer.writeln(l10n.anPromptOutputPart2);
     buffer.writeln();
-    buffer.writeln('在分析之后，用 ```json 代码块提供结构化训练计划：');
+    buffer.writeln(l10n.anPromptOutputJson);
     buffer.writeln('```json');
     buffer.writeln('{');
-    buffer.writeln('  "name": "计划名称",');
+    buffer.writeln('  "name": "...",');
     buffer.writeln('  "days": [');
     buffer.writeln('    {');
     buffer.writeln('      "dayOfWeek": 1,');
@@ -556,19 +615,19 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
     buffer.writeln('}');
     buffer.writeln('```');
     buffer.writeln();
-    buffer.writeln('## 动作命名规范');
-    buffer.writeln('使用标准英文动作名：');
+    buffer.writeln(l10n.anPromptNamingHeader);
+    buffer.writeln(l10n.anPromptNamingIntro);
     buffer.writeln(
-      '- 杠铃: Barbell Bench Press, Barbell Squat, Deadlift, Overhead Press, Barbell Row',
+      '- Barbell: Barbell Bench Press, Barbell Squat, Deadlift, Overhead Press, Barbell Row',
     );
     buffer.writeln(
-      '- 哑铃: Incline Dumbbell Press, Dumbbell Fly, Dumbbell Curl, Lateral Raise',
+      '- Dumbbell: Incline Dumbbell Press, Dumbbell Fly, Dumbbell Curl, Lateral Raise',
     );
-    buffer.writeln('- 器械: Cable Fly, Cable Crossover, Lat Pulldown, Leg Press');
-    buffer.writeln('- 徒手: Pull-up, Dip, Push-up, Bodyweight Squat');
-    buffer.writeln('如果不确定确切名称，使用标准术语即可。');
+    buffer.writeln('- Cable/Machine: Cable Fly, Cable Crossover, Lat Pulldown, Leg Press');
+    buffer.writeln('- Bodyweight: Pull-up, Dip, Push-up, Bodyweight Squat');
+    buffer.writeln(l10n.anPromptNamingClosing);
     buffer.writeln();
-    buffer.writeln('请先解释你的设计思路和分析，然后生成训练计划。');
+    buffer.writeln(l10n.anPromptClosing);
 
     return buffer.toString();
   }
@@ -579,6 +638,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
   Widget build(BuildContext context) {
     final themeProvider = context.watch<ThemeProvider>();
     final theme = themeProvider.currentTheme;
+    final l10n = AppLocalizations.of(context)!;
     final isWeek = widget.periodType == 'week';
 
     return Scaffold(
@@ -594,7 +654,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
             const SizedBox(height: 24),
 
             // Section 2: Training Data Report
-            _buildSectionHeader('训练数据报告', theme),
+            _buildSectionHeader(l10n.anReportHeading, theme),
             const SizedBox(height: 12),
 
             // a) Basic Info
@@ -642,7 +702,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
             const SizedBox(height: 24),
 
             // Section 3: Generated Prompt
-            _buildSectionHeader('生成的提示词', theme),
+            _buildSectionHeader(l10n.anPromptHeading, theme),
             const SizedBox(height: 12),
             _buildPromptContainer(theme),
             const SizedBox(height: 16),
@@ -655,11 +715,12 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
   }
 
   PreferredSizeWidget _buildAppBar(AppThemeData theme) {
+    final l10n = AppLocalizations.of(context)!;
     return AppBar(
       backgroundColor: Colors.transparent,
       elevation: 0,
       leading: IconButton(
-        tooltip: '关闭',
+        tooltip: l10n.anCloseTooltip,
         icon: Icon(Icons.close, color: theme.textColor),
         onPressed: () => Navigator.pop(context),
       ),
@@ -677,7 +738,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
           Icon(Icons.psychology, color: theme.accentColor, size: 22),
           const SizedBox(width: 8),
           Text(
-            'AI 训练分析',
+            l10n.anTitle,
             style: Theme.of(context).textTheme.headlineMedium!.copyWith(
               fontWeight: FontWeight.w700,
               letterSpacing: -0.5,
@@ -689,6 +750,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
   }
 
   Widget _buildInstructionsBox(AppThemeData theme) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(AppDimensions.screenPadding),
       decoration: BoxDecoration(
@@ -707,7 +769,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
               Icon(Icons.info_outline, size: 18, color: theme.accentColor),
               const SizedBox(width: 8),
               Text(
-                '使用说明',
+                l10n.anInstructionsHeading,
                 style: Theme.of(context).textTheme.labelLarge!.copyWith(
                   fontWeight: FontWeight.w600,
                   color: theme.accentColor,
@@ -716,11 +778,11 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
             ],
           ),
           const SizedBox(height: 12),
-          _buildInstructionStep('1. 查看下方的训练数据报告', theme),
-          _buildInstructionStep('2. 复制生成的提示词', theme),
-          _buildInstructionStep('3. 粘贴给 ChatGPT / 豆包 / 千问 等 AI', theme),
-          _buildInstructionStep('4. AI 会返回分析建议和 JSON 计划', theme),
-          _buildInstructionStep('5. 前往「计划」页面 →「导入分析」导入计划', theme),
+          _buildInstructionStep(l10n.anInstruction1, theme),
+          _buildInstructionStep(l10n.anInstruction2, theme),
+          _buildInstructionStep(l10n.anInstruction3, theme),
+          _buildInstructionStep(l10n.anInstruction4, theme),
+          _buildInstructionStep(l10n.anInstruction5, theme),
         ],
       ),
     );
@@ -784,6 +846,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
   }
 
   Widget _buildBasicInfoSection(AppThemeData theme) {
+    final l10n = AppLocalizations.of(context)!;
     final totalVolume = _statsCalc.calculateTotalVolume(widget.records);
     final density = _statsCalc.calculateDensity(widget.records);
     final totalDurationMin =
@@ -802,14 +865,16 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSubsectionHeader('基本信息', theme),
-        _buildDataRow('训练次数', '$sessionCount 次 / $workoutDays 天', theme),
-        _buildDataRow('总训练量', '${fmtVol(totalVolume)} kg', theme),
-        _buildDataRow('训练密度', '${density.toStringAsFixed(1)} 组/分钟', theme),
+        _buildSubsectionHeader(l10n.anBasicInfo, theme),
+        _buildDataRow(l10n.anSessionCount,
+            l10n.anSessionsAndDays(sessionCount, workoutDays), theme),
+        _buildDataRow(l10n.anTotalVolume, '${fmtVol(totalVolume)} kg', theme),
+        _buildDataRow(
+            l10n.anDensity, l10n.anDensityValue(density.toStringAsFixed(1)), theme),
         if (sessionCount > 0)
           _buildDataRow(
-            '平均每次',
-            '${fmtVol(avgVolumePerSession)} kg / $avgPerSession 分钟',
+            l10n.anAvgPerSession,
+            l10n.anAvgPerSessionValue(fmtVol(avgVolumePerSession), avgPerSession),
             theme,
           ),
       ],
@@ -817,15 +882,16 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
   }
 
   Widget _buildTrendSection(AppThemeData theme) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSubsectionHeader(
-          '趋势变化 (vs 上${widget.periodType == 'week' ? '周' : '月'})',
+          widget.periodType == 'week' ? l10n.anTrendWeek : l10n.anTrendMonth,
           theme,
         ),
         Text(
-          _formatVolumeTrend(),
+          _formatVolumeTrend(l10n),
           style: Theme.of(
             context,
           ).textTheme.bodyMedium!.copyWith(fontSize: 13, height: 1.5),
@@ -835,12 +901,13 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
   }
 
   Widget _buildMuscleDistributionSection(AppThemeData theme) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSubsectionHeader('肌肉容量分布', theme),
+        _buildSubsectionHeader(l10n.anMuscleDistribution, theme),
         Text(
-          _formatMuscleVolumeDistribution(),
+          _formatMuscleVolumeDistribution(l10n),
           style: Theme.of(
             context,
           ).textTheme.bodyMedium!.copyWith(fontSize: 13, height: 1.5),
@@ -850,15 +917,18 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
   }
 
   Widget _buildSetsPerMuscleSection(AppThemeData theme) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSubsectionHeader(
-          '每肌群组数 (MEV参考: ${widget.periodType == 'week' ? '10组/周' : '40组/月'})',
+          widget.periodType == 'week'
+              ? l10n.anSetsPerMuscleWeek
+              : l10n.anSetsPerMuscleMonth,
           theme,
         ),
         Text(
-          _formatSetsPerMuscleGroup(),
+          _formatSetsPerMuscleGroup(l10n),
           style: Theme.of(
             context,
           ).textTheme.bodyMedium!.copyWith(fontSize: 13, height: 1.5),
@@ -868,12 +938,13 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
   }
 
   Widget _buildEstimated1RMSection(AppThemeData theme) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSubsectionHeader('估算1RM (Mayhew公式)', theme),
+        _buildSubsectionHeader(l10n.anEstimated1rm, theme),
         Text(
-          _formatEstimated1RM(),
+          _formatEstimated1RM(l10n),
           style: Theme.of(
             context,
           ).textTheme.bodyMedium!.copyWith(fontSize: 13, height: 1.5),
@@ -883,12 +954,13 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
   }
 
   Widget _build1RMProgressionSection(AppThemeData theme) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSubsectionHeader('估算1RM进步趋势', theme),
+        _buildSubsectionHeader(l10n.an1rmProgression, theme),
         Text(
-          _format1RMProgression(),
+          _format1RMProgression(l10n),
           style: Theme.of(
             context,
           ).textTheme.bodyMedium!.copyWith(fontSize: 13, height: 1.5),
@@ -898,12 +970,13 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
   }
 
   Widget _buildRecoverySection(AppThemeData theme) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSubsectionHeader('恢复状态', theme),
+        _buildSubsectionHeader(l10n.anRecovery, theme),
         Text(
-          _formatRecoveryManagement(),
+          _formatRecoveryManagement(l10n),
           style: Theme.of(
             context,
           ).textTheme.bodyMedium!.copyWith(fontSize: 13, height: 1.5),
@@ -951,7 +1024,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
       ),
       child: SingleChildScrollView(
         child: Text(
-          _generatedPrompt ?? '正在生成提示词...',
+          _generatedPrompt ?? AppLocalizations.of(context)!.anGeneratingPrompt,
           style: Theme.of(
             context,
           ).textTheme.bodySmall!.copyWith(color: theme.textColor, height: 1.5),
@@ -961,6 +1034,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
   }
 
   Widget _buildCopyButton(AppThemeData theme) {
+    final l10n = AppLocalizations.of(context)!;
     return SizedBox(
       width: double.infinity,
       height: 56,
@@ -972,7 +1046,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
                 setState(() => _isPromptCopied = true);
                 ScaffoldMessenger.of(
                   context,
-                ).showSnackBar(const SnackBar(content: Text('提示词已复制到剪贴板')));
+                ).showSnackBar(SnackBar(content: Text(l10n.anCopiedToast)));
               },
         icon: Icon(
           _isPromptCopied ? Icons.check : Icons.copy,
@@ -980,7 +1054,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
           color: theme.surfaceColor,
         ),
         label: Text(
-          _isPromptCopied ? '已复制' : '复制提示词',
+          _isPromptCopied ? l10n.anCopiedLabel : l10n.anCopyPrompt,
           style: Theme.of(
             context,
           ).textTheme.titleLarge!.copyWith(color: theme.surfaceColor),

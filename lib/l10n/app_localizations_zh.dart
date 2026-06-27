@@ -1522,4 +1522,388 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get pfDiscard => '放弃';
+
+  @override
+  String get anTitle => 'AI 训练分析';
+
+  @override
+  String get anInstructionsHeading => '使用说明';
+
+  @override
+  String get anInstruction1 => '1. 查看下方的训练数据报告';
+
+  @override
+  String get anInstruction2 => '2. 复制生成的提示词';
+
+  @override
+  String get anInstruction3 => '3. 粘贴给 ChatGPT / 豆包 / 千问 等 AI';
+
+  @override
+  String get anInstruction4 => '4. AI 会返回分析建议和 JSON 计划';
+
+  @override
+  String get anInstruction5 => '5. 前往「计划」页面 →「导入分析」导入计划';
+
+  @override
+  String get anReportHeading => '训练数据报告';
+
+  @override
+  String get anPromptHeading => '生成的提示词';
+
+  @override
+  String get anGeneratingPrompt => '正在生成提示词...';
+
+  @override
+  String get anCopiedToast => '提示词已复制到剪贴板';
+
+  @override
+  String get anCopiedLabel => '已复制';
+
+  @override
+  String get anCopyPrompt => '复制提示词';
+
+  @override
+  String get anCloseTooltip => '关闭';
+
+  @override
+  String get anBasicInfo => '基本信息';
+
+  @override
+  String anSessionsAndDays(int sessions, int days) {
+    return '$sessions 次 / $days 天';
+  }
+
+  @override
+  String get anSessionCount => '训练次数';
+
+  @override
+  String get anTotalVolume => '总训练量';
+
+  @override
+  String get anDensity => '训练密度';
+
+  @override
+  String anDensityValue(String value) {
+    return '$value 组/分钟';
+  }
+
+  @override
+  String get anAvgPerSession => '平均每次';
+
+  @override
+  String anAvgPerSessionValue(String volume, int minutes) {
+    return '$volume kg / $minutes 分钟';
+  }
+
+  @override
+  String get anTrendWeek => '趋势变化 (vs 上周)';
+
+  @override
+  String get anTrendMonth => '趋势变化 (vs 上月)';
+
+  @override
+  String get anMuscleDistribution => '肌肉容量分布';
+
+  @override
+  String get anSetsPerMuscleWeek => '每肌群组数 (MEV参考: 10组/周)';
+
+  @override
+  String get anSetsPerMuscleMonth => '每肌群组数 (MEV参考: 40组/月)';
+
+  @override
+  String get anEstimated1rm => '估算1RM (Mayhew公式)';
+
+  @override
+  String get an1rmProgression => '估算1RM进步趋势';
+
+  @override
+  String get anRecovery => '恢复状态';
+
+  @override
+  String get anNoMuscleData => '- 暂无肌肉训练数据';
+
+  @override
+  String get anNoTrendData => '- 暂无趋势数据';
+
+  @override
+  String get anNoSetsData => '- 暂无组数数据';
+
+  @override
+  String get anNo1rmData => '- 暂无1RM数据（需要每组重量和次数记录）';
+
+  @override
+  String get anNo1rmTrendData => '- 暂无1RM趋势数据';
+
+  @override
+  String get anNoProgressData => '- 本周期内各动作仅训练1次，无法计算进步趋势';
+
+  @override
+  String get anNoRecoveryData => '- 暂无恢复数据';
+
+  @override
+  String get anNoMuscleRecoveryData => '- 暂无肌肉恢复数据';
+
+  @override
+  String anMevWeekLabel(int count) {
+    return '周MEV参考: $count 组';
+  }
+
+  @override
+  String anMevMonthLabel(int count) {
+    return '月MEV参考: $count 组';
+  }
+
+  @override
+  String get anStatusSufficient => '✅ 充足';
+
+  @override
+  String get anStatusLow => '⚠️ 偏低';
+
+  @override
+  String get anStatusInsufficient => '🔴 不足';
+
+  @override
+  String get anMayhewNote => '  (基于 Mayhew 公式估算，±5-8kg 误差)';
+
+  @override
+  String get anRecoveryTrainable => '✅ 可训练';
+
+  @override
+  String anRecoveryRestMore(int days) {
+    return '⚠️ 建议再休息$days天';
+  }
+
+  @override
+  String get anRecoveryJustTrained => '🔴 今日刚训练';
+
+  @override
+  String get anPeriodWeek => '本周';
+
+  @override
+  String get anPeriodMonth => '本月';
+
+  @override
+  String get anWeek => '周';
+
+  @override
+  String get anMonth => '月';
+
+  @override
+  String get anGoalMuscleBuilding => '增肌';
+
+  @override
+  String get anGoalFatLoss => '减脂';
+
+  @override
+  String get anGoalStrength => '力量提升';
+
+  @override
+  String get anGoalEndurance => '耐力增强';
+
+  @override
+  String anDateRange(int startMonth, int startDay, int endMonth, int endDay) {
+    return '$startMonth月$startDay日 - $endMonth月$endDay日';
+  }
+
+  @override
+  String get anPromptOpening => '你是一位专业的健身教练。根据我的训练数据报告，为我制定下个周期的训练计划。';
+
+  @override
+  String get anPromptWeekNote => '本周数据量较少，重点关注恢复状态和下周的肌群轮换安排。';
+
+  @override
+  String get anPromptMonthNote => '本月数据较充分，重点关注渐进超负荷趋势和肌群容量分配是否均衡。';
+
+  @override
+  String get anPromptReportHeader => '## 训练数据报告';
+
+  @override
+  String get anPromptBasicInfoHeader => '### 基本信息';
+
+  @override
+  String anPromptPeriod(String period, String range) {
+    return '- 分析周期: $period ($range)';
+  }
+
+  @override
+  String anPromptSessions(int sessions, int days) {
+    return '- 训练次数: $sessions 次 / $days 天';
+  }
+
+  @override
+  String anPromptTotalVolume(String volume) {
+    return '- 总训练量: $volume kg (组×次×重量)';
+  }
+
+  @override
+  String anPromptDensity(String value) {
+    return '- 训练密度: $value 组/分钟';
+  }
+
+  @override
+  String anPromptTrendHeader(String period) {
+    return '### 趋势变化（vs 上$period）';
+  }
+
+  @override
+  String get anPromptMuscleDistHeader => '### 肌肉容量分布';
+
+  @override
+  String get anPromptSetsPerMuscleHeader => '### 每肌群组数';
+
+  @override
+  String get anPrompt1rmHeader => '### 估算1RM（本周期最佳，TOP 10）';
+
+  @override
+  String get anPrompt1rmProgressionHeader => '### 估算1RM进步趋势';
+
+  @override
+  String get anPromptRecoveryHeader => '### 恢复状态（截至今天，全局数据）';
+
+  @override
+  String get anPromptProfileHeader => '## 用户画像';
+
+  @override
+  String anPromptGoal(String goal) {
+    return '- 训练目标: $goal';
+  }
+
+  @override
+  String anPromptExperience(String experience) {
+    return '- 经验水平: $experience';
+  }
+
+  @override
+  String anPromptFrequency(int frequency) {
+    return '- 每周频率: $frequency 天';
+  }
+
+  @override
+  String anPromptEquipment(String equipment) {
+    return '- 可用设备: $equipment';
+  }
+
+  @override
+  String anPromptFocusAreas(String areas) {
+    return '- 重点加强: $areas';
+  }
+
+  @override
+  String get anPromptOutputHeader => '## 输出格式';
+
+  @override
+  String get anPromptOutputIntro => '请按以下两部分输出你的回复：';
+
+  @override
+  String get anPromptOutputPart1 => '**第一部分：计划设计说明**';
+
+  @override
+  String get anPromptOutputPart1Detail =>
+      '根据我的训练数据报告，详细说明你为什么这样设计下个周期的训练计划，包括：';
+
+  @override
+  String anPromptOutputSplit(int days) {
+    return '- 分化方式的选择理由（结合我每周 $days 天的训练频率）';
+  }
+
+  @override
+  String get anPromptOutputComparison =>
+      '- 与本周期数据的对比分析（哪些肌群训练不足需要加强，哪些已经过度需要恢复）';
+
+  @override
+  String get anPromptOutputSelection => '- 每个训练日的动作选择逻辑和容量分配依据';
+
+  @override
+  String get anPromptOutputOverload => '- 渐进超负荷的具体建议（重量、组数、频率的调整方向）';
+
+  @override
+  String get anPromptOutputPart2 => '**第二部分：训练计划 JSON**';
+
+  @override
+  String get anPromptOutputJson => '在分析之后，用 ```json 代码块提供结构化训练计划：';
+
+  @override
+  String get anPromptNamingHeader => '## 动作命名规范';
+
+  @override
+  String get anPromptNamingIntro => '使用标准英文动作名：';
+
+  @override
+  String get anPromptNamingClosing => '如果不确定确切名称，使用标准术语即可。';
+
+  @override
+  String get anPromptClosing => '请先解释你的设计思路和分析，然后生成训练计划。';
+
+  @override
+  String anPromptVolumeTrendWithChange(
+    String volume,
+    String sign,
+    int change,
+    String arrow,
+  ) {
+    return '  - 总训练量: $volume ($sign$change% $arrow)';
+  }
+
+  @override
+  String anPromptVolumeTrendNew(String volume) {
+    return '  - 总训练量: $volume (新周期)';
+  }
+
+  @override
+  String anPromptFreqTrend(int days, int diff, String arrow) {
+    return '  - 训练频率: $days 天 ($diff$arrow)';
+  }
+
+  @override
+  String anPromptMuscleTrend(
+    String muscle,
+    String sign,
+    int change,
+    String arrow,
+  ) {
+    return '  - $muscle: $sign$change% $arrow';
+  }
+
+  @override
+  String anPromptMuscleDistLine(
+    int index,
+    String muscle,
+    String volume,
+    String pct,
+  ) {
+    return '  $index. $muscle: $volume kg ($pct%)';
+  }
+
+  @override
+  String anPromptSetsLine(String muscle, int sets, String status) {
+    return '  - $muscle: $sets 组 $status';
+  }
+
+  @override
+  String anPrompt1rmLine(String name, String e1rm, String weight, int reps) {
+    return '  - $name: ~$e1rm kg (基于 ${weight}kg×$reps)';
+  }
+
+  @override
+  String anPrompt1rmProgressLine(
+    String name,
+    String from,
+    String to,
+    String sign,
+    String change,
+    String arrow,
+    String weeks,
+  ) {
+    return '  - $name: $from → $to kg ($sign$change% $arrow$weeks)';
+  }
+
+  @override
+  String anPrompt1rmWeeksSuffix(String weeks) {
+    return ' / $weeks周';
+  }
+
+  @override
+  String anPromptRecoveryLine(String muscle, int days, String status) {
+    return '  - $muscle: 已休息$days天 $status';
+  }
 }
