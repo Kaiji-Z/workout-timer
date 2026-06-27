@@ -1559,4 +1559,402 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pfDiscard => 'Discard';
+
+  @override
+  String get anTitle => 'AI Workout Analysis';
+
+  @override
+  String get anInstructionsHeading => 'Instructions';
+
+  @override
+  String get anInstruction1 => '1. Review the workout data report below';
+
+  @override
+  String get anInstruction2 => '2. Copy the generated prompt';
+
+  @override
+  String get anInstruction3 =>
+      '3. Paste it into ChatGPT / Doubao / Qwen or another AI';
+
+  @override
+  String get anInstruction4 => '4. The AI returns analysis and a JSON plan';
+
+  @override
+  String get anInstruction5 =>
+      '5. Go to the \"Plans\" page → \"Import analysis\" to import the plan';
+
+  @override
+  String get anReportHeading => 'Workout data report';
+
+  @override
+  String get anPromptHeading => 'Generated prompt';
+
+  @override
+  String get anGeneratingPrompt => 'Generating prompt...';
+
+  @override
+  String get anCopiedToast => 'Prompt copied to clipboard';
+
+  @override
+  String get anCopiedLabel => 'Copied';
+
+  @override
+  String get anCopyPrompt => 'Copy prompt';
+
+  @override
+  String get anCloseTooltip => 'Close';
+
+  @override
+  String get anBasicInfo => 'Basic info';
+
+  @override
+  String anSessionsAndDays(int sessions, int days) {
+    return '$sessions sessions / $days days';
+  }
+
+  @override
+  String get anSessionCount => 'Sessions';
+
+  @override
+  String get anTotalVolume => 'Total volume';
+
+  @override
+  String get anDensity => 'Density';
+
+  @override
+  String anDensityValue(String value) {
+    return '$value sets/min';
+  }
+
+  @override
+  String get anAvgPerSession => 'Avg per session';
+
+  @override
+  String anAvgPerSessionValue(String volume, int minutes) {
+    return '$volume kg / $minutes min';
+  }
+
+  @override
+  String get anTrendWeek => 'Trend (vs last week)';
+
+  @override
+  String get anTrendMonth => 'Trend (vs last month)';
+
+  @override
+  String get anMuscleDistribution => 'Muscle volume distribution';
+
+  @override
+  String get anSetsPerMuscleWeek => 'Sets per muscle (MEV ref: 10 sets/week)';
+
+  @override
+  String get anSetsPerMuscleMonth => 'Sets per muscle (MEV ref: 40 sets/month)';
+
+  @override
+  String get anEstimated1rm => 'Estimated 1RM (Mayhew)';
+
+  @override
+  String get an1rmProgression => 'Estimated 1RM progression';
+
+  @override
+  String get anRecovery => 'Recovery status';
+
+  @override
+  String get anNoMuscleData => '- No muscle training data';
+
+  @override
+  String get anNoTrendData => '- No trend data';
+
+  @override
+  String get anNoSetsData => '- No sets data';
+
+  @override
+  String get anNo1rmData =>
+      '- No 1RM data (requires per-set weight and rep records)';
+
+  @override
+  String get anNo1rmTrendData => '- No 1RM trend data';
+
+  @override
+  String get anNoProgressData =>
+      '- Each exercise was trained only once this period; cannot compute progression';
+
+  @override
+  String get anNoRecoveryData => '- No recovery data';
+
+  @override
+  String get anNoMuscleRecoveryData => '- No muscle recovery data';
+
+  @override
+  String anMevWeekLabel(int count) {
+    return 'Weekly MEV ref: $count sets';
+  }
+
+  @override
+  String anMevMonthLabel(int count) {
+    return 'Monthly MEV ref: $count sets';
+  }
+
+  @override
+  String get anStatusSufficient => '✅ Sufficient';
+
+  @override
+  String get anStatusLow => '⚠️ Low';
+
+  @override
+  String get anStatusInsufficient => '🔴 Insufficient';
+
+  @override
+  String get anMayhewNote => '  (Estimated via Mayhew formula, ±5-8 kg error)';
+
+  @override
+  String get anRecoveryTrainable => '✅ Ready to train';
+
+  @override
+  String anRecoveryRestMore(int days) {
+    return '⚠️ Rest $days more day(s)';
+  }
+
+  @override
+  String get anRecoveryJustTrained => '🔴 Trained today';
+
+  @override
+  String get anPeriodWeek => 'This week';
+
+  @override
+  String get anPeriodMonth => 'This month';
+
+  @override
+  String get anWeek => 'week';
+
+  @override
+  String get anMonth => 'month';
+
+  @override
+  String get anGoalMuscleBuilding => 'Muscle building';
+
+  @override
+  String get anGoalFatLoss => 'Fat loss';
+
+  @override
+  String get anGoalStrength => 'Strength';
+
+  @override
+  String get anGoalEndurance => 'Endurance';
+
+  @override
+  String anDateRange(int startMonth, int startDay, int endMonth, int endDay) {
+    return '$startMonth/$startDay - $endMonth/$endDay';
+  }
+
+  @override
+  String get anPromptOpening =>
+      'You are a professional fitness coach. Based on my training data report, design my training plan for the next cycle.';
+
+  @override
+  String get anPromptWeekNote =>
+      'Weekly data is limited; focus on recovery status and next week\'s muscle rotation.';
+
+  @override
+  String get anPromptMonthNote =>
+      'Monthly data is rich; focus on progressive overload trends and balanced muscle volume allocation.';
+
+  @override
+  String get anPromptReportHeader => '## Workout Data Report';
+
+  @override
+  String get anPromptBasicInfoHeader => '### Basic Info';
+
+  @override
+  String anPromptPeriod(String period, String range) {
+    return '- Period: $period ($range)';
+  }
+
+  @override
+  String anPromptSessions(int sessions, int days) {
+    return '- Sessions: $sessions / $days days';
+  }
+
+  @override
+  String anPromptTotalVolume(String volume) {
+    return '- Total volume: $volume kg (sets×reps×weight)';
+  }
+
+  @override
+  String anPromptDensity(String value) {
+    return '- Density: $value sets/min';
+  }
+
+  @override
+  String anPromptTrendHeader(String period) {
+    return '### Trend (vs last $period)';
+  }
+
+  @override
+  String get anPromptMuscleDistHeader => '### Muscle Volume Distribution';
+
+  @override
+  String get anPromptSetsPerMuscleHeader => '### Sets Per Muscle Group';
+
+  @override
+  String get anPrompt1rmHeader =>
+      '### Estimated 1RM (best this period, TOP 10)';
+
+  @override
+  String get anPrompt1rmProgressionHeader => '### Estimated 1RM Progression';
+
+  @override
+  String get anPromptRecoveryHeader =>
+      '### Recovery Status (as of today, global data)';
+
+  @override
+  String get anPromptProfileHeader => '## User Profile';
+
+  @override
+  String anPromptGoal(String goal) {
+    return '- Goal: $goal';
+  }
+
+  @override
+  String anPromptExperience(String experience) {
+    return '- Experience: $experience';
+  }
+
+  @override
+  String anPromptFrequency(int frequency) {
+    return '- Weekly frequency: $frequency days';
+  }
+
+  @override
+  String anPromptEquipment(String equipment) {
+    return '- Equipment: $equipment';
+  }
+
+  @override
+  String anPromptFocusAreas(String areas) {
+    return '- Focus areas: $areas';
+  }
+
+  @override
+  String get anPromptOutputHeader => '## Output Format';
+
+  @override
+  String get anPromptOutputIntro => 'Reply in two parts:';
+
+  @override
+  String get anPromptOutputPart1 => '**Part 1: Plan design rationale**';
+
+  @override
+  String get anPromptOutputPart1Detail =>
+      'Based on my training data report, explain in detail why you designed the next cycle this way, including:';
+
+  @override
+  String anPromptOutputSplit(int days) {
+    return '- Split rationale (given my $days-day weekly frequency)';
+  }
+
+  @override
+  String get anPromptOutputComparison =>
+      '- Comparison with this cycle\'s data (which muscles are under-trained and need more, which are over-trained and need recovery)';
+
+  @override
+  String get anPromptOutputSelection =>
+      '- Exercise selection logic and volume allocation for each training day';
+
+  @override
+  String get anPromptOutputOverload =>
+      '- Specific progressive overload advice (weight, sets, frequency adjustments)';
+
+  @override
+  String get anPromptOutputPart2 => '**Part 2: Workout Plan JSON**';
+
+  @override
+  String get anPromptOutputJson =>
+      'After the analysis, provide a structured workout plan in a ```json block:';
+
+  @override
+  String get anPromptNamingHeader => '## Exercise Naming';
+
+  @override
+  String get anPromptNamingIntro => 'Use standard English exercise names:';
+
+  @override
+  String get anPromptNamingClosing =>
+      'If unsure of the exact name, use standard terminology.';
+
+  @override
+  String get anPromptClosing =>
+      'Explain your design rationale and analysis first, then generate the workout plan.';
+
+  @override
+  String anPromptVolumeTrendWithChange(
+    String volume,
+    String sign,
+    int change,
+    String arrow,
+  ) {
+    return '  - Total volume: $volume ($sign$change% $arrow)';
+  }
+
+  @override
+  String anPromptVolumeTrendNew(String volume) {
+    return '  - Total volume: $volume (new period)';
+  }
+
+  @override
+  String anPromptFreqTrend(int days, int diff, String arrow) {
+    return '  - Frequency: $days days ($diff$arrow)';
+  }
+
+  @override
+  String anPromptMuscleTrend(
+    String muscle,
+    String sign,
+    int change,
+    String arrow,
+  ) {
+    return '  - $muscle: $sign$change% $arrow';
+  }
+
+  @override
+  String anPromptMuscleDistLine(
+    int index,
+    String muscle,
+    String volume,
+    String pct,
+  ) {
+    return '  $index. $muscle: $volume kg ($pct%)';
+  }
+
+  @override
+  String anPromptSetsLine(String muscle, int sets, String status) {
+    return '  - $muscle: $sets sets $status';
+  }
+
+  @override
+  String anPrompt1rmLine(String name, String e1rm, String weight, int reps) {
+    return '  - $name: ~$e1rm kg (from ${weight}kg×$reps)';
+  }
+
+  @override
+  String anPrompt1rmProgressLine(
+    String name,
+    String from,
+    String to,
+    String sign,
+    String change,
+    String arrow,
+    String weeks,
+  ) {
+    return '  - $name: $from → $to kg ($sign$change% $arrow$weeks)';
+  }
+
+  @override
+  String anPrompt1rmWeeksSuffix(String weeks) {
+    return ' / ${weeks}w';
+  }
+
+  @override
+  String anPromptRecoveryLine(String muscle, int days, String status) {
+    return '  - $muscle: rested $days day(s) $status';
+  }
 }

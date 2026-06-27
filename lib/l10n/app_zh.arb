@@ -1137,5 +1137,350 @@
   "pfKeepEditing": "继续编辑",
   "@pfKeepEditing": {},
   "pfDiscard": "放弃",
-  "@pfDiscard": {}
+  "@pfDiscard": {},
+  "anTitle": "AI 训练分析",
+  "@anTitle": {},
+  "anInstructionsHeading": "使用说明",
+  "@anInstructionsHeading": {},
+  "anInstruction1": "1. 查看下方的训练数据报告",
+  "@anInstruction1": {},
+  "anInstruction2": "2. 复制生成的提示词",
+  "@anInstruction2": {},
+  "anInstruction3": "3. 粘贴给 ChatGPT / 豆包 / 千问 等 AI",
+  "@anInstruction3": {},
+  "anInstruction4": "4. AI 会返回分析建议和 JSON 计划",
+  "@anInstruction4": {},
+  "anInstruction5": "5. 前往「计划」页面 →「导入分析」导入计划",
+  "@anInstruction5": {},
+  "anReportHeading": "训练数据报告",
+  "@anReportHeading": {},
+  "anPromptHeading": "生成的提示词",
+  "@anPromptHeading": {},
+  "anGeneratingPrompt": "正在生成提示词...",
+  "@anGeneratingPrompt": {},
+  "anCopiedToast": "提示词已复制到剪贴板",
+  "@anCopiedToast": {},
+  "anCopiedLabel": "已复制",
+  "@anCopiedLabel": {},
+  "anCopyPrompt": "复制提示词",
+  "@anCopyPrompt": {},
+  "anCloseTooltip": "关闭",
+  "@anCloseTooltip": {},
+  "anBasicInfo": "基本信息",
+  "@anBasicInfo": {},
+  "anSessionsAndDays": "{sessions} 次 / {days} 天",
+  "@anSessionsAndDays": {
+    "placeholders": {
+      "sessions": { "type": "int" },
+      "days": { "type": "int" }
+    }
+  },
+  "anSessionCount": "训练次数",
+  "@anSessionCount": {},
+  "anTotalVolume": "总训练量",
+  "@anTotalVolume": {},
+  "anDensity": "训练密度",
+  "@anDensity": {},
+  "anDensityValue": "{value} 组/分钟",
+  "@anDensityValue": {
+    "placeholders": {
+      "value": { "type": "String" }
+    }
+  },
+  "anAvgPerSession": "平均每次",
+  "@anAvgPerSession": {},
+  "anAvgPerSessionValue": "{volume} kg / {minutes} 分钟",
+  "@anAvgPerSessionValue": {
+    "placeholders": {
+      "volume": { "type": "String" },
+      "minutes": { "type": "int" }
+    }
+  },
+  "anTrendWeek": "趋势变化 (vs 上周)",
+  "@anTrendWeek": {},
+  "anTrendMonth": "趋势变化 (vs 上月)",
+  "@anTrendMonth": {},
+  "anMuscleDistribution": "肌肉容量分布",
+  "@anMuscleDistribution": {},
+  "anSetsPerMuscleWeek": "每肌群组数 (MEV参考: 10组/周)",
+  "@anSetsPerMuscleWeek": {},
+  "anSetsPerMuscleMonth": "每肌群组数 (MEV参考: 40组/月)",
+  "@anSetsPerMuscleMonth": {},
+  "anEstimated1rm": "估算1RM (Mayhew公式)",
+  "@anEstimated1rm": {},
+  "an1rmProgression": "估算1RM进步趋势",
+  "@an1rmProgression": {},
+  "anRecovery": "恢复状态",
+  "@anRecovery": {},
+  "anNoMuscleData": "- 暂无肌肉训练数据",
+  "@anNoMuscleData": {},
+  "anNoTrendData": "- 暂无趋势数据",
+  "@anNoTrendData": {},
+  "anNoSetsData": "- 暂无组数数据",
+  "@anNoSetsData": {},
+  "anNo1rmData": "- 暂无1RM数据（需要每组重量和次数记录）",
+  "@anNo1rmData": {},
+  "anNo1rmTrendData": "- 暂无1RM趋势数据",
+  "@anNo1rmTrendData": {},
+  "anNoProgressData": "- 本周期内各动作仅训练1次，无法计算进步趋势",
+  "@anNoProgressData": {},
+  "anNoRecoveryData": "- 暂无恢复数据",
+  "@anNoRecoveryData": {},
+  "anNoMuscleRecoveryData": "- 暂无肌肉恢复数据",
+  "@anNoMuscleRecoveryData": {},
+  "anMevWeekLabel": "周MEV参考: {count} 组",
+  "@anMevWeekLabel": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "anMevMonthLabel": "月MEV参考: {count} 组",
+  "@anMevMonthLabel": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "anStatusSufficient": "✅ 充足",
+  "@anStatusSufficient": {},
+  "anStatusLow": "⚠️ 偏低",
+  "@anStatusLow": {},
+  "anStatusInsufficient": "🔴 不足",
+  "@anStatusInsufficient": {},
+  "anMayhewNote": "  (基于 Mayhew 公式估算，±5-8kg 误差)",
+  "@anMayhewNote": {},
+  "anRecoveryTrainable": "✅ 可训练",
+  "@anRecoveryTrainable": {},
+  "anRecoveryRestMore": "⚠️ 建议再休息{days}天",
+  "@anRecoveryRestMore": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "anRecoveryJustTrained": "🔴 今日刚训练",
+  "@anRecoveryJustTrained": {},
+  "anPeriodWeek": "本周",
+  "@anPeriodWeek": {},
+  "anPeriodMonth": "本月",
+  "@anPeriodMonth": {},
+  "anWeek": "周",
+  "@anWeek": {},
+  "anMonth": "月",
+  "@anMonth": {},
+  "anGoalMuscleBuilding": "增肌",
+  "@anGoalMuscleBuilding": {},
+  "anGoalFatLoss": "减脂",
+  "@anGoalFatLoss": {},
+  "anGoalStrength": "力量提升",
+  "@anGoalStrength": {},
+  "anGoalEndurance": "耐力增强",
+  "@anGoalEndurance": {},
+  "anDateRange": "{startMonth}月{startDay}日 - {endMonth}月{endDay}日",
+  "@anDateRange": {
+    "placeholders": {
+      "startMonth": { "type": "int" },
+      "startDay": { "type": "int" },
+      "endMonth": { "type": "int" },
+      "endDay": { "type": "int" }
+    }
+  },
+  "anPromptOpening": "你是一位专业的健身教练。根据我的训练数据报告，为我制定下个周期的训练计划。",
+  "@anPromptOpening": {},
+  "anPromptWeekNote": "本周数据量较少，重点关注恢复状态和下周的肌群轮换安排。",
+  "@anPromptWeekNote": {},
+  "anPromptMonthNote": "本月数据较充分，重点关注渐进超负荷趋势和肌群容量分配是否均衡。",
+  "@anPromptMonthNote": {},
+  "anPromptReportHeader": "## 训练数据报告",
+  "@anPromptReportHeader": {},
+  "anPromptBasicInfoHeader": "### 基本信息",
+  "@anPromptBasicInfoHeader": {},
+  "anPromptPeriod": "- 分析周期: {period} ({range})",
+  "@anPromptPeriod": {
+    "placeholders": {
+      "period": { "type": "String" },
+      "range": { "type": "String" }
+    }
+  },
+  "anPromptSessions": "- 训练次数: {sessions} 次 / {days} 天",
+  "@anPromptSessions": {
+    "placeholders": {
+      "sessions": { "type": "int" },
+      "days": { "type": "int" }
+    }
+  },
+  "anPromptTotalVolume": "- 总训练量: {volume} kg (组×次×重量)",
+  "@anPromptTotalVolume": {
+    "placeholders": {
+      "volume": { "type": "String" }
+    }
+  },
+  "anPromptDensity": "- 训练密度: {value} 组/分钟",
+  "@anPromptDensity": {
+    "placeholders": {
+      "value": { "type": "String" }
+    }
+  },
+  "anPromptTrendHeader": "### 趋势变化（vs 上{period}）",
+  "@anPromptTrendHeader": {
+    "placeholders": {
+      "period": { "type": "String" }
+    }
+  },
+  "anPromptMuscleDistHeader": "### 肌肉容量分布",
+  "@anPromptMuscleDistHeader": {},
+  "anPromptSetsPerMuscleHeader": "### 每肌群组数",
+  "@anPromptSetsPerMuscleHeader": {},
+  "anPrompt1rmHeader": "### 估算1RM（本周期最佳，TOP 10）",
+  "@anPrompt1rmHeader": {},
+  "anPrompt1rmProgressionHeader": "### 估算1RM进步趋势",
+  "@anPrompt1rmProgressionHeader": {},
+  "anPromptRecoveryHeader": "### 恢复状态（截至今天，全局数据）",
+  "@anPromptRecoveryHeader": {},
+  "anPromptProfileHeader": "## 用户画像",
+  "@anPromptProfileHeader": {},
+  "anPromptGoal": "- 训练目标: {goal}",
+  "@anPromptGoal": {
+    "placeholders": {
+      "goal": { "type": "String" }
+    }
+  },
+  "anPromptExperience": "- 经验水平: {experience}",
+  "@anPromptExperience": {
+    "placeholders": {
+      "experience": { "type": "String" }
+    }
+  },
+  "anPromptFrequency": "- 每周频率: {frequency} 天",
+  "@anPromptFrequency": {
+    "placeholders": {
+      "frequency": { "type": "int" }
+    }
+  },
+  "anPromptEquipment": "- 可用设备: {equipment}",
+  "@anPromptEquipment": {
+    "placeholders": {
+      "equipment": { "type": "String" }
+    }
+  },
+  "anPromptFocusAreas": "- 重点加强: {areas}",
+  "@anPromptFocusAreas": {
+    "placeholders": {
+      "areas": { "type": "String" }
+    }
+  },
+  "anPromptOutputHeader": "## 输出格式",
+  "@anPromptOutputHeader": {},
+  "anPromptOutputIntro": "请按以下两部分输出你的回复：",
+  "@anPromptOutputIntro": {},
+  "anPromptOutputPart1": "**第一部分：计划设计说明**",
+  "@anPromptOutputPart1": {},
+  "anPromptOutputPart1Detail": "根据我的训练数据报告，详细说明你为什么这样设计下个周期的训练计划，包括：",
+  "@anPromptOutputPart1Detail": {},
+  "anPromptOutputSplit": "- 分化方式的选择理由（结合我每周 {days} 天的训练频率）",
+  "@anPromptOutputSplit": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "anPromptOutputComparison": "- 与本周期数据的对比分析（哪些肌群训练不足需要加强，哪些已经过度需要恢复）",
+  "@anPromptOutputComparison": {},
+  "anPromptOutputSelection": "- 每个训练日的动作选择逻辑和容量分配依据",
+  "@anPromptOutputSelection": {},
+  "anPromptOutputOverload": "- 渐进超负荷的具体建议（重量、组数、频率的调整方向）",
+  "@anPromptOutputOverload": {},
+  "anPromptOutputPart2": "**第二部分：训练计划 JSON**",
+  "@anPromptOutputPart2": {},
+  "anPromptOutputJson": "在分析之后，用 ```json 代码块提供结构化训练计划：",
+  "@anPromptOutputJson": {},
+  "anPromptNamingHeader": "## 动作命名规范",
+  "@anPromptNamingHeader": {},
+  "anPromptNamingIntro": "使用标准英文动作名：",
+  "@anPromptNamingIntro": {},
+  "anPromptNamingClosing": "如果不确定确切名称，使用标准术语即可。",
+  "@anPromptNamingClosing": {},
+  "anPromptClosing": "请先解释你的设计思路和分析，然后生成训练计划。",
+  "@anPromptClosing": {},
+  "anPromptVolumeTrendWithChange": "  - 总训练量: {volume} ({sign}{change}% {arrow})",
+  "@anPromptVolumeTrendWithChange": {
+    "placeholders": {
+      "volume": { "type": "String" },
+      "sign": { "type": "String" },
+      "change": { "type": "int" },
+      "arrow": { "type": "String" }
+    }
+  },
+  "anPromptVolumeTrendNew": "  - 总训练量: {volume} (新周期)",
+  "@anPromptVolumeTrendNew": {
+    "placeholders": {
+      "volume": { "type": "String" }
+    }
+  },
+  "anPromptFreqTrend": "  - 训练频率: {days} 天 ({diff}{arrow})",
+  "@anPromptFreqTrend": {
+    "placeholders": {
+      "days": { "type": "int" },
+      "diff": { "type": "int" },
+      "arrow": { "type": "String" }
+    }
+  },
+  "anPromptMuscleTrend": "  - {muscle}: {sign}{change}% {arrow}",
+  "@anPromptMuscleTrend": {
+    "placeholders": {
+      "muscle": { "type": "String" },
+      "sign": { "type": "String" },
+      "change": { "type": "int" },
+      "arrow": { "type": "String" }
+    }
+  },
+  "anPromptMuscleDistLine": "  {index}. {muscle}: {volume} kg ({pct}%)",
+  "@anPromptMuscleDistLine": {
+    "placeholders": {
+      "index": { "type": "int" },
+      "muscle": { "type": "String" },
+      "volume": { "type": "String" },
+      "pct": { "type": "String" }
+    }
+  },
+  "anPromptSetsLine": "  - {muscle}: {sets} 组 {status}",
+  "@anPromptSetsLine": {
+    "placeholders": {
+      "muscle": { "type": "String" },
+      "sets": { "type": "int" },
+      "status": { "type": "String" }
+    }
+  },
+  "anPrompt1rmLine": "  - {name}: ~{e1rm} kg (基于 {weight}kg×{reps})",
+  "@anPrompt1rmLine": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "e1rm": { "type": "String" },
+      "weight": { "type": "String" },
+      "reps": { "type": "int" }
+    }
+  },
+  "anPrompt1rmProgressLine": "  - {name}: {from} → {to} kg ({sign}{change}% {arrow}{weeks})",
+  "@anPrompt1rmProgressLine": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "from": { "type": "String" },
+      "to": { "type": "String" },
+      "sign": { "type": "String" },
+      "change": { "type": "String" },
+      "arrow": { "type": "String" },
+      "weeks": { "type": "String" }
+    }
+  },
+  "anPrompt1rmWeeksSuffix": " / {weeks}周",
+  "@anPrompt1rmWeeksSuffix": {
+    "placeholders": {
+      "weeks": { "type": "String" }
+    }
+  },
+  "anPromptRecoveryLine": "  - {muscle}: 已休息{days}天 {status}",
+  "@anPromptRecoveryLine": {
+    "placeholders": {
+      "muscle": { "type": "String" },
+      "days": { "type": "int" },
+      "status": { "type": "String" }
+    }
+  }
 }

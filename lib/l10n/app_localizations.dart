@@ -2777,6 +2777,635 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'放弃'**
   String get pfDiscard;
+
+  /// No description provided for @anTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'AI 训练分析'**
+  String get anTitle;
+
+  /// No description provided for @anInstructionsHeading.
+  ///
+  /// In zh, this message translates to:
+  /// **'使用说明'**
+  String get anInstructionsHeading;
+
+  /// No description provided for @anInstruction1.
+  ///
+  /// In zh, this message translates to:
+  /// **'1. 查看下方的训练数据报告'**
+  String get anInstruction1;
+
+  /// No description provided for @anInstruction2.
+  ///
+  /// In zh, this message translates to:
+  /// **'2. 复制生成的提示词'**
+  String get anInstruction2;
+
+  /// No description provided for @anInstruction3.
+  ///
+  /// In zh, this message translates to:
+  /// **'3. 粘贴给 ChatGPT / 豆包 / 千问 等 AI'**
+  String get anInstruction3;
+
+  /// No description provided for @anInstruction4.
+  ///
+  /// In zh, this message translates to:
+  /// **'4. AI 会返回分析建议和 JSON 计划'**
+  String get anInstruction4;
+
+  /// No description provided for @anInstruction5.
+  ///
+  /// In zh, this message translates to:
+  /// **'5. 前往「计划」页面 →「导入分析」导入计划'**
+  String get anInstruction5;
+
+  /// No description provided for @anReportHeading.
+  ///
+  /// In zh, this message translates to:
+  /// **'训练数据报告'**
+  String get anReportHeading;
+
+  /// No description provided for @anPromptHeading.
+  ///
+  /// In zh, this message translates to:
+  /// **'生成的提示词'**
+  String get anPromptHeading;
+
+  /// No description provided for @anGeneratingPrompt.
+  ///
+  /// In zh, this message translates to:
+  /// **'正在生成提示词...'**
+  String get anGeneratingPrompt;
+
+  /// No description provided for @anCopiedToast.
+  ///
+  /// In zh, this message translates to:
+  /// **'提示词已复制到剪贴板'**
+  String get anCopiedToast;
+
+  /// No description provided for @anCopiedLabel.
+  ///
+  /// In zh, this message translates to:
+  /// **'已复制'**
+  String get anCopiedLabel;
+
+  /// No description provided for @anCopyPrompt.
+  ///
+  /// In zh, this message translates to:
+  /// **'复制提示词'**
+  String get anCopyPrompt;
+
+  /// No description provided for @anCloseTooltip.
+  ///
+  /// In zh, this message translates to:
+  /// **'关闭'**
+  String get anCloseTooltip;
+
+  /// No description provided for @anBasicInfo.
+  ///
+  /// In zh, this message translates to:
+  /// **'基本信息'**
+  String get anBasicInfo;
+
+  /// No description provided for @anSessionsAndDays.
+  ///
+  /// In zh, this message translates to:
+  /// **'{sessions} 次 / {days} 天'**
+  String anSessionsAndDays(int sessions, int days);
+
+  /// No description provided for @anSessionCount.
+  ///
+  /// In zh, this message translates to:
+  /// **'训练次数'**
+  String get anSessionCount;
+
+  /// No description provided for @anTotalVolume.
+  ///
+  /// In zh, this message translates to:
+  /// **'总训练量'**
+  String get anTotalVolume;
+
+  /// No description provided for @anDensity.
+  ///
+  /// In zh, this message translates to:
+  /// **'训练密度'**
+  String get anDensity;
+
+  /// No description provided for @anDensityValue.
+  ///
+  /// In zh, this message translates to:
+  /// **'{value} 组/分钟'**
+  String anDensityValue(String value);
+
+  /// No description provided for @anAvgPerSession.
+  ///
+  /// In zh, this message translates to:
+  /// **'平均每次'**
+  String get anAvgPerSession;
+
+  /// No description provided for @anAvgPerSessionValue.
+  ///
+  /// In zh, this message translates to:
+  /// **'{volume} kg / {minutes} 分钟'**
+  String anAvgPerSessionValue(String volume, int minutes);
+
+  /// No description provided for @anTrendWeek.
+  ///
+  /// In zh, this message translates to:
+  /// **'趋势变化 (vs 上周)'**
+  String get anTrendWeek;
+
+  /// No description provided for @anTrendMonth.
+  ///
+  /// In zh, this message translates to:
+  /// **'趋势变化 (vs 上月)'**
+  String get anTrendMonth;
+
+  /// No description provided for @anMuscleDistribution.
+  ///
+  /// In zh, this message translates to:
+  /// **'肌肉容量分布'**
+  String get anMuscleDistribution;
+
+  /// No description provided for @anSetsPerMuscleWeek.
+  ///
+  /// In zh, this message translates to:
+  /// **'每肌群组数 (MEV参考: 10组/周)'**
+  String get anSetsPerMuscleWeek;
+
+  /// No description provided for @anSetsPerMuscleMonth.
+  ///
+  /// In zh, this message translates to:
+  /// **'每肌群组数 (MEV参考: 40组/月)'**
+  String get anSetsPerMuscleMonth;
+
+  /// No description provided for @anEstimated1rm.
+  ///
+  /// In zh, this message translates to:
+  /// **'估算1RM (Mayhew公式)'**
+  String get anEstimated1rm;
+
+  /// No description provided for @an1rmProgression.
+  ///
+  /// In zh, this message translates to:
+  /// **'估算1RM进步趋势'**
+  String get an1rmProgression;
+
+  /// No description provided for @anRecovery.
+  ///
+  /// In zh, this message translates to:
+  /// **'恢复状态'**
+  String get anRecovery;
+
+  /// No description provided for @anNoMuscleData.
+  ///
+  /// In zh, this message translates to:
+  /// **'- 暂无肌肉训练数据'**
+  String get anNoMuscleData;
+
+  /// No description provided for @anNoTrendData.
+  ///
+  /// In zh, this message translates to:
+  /// **'- 暂无趋势数据'**
+  String get anNoTrendData;
+
+  /// No description provided for @anNoSetsData.
+  ///
+  /// In zh, this message translates to:
+  /// **'- 暂无组数数据'**
+  String get anNoSetsData;
+
+  /// No description provided for @anNo1rmData.
+  ///
+  /// In zh, this message translates to:
+  /// **'- 暂无1RM数据（需要每组重量和次数记录）'**
+  String get anNo1rmData;
+
+  /// No description provided for @anNo1rmTrendData.
+  ///
+  /// In zh, this message translates to:
+  /// **'- 暂无1RM趋势数据'**
+  String get anNo1rmTrendData;
+
+  /// No description provided for @anNoProgressData.
+  ///
+  /// In zh, this message translates to:
+  /// **'- 本周期内各动作仅训练1次，无法计算进步趋势'**
+  String get anNoProgressData;
+
+  /// No description provided for @anNoRecoveryData.
+  ///
+  /// In zh, this message translates to:
+  /// **'- 暂无恢复数据'**
+  String get anNoRecoveryData;
+
+  /// No description provided for @anNoMuscleRecoveryData.
+  ///
+  /// In zh, this message translates to:
+  /// **'- 暂无肌肉恢复数据'**
+  String get anNoMuscleRecoveryData;
+
+  /// No description provided for @anMevWeekLabel.
+  ///
+  /// In zh, this message translates to:
+  /// **'周MEV参考: {count} 组'**
+  String anMevWeekLabel(int count);
+
+  /// No description provided for @anMevMonthLabel.
+  ///
+  /// In zh, this message translates to:
+  /// **'月MEV参考: {count} 组'**
+  String anMevMonthLabel(int count);
+
+  /// No description provided for @anStatusSufficient.
+  ///
+  /// In zh, this message translates to:
+  /// **'✅ 充足'**
+  String get anStatusSufficient;
+
+  /// No description provided for @anStatusLow.
+  ///
+  /// In zh, this message translates to:
+  /// **'⚠️ 偏低'**
+  String get anStatusLow;
+
+  /// No description provided for @anStatusInsufficient.
+  ///
+  /// In zh, this message translates to:
+  /// **'🔴 不足'**
+  String get anStatusInsufficient;
+
+  /// No description provided for @anMayhewNote.
+  ///
+  /// In zh, this message translates to:
+  /// **'  (基于 Mayhew 公式估算，±5-8kg 误差)'**
+  String get anMayhewNote;
+
+  /// No description provided for @anRecoveryTrainable.
+  ///
+  /// In zh, this message translates to:
+  /// **'✅ 可训练'**
+  String get anRecoveryTrainable;
+
+  /// No description provided for @anRecoveryRestMore.
+  ///
+  /// In zh, this message translates to:
+  /// **'⚠️ 建议再休息{days}天'**
+  String anRecoveryRestMore(int days);
+
+  /// No description provided for @anRecoveryJustTrained.
+  ///
+  /// In zh, this message translates to:
+  /// **'🔴 今日刚训练'**
+  String get anRecoveryJustTrained;
+
+  /// No description provided for @anPeriodWeek.
+  ///
+  /// In zh, this message translates to:
+  /// **'本周'**
+  String get anPeriodWeek;
+
+  /// No description provided for @anPeriodMonth.
+  ///
+  /// In zh, this message translates to:
+  /// **'本月'**
+  String get anPeriodMonth;
+
+  /// No description provided for @anWeek.
+  ///
+  /// In zh, this message translates to:
+  /// **'周'**
+  String get anWeek;
+
+  /// No description provided for @anMonth.
+  ///
+  /// In zh, this message translates to:
+  /// **'月'**
+  String get anMonth;
+
+  /// No description provided for @anGoalMuscleBuilding.
+  ///
+  /// In zh, this message translates to:
+  /// **'增肌'**
+  String get anGoalMuscleBuilding;
+
+  /// No description provided for @anGoalFatLoss.
+  ///
+  /// In zh, this message translates to:
+  /// **'减脂'**
+  String get anGoalFatLoss;
+
+  /// No description provided for @anGoalStrength.
+  ///
+  /// In zh, this message translates to:
+  /// **'力量提升'**
+  String get anGoalStrength;
+
+  /// No description provided for @anGoalEndurance.
+  ///
+  /// In zh, this message translates to:
+  /// **'耐力增强'**
+  String get anGoalEndurance;
+
+  /// No description provided for @anDateRange.
+  ///
+  /// In zh, this message translates to:
+  /// **'{startMonth}月{startDay}日 - {endMonth}月{endDay}日'**
+  String anDateRange(int startMonth, int startDay, int endMonth, int endDay);
+
+  /// No description provided for @anPromptOpening.
+  ///
+  /// In zh, this message translates to:
+  /// **'你是一位专业的健身教练。根据我的训练数据报告，为我制定下个周期的训练计划。'**
+  String get anPromptOpening;
+
+  /// No description provided for @anPromptWeekNote.
+  ///
+  /// In zh, this message translates to:
+  /// **'本周数据量较少，重点关注恢复状态和下周的肌群轮换安排。'**
+  String get anPromptWeekNote;
+
+  /// No description provided for @anPromptMonthNote.
+  ///
+  /// In zh, this message translates to:
+  /// **'本月数据较充分，重点关注渐进超负荷趋势和肌群容量分配是否均衡。'**
+  String get anPromptMonthNote;
+
+  /// No description provided for @anPromptReportHeader.
+  ///
+  /// In zh, this message translates to:
+  /// **'## 训练数据报告'**
+  String get anPromptReportHeader;
+
+  /// No description provided for @anPromptBasicInfoHeader.
+  ///
+  /// In zh, this message translates to:
+  /// **'### 基本信息'**
+  String get anPromptBasicInfoHeader;
+
+  /// No description provided for @anPromptPeriod.
+  ///
+  /// In zh, this message translates to:
+  /// **'- 分析周期: {period} ({range})'**
+  String anPromptPeriod(String period, String range);
+
+  /// No description provided for @anPromptSessions.
+  ///
+  /// In zh, this message translates to:
+  /// **'- 训练次数: {sessions} 次 / {days} 天'**
+  String anPromptSessions(int sessions, int days);
+
+  /// No description provided for @anPromptTotalVolume.
+  ///
+  /// In zh, this message translates to:
+  /// **'- 总训练量: {volume} kg (组×次×重量)'**
+  String anPromptTotalVolume(String volume);
+
+  /// No description provided for @anPromptDensity.
+  ///
+  /// In zh, this message translates to:
+  /// **'- 训练密度: {value} 组/分钟'**
+  String anPromptDensity(String value);
+
+  /// No description provided for @anPromptTrendHeader.
+  ///
+  /// In zh, this message translates to:
+  /// **'### 趋势变化（vs 上{period}）'**
+  String anPromptTrendHeader(String period);
+
+  /// No description provided for @anPromptMuscleDistHeader.
+  ///
+  /// In zh, this message translates to:
+  /// **'### 肌肉容量分布'**
+  String get anPromptMuscleDistHeader;
+
+  /// No description provided for @anPromptSetsPerMuscleHeader.
+  ///
+  /// In zh, this message translates to:
+  /// **'### 每肌群组数'**
+  String get anPromptSetsPerMuscleHeader;
+
+  /// No description provided for @anPrompt1rmHeader.
+  ///
+  /// In zh, this message translates to:
+  /// **'### 估算1RM（本周期最佳，TOP 10）'**
+  String get anPrompt1rmHeader;
+
+  /// No description provided for @anPrompt1rmProgressionHeader.
+  ///
+  /// In zh, this message translates to:
+  /// **'### 估算1RM进步趋势'**
+  String get anPrompt1rmProgressionHeader;
+
+  /// No description provided for @anPromptRecoveryHeader.
+  ///
+  /// In zh, this message translates to:
+  /// **'### 恢复状态（截至今天，全局数据）'**
+  String get anPromptRecoveryHeader;
+
+  /// No description provided for @anPromptProfileHeader.
+  ///
+  /// In zh, this message translates to:
+  /// **'## 用户画像'**
+  String get anPromptProfileHeader;
+
+  /// No description provided for @anPromptGoal.
+  ///
+  /// In zh, this message translates to:
+  /// **'- 训练目标: {goal}'**
+  String anPromptGoal(String goal);
+
+  /// No description provided for @anPromptExperience.
+  ///
+  /// In zh, this message translates to:
+  /// **'- 经验水平: {experience}'**
+  String anPromptExperience(String experience);
+
+  /// No description provided for @anPromptFrequency.
+  ///
+  /// In zh, this message translates to:
+  /// **'- 每周频率: {frequency} 天'**
+  String anPromptFrequency(int frequency);
+
+  /// No description provided for @anPromptEquipment.
+  ///
+  /// In zh, this message translates to:
+  /// **'- 可用设备: {equipment}'**
+  String anPromptEquipment(String equipment);
+
+  /// No description provided for @anPromptFocusAreas.
+  ///
+  /// In zh, this message translates to:
+  /// **'- 重点加强: {areas}'**
+  String anPromptFocusAreas(String areas);
+
+  /// No description provided for @anPromptOutputHeader.
+  ///
+  /// In zh, this message translates to:
+  /// **'## 输出格式'**
+  String get anPromptOutputHeader;
+
+  /// No description provided for @anPromptOutputIntro.
+  ///
+  /// In zh, this message translates to:
+  /// **'请按以下两部分输出你的回复：'**
+  String get anPromptOutputIntro;
+
+  /// No description provided for @anPromptOutputPart1.
+  ///
+  /// In zh, this message translates to:
+  /// **'**第一部分：计划设计说明**'**
+  String get anPromptOutputPart1;
+
+  /// No description provided for @anPromptOutputPart1Detail.
+  ///
+  /// In zh, this message translates to:
+  /// **'根据我的训练数据报告，详细说明你为什么这样设计下个周期的训练计划，包括：'**
+  String get anPromptOutputPart1Detail;
+
+  /// No description provided for @anPromptOutputSplit.
+  ///
+  /// In zh, this message translates to:
+  /// **'- 分化方式的选择理由（结合我每周 {days} 天的训练频率）'**
+  String anPromptOutputSplit(int days);
+
+  /// No description provided for @anPromptOutputComparison.
+  ///
+  /// In zh, this message translates to:
+  /// **'- 与本周期数据的对比分析（哪些肌群训练不足需要加强，哪些已经过度需要恢复）'**
+  String get anPromptOutputComparison;
+
+  /// No description provided for @anPromptOutputSelection.
+  ///
+  /// In zh, this message translates to:
+  /// **'- 每个训练日的动作选择逻辑和容量分配依据'**
+  String get anPromptOutputSelection;
+
+  /// No description provided for @anPromptOutputOverload.
+  ///
+  /// In zh, this message translates to:
+  /// **'- 渐进超负荷的具体建议（重量、组数、频率的调整方向）'**
+  String get anPromptOutputOverload;
+
+  /// No description provided for @anPromptOutputPart2.
+  ///
+  /// In zh, this message translates to:
+  /// **'**第二部分：训练计划 JSON**'**
+  String get anPromptOutputPart2;
+
+  /// No description provided for @anPromptOutputJson.
+  ///
+  /// In zh, this message translates to:
+  /// **'在分析之后，用 ```json 代码块提供结构化训练计划：'**
+  String get anPromptOutputJson;
+
+  /// No description provided for @anPromptNamingHeader.
+  ///
+  /// In zh, this message translates to:
+  /// **'## 动作命名规范'**
+  String get anPromptNamingHeader;
+
+  /// No description provided for @anPromptNamingIntro.
+  ///
+  /// In zh, this message translates to:
+  /// **'使用标准英文动作名：'**
+  String get anPromptNamingIntro;
+
+  /// No description provided for @anPromptNamingClosing.
+  ///
+  /// In zh, this message translates to:
+  /// **'如果不确定确切名称，使用标准术语即可。'**
+  String get anPromptNamingClosing;
+
+  /// No description provided for @anPromptClosing.
+  ///
+  /// In zh, this message translates to:
+  /// **'请先解释你的设计思路和分析，然后生成训练计划。'**
+  String get anPromptClosing;
+
+  /// No description provided for @anPromptVolumeTrendWithChange.
+  ///
+  /// In zh, this message translates to:
+  /// **'  - 总训练量: {volume} ({sign}{change}% {arrow})'**
+  String anPromptVolumeTrendWithChange(
+    String volume,
+    String sign,
+    int change,
+    String arrow,
+  );
+
+  /// No description provided for @anPromptVolumeTrendNew.
+  ///
+  /// In zh, this message translates to:
+  /// **'  - 总训练量: {volume} (新周期)'**
+  String anPromptVolumeTrendNew(String volume);
+
+  /// No description provided for @anPromptFreqTrend.
+  ///
+  /// In zh, this message translates to:
+  /// **'  - 训练频率: {days} 天 ({diff}{arrow})'**
+  String anPromptFreqTrend(int days, int diff, String arrow);
+
+  /// No description provided for @anPromptMuscleTrend.
+  ///
+  /// In zh, this message translates to:
+  /// **'  - {muscle}: {sign}{change}% {arrow}'**
+  String anPromptMuscleTrend(
+    String muscle,
+    String sign,
+    int change,
+    String arrow,
+  );
+
+  /// No description provided for @anPromptMuscleDistLine.
+  ///
+  /// In zh, this message translates to:
+  /// **'  {index}. {muscle}: {volume} kg ({pct}%)'**
+  String anPromptMuscleDistLine(
+    int index,
+    String muscle,
+    String volume,
+    String pct,
+  );
+
+  /// No description provided for @anPromptSetsLine.
+  ///
+  /// In zh, this message translates to:
+  /// **'  - {muscle}: {sets} 组 {status}'**
+  String anPromptSetsLine(String muscle, int sets, String status);
+
+  /// No description provided for @anPrompt1rmLine.
+  ///
+  /// In zh, this message translates to:
+  /// **'  - {name}: ~{e1rm} kg (基于 {weight}kg×{reps})'**
+  String anPrompt1rmLine(String name, String e1rm, String weight, int reps);
+
+  /// No description provided for @anPrompt1rmProgressLine.
+  ///
+  /// In zh, this message translates to:
+  /// **'  - {name}: {from} → {to} kg ({sign}{change}% {arrow}{weeks})'**
+  String anPrompt1rmProgressLine(
+    String name,
+    String from,
+    String to,
+    String sign,
+    String change,
+    String arrow,
+    String weeks,
+  );
+
+  /// No description provided for @anPrompt1rmWeeksSuffix.
+  ///
+  /// In zh, this message translates to:
+  /// **' / {weeks}周'**
+  String anPrompt1rmWeeksSuffix(String weeks);
+
+  /// No description provided for @anPromptRecoveryLine.
+  ///
+  /// In zh, this message translates to:
+  /// **'  - {muscle}: 已休息{days}天 {status}'**
+  String anPromptRecoveryLine(String muscle, int days, String status);
 }
 
 class _AppLocalizationsDelegate
