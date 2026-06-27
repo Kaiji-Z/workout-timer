@@ -912,4 +912,41 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get prefFocusAreaCore => 'Core';
+
+  @override
+  String get historyTitle => 'History';
+
+  @override
+  String get historyLoadFailed => 'Load failed';
+
+  @override
+  String get historyEmpty => 'No records yet';
+
+  @override
+  String get historyEmptyHint => 'Complete a workout to see results';
+
+  @override
+  String get historyClearConfirmTitle => 'Clear history';
+
+  @override
+  String get historyClearConfirmBody => 'Clear all history records?';
+
+  @override
+  String get historyPlanMode => 'Plan mode';
+
+  @override
+  String get historyFreeWorkout => 'Free workout';
+
+  @override
+  String get historyCompletedSets => 'Completed sets';
+
+  @override
+  String historySetsSuffix(int count) {
+    return '$count sets';
+  }
+
+  @override
+  String historyExercisesSuffix(int count) {
+    return '$count exercises';
+  }
 }

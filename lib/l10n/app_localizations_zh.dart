@@ -886,4 +886,41 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get prefFocusAreaCore => '核心';
+
+  @override
+  String get historyTitle => '历史记录';
+
+  @override
+  String get historyLoadFailed => '加载失败';
+
+  @override
+  String get historyEmpty => '暂无记录';
+
+  @override
+  String get historyEmptyHint => '完成一次训练后查看结果';
+
+  @override
+  String get historyClearConfirmTitle => '清除历史';
+
+  @override
+  String get historyClearConfirmBody => '确定要清除所有历史记录吗？';
+
+  @override
+  String get historyPlanMode => '计划模式';
+
+  @override
+  String get historyFreeWorkout => '自由训练';
+
+  @override
+  String get historyCompletedSets => '已完成组数';
+
+  @override
+  String historySetsSuffix(int count) {
+    return '$count组';
+  }
+
+  @override
+  String historyExercisesSuffix(int count) {
+    return '$count动作';
+  }
 }
