@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -12,6 +13,7 @@ import '../services/data_transfer_service.dart';
 import '../theme/theme_provider.dart';
 import '../theme/app_theme.dart';
 import '../l10n/app_localizations.dart';
+import '../providers/locale_provider.dart';
 import '../utils/dimensions.dart';
 import '../animations/page_transitions.dart';
 import 'user_preferences_screen.dart';
@@ -33,7 +35,7 @@ class _SettingsScreenState extends State<SettingsScreen>
   bool _soundEnabled = true;
   bool _vibrationEnabled = true;
   bool _detailedRecordingEnabled = false;
-  String _customMessage = '准备开始下一组！';
+  String _customMessage = '';
   String _selectedSound = 'default';
   bool _isBatteryOptimizationIgnored = true; // Default true (non-Android)
   String? _oemManufacturer;
@@ -44,29 +46,53 @@ class _SettingsScreenState extends State<SettingsScreen>
   // behind the actual release.
   String _appVersion = '';
 
-  /// OEM manufacturer code -> Chinese display name.
-  static const Map<String, String> _oemDisplayNames = {
-    'huawei': '华为',
-    'honor': '荣耀',
-    'xiaomi': '小米',
-    'oppo': 'OPPO',
-    'vivo': 'vivo',
-    'meizu': '魅族',
-    'samsung': '三星',
-    'oneplus': '一加',
-  };
+  /// OEM manufacturer code -> localized display name.
+  String _oemDisplayName(String code, AppLocalizations l10n) {
+    switch (code) {
+      case 'huawei':
+        return l10n.brandHuawei;
+      case 'honor':
+        return l10n.brandHonor;
+      case 'xiaomi':
+        return l10n.brandXiaomi;
+      case 'oppo':
+        return l10n.brandOppo;
+      case 'vivo':
+        return l10n.brandVivo;
+      case 'meizu':
+        return l10n.brandMeizu;
+      case 'samsung':
+        return l10n.brandSamsung;
+      case 'oneplus':
+        return l10n.brandOneplus;
+      default:
+        return code;
+    }
+  }
 
-  /// OEM manufacturer code -> step-by-step instruction text.
-  static const Map<String, String> _oemInstructions = {
-    'huawei': '在「应用启动管理」中找到撜铁计时器，关闭「自动管理」，手动开启全部三个开关',
-    'honor': '在「应用启动管理」中找到撜铁计时器，关闭「自动管理」，手动开启全部三个开关',
-    'xiaomi': '在「自启动管理」中找到撜铁计时器，开启自启动开关。然后在「省电策略」中选择「无限制」',
-    'oppo': '在「自启动管理」中找到撜铁计时器，允许自启动',
-    'vivo': '在「后台高耗电」或「自启动」中找到撜铁计时器，允许后台运行',
-    'meizu': '在「智能休眠」或「后台管理」中找到撜铁计时器，允许后台运行',
-    'samsung': '在「电池」设置中找到撜铁计时器，选择「不受限制」',
-    'oneplus': '在「电池优化」高级设置中找到撜铁计时器，选择「不优化」',
-  };
+  /// OEM manufacturer code -> localized step-by-step instruction text.
+  String _oemInstruction(String code, AppLocalizations l10n) {
+    switch (code) {
+      case 'huawei':
+        return l10n.oemInstructionHuawei;
+      case 'honor':
+        return l10n.oemInstructionHonor;
+      case 'xiaomi':
+        return l10n.oemInstructionXiaomi;
+      case 'oppo':
+        return l10n.oemInstructionOppo;
+      case 'vivo':
+        return l10n.oemInstructionVivo;
+      case 'meizu':
+        return l10n.oemInstructionMeizu;
+      case 'samsung':
+        return l10n.oemInstructionSamsung;
+      case 'oneplus':
+        return l10n.oemInstructionOneplus;
+      default:
+        return l10n.oemDefaultInstruction;
+    }
+  }
 
   @override
   void initState() {
@@ -134,7 +160,7 @@ class _SettingsScreenState extends State<SettingsScreen>
       _soundEnabled = _prefs.getBool('sound_enabled') ?? true;
       _vibrationEnabled = _prefs.getBool('vibration_enabled') ?? true;
       _detailedRecordingEnabled = _prefs.getBool('detailed_recording') ?? false;
-      _customMessage = _prefs.getString('custom_message') ?? '准备开始下一组！';
+      _customMessage = _prefs.getString('custom_message') ?? '';
       _messageController.text = _customMessage;
       _selectedSound = _soundService.getSelectedSound();
     });
@@ -159,24 +185,25 @@ class _SettingsScreenState extends State<SettingsScreen>
   }
 
   Future<void> _clearHistory(AppThemeData theme) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: theme.surfaceColor.withValues(alpha: 0.95),
-        title: Text('确认清除', style: TextStyle(color: theme.textColor)),
+        title: Text(l10n.settingsClearHistoryConfirmTitle, style: TextStyle(color: theme.textColor)),
         content: Text(
-          '确定要清除所有历史记录吗？此操作不可撤销。',
+          l10n.settingsClearHistoryConfirmBody,
           style: TextStyle(color: theme.textColor),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('取消'),
+            child: Text(l10n.settingsCancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(foregroundColor: theme.accentColor),
-            child: const Text('清除'),
+            child: Text(l10n.settingsClear),
           ),
         ],
       ),
@@ -187,7 +214,7 @@ class _SettingsScreenState extends State<SettingsScreen>
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(const SnackBar(content: Text('历史记录已清除')));
+        ).showSnackBar(SnackBar(content: Text(l10n.settingsHistoryCleared)));
       }
     }
   }
@@ -196,6 +223,7 @@ class _SettingsScreenState extends State<SettingsScreen>
   Widget build(BuildContext context) {
     final themeProvider = context.watch<ThemeProvider>();
     final theme = themeProvider.currentTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -213,7 +241,7 @@ class _SettingsScreenState extends State<SettingsScreen>
               ),
             ),
             Text(
-              '设置',
+              l10n.settingsTitle,
               style: Theme.of(context).textTheme.headlineMedium!.copyWith(
                 fontWeight: FontWeight.w700,
                 letterSpacing: -0.5,
@@ -232,12 +260,12 @@ class _SettingsScreenState extends State<SettingsScreen>
         ),
         children: [
           // Notification Settings
-          _buildSectionHeader('通知设置', theme),
+          _buildSectionHeader(l10n.settingsNotificationSection, theme),
           _buildSettingsCard(
             theme: theme,
             child: Column(
               children: [
-                _buildSettingsSwitch('启用声音', _soundEnabled, (value) {
+                _buildSettingsSwitch(l10n.settingsEnableSound, _soundEnabled, (value) {
                   setState(() => _soundEnabled = value);
                   _saveSettings();
                 }, theme),
@@ -248,7 +276,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                   ),
                   ListTile(
                     title: Text(
-                      '通知铃声',
+                      l10n.settingsNotificationRingtone,
                       style: TextStyle(color: theme.textColor),
                     ),
                     subtitle: Text(
@@ -266,7 +294,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                   color: theme.surfaceColor.withValues(alpha: 0.1),
                   height: 1,
                 ),
-                _buildSettingsSwitch('启用振动', _vibrationEnabled, (value) {
+                _buildSettingsSwitch(l10n.settingsEnableVibration, _vibrationEnabled, (value) {
                   setState(() => _vibrationEnabled = value);
                   _saveSettings();
                 }, theme),
@@ -274,7 +302,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                   color: theme.surfaceColor.withValues(alpha: 0.1),
                   height: 1,
                 ),
-                _buildSettingsSwitch('详细记录模式', _detailedRecordingEnabled, (
+                _buildSettingsSwitch(l10n.settingsDetailedRecording, _detailedRecordingEnabled, (
                   value,
                 ) {
                   setState(() => _detailedRecordingEnabled = value);
@@ -287,20 +315,20 @@ class _SettingsScreenState extends State<SettingsScreen>
 
           // Background Running Settings (Android only)
           if (!kIsWeb && Platform.isAndroid) ...[
-            _buildSectionHeader('后台运行', theme),
+            _buildSectionHeader(l10n.settingsBackgroundSection, theme),
             _buildSettingsCard(
               theme: theme,
               child: Column(
                 children: [
                   ListTile(
                     title: Text(
-                      '允许后台活动',
+                      l10n.settingsAllowBackground,
                       style: TextStyle(color: theme.textColor),
                     ),
                     subtitle: Text(
                       _isBatteryOptimizationIgnored
-                          ? '已允许，计时器可在后台正常运行'
-                          : '未允许，后台计时器可能被系统暂停',
+                          ? l10n.settingsBackgroundAllowed
+                          : l10n.settingsBackgroundNotAllowed,
                       style: TextStyle(
                         color: _isBatteryOptimizationIgnored
                             ? theme.secondaryTextColor
@@ -341,7 +369,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
-                              '点击上方选项，在弹出的系统对话框中选择"允许"，以确保计时器在后台正常运行',
+                              l10n.settingsBackgroundHint,
                               style: TextStyle(
                                 fontSize: 13,
                                 color: theme.secondaryTextColor,
@@ -361,14 +389,14 @@ class _SettingsScreenState extends State<SettingsScreen>
           ],
 
           // Appearance Settings
-          _buildSectionHeader('外观设置', theme),
+          _buildSectionHeader(l10n.settingsAppearanceSection, theme),
           _buildSettingsCard(
             theme: theme,
             child: Column(
               children: [
                 Consumer<ThemeProvider>(
                   builder: (context, tp, _) => _buildSettingsSwitch(
-                    '深色模式',
+                    l10n.settingsDarkMode,
                     tp.isDarkMode,
                     (value) => tp.setDarkMode(value),
                     theme,
@@ -376,7 +404,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                 ),
                 Divider(color: theme.dividerColor, height: 1),
                 ListTile(
-                  title: Text('主题', style: TextStyle(color: theme.textColor)),
+                  title: Text(l10n.settingsTheme, style: TextStyle(color: theme.textColor)),
                   subtitle: Text(
                     theme.nameZh,
                     style: TextStyle(color: theme.secondaryTextColor),
@@ -392,8 +420,46 @@ class _SettingsScreenState extends State<SettingsScreen>
           ),
           const SizedBox(height: 24),
 
+          // Language
+          _buildSectionHeader(l10n.settingsLanguage, theme),
+          _buildSettingsCard(
+            theme: theme,
+            child: Column(
+              children: [
+                Consumer<LocaleProvider>(
+                  builder: (context, lp, _) => Column(
+                    children: [
+                      RadioListTile<String>(
+                        value: 'system',
+                        groupValue: lp.localeCode,
+                        title: Text(l10n.settingsLanguageSystem),
+                        onChanged: (v) =>
+                            context.read<LocaleProvider>().setLocaleCode(v!),
+                      ),
+                      RadioListTile<String>(
+                        value: 'zh',
+                        groupValue: lp.localeCode,
+                        title: Text(l10n.settingsLanguageZh),
+                        onChanged: (v) =>
+                            context.read<LocaleProvider>().setLocaleCode(v!),
+                      ),
+                      RadioListTile<String>(
+                        value: 'en',
+                        groupValue: lp.localeCode,
+                        title: Text(l10n.settingsLanguageEn),
+                        onChanged: (v) =>
+                            context.read<LocaleProvider>().setLocaleCode(v!),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+
           // Custom Message
-          _buildSectionHeader('自定义提醒消息', theme),
+          _buildSectionHeader(l10n.settingsCustomMessageSection, theme),
           _buildSettingsCard(
             theme: theme,
             padding: const EdgeInsets.all(AppDimensions.screenPadding),
@@ -415,7 +481,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                   borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
                   borderSide: BorderSide(color: theme.primaryColor),
                 ),
-                hintText: '输入提醒消息',
+                hintText: l10n.settingsCustomMessageHint,
                 hintStyle: TextStyle(color: theme.secondaryTextColor),
                 filled: true,
                 fillColor: theme.surfaceColor.withValues(alpha: 0.3),
@@ -425,16 +491,16 @@ class _SettingsScreenState extends State<SettingsScreen>
           const SizedBox(height: 24),
 
           // Data Management
-          _buildSectionHeader('数据管理', theme),
+          _buildSectionHeader(l10n.settingsDataSection, theme),
           _buildSettingsCard(
             theme: theme,
             child: Column(
               children: [
                 ListTile(
                   leading: Icon(Icons.upload_file, color: theme.accentColor),
-                  title: Text('导出数据', style: TextStyle(color: theme.textColor)),
+                  title: Text(l10n.settingsExportData, style: TextStyle(color: theme.textColor)),
                   subtitle: Text(
-                    '导出全部训练记录、计划等数据为文件',
+                    l10n.settingsExportSubtitle,
                     style: Theme.of(context).textTheme.bodySmall!,
                   ),
                   onTap: () => _exportData(theme),
@@ -442,9 +508,9 @@ class _SettingsScreenState extends State<SettingsScreen>
                 Divider(color: theme.dividerColor, height: 1),
                 ListTile(
                   leading: Icon(Icons.download, color: theme.accentColor),
-                  title: Text('导入数据', style: TextStyle(color: theme.textColor)),
+                  title: Text(l10n.settingsImportData, style: TextStyle(color: theme.textColor)),
                   subtitle: Text(
-                    '从备份文件恢复全部数据（会覆盖现有数据）',
+                    l10n.settingsImportSubtitle,
                     style: Theme.of(context).textTheme.bodySmall!,
                   ),
                   onTap: () => _importData(theme),
@@ -452,7 +518,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                 Divider(color: theme.dividerColor, height: 1),
                 ListTile(
                   title: Text(
-                    '清除所有历史记录',
+                    l10n.settingsClearHistory,
                     style: TextStyle(color: theme.accentColor),
                   ),
                   trailing: Icon(
@@ -467,13 +533,13 @@ class _SettingsScreenState extends State<SettingsScreen>
           const SizedBox(height: 24),
 
           // AI Preferences
-          _buildSectionHeader('AI 训练偏好', theme),
+          _buildSectionHeader(l10n.settingsAiPreferencesSection, theme),
           _buildSettingsCard(
             theme: theme,
             child: ListTile(
-              title: Text('训练偏好', style: TextStyle(color: theme.textColor)),
+              title: Text(l10n.settingsTrainingPreferences, style: TextStyle(color: theme.textColor)),
               subtitle: Text(
-                '设置训练目标、经验水平等，AI功能将自动读取',
+                l10n.settingsTrainingPreferencesSubtitle,
                 style: Theme.of(context).textTheme.bodySmall!,
               ),
               trailing: Icon(
@@ -491,15 +557,15 @@ class _SettingsScreenState extends State<SettingsScreen>
           const SizedBox(height: 24),
 
           // About
-          _buildSectionHeader('关于', theme),
+          _buildSectionHeader(l10n.settingsAboutSection, theme),
           _buildSettingsCard(
             theme: theme,
             child: Column(
               children: [
                 ListTile(
-                  title: Text('隐私政策', style: TextStyle(color: theme.textColor)),
+                  title: Text(l10n.settingsPrivacyPolicy, style: TextStyle(color: theme.textColor)),
                   subtitle: Text(
-                    '查看本应用的隐私政策',
+                    l10n.settingsPrivacyPolicySubtitle,
                     style: Theme.of(context).textTheme.bodySmall!,
                   ),
                   trailing: Icon(
@@ -510,24 +576,24 @@ class _SettingsScreenState extends State<SettingsScreen>
                 ),
                 Divider(color: theme.dividerColor, height: 1),
                 ListTile(
-                  title: Text('版本', style: TextStyle(color: theme.textColor)),
+                  title: Text(l10n.settingsVersion, style: TextStyle(color: theme.textColor)),
                   trailing: Text(
                     // Dynamic, read from pubspec at runtime (see _loadSettings).
-                    _appVersion.isEmpty ? '加载中…' : _appVersion,
+                    _appVersion.isEmpty ? l10n.settingsVersionLoading : _appVersion,
                     style: TextStyle(color: theme.secondaryTextColor),
                   ),
                 ),
                 Divider(color: theme.dividerColor, height: 1),
                 ListTile(
-                  title: Text('开发者', style: TextStyle(color: theme.textColor)),
+                  title: Text(l10n.settingsDeveloper, style: TextStyle(color: theme.textColor)),
                   subtitle: Text(
-                    '深圳市露凯文化传播有限公司',
+                    l10n.settingsDeveloperName,
                     style: Theme.of(context).textTheme.bodySmall!,
                   ),
                 ),
                 Divider(color: theme.dividerColor, height: 1),
                 ListTile(
-                  title: Text('联系邮箱', style: TextStyle(color: theme.textColor)),
+                  title: Text(l10n.settingsContactEmail, style: TextStyle(color: theme.textColor)),
                   subtitle: Text(
                     'lookatmedia@163.com',
                     style: Theme.of(context).textTheme.bodySmall!,
@@ -559,11 +625,12 @@ class _SettingsScreenState extends State<SettingsScreen>
   }
 
   void _showPrivacyPolicy(AppThemeData theme) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: theme.surfaceColor.withValues(alpha: 0.98),
-        title: Text('隐私政策', style: TextStyle(color: theme.textColor)),
+        title: Text(l10n.settingsPrivacyPolicy, style: TextStyle(color: theme.textColor)),
         content: SizedBox(
           width: double.maxFinite,
           child: SingleChildScrollView(
@@ -571,7 +638,7 @@ class _SettingsScreenState extends State<SettingsScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '撸铁计时器不收集任何个人信息',
+                  l10n.settingsPrivacyHeadline,
                   style: TextStyle(
                     color: theme.accentColor,
                     fontWeight: FontWeight.bold,
@@ -580,7 +647,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  '数据存储',
+                  l10n.settingsPrivacyDataStorage,
                   style: TextStyle(
                     color: theme.textColor,
                     fontWeight: FontWeight.bold,
@@ -589,7 +656,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '所有训练数据均存储在您的设备本地（SQLite 数据库），不上传至任何服务器。卸载应用将永久删除所有数据。',
+                  l10n.settingsPrivacyDataStorageBody,
                   style: TextStyle(
                     color: theme.secondaryTextColor,
                     fontSize: 13,
@@ -598,7 +665,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  '设备权限',
+                  l10n.settingsPrivacyPermissions,
                   style: TextStyle(
                     color: theme.textColor,
                     fontWeight: FontWeight.bold,
@@ -607,11 +674,11 @@ class _SettingsScreenState extends State<SettingsScreen>
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '• 通知：计时结束提醒\n'
-                  '• 振动：计时结束振动提醒\n'
-                  '• 前台服务：后台持续计时\n'
-                  '• 网络：仅下载开源健身图片（CC0）\n'
-                  '• 电池优化豁免：防止计时器被系统中断',
+                  '${l10n.settingsPrivacyPermNotifications}\n'
+                  '${l10n.settingsPrivacyPermVibration}\n'
+                  '${l10n.settingsPrivacyPermForegroundService}\n'
+                  '${l10n.settingsPrivacyPermNetwork}\n'
+                  '${l10n.settingsPrivacyPermBatteryExempt}',
                   style: TextStyle(
                     color: theme.secondaryTextColor,
                     fontSize: 13,
@@ -620,7 +687,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  '第三方服务',
+                  l10n.settingsPrivacyThirdParty,
                   style: TextStyle(
                     color: theme.textColor,
                     fontWeight: FontWeight.bold,
@@ -629,7 +696,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '本应用不集成任何第三方数据分析、广告或追踪 SDK。',
+                  l10n.settingsPrivacyThirdPartyBody,
                   style: TextStyle(
                     color: theme.secondaryTextColor,
                     fontSize: 13,
@@ -638,7 +705,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  '完整隐私政策：\nhttps://kaiji-z.github.io/workout-timer/',
+                  l10n.settingsPrivacyFullPolicy,
                   style: TextStyle(
                     color: theme.secondaryTextColor,
                     fontSize: 13,
@@ -658,17 +725,17 @@ class _SettingsScreenState extends State<SettingsScreen>
               );
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('隐私政策链接已复制'),
+                SnackBar(
+                  content: Text(l10n.settingsPrivacyLinkCopied),
                   duration: Duration(seconds: 2),
                 ),
               );
             },
-            child: const Text('复制链接'),
+            child: Text(l10n.settingsCopyLink),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('关闭'),
+            child: Text(l10n.settingsClose),
           ),
         ],
       ),
@@ -676,25 +743,26 @@ class _SettingsScreenState extends State<SettingsScreen>
   }
 
   Future<void> _exportData(AppThemeData theme) async {
+    final l10n = AppLocalizations.of(context)!;
     // 先显示确认对话框
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: theme.surfaceColor.withValues(alpha: 0.95),
-        title: Text('导出数据', style: TextStyle(color: theme.textColor)),
+        title: Text(l10n.settingsExportData, style: TextStyle(color: theme.textColor)),
         content: Text(
-          '将导出全部训练记录、计划、练习等数据。\n\n文件会保存到手机 Downloads 目录，同时弹出分享面板。',
+          l10n.settingsExportConfirmBody,
           style: TextStyle(color: theme.textColor),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('取消'),
+            child: Text(l10n.settingsCancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(foregroundColor: theme.accentColor),
-            child: const Text('导出'),
+            child: Text(l10n.settingsExport),
           ),
         ],
       ),
@@ -718,7 +786,7 @@ class _SettingsScreenState extends State<SettingsScreen>
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('导出失败: $e')));
+        ).showSnackBar(SnackBar(content: Text(l10n.settingsExportFailed('$e'))));
       }
     } finally {
       if (mounted) {
@@ -728,6 +796,7 @@ class _SettingsScreenState extends State<SettingsScreen>
   }
 
   Future<void> _importData(AppThemeData theme) async {
+    final l10n = AppLocalizations.of(context)!;
     // 先显示加载提示，扫描本地备份文件
     if (!mounted) return;
     showDialog(
@@ -752,20 +821,20 @@ class _SettingsScreenState extends State<SettingsScreen>
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: theme.surfaceColor.withValues(alpha: 0.95),
-        title: Text('确认导入', style: TextStyle(color: theme.textColor)),
+        title: Text(l10n.settingsImportConfirmTitle, style: TextStyle(color: theme.textColor)),
         content: Text(
-          '⚠️ 导入将覆盖现有全部数据！\n\n将恢复来自：\n$result',
+          l10n.settingsImportConfirmBody(result),
           style: TextStyle(color: theme.textColor),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('取消'),
+            child: Text(l10n.settingsCancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(foregroundColor: theme.errorColor),
-            child: const Text('确认导入'),
+            style: TextButton.styleFrom(foregroundColor: theme.accentColor),
+            child: Text(l10n.settingsConfirmImport),
           ),
         ],
       ),
@@ -798,7 +867,7 @@ class _SettingsScreenState extends State<SettingsScreen>
       if (count > 0) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('导入成功，共恢复 $count 条记录')));
+        ).showSnackBar(SnackBar(content: Text(l10n.settingsImportSuccess(count))));
       }
     } catch (e) {
       debugPrint('导入失败: $e');
@@ -806,7 +875,7 @@ class _SettingsScreenState extends State<SettingsScreen>
         Navigator.pop(context); // 关闭加载提示
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('导入失败: $e')));
+        ).showSnackBar(SnackBar(content: Text(l10n.settingsImportFailed('$e'))));
       }
     }
   }
@@ -818,11 +887,12 @@ class _SettingsScreenState extends State<SettingsScreen>
     AppThemeData theme,
     List<BackupFileInfo> localBackups,
   ) async {
+    final l10n = AppLocalizations.of(context)!;
     return showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: theme.surfaceColor.withValues(alpha: 0.95),
-        title: Text('导入数据', style: TextStyle(color: theme.textColor)),
+        title: Text(l10n.settingsImportData, style: TextStyle(color: theme.textColor)),
         content: SizedBox(
           width: double.maxFinite,
           child: Column(
@@ -832,7 +902,7 @@ class _SettingsScreenState extends State<SettingsScreen>
               // 本地发现的备份文件
               if (localBackups.isNotEmpty) ...[
                 Text(
-                  '发现本地备份',
+                  l10n.settingsFoundLocalBackups,
                   style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
@@ -845,11 +915,14 @@ class _SettingsScreenState extends State<SettingsScreen>
                   (backup) => ListTile(
                     contentPadding: const EdgeInsets.symmetric(horizontal: 8),
                     title: Text(
-                      _formatBackupName(backup.fileName),
+                      _formatBackupName(
+                        backup.fileName,
+                        Localizations.localeOf(context).languageCode,
+                      ),
                       style: Theme.of(context).textTheme.bodyMedium!,
                     ),
                     subtitle: Text(
-                      '${backup.sizeText} · ${_formatDate(backup.modifiedTime)}',
+                      '${backup.sizeText} · ${_formatDate(backup.modifiedTime, Localizations.localeOf(context).languageCode)}',
                       style: Theme.of(context).textTheme.bodySmall!,
                     ),
                     trailing: Icon(
@@ -868,9 +941,9 @@ class _SettingsScreenState extends State<SettingsScreen>
               ListTile(
                 contentPadding: const EdgeInsets.symmetric(horizontal: 8),
                 leading: Icon(Icons.folder_open, color: theme.accentColor),
-                title: Text('手动选择文件', style: TextStyle(color: theme.textColor)),
+                title: Text(l10n.settingsSelectManually, style: TextStyle(color: theme.textColor)),
                 subtitle: Text(
-                  '从其他位置选择 JSON 备份文件',
+                  l10n.settingsSelectManuallySubtitle,
                   style: Theme.of(context).textTheme.bodySmall!,
                 ),
                 onTap: () => Navigator.pop(context, 'file_picker'),
@@ -881,7 +954,7 @@ class _SettingsScreenState extends State<SettingsScreen>
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, null),
-            child: const Text('取消'),
+            child: Text(l10n.settingsCancel),
           ),
         ],
       ),
@@ -889,37 +962,40 @@ class _SettingsScreenState extends State<SettingsScreen>
   }
 
   /// 格式化备份文件名为可读的日期
-  String _formatBackupName(String fileName) {
+  String _formatBackupName(String fileName, String locale) {
     // workout_timer_backup_2026-06-04T12-30-45.json
     try {
       final dateStr = fileName
           .replaceFirst('workout_timer_backup_', '')
           .replaceFirst('.json', '');
-      // 2026-06-04T12-30-45 -> 2026年6月4日 12:30
+      // 2026-06-04T12-30-45 -> localized date time
       final parts = dateStr.split('T');
       if (parts.length == 2) {
         final datePart = parts[0]; // 2026-06-04
         final timePart = parts[1].replaceAll('-', ':'); // 12-30-45 -> 12:30:45
         final date = DateTime.parse('$datePart $timePart');
-        return '备份 ${date.year}年${date.month}月${date.day}日 ${date.hour}:${date.minute.toString().padLeft(2, '0')}';
+        final df = DateFormat.yMd(locale).add_Hm();
+        return '${AppLocalizations.of(context)!.settingsBackupPrefix} ${df.format(date)}';
       }
     } catch (_) {}
     return fileName;
   }
 
   /// 格式化日期
-  String _formatDate(DateTime dt) {
-    return '${dt.month}月${dt.day}日 ${dt.hour}:${dt.minute.toString().padLeft(2, '0')}';
+  String _formatDate(DateTime dt, String locale) {
+    final df = DateFormat.MMMd(locale).add_Hm();
+    return df.format(dt);
   }
 
   void _showSoundPicker(BuildContext context, AppThemeData theme) {
+    final l10n = AppLocalizations.of(context)!;
     final sounds = _soundService.getAvailableSounds();
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: theme.surfaceColor.withValues(alpha: 0.95),
         title: Text(
-          '选择铃声',
+          l10n.settingsSelectRingtone,
           style: TextStyle(fontWeight: FontWeight.w600, color: theme.textColor),
         ),
         content: RadioGroup<String>(
@@ -949,7 +1025,7 @@ class _SettingsScreenState extends State<SettingsScreen>
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('关闭'),
+            child: Text(l10n.settingsClose),
           ),
         ],
       ),
@@ -995,9 +1071,8 @@ class _SettingsScreenState extends State<SettingsScreen>
   List<Widget> _buildOemSection(String? manufacturer, AppThemeData theme) {
     if (manufacturer == null) return const [];
     final l10n = AppLocalizations.of(context)!;
-    final displayName = _oemDisplayNames[manufacturer] ?? manufacturer;
-    final instruction =
-        _oemInstructions[manufacturer] ?? l10n.oemDefaultInstruction;
+    final displayName = _oemDisplayName(manufacturer, l10n);
+    final instruction = _oemInstruction(manufacturer, l10n);
 
     return [
       _buildSectionHeader(l10n.oemSectionTitle, theme),
@@ -1171,6 +1246,7 @@ class _SettingsScreenState extends State<SettingsScreen>
   }
 
   void _showThemeSelector(BuildContext context, ThemeProvider themeProvider) {
+    final l10n = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -1190,7 +1266,7 @@ class _SettingsScreenState extends State<SettingsScreen>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '选择主题',
+                l10n.settingsSelectTheme,
                 style: Theme.of(context).textTheme.headlineMedium!.copyWith(
                   fontSize: 20,
                   color: themeProvider.currentTheme.textColor,

@@ -947,6 +947,540 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'组间休息'**
   String get widgetRestLabel;
+
+  /// No description provided for @settingsTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'设置'**
+  String get settingsTitle;
+
+  /// No description provided for @settingsAppearanceSection.
+  ///
+  /// In zh, this message translates to:
+  /// **'外观设置'**
+  String get settingsAppearanceSection;
+
+  /// No description provided for @settingsDarkMode.
+  ///
+  /// In zh, this message translates to:
+  /// **'深色模式'**
+  String get settingsDarkMode;
+
+  /// No description provided for @settingsTheme.
+  ///
+  /// In zh, this message translates to:
+  /// **'主题'**
+  String get settingsTheme;
+
+  /// No description provided for @settingsSelectTheme.
+  ///
+  /// In zh, this message translates to:
+  /// **'选择主题'**
+  String get settingsSelectTheme;
+
+  /// No description provided for @settingsNotificationSection.
+  ///
+  /// In zh, this message translates to:
+  /// **'通知设置'**
+  String get settingsNotificationSection;
+
+  /// No description provided for @settingsEnableSound.
+  ///
+  /// In zh, this message translates to:
+  /// **'启用声音'**
+  String get settingsEnableSound;
+
+  /// No description provided for @settingsNotificationRingtone.
+  ///
+  /// In zh, this message translates to:
+  /// **'通知铃声'**
+  String get settingsNotificationRingtone;
+
+  /// No description provided for @settingsEnableVibration.
+  ///
+  /// In zh, this message translates to:
+  /// **'启用振动'**
+  String get settingsEnableVibration;
+
+  /// No description provided for @settingsDetailedRecording.
+  ///
+  /// In zh, this message translates to:
+  /// **'详细记录模式'**
+  String get settingsDetailedRecording;
+
+  /// No description provided for @settingsSelectRingtone.
+  ///
+  /// In zh, this message translates to:
+  /// **'选择铃声'**
+  String get settingsSelectRingtone;
+
+  /// No description provided for @settingsClose.
+  ///
+  /// In zh, this message translates to:
+  /// **'关闭'**
+  String get settingsClose;
+
+  /// No description provided for @settingsCancel.
+  ///
+  /// In zh, this message translates to:
+  /// **'取消'**
+  String get settingsCancel;
+
+  /// No description provided for @settingsClear.
+  ///
+  /// In zh, this message translates to:
+  /// **'清除'**
+  String get settingsClear;
+
+  /// No description provided for @settingsCustomMessageDefault.
+  ///
+  /// In zh, this message translates to:
+  /// **'准备开始下一组！'**
+  String get settingsCustomMessageDefault;
+
+  /// No description provided for @settingsCustomMessageSection.
+  ///
+  /// In zh, this message translates to:
+  /// **'自定义提醒消息'**
+  String get settingsCustomMessageSection;
+
+  /// No description provided for @settingsCustomMessageHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'输入提醒消息'**
+  String get settingsCustomMessageHint;
+
+  /// No description provided for @settingsBackgroundSection.
+  ///
+  /// In zh, this message translates to:
+  /// **'后台运行'**
+  String get settingsBackgroundSection;
+
+  /// No description provided for @settingsAllowBackground.
+  ///
+  /// In zh, this message translates to:
+  /// **'允许后台活动'**
+  String get settingsAllowBackground;
+
+  /// No description provided for @settingsBackgroundAllowed.
+  ///
+  /// In zh, this message translates to:
+  /// **'已允许，计时器可在后台正常运行'**
+  String get settingsBackgroundAllowed;
+
+  /// No description provided for @settingsBackgroundNotAllowed.
+  ///
+  /// In zh, this message translates to:
+  /// **'未允许，后台计时器可能被系统暂停'**
+  String get settingsBackgroundNotAllowed;
+
+  /// No description provided for @settingsBackgroundHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'点击上方选项，在弹出的系统对话框中选择\"允许\"，以确保计时器在后台正常运行'**
+  String get settingsBackgroundHint;
+
+  /// No description provided for @settingsDataSection.
+  ///
+  /// In zh, this message translates to:
+  /// **'数据管理'**
+  String get settingsDataSection;
+
+  /// No description provided for @settingsExportData.
+  ///
+  /// In zh, this message translates to:
+  /// **'导出数据'**
+  String get settingsExportData;
+
+  /// No description provided for @settingsExportSubtitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'导出全部训练记录、计划等数据为文件'**
+  String get settingsExportSubtitle;
+
+  /// No description provided for @settingsImportData.
+  ///
+  /// In zh, this message translates to:
+  /// **'导入数据'**
+  String get settingsImportData;
+
+  /// No description provided for @settingsImportSubtitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'从备份文件恢复全部数据（会覆盖现有数据）'**
+  String get settingsImportSubtitle;
+
+  /// No description provided for @settingsClearHistory.
+  ///
+  /// In zh, this message translates to:
+  /// **'清除所有历史记录'**
+  String get settingsClearHistory;
+
+  /// No description provided for @settingsClearHistoryConfirmTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'确认清除'**
+  String get settingsClearHistoryConfirmTitle;
+
+  /// No description provided for @settingsClearHistoryConfirmBody.
+  ///
+  /// In zh, this message translates to:
+  /// **'确定要清除所有历史记录吗？此操作不可撤销。'**
+  String get settingsClearHistoryConfirmBody;
+
+  /// No description provided for @settingsHistoryCleared.
+  ///
+  /// In zh, this message translates to:
+  /// **'历史记录已清除'**
+  String get settingsHistoryCleared;
+
+  /// No description provided for @settingsExport.
+  ///
+  /// In zh, this message translates to:
+  /// **'导出'**
+  String get settingsExport;
+
+  /// No description provided for @settingsExportConfirmBody.
+  ///
+  /// In zh, this message translates to:
+  /// **'将导出全部训练记录、计划、练习等数据。\n\n文件会保存到手机 Downloads 目录，同时弹出分享面板。'**
+  String get settingsExportConfirmBody;
+
+  /// No description provided for @settingsExportFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'导出失败: {error}'**
+  String settingsExportFailed(String error);
+
+  /// No description provided for @settingsImportConfirmTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'确认导入'**
+  String get settingsImportConfirmTitle;
+
+  /// No description provided for @settingsImportConfirmBody.
+  ///
+  /// In zh, this message translates to:
+  /// **'⚠️ 导入将覆盖现有全部数据！\n\n将恢复来自：\n{source}'**
+  String settingsImportConfirmBody(String source);
+
+  /// No description provided for @settingsConfirmImport.
+  ///
+  /// In zh, this message translates to:
+  /// **'确认导入'**
+  String get settingsConfirmImport;
+
+  /// No description provided for @settingsImportSuccess.
+  ///
+  /// In zh, this message translates to:
+  /// **'导入成功，共恢复 {count} 条记录'**
+  String settingsImportSuccess(int count);
+
+  /// No description provided for @settingsImportFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'导入失败: {error}'**
+  String settingsImportFailed(String error);
+
+  /// No description provided for @settingsFoundLocalBackups.
+  ///
+  /// In zh, this message translates to:
+  /// **'发现本地备份'**
+  String get settingsFoundLocalBackups;
+
+  /// No description provided for @settingsSelectManually.
+  ///
+  /// In zh, this message translates to:
+  /// **'手动选择文件'**
+  String get settingsSelectManually;
+
+  /// No description provided for @settingsSelectManuallySubtitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'从其他位置选择 JSON 备份文件'**
+  String get settingsSelectManuallySubtitle;
+
+  /// No description provided for @settingsAiPreferencesSection.
+  ///
+  /// In zh, this message translates to:
+  /// **'AI 训练偏好'**
+  String get settingsAiPreferencesSection;
+
+  /// No description provided for @settingsTrainingPreferences.
+  ///
+  /// In zh, this message translates to:
+  /// **'训练偏好'**
+  String get settingsTrainingPreferences;
+
+  /// No description provided for @settingsTrainingPreferencesSubtitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'设置训练目标、经验水平等，AI功能将自动读取'**
+  String get settingsTrainingPreferencesSubtitle;
+
+  /// No description provided for @settingsAboutSection.
+  ///
+  /// In zh, this message translates to:
+  /// **'关于'**
+  String get settingsAboutSection;
+
+  /// No description provided for @settingsPrivacyPolicy.
+  ///
+  /// In zh, this message translates to:
+  /// **'隐私政策'**
+  String get settingsPrivacyPolicy;
+
+  /// No description provided for @settingsPrivacyPolicySubtitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'查看本应用的隐私政策'**
+  String get settingsPrivacyPolicySubtitle;
+
+  /// No description provided for @settingsVersion.
+  ///
+  /// In zh, this message translates to:
+  /// **'版本'**
+  String get settingsVersion;
+
+  /// No description provided for @settingsBackupPrefix.
+  ///
+  /// In zh, this message translates to:
+  /// **'备份'**
+  String get settingsBackupPrefix;
+
+  /// No description provided for @settingsVersionLoading.
+  ///
+  /// In zh, this message translates to:
+  /// **'加载中…'**
+  String get settingsVersionLoading;
+
+  /// No description provided for @settingsDeveloper.
+  ///
+  /// In zh, this message translates to:
+  /// **'开发者'**
+  String get settingsDeveloper;
+
+  /// No description provided for @settingsDeveloperName.
+  ///
+  /// In zh, this message translates to:
+  /// **'深圳市露凯文化传播有限公司'**
+  String get settingsDeveloperName;
+
+  /// No description provided for @settingsContactEmail.
+  ///
+  /// In zh, this message translates to:
+  /// **'联系邮箱'**
+  String get settingsContactEmail;
+
+  /// No description provided for @settingsEmailCopied.
+  ///
+  /// In zh, this message translates to:
+  /// **'邮箱已复制'**
+  String get settingsEmailCopied;
+
+  /// No description provided for @settingsPrivacyHeadline.
+  ///
+  /// In zh, this message translates to:
+  /// **'撸铁计时器不收集任何个人信息'**
+  String get settingsPrivacyHeadline;
+
+  /// No description provided for @settingsPrivacyDataStorage.
+  ///
+  /// In zh, this message translates to:
+  /// **'数据存储'**
+  String get settingsPrivacyDataStorage;
+
+  /// No description provided for @settingsPrivacyDataStorageBody.
+  ///
+  /// In zh, this message translates to:
+  /// **'所有训练数据均存储在您的设备本地（SQLite 数据库），不上传至任何服务器。卸载应用将永久删除所有数据。'**
+  String get settingsPrivacyDataStorageBody;
+
+  /// No description provided for @settingsPrivacyPermissions.
+  ///
+  /// In zh, this message translates to:
+  /// **'设备权限'**
+  String get settingsPrivacyPermissions;
+
+  /// No description provided for @settingsPrivacyPermNotifications.
+  ///
+  /// In zh, this message translates to:
+  /// **'• 通知：计时结束提醒'**
+  String get settingsPrivacyPermNotifications;
+
+  /// No description provided for @settingsPrivacyPermVibration.
+  ///
+  /// In zh, this message translates to:
+  /// **'• 振动：计时结束振动提醒'**
+  String get settingsPrivacyPermVibration;
+
+  /// No description provided for @settingsPrivacyPermForegroundService.
+  ///
+  /// In zh, this message translates to:
+  /// **'• 前台服务：后台持续计时'**
+  String get settingsPrivacyPermForegroundService;
+
+  /// No description provided for @settingsPrivacyPermNetwork.
+  ///
+  /// In zh, this message translates to:
+  /// **'• 网络：仅下载开源健身图片（CC0）'**
+  String get settingsPrivacyPermNetwork;
+
+  /// No description provided for @settingsPrivacyPermBatteryExempt.
+  ///
+  /// In zh, this message translates to:
+  /// **'• 电池优化豁免：防止计时器被系统中断'**
+  String get settingsPrivacyPermBatteryExempt;
+
+  /// No description provided for @settingsPrivacyThirdParty.
+  ///
+  /// In zh, this message translates to:
+  /// **'第三方服务'**
+  String get settingsPrivacyThirdParty;
+
+  /// No description provided for @settingsPrivacyThirdPartyBody.
+  ///
+  /// In zh, this message translates to:
+  /// **'本应用不集成任何第三方数据分析、广告或追踪 SDK。'**
+  String get settingsPrivacyThirdPartyBody;
+
+  /// No description provided for @settingsPrivacyFullPolicy.
+  ///
+  /// In zh, this message translates to:
+  /// **'完整隐私政策：\nhttps://kaiji-z.github.io/workout-timer/'**
+  String get settingsPrivacyFullPolicy;
+
+  /// No description provided for @settingsPrivacyLinkCopied.
+  ///
+  /// In zh, this message translates to:
+  /// **'隐私政策链接已复制'**
+  String get settingsPrivacyLinkCopied;
+
+  /// No description provided for @settingsCopyLink.
+  ///
+  /// In zh, this message translates to:
+  /// **'复制链接'**
+  String get settingsCopyLink;
+
+  /// No description provided for @settingsLanguage.
+  ///
+  /// In zh, this message translates to:
+  /// **'语言'**
+  String get settingsLanguage;
+
+  /// No description provided for @settingsLanguageSystem.
+  ///
+  /// In zh, this message translates to:
+  /// **'跟随系统'**
+  String get settingsLanguageSystem;
+
+  /// No description provided for @settingsLanguageZh.
+  ///
+  /// In zh, this message translates to:
+  /// **'简体中文'**
+  String get settingsLanguageZh;
+
+  /// No description provided for @settingsLanguageEn.
+  ///
+  /// In zh, this message translates to:
+  /// **'English'**
+  String get settingsLanguageEn;
+
+  /// No description provided for @brandHuawei.
+  ///
+  /// In zh, this message translates to:
+  /// **'华为'**
+  String get brandHuawei;
+
+  /// No description provided for @brandHonor.
+  ///
+  /// In zh, this message translates to:
+  /// **'荣耀'**
+  String get brandHonor;
+
+  /// No description provided for @brandXiaomi.
+  ///
+  /// In zh, this message translates to:
+  /// **'小米'**
+  String get brandXiaomi;
+
+  /// No description provided for @brandOppo.
+  ///
+  /// In zh, this message translates to:
+  /// **'OPPO'**
+  String get brandOppo;
+
+  /// No description provided for @brandVivo.
+  ///
+  /// In zh, this message translates to:
+  /// **'vivo'**
+  String get brandVivo;
+
+  /// No description provided for @brandMeizu.
+  ///
+  /// In zh, this message translates to:
+  /// **'魅族'**
+  String get brandMeizu;
+
+  /// No description provided for @brandSamsung.
+  ///
+  /// In zh, this message translates to:
+  /// **'三星'**
+  String get brandSamsung;
+
+  /// No description provided for @brandOneplus.
+  ///
+  /// In zh, this message translates to:
+  /// **'一加'**
+  String get brandOneplus;
+
+  /// No description provided for @oemInstructionHuawei.
+  ///
+  /// In zh, this message translates to:
+  /// **'在「应用启动管理」中找到撸铁计时器，关闭「自动管理」，手动开启全部三个开关'**
+  String get oemInstructionHuawei;
+
+  /// No description provided for @oemInstructionHonor.
+  ///
+  /// In zh, this message translates to:
+  /// **'在「应用启动管理」中找到撸铁计时器，关闭「自动管理」，手动开启全部三个开关'**
+  String get oemInstructionHonor;
+
+  /// No description provided for @oemInstructionXiaomi.
+  ///
+  /// In zh, this message translates to:
+  /// **'在「自启动管理」中找到撸铁计时器，开启自启动开关。然后在「省电策略」中选择「无限制」'**
+  String get oemInstructionXiaomi;
+
+  /// No description provided for @oemInstructionOppo.
+  ///
+  /// In zh, this message translates to:
+  /// **'在「自启动管理」中找到撸铁计时器，允许自启动'**
+  String get oemInstructionOppo;
+
+  /// No description provided for @oemInstructionVivo.
+  ///
+  /// In zh, this message translates to:
+  /// **'在「后台高耗电」或「自启动」中找到撸铁计时器，允许后台运行'**
+  String get oemInstructionVivo;
+
+  /// No description provided for @oemInstructionMeizu.
+  ///
+  /// In zh, this message translates to:
+  /// **'在「智能休眠」或「后台管理」中找到撸铁计时器，允许后台运行'**
+  String get oemInstructionMeizu;
+
+  /// No description provided for @oemInstructionSamsung.
+  ///
+  /// In zh, this message translates to:
+  /// **'在「电池」设置中找到撸铁计时器，选择「不受限制」'**
+  String get oemInstructionSamsung;
+
+  /// No description provided for @oemInstructionOneplus.
+  ///
+  /// In zh, this message translates to:
+  /// **'在「电池优化」高级设置中找到撸铁计时器，选择「不优化」'**
+  String get oemInstructionOneplus;
 }
 
 class _AppLocalizationsDelegate
