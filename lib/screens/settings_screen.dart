@@ -608,9 +608,9 @@ class _SettingsScreenState extends State<SettingsScreen>
                       const ClipboardData(text: 'lookatmedia@163.com'),
                     );
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('邮箱已复制'),
-                        duration: Duration(seconds: 2),
+                      SnackBar(
+                        content: Text(AppLocalizations.of(context)!.settingsEmailCopied),
+                        duration: const Duration(seconds: 2),
                       ),
                     );
                   },

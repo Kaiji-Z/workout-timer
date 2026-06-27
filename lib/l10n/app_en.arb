@@ -609,5 +609,6 @@
   "statsSetsCount": "{count} sets",
   "statsExerciseCount": "{count}×",
   "statsRecoveryDays": "{muscle} {days}d",
-  "statsRecordsCount": "{count} records"
+  "statsRecordsCount": "{count} records",
+  "settingsEmailCopied": "Email copied"
 }
