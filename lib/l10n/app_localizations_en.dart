@@ -1388,4 +1388,175 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aiNextPasteJson => 'Next: paste JSON';
+
+  @override
+  String get pfCloseTooltip => 'Close';
+
+  @override
+  String get pfCreateTitle => 'Create plan';
+
+  @override
+  String get pfEditTitle => 'Edit plan';
+
+  @override
+  String get pfStepSelectMuscle => 'Muscles';
+
+  @override
+  String get pfStepSelectExercise => 'Exercises';
+
+  @override
+  String get pfStepConfirm => 'Confirm';
+
+  @override
+  String get pfSelectMuscleHeading => 'Select target muscles';
+
+  @override
+  String get pfSelectMuscleSubheading =>
+      'Pick the muscle groups this plan will cover (multi-select)';
+
+  @override
+  String get pfQuickSelect => 'Quick select';
+
+  @override
+  String get pfQuickUpper => 'Upper body';
+
+  @override
+  String get pfQuickLower => 'Lower body';
+
+  @override
+  String get pfQuickFull => 'Full body';
+
+  @override
+  String pfQuickRemovedToast(String muscles) {
+    return 'Removed: $muscles';
+  }
+
+  @override
+  String pfQuickAddedToast(String muscles) {
+    return 'Added: $muscles';
+  }
+
+  @override
+  String get pfSelectExerciseHeading => 'Select exercises';
+
+  @override
+  String pfSelectedMusclesLine(String muscles) {
+    return 'Selected: $muscles';
+  }
+
+  @override
+  String get pfNotSelected => 'None';
+
+  @override
+  String get pfSelectedExercisesHeading => 'Selected exercises';
+
+  @override
+  String get pfClearSelectedTitle => 'Clear selected exercises?';
+
+  @override
+  String get pfClearSelectedBody =>
+      'Clear all selected exercises? This action cannot be undone.';
+
+  @override
+  String get pfNoDetailsSuffix => '(no details)';
+
+  @override
+  String pfSetsSuffix(int count) {
+    return '($count sets)';
+  }
+
+  @override
+  String get pfContinueAdding => 'Add more exercises';
+
+  @override
+  String pfSelectedCountLine(int count) {
+    return '$count exercises selected';
+  }
+
+  @override
+  String get pfConfirmHeading => 'Confirm plan';
+
+  @override
+  String get pfPlanNameLabel => 'Plan name';
+
+  @override
+  String get pfPlanNameHint => 'e.g. Upper body day';
+
+  @override
+  String get pfSummaryHeading => 'Plan summary';
+
+  @override
+  String get pfSummaryMuscles => 'Muscles';
+
+  @override
+  String get pfSummaryExerciseCount => 'Exercises';
+
+  @override
+  String pfExerciseCountValue(int count) {
+    return '$count';
+  }
+
+  @override
+  String get pfSummaryTotalSets => 'Total sets';
+
+  @override
+  String pfTotalSetsValue(int count) {
+    return '$count sets';
+  }
+
+  @override
+  String get pfSummaryDuration => 'Est. duration';
+
+  @override
+  String pfDurationValue(int count) {
+    return '~$count min';
+  }
+
+  @override
+  String get pfDurationFootnote =>
+      '※ Estimated = total sets × 2.5 min (incl. rest)';
+
+  @override
+  String get pfAdjustSetsHeading => 'Adjust sets (drag to reorder)';
+
+  @override
+  String get pfDecreaseSets => 'Decrease sets';
+
+  @override
+  String get pfIncreaseSets => 'Increase sets';
+
+  @override
+  String get pfDeleteExercise => 'Remove exercise';
+
+  @override
+  String get pfNextSelectExercise => 'Next: select exercises';
+
+  @override
+  String get pfNextConfirm => 'Next: confirm plan';
+
+  @override
+  String get pfSaveChanges => 'Save changes';
+
+  @override
+  String get pfPreviousStep => 'Previous';
+
+  @override
+  String get pfDefaultPlanName => 'Workout plan';
+
+  @override
+  String pfSaveFailed(String error) {
+    return 'Save failed: $error';
+  }
+
+  @override
+  String get pfDiscardTitle => 'Discard edits?';
+
+  @override
+  String get pfDiscardBody => 'You have unsaved changes. Exit anyway?';
+
+  @override
+  String get pfKeepEditing => 'Keep editing';
+
+  @override
+  String get pfDiscard => 'Discard';
 }

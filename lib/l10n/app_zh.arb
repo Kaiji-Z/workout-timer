@@ -1001,5 +1001,141 @@
   "aiNextGeneratePrompt": "下一步：生成提示词",
   "@aiNextGeneratePrompt": {},
   "aiNextPasteJson": "下一步：粘贴JSON",
-  "@aiNextPasteJson": {}
+  "@aiNextPasteJson": {},
+  "pfCloseTooltip": "关闭",
+  "@pfCloseTooltip": {},
+  "pfCreateTitle": "创建计划",
+  "@pfCreateTitle": {},
+  "pfEditTitle": "编辑计划",
+  "@pfEditTitle": {},
+  "pfStepSelectMuscle": "选择部位",
+  "@pfStepSelectMuscle": {},
+  "pfStepSelectExercise": "选择动作",
+  "@pfStepSelectExercise": {},
+  "pfStepConfirm": "确认计划",
+  "@pfStepConfirm": {},
+  "pfSelectMuscleHeading": "选择训练部位",
+  "@pfSelectMuscleHeading": {},
+  "pfSelectMuscleSubheading": "选择计划要覆盖的肌肉部位（可多选）",
+  "@pfSelectMuscleSubheading": {},
+  "pfQuickSelect": "快速选择",
+  "@pfQuickSelect": {},
+  "pfQuickUpper": "上肢",
+  "@pfQuickUpper": {},
+  "pfQuickLower": "下肢",
+  "@pfQuickLower": {},
+  "pfQuickFull": "全身",
+  "@pfQuickFull": {},
+  "pfQuickRemovedToast": "已移除：{muscles}",
+  "@pfQuickRemovedToast": {
+    "placeholders": {
+      "muscles": { "type": "String" }
+    }
+  },
+  "pfQuickAddedToast": "已添加：{muscles}",
+  "@pfQuickAddedToast": {
+    "placeholders": {
+      "muscles": { "type": "String" }
+    }
+  },
+  "pfSelectExerciseHeading": "选择训练动作",
+  "@pfSelectExerciseHeading": {},
+  "pfSelectedMusclesLine": "已选部位：{muscles}",
+  "@pfSelectedMusclesLine": {
+    "placeholders": {
+      "muscles": { "type": "String" }
+    }
+  },
+  "pfNotSelected": "未选择",
+  "@pfNotSelected": {},
+  "pfSelectedExercisesHeading": "已选动作",
+  "@pfSelectedExercisesHeading": {},
+  "pfClearSelectedTitle": "清空已选动作？",
+  "@pfClearSelectedTitle": {},
+  "pfClearSelectedBody": "确定要清空所有已选动作吗？此操作无法撤销。",
+  "@pfClearSelectedBody": {},
+  "pfNoDetailsSuffix": "(无详情)",
+  "@pfNoDetailsSuffix": {},
+  "pfSetsSuffix": "({count}组)",
+  "@pfSetsSuffix": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "pfContinueAdding": "继续添加动作",
+  "@pfContinueAdding": {},
+  "pfSelectedCountLine": "已选 {count} 个动作",
+  "@pfSelectedCountLine": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "pfConfirmHeading": "确认计划",
+  "@pfConfirmHeading": {},
+  "pfPlanNameLabel": "计划名称",
+  "@pfPlanNameLabel": {},
+  "pfPlanNameHint": "例如：上肢训练日",
+  "@pfPlanNameHint": {},
+  "pfSummaryHeading": "计划摘要",
+  "@pfSummaryHeading": {},
+  "pfSummaryMuscles": "训练部位",
+  "@pfSummaryMuscles": {},
+  "pfSummaryExerciseCount": "动作数量",
+  "@pfSummaryExerciseCount": {},
+  "pfExerciseCountValue": "{count} 个",
+  "@pfExerciseCountValue": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "pfSummaryTotalSets": "总组数",
+  "@pfSummaryTotalSets": {},
+  "pfTotalSetsValue": "{count} 组",
+  "@pfTotalSetsValue": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "pfSummaryDuration": "预估时长",
+  "@pfSummaryDuration": {},
+  "pfDurationValue": "~{count} 分钟",
+  "@pfDurationValue": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "pfDurationFootnote": "※ 预估时长 = 总组数 × 2.5分钟（含休息）",
+  "@pfDurationFootnote": {},
+  "pfAdjustSetsHeading": "调整组数（可拖拽排序）",
+  "@pfAdjustSetsHeading": {},
+  "pfDecreaseSets": "减少组数",
+  "@pfDecreaseSets": {},
+  "pfIncreaseSets": "增加组数",
+  "@pfIncreaseSets": {},
+  "pfDeleteExercise": "删除动作",
+  "@pfDeleteExercise": {},
+  "pfNextSelectExercise": "下一步：选择动作",
+  "@pfNextSelectExercise": {},
+  "pfNextConfirm": "下一步：确认计划",
+  "@pfNextConfirm": {},
+  "pfSaveChanges": "保存修改",
+  "@pfSaveChanges": {},
+  "pfPreviousStep": "上一步",
+  "@pfPreviousStep": {},
+  "pfDefaultPlanName": "训练计划",
+  "@pfDefaultPlanName": {},
+  "pfSaveFailed": "保存失败: {error}",
+  "@pfSaveFailed": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "pfDiscardTitle": "放弃编辑？",
+  "@pfDiscardTitle": {},
+  "pfDiscardBody": "您有未保存的更改，确定要退出吗？",
+  "@pfDiscardBody": {},
+  "pfKeepEditing": "继续编辑",
+  "@pfKeepEditing": {},
+  "pfDiscard": "放弃",
+  "@pfDiscard": {}
 }

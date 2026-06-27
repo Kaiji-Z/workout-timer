@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
+import '../l10n/app_localizations.dart';
 import '../theme/theme_provider.dart';
 import '../utils/dimensions.dart';
 import '../providers/plan_provider.dart';
@@ -63,6 +64,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().currentTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return PopScope(
       canPop: false,
@@ -77,12 +79,12 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
           backgroundColor: Colors.transparent,
           elevation: 0,
           leading: IconButton(
-            tooltip: '关闭',
+            tooltip: l10n.pfCloseTooltip,
             icon: Icon(Icons.close, color: theme.textColor),
             onPressed: _confirmClose,
           ),
           title: Text(
-            isEditMode ? '编辑计划' : '创建计划',
+            isEditMode ? l10n.pfEditTitle : l10n.pfCreateTitle,
             style: Theme.of(context).textTheme.headlineLarge!.copyWith(
               fontSize: 18,
               fontWeight: FontWeight.w700,
@@ -116,15 +118,16 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
   }
 
   Widget _buildStepIndicator(AppThemeData theme) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       child: Row(
         children: [
-          _buildStepItem(1, '选择部位', _currentStep >= 0, theme),
+          _buildStepItem(1, l10n.pfStepSelectMuscle, _currentStep >= 0, theme),
           _buildStepLine(_currentStep >= 1, theme),
-          _buildStepItem(2, '选择动作', _currentStep >= 1, theme),
+          _buildStepItem(2, l10n.pfStepSelectExercise, _currentStep >= 1, theme),
           _buildStepLine(_currentStep >= 2, theme),
-          _buildStepItem(3, '确认计划', _currentStep >= 2, theme),
+          _buildStepItem(3, l10n.pfStepConfirm, _currentStep >= 2, theme),
         ],
       ),
     );
@@ -194,20 +197,21 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
 
   // ==================== 第1步：选择部位 ====================
   Widget _buildStep1(AppThemeData theme) {
+    final l10n = AppLocalizations.of(context)!;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '选择训练部位',
+            l10n.pfSelectMuscleHeading,
             style: Theme.of(
               context,
             ).textTheme.headlineLarge!.copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 8),
           Text(
-            '选择计划要覆盖的肌肉部位（可多选）',
+            l10n.pfSelectMuscleSubheading,
             style: Theme.of(
               context,
             ).textTheme.bodyMedium!.copyWith(color: theme.secondaryTextColor),
@@ -231,11 +235,12 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
   }
 
   Widget _buildQuickSelectButtons(AppThemeData theme) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '快速选择',
+          l10n.pfQuickSelect,
           style: Theme.of(
             context,
           ).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.w600),
@@ -245,17 +250,18 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
           spacing: 8,
           runSpacing: 8,
           children: [
-            _buildQuickButton('上肢', [
+            _buildQuickButton(l10n.pfQuickUpper, [
               PrimaryMuscleGroup.chest,
               PrimaryMuscleGroup.back,
               PrimaryMuscleGroup.shoulders,
               PrimaryMuscleGroup.arms,
             ], theme),
-            _buildQuickButton('下肢', [
+            _buildQuickButton(l10n.pfQuickLower, [
               PrimaryMuscleGroup.legs,
               PrimaryMuscleGroup.core,
             ], theme),
-            _buildQuickButton('全身', PrimaryMuscleGroup.values.toList(), theme),
+            _buildQuickButton(
+                l10n.pfQuickFull, PrimaryMuscleGroup.values.toList(), theme),
           ],
         ),
       ],
@@ -264,20 +270,25 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
 
   // ==================== 第2步：选择动作 ====================
   Widget _buildStep2(AppThemeData theme) {
+    final l10n = AppLocalizations.of(context)!;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '选择训练动作',
+            l10n.pfSelectExerciseHeading,
             style: Theme.of(
               context,
             ).textTheme.headlineLarge!.copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 8),
           Text(
-            '已选部位：${_selectedMuscles.isEmpty ? "未选择" : _selectedMuscles.map((m) => m.displayName).join("、")}',
+            l10n.pfSelectedMusclesLine(
+              _selectedMuscles.isEmpty
+                  ? l10n.pfNotSelected
+                  : _selectedMuscles.map((m) => m.displayName).join(', '),
+            ),
             style: Theme.of(
               context,
             ).textTheme.bodyMedium!.copyWith(color: theme.secondaryTextColor),
@@ -299,6 +310,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
 
   /// 已选动作摘要卡片
   Widget _buildSelectedSummaryCard(AppThemeData theme) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(AppDimensions.screenPadding),
       decoration: BoxDecoration(
@@ -313,7 +325,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                '已选动作',
+                l10n.pfSelectedExercisesHeading,
                 style: Theme.of(
                   context,
                 ).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.w600),
@@ -323,17 +335,17 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
                   final confirmed = await showDialog<bool>(
                     context: context,
                     builder: (context) => AlertDialog(
-                      title: const Text('清空已选动作？'),
-                      content: const Text('确定要清空所有已选动作吗？此操作无法撤销。'),
+                      title: Text(l10n.pfClearSelectedTitle),
+                      content: Text(l10n.pfClearSelectedBody),
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.pop(context, false),
-                          child: const Text('取消'),
+                          child: Text(l10n.widgetCancel),
                         ),
                         TextButton(
                           onPressed: () => Navigator.pop(context, true),
                           child: Text(
-                            '清空',
+                            l10n.widgetClearAll,
                             style: TextStyle(color: theme.errorColor),
                           ),
                         ),
@@ -345,7 +357,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
                   }
                 },
                 child: Text(
-                  '清空',
+                  l10n.widgetClearAll,
                   style: Theme.of(
                     context,
                   ).textTheme.labelLarge!.copyWith(color: theme.accentColor),
@@ -381,7 +393,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
                       Text(
                         exercise.hasDetails
                             ? exercise.name
-                            : '${exercise.name} (无详情)',
+                            : '${exercise.name} ${l10n.pfNoDetailsSuffix}',
                         style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                           fontSize: 13,
                           color: exercise.hasDetails
@@ -394,7 +406,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        '(${exercise.targetSets}组)',
+                        l10n.pfSetsSuffix(exercise.targetSets),
                         style: Theme.of(context).textTheme.bodySmall!,
                       ),
                       const SizedBox(width: 4),
@@ -442,7 +454,9 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                _selectedExercises.isEmpty ? '选择训练动作' : '继续添加动作',
+                _selectedExercises.isEmpty
+                    ? AppLocalizations.of(context)!.pfSelectExerciseHeading
+                    : AppLocalizations.of(context)!.pfContinueAdding,
                 style: Theme.of(
                   context,
                 ).textTheme.titleLarge!.copyWith(color: theme.accentColor),
@@ -450,7 +464,8 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
               if (_selectedExercises.isNotEmpty) ...[
                 const SizedBox(height: 4),
                 Text(
-                  '已选 ${_selectedExercises.length} 个动作',
+                  AppLocalizations.of(context)!
+                      .pfSelectedCountLine(_selectedExercises.length),
                   style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                     fontSize: 13,
                     color: theme.secondaryTextColor,
@@ -492,12 +507,14 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
             }
           });
           if (mounted) {
+            final l10n = AppLocalizations.of(context)!;
+            final muscleNames = muscles.map((m) => m.displayName).join(', ');
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(
                   allSelected
-                      ? '已移除：${muscles.map((m) => m.displayName).join("、")}'
-                      : '已添加：${muscles.map((m) => m.displayName).join("、")}',
+                      ? l10n.pfQuickRemovedToast(muscleNames)
+                      : l10n.pfQuickAddedToast(muscleNames),
                 ),
                 behavior: SnackBarBehavior.floating,
                 duration: const Duration(seconds: 2),
@@ -548,10 +565,13 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
 
   // ==================== 第3步：确认计划 ====================
   Widget _buildStep3(AppThemeData theme) {
+    final l10n = AppLocalizations.of(context)!;
     // 计算预估时长（假设每组动作1.5分钟，休息1分钟）
     final estimatedDuration =
         (_selectedExercises.fold(0, (sum, e) => sum + e.effectiveSets) * 2.5)
             .round();
+    final totalSets =
+        _selectedExercises.fold(0, (sum, e) => sum + e.effectiveSets);
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
@@ -559,7 +579,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '确认计划',
+            l10n.pfConfirmHeading,
             style: Theme.of(
               context,
             ).textTheme.headlineLarge!.copyWith(fontWeight: FontWeight.w700),
@@ -568,7 +588,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
 
           // 计划名称输入
           Text(
-            '计划名称',
+            l10n.pfPlanNameLabel,
             style: Theme.of(
               context,
             ).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.w600),
@@ -583,7 +603,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
             child: TextField(
               controller: _nameController,
               decoration: InputDecoration(
-                hintText: '例如：上肢训练日',
+                hintText: l10n.pfPlanNameHint,
                 hintStyle: Theme.of(context).textTheme.bodyLarge!.copyWith(
                   color: theme.secondaryTextColor,
                 ),
@@ -610,37 +630,38 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '计划摘要',
+                  l10n.pfSummaryHeading,
                   style: Theme.of(
                     context,
                   ).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 12),
                 _buildSummaryRow(
-                  '训练部位',
-                  _selectedMuscles.map((m) => m.displayName).join('、'),
+                  l10n.pfSummaryMuscles,
+                  _selectedMuscles.map((m) => m.displayName).join(', '),
                   theme,
                 ),
                 const Divider(height: 24),
                 _buildSummaryRow(
-                  '动作数量',
-                  '${_selectedExercises.length} 个',
+                  l10n.pfSummaryExerciseCount,
+                  l10n.pfExerciseCountValue(_selectedExercises.length),
                   theme,
                 ),
                 const Divider(height: 24),
                 _buildSummaryRow(
-                  '总组数',
-                  '${_selectedExercises.fold(0, (sum, e) => sum + e.effectiveSets)} 组',
+                  l10n.pfSummaryTotalSets,
+                  l10n.pfTotalSetsValue(totalSets),
                   theme,
                 ),
                 const Divider(height: 24),
-                _buildSummaryRow('预估时长', '~$estimatedDuration 分钟', theme),
+                _buildSummaryRow(l10n.pfSummaryDuration,
+                    l10n.pfDurationValue(estimatedDuration), theme),
               ],
             ),
           ),
           const SizedBox(height: 8),
           Text(
-            '※ 预估时长 = 总组数 × 2.5分钟（含休息）',
+            l10n.pfDurationFootnote,
             style: Theme.of(context).textTheme.bodySmall!.copyWith(
               fontSize: 12,
               color: theme.secondaryTextColor,
@@ -651,7 +672,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
 
           // 动作列表（可调整组数）
           Text(
-            '调整组数（可拖拽排序）',
+            l10n.pfAdjustSetsHeading,
             style: Theme.of(
               context,
             ).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.w600),
@@ -706,6 +727,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
     AppThemeData theme, {
     Key? key,
   }) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       key: key,
       margin: const EdgeInsets.only(bottom: 8),
@@ -754,7 +776,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
                 Text(
                   planExercise.hasDetails
                       ? planExercise.name
-                      : '${planExercise.name} (无详情)',
+                      : '${planExercise.name} ${l10n.pfNoDetailsSuffix}',
                   style: Theme.of(context).textTheme.labelLarge!.copyWith(
                     color: planExercise.hasDetails
                         ? theme.textColor
@@ -776,7 +798,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               IconButton(
-                tooltip: '减少组数',
+                tooltip: l10n.pfDecreaseSets,
                 onPressed: planExercise.effectiveSets > 1
                     ? () => _updateExerciseSets(
                         index,
@@ -804,7 +826,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
                 ),
               ),
               IconButton(
-                tooltip: '增加组数',
+                tooltip: l10n.pfIncreaseSets,
                 onPressed: planExercise.effectiveSets < 10
                     ? () => _updateExerciseSets(
                         index,
@@ -824,7 +846,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
               const SizedBox(width: 8),
               // 删除动作按钮
               IconButton(
-                tooltip: '删除动作',
+                tooltip: l10n.pfDeleteExercise,
                 onPressed: () {
                   setState(() {
                     _selectedExercises.removeAt(index);
@@ -853,23 +875,24 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
   }
 
   Widget _buildBottomButton(AppThemeData theme) {
+    final l10n = AppLocalizations.of(context)!;
     String buttonText;
     bool isEnabled;
     VoidCallback? onPressed;
 
     switch (_currentStep) {
       case 0:
-        buttonText = '下一步：选择动作';
+        buttonText = l10n.pfNextSelectExercise;
         isEnabled = _selectedMuscles.isNotEmpty;
         onPressed = isEnabled ? _nextStep : null;
         break;
       case 1:
-        buttonText = '下一步：确认计划';
+        buttonText = l10n.pfNextConfirm;
         isEnabled = _selectedExercises.isNotEmpty;
         onPressed = isEnabled ? _nextStep : null;
         break;
       case 2:
-        buttonText = isEditMode ? '保存修改' : '创建计划';
+        buttonText = isEditMode ? l10n.pfSaveChanges : l10n.pfCreateTitle;
         isEnabled = _selectedExercises.isNotEmpty;
         onPressed = isEnabled ? _savePlan : null;
         break;
@@ -902,7 +925,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
                   ),
                 ),
                 child: Text(
-                  '上一步',
+                  AppLocalizations.of(context)!.pfPreviousStep,
                   style: Theme.of(
                     context,
                   ).textTheme.titleLarge!.copyWith(fontSize: 15),
@@ -978,11 +1001,12 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
   }
 
   Future<void> _savePlan() async {
+    final l10n = AppLocalizations.of(context)!;
     var name = _nameController.text.trim();
     // 如果未输入名称，自动按训练部位命名
     if (name.isEmpty) {
       name = _selectedMuscles.map((m) => m.displayName).join(' + ');
-      if (name.isEmpty) name = '训练计划';
+      if (name.isEmpty) name = l10n.pfDefaultPlanName;
     }
 
     final planProvider = context.read<PlanProvider>();
@@ -1025,7 +1049,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
         final theme = context.read<ThemeProvider>().currentTheme;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('保存失败: $e'),
+            content: Text(l10n.pfSaveFailed(e.toString())),
             backgroundColor: theme.errorColor,
           ),
         );
@@ -1066,19 +1090,20 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
       return;
     }
     if (!mounted) return;
+    final l10n = AppLocalizations.of(context)!;
     final shouldDiscard = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('放弃编辑？'),
-        content: const Text('您有未保存的更改，确定要退出吗？'),
+        title: Text(l10n.pfDiscardTitle),
+        content: Text(l10n.pfDiscardBody),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('继续编辑'),
+            child: Text(l10n.pfKeepEditing),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('放弃'),
+            child: Text(l10n.pfDiscard),
           ),
         ],
       ),

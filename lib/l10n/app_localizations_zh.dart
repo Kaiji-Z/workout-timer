@@ -1354,4 +1354,172 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get aiNextPasteJson => '下一步：粘贴JSON';
+
+  @override
+  String get pfCloseTooltip => '关闭';
+
+  @override
+  String get pfCreateTitle => '创建计划';
+
+  @override
+  String get pfEditTitle => '编辑计划';
+
+  @override
+  String get pfStepSelectMuscle => '选择部位';
+
+  @override
+  String get pfStepSelectExercise => '选择动作';
+
+  @override
+  String get pfStepConfirm => '确认计划';
+
+  @override
+  String get pfSelectMuscleHeading => '选择训练部位';
+
+  @override
+  String get pfSelectMuscleSubheading => '选择计划要覆盖的肌肉部位（可多选）';
+
+  @override
+  String get pfQuickSelect => '快速选择';
+
+  @override
+  String get pfQuickUpper => '上肢';
+
+  @override
+  String get pfQuickLower => '下肢';
+
+  @override
+  String get pfQuickFull => '全身';
+
+  @override
+  String pfQuickRemovedToast(String muscles) {
+    return '已移除：$muscles';
+  }
+
+  @override
+  String pfQuickAddedToast(String muscles) {
+    return '已添加：$muscles';
+  }
+
+  @override
+  String get pfSelectExerciseHeading => '选择训练动作';
+
+  @override
+  String pfSelectedMusclesLine(String muscles) {
+    return '已选部位：$muscles';
+  }
+
+  @override
+  String get pfNotSelected => '未选择';
+
+  @override
+  String get pfSelectedExercisesHeading => '已选动作';
+
+  @override
+  String get pfClearSelectedTitle => '清空已选动作？';
+
+  @override
+  String get pfClearSelectedBody => '确定要清空所有已选动作吗？此操作无法撤销。';
+
+  @override
+  String get pfNoDetailsSuffix => '(无详情)';
+
+  @override
+  String pfSetsSuffix(int count) {
+    return '($count组)';
+  }
+
+  @override
+  String get pfContinueAdding => '继续添加动作';
+
+  @override
+  String pfSelectedCountLine(int count) {
+    return '已选 $count 个动作';
+  }
+
+  @override
+  String get pfConfirmHeading => '确认计划';
+
+  @override
+  String get pfPlanNameLabel => '计划名称';
+
+  @override
+  String get pfPlanNameHint => '例如：上肢训练日';
+
+  @override
+  String get pfSummaryHeading => '计划摘要';
+
+  @override
+  String get pfSummaryMuscles => '训练部位';
+
+  @override
+  String get pfSummaryExerciseCount => '动作数量';
+
+  @override
+  String pfExerciseCountValue(int count) {
+    return '$count 个';
+  }
+
+  @override
+  String get pfSummaryTotalSets => '总组数';
+
+  @override
+  String pfTotalSetsValue(int count) {
+    return '$count 组';
+  }
+
+  @override
+  String get pfSummaryDuration => '预估时长';
+
+  @override
+  String pfDurationValue(int count) {
+    return '~$count 分钟';
+  }
+
+  @override
+  String get pfDurationFootnote => '※ 预估时长 = 总组数 × 2.5分钟（含休息）';
+
+  @override
+  String get pfAdjustSetsHeading => '调整组数（可拖拽排序）';
+
+  @override
+  String get pfDecreaseSets => '减少组数';
+
+  @override
+  String get pfIncreaseSets => '增加组数';
+
+  @override
+  String get pfDeleteExercise => '删除动作';
+
+  @override
+  String get pfNextSelectExercise => '下一步：选择动作';
+
+  @override
+  String get pfNextConfirm => '下一步：确认计划';
+
+  @override
+  String get pfSaveChanges => '保存修改';
+
+  @override
+  String get pfPreviousStep => '上一步';
+
+  @override
+  String get pfDefaultPlanName => '训练计划';
+
+  @override
+  String pfSaveFailed(String error) {
+    return '保存失败: $error';
+  }
+
+  @override
+  String get pfDiscardTitle => '放弃编辑？';
+
+  @override
+  String get pfDiscardBody => '您有未保存的更改，确定要退出吗？';
+
+  @override
+  String get pfKeepEditing => '继续编辑';
+
+  @override
+  String get pfDiscard => '放弃';
 }
