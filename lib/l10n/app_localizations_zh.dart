@@ -1906,4 +1906,199 @@ class AppLocalizationsZh extends AppLocalizations {
   String anPromptRecoveryLine(String muscle, int days, String status) {
     return '  - $muscle: 已休息$days天 $status';
   }
+
+  @override
+  String get statsAiAnalysis => 'AI 分析';
+
+  @override
+  String get statsWeekView => '周视图';
+
+  @override
+  String get statsMonthView => '月视图';
+
+  @override
+  String get statsOverview => '概览';
+
+  @override
+  String statsOverviewMonth(int month) {
+    return '概览 ($month月)';
+  }
+
+  @override
+  String get statsDailyDurationTitle => '每日训练时长';
+
+  @override
+  String get statsVolumeTrendTitle => '训练量趋势';
+
+  @override
+  String get statsProgressTracking => '进步追踪';
+
+  @override
+  String get statsBodyAnalysis => '身体分析';
+
+  @override
+  String get statsSessionCount => '训练次数';
+
+  @override
+  String get statsSessionCountUnit => '次';
+
+  @override
+  String get statsWorkoutDays => '训练天数';
+
+  @override
+  String get statsDaysUnit => '天';
+
+  @override
+  String get statsAvgPerWeek => '周均训练';
+
+  @override
+  String get statsTotalVolume => '总训练量';
+
+  @override
+  String get statsNoPrevComparison => '暂无上期数据对比';
+
+  @override
+  String statsVolumeChangeVsPrev(String sign, int percent) {
+    return '$sign$percent% vs 上期';
+  }
+
+  @override
+  String get statsTotalSets => '总组数';
+
+  @override
+  String get statsSetsUnit => '组';
+
+  @override
+  String get statsTotalDuration => '总时长';
+
+  @override
+  String get statsAvgSetsPerSession => '平均组数/次';
+
+  @override
+  String get statsAvgDurationPerSession => '平均时长/次';
+
+  @override
+  String get statsPrevWeek => '上一周';
+
+  @override
+  String get statsNextWeek => '下一周';
+
+  @override
+  String get statsPrevYear => '上一年';
+
+  @override
+  String get statsNextYear => '下一年';
+
+  @override
+  String get statsToday => '今天';
+
+  @override
+  String statsYearLabel(int year) {
+    return '$year年';
+  }
+
+  @override
+  String statsWeekRange(int sm, int sd, int em, int ed) {
+    return '$sm月$sd日 - $em月$ed日';
+  }
+
+  @override
+  String get statsNoData => '暂无训练数据';
+
+  @override
+  String get statsEmptyHint => '完成几次训练后这里会显示统计信息';
+
+  @override
+  String get statsDurationPerSetsLegend => '时长/组数';
+
+  @override
+  String get statsNoExerciseData => '暂无动作数据';
+
+  @override
+  String get statsTotalCapacity => '总容量';
+
+  @override
+  String statsOtherPercent(String value) {
+    return '其他 $value%';
+  }
+
+  @override
+  String get statsNoRecoveryData => '暂无恢复数据';
+
+  @override
+  String get statsRecoveryStatus => '恢复状态';
+
+  @override
+  String get statsDensity => '训练密度';
+
+  @override
+  String statsSetsPerMinute(String value) {
+    return '$value 组/分钟';
+  }
+
+  @override
+  String statsSetsOverMinutes(int sets, String minutes) {
+    return '$sets组 / $minutes分钟';
+  }
+
+  @override
+  String get statsNo1rmData => '暂无1RM数据';
+
+  @override
+  String get statsEstimated1rmTrend => '估算1RM趋势';
+
+  @override
+  String get statsNoMuscleSetsData => '暂无肌群组数数据';
+
+  @override
+  String get statsSetsPerMuscleTitle => '每肌群组数';
+
+  @override
+  String get statsMevReference => '参考线: MEV 10组/周 (Schoenfeld 2017)';
+
+  @override
+  String get statsWeekdayMon => '一';
+
+  @override
+  String get statsWeekdayTue => '二';
+
+  @override
+  String get statsWeekdayWed => '三';
+
+  @override
+  String get statsWeekdayThu => '四';
+
+  @override
+  String get statsWeekdayFri => '五';
+
+  @override
+  String get statsWeekdaySat => '六';
+
+  @override
+  String get statsWeekdaySun => '日';
+
+  @override
+  String statsMonthLabel(int n) {
+    return '$n月';
+  }
+
+  @override
+  String statsSetsCount(int count) {
+    return '$count 组';
+  }
+
+  @override
+  String statsExerciseCount(int count) {
+    return '$count次';
+  }
+
+  @override
+  String statsRecoveryDays(String muscle, int days) {
+    return '$muscle $days天';
+  }
+
+  @override
+  String statsRecordsCount(int count) {
+    return '$count次记录';
+  }
 }
