@@ -634,5 +634,59 @@
     "placeholders": {
       "count": { "type": "int" }
     }
-  }
+  },
+  "recDetailTitle": "训练详情",
+  "@recDetailTitle": {},
+  "recDetailBackTooltip": "返回",
+  "@recDetailBackTooltip": {},
+  "recDetailExercisesSection": "动作详情",
+  "@recDetailExercisesSection": {},
+  "recDetailStatTotalSets": "总组数",
+  "@recDetailStatTotalSets": {},
+  "recDetailStatExerciseCount": "动作数",
+  "@recDetailStatExerciseCount": {},
+  "recDetailStatMuscles": "训练部位",
+  "@recDetailStatMuscles": {},
+  "recDetailNone": "无",
+  "@recDetailNone": {},
+  "recDetailAddSet": "添加组",
+  "@recDetailAddSet": {},
+  "recDetailTotalVolume": "总容量",
+  "@recDetailTotalVolume": {},
+  "recDetailAddDataPrompt": "点击添加训练数据",
+  "@recDetailAddDataPrompt": {},
+  "recDetailSaved": "已保存",
+  "@recDetailSaved": {},
+  "recDetailSaveFailed": "保存失败: {error}",
+  "@recDetailSaveFailed": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "recDetailUnsavedTitle": "保存更改？",
+  "@recDetailUnsavedTitle": {},
+  "recDetailUnsavedBody": "你有未保存的更改，是否保存？",
+  "@recDetailUnsavedBody": {},
+  "recDetailDontSave": "不保存",
+  "@recDetailDontSave": {},
+  "recDetailUnknownExercise": "未知动作",
+  "@recDetailUnknownExercise": {},
+  "recDetailUnspecifiedMuscle": "未指定",
+  "@recDetailUnspecifiedMuscle": {},
+  "recDetailDeleteButton": "删除此记录",
+  "@recDetailDeleteButton": {},
+  "recDetailDeleteTitle": "删除记录",
+  "@recDetailDeleteTitle": {},
+  "recDetailDeleteBody": "确定要删除这条训练记录吗？此操作无法撤销。",
+  "@recDetailDeleteBody": {},
+  "recDetailDeleted": "已删除",
+  "@recDetailDeleted": {},
+  "recDetailDeleteFailed": "删除失败: {error}",
+  "@recDetailDeleteFailed": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "recDetailDeleteAction": "删除",
+  "@recDetailDeleteAction": {}
 }
