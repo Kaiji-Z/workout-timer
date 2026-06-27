@@ -192,6 +192,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().currentTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: theme.backgroundColor,
@@ -199,7 +200,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          tooltip: '关闭',
+          tooltip: l10n.aiCloseTooltip,
           icon: Icon(Icons.close, color: theme.textColor),
           onPressed: () => Navigator.pop(context),
         ),
@@ -215,7 +216,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
               ),
             ),
             Text(
-              'AI 计划生成器',
+              l10n.aiTitle,
               style: Theme.of(context).textTheme.headlineMedium!.copyWith(
                 fontWeight: FontWeight.w700,
                 letterSpacing: -0.5,
@@ -228,7 +229,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
             TextButton(
               onPressed: _previousStep,
               child: Text(
-                '上一步',
+                l10n.aiPreviousStep,
                 style: Theme.of(
                   context,
                 ).textTheme.labelLarge!.copyWith(color: theme.accentColor),
@@ -265,10 +266,16 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
   }
 
   Widget _buildStepIndicator(AppThemeData theme) {
+    final l10n = AppLocalizations.of(context)!;
     final isImport = _activeTab == 1;
     final stepLabels = isImport
-        ? ['导入分析', '预览导入']
-        : ['个人资料', '生成提示词', '粘贴JSON', '预览导入'];
+        ? [l10n.aiStepImportAnalysis, l10n.aiStepPreviewImport]
+        : [
+            l10n.aiStepProfile,
+            l10n.aiStepGeneratePrompt,
+            l10n.aiStepPasteJson,
+            l10n.aiStepPreviewImport,
+          ];
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
@@ -339,6 +346,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
 
   // ==================== 第1步：Tab切换（新建计划 / 导入分析） ====================
   Widget _buildStep1(AppThemeData theme) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       children: [
         // Tab bar
@@ -350,8 +358,8 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
           ),
           child: Row(
             children: [
-              _buildTab('新建计划', 0, theme),
-              _buildTab('导入分析', 1, theme),
+              _buildTab(l10n.aiTabNewPlan, 0, theme),
+              _buildTab(l10n.aiTabImportAnalysis, 1, theme),
             ],
           ),
         ),
@@ -402,6 +410,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
 
   // ==================== 新建计划表单（原Step1内容） ====================
   Widget _buildNewPlanForm(AppThemeData theme) {
+    final l10n = AppLocalizations.of(context)!;
     if (!_preferencesLoaded) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -412,14 +421,14 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '个人训练资料',
+            l10n.aiNewPlanHeading,
             style: Theme.of(
               context,
             ).textTheme.headlineLarge!.copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 8),
           Text(
-            '请回答以下问题，帮助AI生成最适合您的训练计划',
+            l10n.aiNewPlanSubheading,
             style: Theme.of(
               context,
             ).textTheme.bodyMedium!.copyWith(color: theme.secondaryTextColor),
@@ -427,13 +436,13 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
           const SizedBox(height: 24),
 
           _buildSingleSelectQuestion(
-            '训练目标',
+            l10n.prefGoalSection,
             _goal,
             {
-              '增肌': 'muscle_building',
-              '减脂': 'fat_loss',
-              '力量': 'strength',
-              '耐力': 'endurance',
+              l10n.prefGoalMuscleBuilding: 'muscle_building',
+              l10n.prefGoalFatLoss: 'fat_loss',
+              l10n.prefGoalStrength: 'strength',
+              l10n.prefGoalEndurance: 'endurance',
             },
             (value) => setState(() => _goal = value),
             theme,
@@ -441,45 +450,70 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
           const SizedBox(height: 16),
 
           _buildSingleSelectQuestion(
-            '每周训练频率',
+            l10n.aiQuestionFrequency,
             '$_weeklyFrequency',
-            {'3天': '3', '4天': '4', '5天': '5', '6天': '6'},
+            {
+              l10n.prefFrequencyDays(3): '3',
+              l10n.prefFrequencyDays(4): '4',
+              l10n.prefFrequencyDays(5): '5',
+              l10n.prefFrequencyDays(6): '6',
+            },
             (value) => setState(() => _weeklyFrequency = int.parse(value)),
             theme,
           ),
           const SizedBox(height: 16),
 
           _buildSingleSelectQuestion(
-            '训练时长',
+            l10n.aiQuestionDuration,
             '$_sessionDuration',
-            {'45分钟': '45', '60分钟': '60', '75分钟': '75', '90分钟': '90'},
+            {
+              l10n.aiDurationMinutes(45): '45',
+              l10n.aiDurationMinutes(60): '60',
+              l10n.aiDurationMinutes(75): '75',
+              l10n.aiDurationMinutes(90): '90',
+            },
             (value) => setState(() => _sessionDuration = int.parse(value)),
             theme,
           ),
           const SizedBox(height: 16),
 
           _buildSingleSelectQuestion(
-            '经验水平',
+            l10n.prefExperienceSection,
             _experience,
-            {'初学者': 'beginner', '中级': 'intermediate', '高级': 'advanced'},
+            {
+              l10n.prefExperienceBeginner: 'beginner',
+              l10n.prefExperienceIntermediate: 'intermediate',
+              l10n.prefExperienceAdvanced: 'advanced',
+            },
             (value) => setState(() => _experience = value),
             theme,
           ),
           const SizedBox(height: 16),
 
           _buildSingleSelectQuestion(
-            '设备可用性',
+            l10n.aiQuestionEquipment,
             _equipment,
-            {'健身房': 'gym', '家用哑铃': 'home_dumbbell', '徒手': 'bodyweight'},
+            {
+              l10n.prefEquipmentGym: 'gym',
+              l10n.prefEquipmentHomeDumbbell: 'home_dumbbell',
+              l10n.prefEquipmentBodyweight: 'bodyweight',
+            },
             (value) => setState(() => _equipment = value),
             theme,
           ),
           const SizedBox(height: 16),
 
           _buildMultiSelectQuestion(
-            '重点部位',
+            l10n.prefFocusAreaSection,
             _focusAreas,
-            ['胸部', '背部', '肩部', '手臂', '腿部', '核心'],
+            {
+              l10n.prefFocusAreaChest: 'chest',
+              l10n.prefFocusAreaBack: 'back',
+              l10n.prefFocusAreaShoulders: 'shoulders',
+              l10n.prefFocusAreaArms: 'arms',
+              l10n.prefFocusAreaLegs: 'legs',
+              l10n.prefFocusAreaCore: 'core',
+            },
             (value) => setState(() => _focusAreas = value),
             theme,
           ),
@@ -490,20 +524,21 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
 
   // ==================== 导入分析表单（新增） ====================
   Widget _buildImportAnalysisForm(AppThemeData theme) {
+    final l10n = AppLocalizations.of(context)!;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '导入AI分析计划',
+            l10n.aiImportHeading,
             style: Theme.of(
               context,
             ).textTheme.headlineLarge!.copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 8),
           Text(
-            '将AI返回的JSON计划粘贴到下方，预览后直接导入',
+            l10n.aiImportSubheading,
             style: Theme.of(
               context,
             ).textTheme.bodyMedium!.copyWith(color: theme.secondaryTextColor),
@@ -514,11 +549,11 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
             maxLines: 10,
             minLines: 6,
             decoration: InputDecoration(
-              labelText: 'JSON内容',
+              labelText: l10n.aiJsonLabel,
               labelStyle: TextStyle(color: theme.textColor),
               border: const OutlineInputBorder(),
               errorText: _parseError,
-              helperText: '请粘贴AI生成的训练计划JSON',
+              helperText: l10n.aiJsonHelper,
               helperMaxLines: 2,
             ),
             onChanged: (_) {
@@ -529,7 +564,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
           ),
           const SizedBox(height: 16),
           PrimaryActionButton(
-            label: _isParsing ? '解析中...' : '解析JSON',
+            label: _isParsing ? l10n.aiParsing : l10n.aiParseJson,
             onPressed: _isParsing ? null : _parseJsonForImport,
             height: 56,
           ),
@@ -596,8 +631,9 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
 
   /// Parse JSON for import analysis tab - goes directly to preview
   void _parseJsonForImport() async {
+    final l10n = AppLocalizations.of(context)!;
     if (_jsonController.text.isEmpty) {
-      setState(() => _parseError = '请输入JSON内容');
+      setState(() => _parseError = l10n.aiErrorEmptyJson);
       return;
     }
 
@@ -611,7 +647,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
       if (jsonMap == null) {
         setState(() {
           _isParsing = false;
-          _parseError = '未能识别有效的训练计划JSON，请确保AI回复中包含 days 数组。';
+          _parseError = l10n.aiErrorInvalidJson;
         });
         return;
       }
@@ -633,7 +669,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
     } catch (e) {
       setState(() {
         _isParsing = false;
-        _parseError = 'JSON解析失败: ${e.toString()}';
+        _parseError = l10n.aiErrorParseFailed(e.toString());
       });
     }
   }
@@ -706,7 +742,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
   Widget _buildMultiSelectQuestion(
     String title,
     List<String> selectedValues,
-    List<String> options,
+    Map<String, String> options,
     ValueChanged<List<String>> onChanged,
     AppThemeData theme,
   ) {
@@ -723,17 +759,19 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
         Wrap(
           spacing: 8,
           runSpacing: 8,
-          children: options.map((option) {
-            final isSelected = selectedValues.contains(option);
+          children: options.entries.map((entry) {
+            final label = entry.key;
+            final code = entry.value;
+            final isSelected = selectedValues.contains(code);
             return Material(
               color: Colors.transparent,
               child: InkWell(
                 onTap: () {
                   final newValues = List<String>.from(selectedValues);
                   if (isSelected) {
-                    newValues.remove(option);
+                    newValues.remove(code);
                   } else {
-                    newValues.add(option);
+                    newValues.add(code);
                   }
                   onChanged(newValues);
                 },
@@ -757,7 +795,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
                     ),
                   ),
                   child: Text(
-                    option,
+                    label,
                     style: Theme.of(context).textTheme.labelLarge!.copyWith(
                       fontWeight: isSelected
                           ? FontWeight.w600
@@ -778,20 +816,21 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
 
   // ==================== 第2步：日期 + 生成提示词 ====================
   Widget _buildStep2(AppThemeData theme) {
+    final l10n = AppLocalizations.of(context)!;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '生成AI提示词',
+            l10n.aiGeneratePromptHeading,
             style: Theme.of(
               context,
             ).textTheme.headlineLarge!.copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 8),
           Text(
-            '设置开始日期并生成提示词，复制到AI应用获取训练计划',
+            l10n.aiGeneratePromptSubheading,
             style: Theme.of(
               context,
             ).textTheme.bodyMedium!.copyWith(color: theme.secondaryTextColor),
@@ -799,7 +838,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
           const SizedBox(height: 24),
 
           Text(
-            '开始日期',
+            l10n.aiStartDateLabel,
             style: Theme.of(
               context,
             ).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.w600),
@@ -851,7 +890,8 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      '${_startDate.year}年${_startDate.month}月${_startDate.day}日',
+                      l10n.aiDateDisplay(
+                          _startDate.year, _startDate.month, _startDate.day),
                       style: Theme.of(context).textTheme.bodyLarge!,
                     ),
                     Icon(
@@ -867,7 +907,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
           const SizedBox(height: 24),
 
           PrimaryActionButton(
-            label: '生成提示词',
+            label: l10n.aiGeneratePromptButton,
             onPressed: _generatePrompt,
             height: 56,
           ),
@@ -875,7 +915,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
 
           if (_generatedPrompt != null) ...[
             Text(
-              '生成的提示词',
+              l10n.aiGeneratedPromptLabel,
               style: Theme.of(
                 context,
               ).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.w600),
@@ -898,14 +938,14 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
             const SizedBox(height: 16),
 
             PrimaryActionButton(
-              label: '复制到剪贴板',
+              label: l10n.aiCopyToClipboard,
               onPressed: _copyToClipboard,
               height: 56,
             ),
             const SizedBox(height: 16),
 
             Text(
-              '将此提示词复制到豆包/千问等AI应用，获取JSON后返回粘贴',
+              l10n.aiCopyHint,
               style: Theme.of(context).textTheme.bodySmall!,
               textAlign: TextAlign.center,
             ),
@@ -935,9 +975,10 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
       await Clipboard.setData(ClipboardData(text: _generatedPrompt!));
       if (mounted) {
         final theme = context.read<ThemeProvider>().currentTheme;
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('已复制到剪贴板'),
+            content: Text(l10n.aiCopiedToast),
             backgroundColor: theme.successColor,
           ),
         );
@@ -947,20 +988,21 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
 
   // ==================== 第3步：粘贴JSON ====================
   Widget _buildStep3(AppThemeData theme) {
+    final l10n = AppLocalizations.of(context)!;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '粘贴AI返回的JSON',
+            l10n.aiPasteJsonHeading,
             style: Theme.of(
               context,
             ).textTheme.headlineLarge!.copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 8),
           Text(
-            '将AI生成的JSON粘贴到下方文本框',
+            l10n.aiPasteJsonSubheading,
             style: Theme.of(
               context,
             ).textTheme.bodyMedium!.copyWith(color: theme.secondaryTextColor),
@@ -972,11 +1014,11 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
             maxLines: 10,
             minLines: 6,
             decoration: InputDecoration(
-              labelText: 'JSON内容',
+              labelText: l10n.aiJsonLabel,
               labelStyle: TextStyle(color: theme.textColor),
               border: const OutlineInputBorder(),
               errorText: _parseError,
-              helperText: '请粘贴AI生成的训练计划JSON',
+              helperText: l10n.aiJsonHelper,
               helperMaxLines: 2,
             ),
             onChanged: (_) {
@@ -989,7 +1031,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
           const SizedBox(height: 16),
 
           PrimaryActionButton(
-            label: _isParsing ? '解析中...' : '解析JSON',
+            label: _isParsing ? l10n.aiParsing : l10n.aiParseJson,
             onPressed: _isParsing ? null : _parseJson,
             height: 56,
           ),
@@ -1025,8 +1067,9 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
   }
 
   void _parseJson() async {
+    final l10n = AppLocalizations.of(context)!;
     if (_jsonController.text.isEmpty) {
-      setState(() => _parseError = '请输入JSON内容');
+      setState(() => _parseError = l10n.aiErrorEmptyJson);
       return;
     }
 
@@ -1040,7 +1083,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
       if (jsonMap == null) {
         setState(() {
           _isParsing = false;
-          _parseError = '未能识别有效的训练计划JSON，请确保AI回复中包含 days 数组。';
+          _parseError = l10n.aiErrorInvalidJson;
         });
         return;
       }
@@ -1065,13 +1108,14 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
     } catch (e) {
       setState(() {
         _isParsing = false;
-        _parseError = 'JSON解析失败: ${e.toString()}';
+        _parseError = l10n.aiErrorParseFailed(e.toString());
       });
     }
   }
 
   // ==================== 第4步：预览 + 导入 ====================
   Widget _buildStep4(AppThemeData theme) {
+    final l10n = AppLocalizations.of(context)!;
     if (_parsedPlan == null) {
       return Center(
         child: Column(
@@ -1080,7 +1124,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
             Icon(Icons.info_outline, size: 48, color: theme.secondaryTextColor),
             const SizedBox(height: 16),
             Text(
-              '请先解析JSON以预览训练计划',
+              l10n.aiPreviewEmpty,
               style: Theme.of(
                 context,
               ).textTheme.bodyLarge!.copyWith(color: theme.secondaryTextColor),
@@ -1099,14 +1143,14 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '预览训练计划',
+                  l10n.aiPreviewHeading,
                   style: Theme.of(context).textTheme.headlineLarge!.copyWith(
                     fontWeight: FontWeight.w700,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  '计划名称: ${_parsedPlan!.name}',
+                  l10n.aiPlanNameLabel(_parsedPlan!.name),
                   style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                     color: theme.secondaryTextColor,
                   ),
@@ -1128,7 +1172,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
         Padding(
           padding: const EdgeInsets.all(20),
           child: PrimaryActionButton(
-            label: _isImporting ? '导入中...' : '确认导入',
+            label: _isImporting ? l10n.aiImporting : l10n.aiConfirmImport,
             onPressed: _isImporting ? null : _importPlan,
             height: 56,
           ),
@@ -1139,6 +1183,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
 
   /// Build match summary banner showing matched/candidate/unmatched counts.
   Widget _buildMatchSummary(AppThemeData theme) {
+    final l10n = AppLocalizations.of(context)!;
     int matched = 0;
     int candidates = 0;
     int unmatched = 0;
@@ -1174,7 +1219,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              '匹配：$matched个 ✅ | 待选：$candidates个 ⚠️ | 未匹配：$unmatched个',
+              l10n.aiMatchSummary(matched, candidates, unmatched),
               style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                 color: theme.textColor,
               ),
@@ -1185,9 +1230,31 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
     );
   }
 
+  /// Locale-aware weekday name (1=Mon..7=Sun).
+  String _dayName(int dayOfWeek, AppLocalizations l10n) {
+    switch (dayOfWeek) {
+      case 1:
+        return l10n.aiDayNameMon;
+      case 2:
+        return l10n.aiDayNameTue;
+      case 3:
+        return l10n.aiDayNameWed;
+      case 4:
+        return l10n.aiDayNameThu;
+      case 5:
+        return l10n.aiDayNameFri;
+      case 6:
+        return l10n.aiDayNameSat;
+      case 7:
+        return l10n.aiDayNameSun;
+      default:
+        return '';
+    }
+  }
+
   Widget _buildDayCard(DailyPlanImport day, AppThemeData theme) {
-    final dayNames = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
-    final dayName = dayNames[day.dayOfWeek - 1];
+    final l10n = AppLocalizations.of(context)!;
+    final dayName = _dayName(day.dayOfWeek, l10n);
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
@@ -1201,11 +1268,13 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '第${day.dayOfWeek}天 - $dayName',
+                  l10n.aiDayTitle(day.dayOfWeek, dayName),
                   style: Theme.of(context).textTheme.titleLarge!,
                 ),
                 Text(
-                  day.exercises.isEmpty ? '休息日' : '${day.exercises.length}个动作',
+                  day.exercises.isEmpty
+                      ? l10n.aiRestDay
+                      : l10n.aiExerciseCountSuffix(day.exercises.length),
                   style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                     color: theme.secondaryTextColor,
                   ),
@@ -1215,7 +1284,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
             if (day.targetMuscles.isNotEmpty) ...[
               const SizedBox(height: 8),
               Text(
-                '目标肌群: ${day.targetMuscles.join(", ")}',
+                l10n.aiTargetMusclesLabel(day.targetMuscles.join(', ')),
                 style: Theme.of(context).textTheme.bodySmall!,
               ),
             ],
@@ -1234,6 +1303,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
     int dayOfWeek,
     AppThemeData theme,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     final exerciseKey = 'day$dayOfWeek-${exercise.exerciseName}';
     final currentSets = _editableSets[exerciseKey] ?? exercise.targetSets;
 
@@ -1284,13 +1354,13 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
               color: theme.warningColor.withValues(alpha: 0.4),
             ),
           ),
-          child: Row(
+              child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(Icons.help_outline, size: 14, color: theme.warningColor),
               const SizedBox(width: 4),
               Text(
-                '${matchResult.candidates.length}个候选',
+                l10n.aiCandidatesBadge(matchResult.candidates.length),
                 style: Theme.of(
                   context,
                 ).textTheme.bodySmall!.copyWith(
@@ -1329,7 +1399,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
                   Padding(
                     padding: const EdgeInsets.only(top: 2),
                     child: Text(
-                      '原: ${exercise.exerciseName}',
+                      l10n.aiOriginalLabel(exercise.exerciseName),
                       style: Theme.of(
                         context,
                       ).textTheme.bodySmall!.copyWith(
@@ -1349,7 +1419,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               IconButton(
-                tooltip: '减少',
+                tooltip: l10n.aiDecreaseSets,
                 icon: Icon(
                   Icons.remove_circle_outline,
                   color: theme.accentColor,
@@ -1377,7 +1447,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
                 ),
               ),
               IconButton(
-                tooltip: '增加',
+                tooltip: l10n.aiIncreaseSets,
                 icon: Icon(
                   Icons.add_circle_outline,
                   color: theme.accentColor,
@@ -1392,7 +1462,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
                 },
               ),
               const SizedBox(width: 4),
-              Text('组', style: Theme.of(context).textTheme.bodySmall!),
+              Text(l10n.aiSetsUnit, style: Theme.of(context).textTheme.bodySmall!),
             ],
           ),
         ],
@@ -1441,7 +1511,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      '选择匹配的动作',
+                      AppLocalizations.of(context)!.aiSelectMatchTitle,
                       style: Theme.of(
                         context,
                       ).textTheme.headlineLarge!.copyWith(
@@ -1451,8 +1521,8 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'AI生成的"$originalName"有'
-                      '${matchResult.candidates.length}个候选',
+                      AppLocalizations.of(context)!.aiSelectMatchSubtitle(
+                          originalName, matchResult.candidates.length),
                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                         color: theme.secondaryTextColor,
                       ),
@@ -1534,7 +1604,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
                       color: theme.secondaryTextColor,
                     ),
                     label: Text(
-                      '保持为"无详情"',
+                      AppLocalizations.of(context)!.aiKeepUnmatched,
                       style: TextStyle(color: theme.secondaryTextColor),
                     ),
                   ),
@@ -1551,20 +1621,21 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
     if (_parsedPlan == null) return;
 
     final theme = context.read<ThemeProvider>().currentTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('确认导入'),
-        content: const Text('确定要导入这个训练计划吗？计划将被添加到日历中。'),
+        title: Text(l10n.aiImportConfirmTitle),
+        content: Text(l10n.aiImportConfirmBody),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('取消'),
+            child: Text(l10n.widgetCancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('确认'),
+            child: Text(l10n.widgetConfirmButton),
           ),
         ],
       ),
@@ -1586,7 +1657,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('训练计划导入成功！'),
+            content: Text(l10n.aiImportSuccessToast),
             backgroundColor: theme.successColor,
           ),
         );
@@ -1596,7 +1667,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('导入失败: $e'),
+            content: Text(l10n.aiImportFailedToast(e.toString())),
             backgroundColor: theme.errorColor,
           ),
         );
@@ -1610,6 +1681,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
 
   // ==================== 底部按钮 ====================
   Widget _buildBottomButton(AppThemeData theme) {
+    final l10n = AppLocalizations.of(context)!;
     String buttonText;
     bool isEnabled;
     VoidCallback? onPressed;
@@ -1618,7 +1690,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
       // Import analysis flow
       switch (_currentStep) {
         case 0:
-          buttonText = '下一步：预览导入';
+          buttonText = l10n.aiNextPreviewImport;
           isEnabled = _parsedPlan != null;
           onPressed = isEnabled
               ? () {
@@ -1632,7 +1704,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
               : null;
           break;
         case 1:
-          buttonText = '完成';
+          buttonText = l10n.aiComplete;
           isEnabled = _parsedPlan != null && !_isImporting;
           onPressed = isEnabled ? _importPlan : null;
           break;
@@ -1645,22 +1717,22 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
       // New plan flow (existing logic)
       switch (_currentStep) {
         case 0:
-          buttonText = '下一步：生成提示词';
+          buttonText = l10n.aiNextGeneratePrompt;
           isEnabled = true;
           onPressed = _nextStep;
           break;
         case 1:
-          buttonText = '下一步：粘贴JSON';
+          buttonText = l10n.aiNextPasteJson;
           isEnabled = _generatedPrompt != null;
           onPressed = isEnabled ? _nextStep : null;
           break;
         case 2:
-          buttonText = '下一步：预览导入';
+          buttonText = l10n.aiNextPreviewImport;
           isEnabled = _parsedPlan != null;
           onPressed = isEnabled ? _nextStep : null;
           break;
         case 3:
-          buttonText = '完成';
+          buttonText = l10n.aiComplete;
           isEnabled = _parsedPlan != null && !_isImporting;
           onPressed = isEnabled ? _importPlan : null;
           break;

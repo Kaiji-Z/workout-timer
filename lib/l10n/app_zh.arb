@@ -809,5 +809,197 @@
   "exSelectHint": "点击动作卡片选择",
   "@exSelectHint": {},
   "equipmentAll": "全部",
-  "@equipmentAll": {}
+  "@equipmentAll": {},
+  "aiCloseTooltip": "关闭",
+  "@aiCloseTooltip": {},
+  "aiTitle": "AI 计划生成器",
+  "@aiTitle": {},
+  "aiPreviousStep": "上一步",
+  "@aiPreviousStep": {},
+  "aiStepImportAnalysis": "导入分析",
+  "@aiStepImportAnalysis": {},
+  "aiStepPreviewImport": "预览导入",
+  "@aiStepPreviewImport": {},
+  "aiStepProfile": "个人资料",
+  "@aiStepProfile": {},
+  "aiStepGeneratePrompt": "生成提示词",
+  "@aiStepGeneratePrompt": {},
+  "aiStepPasteJson": "粘贴JSON",
+  "@aiStepPasteJson": {},
+  "aiTabNewPlan": "新建计划",
+  "@aiTabNewPlan": {},
+  "aiTabImportAnalysis": "导入分析",
+  "@aiTabImportAnalysis": {},
+  "aiNewPlanHeading": "个人训练资料",
+  "@aiNewPlanHeading": {},
+  "aiNewPlanSubheading": "请回答以下问题，帮助AI生成最适合您的训练计划",
+  "@aiNewPlanSubheading": {},
+  "aiQuestionFrequency": "每周训练频率",
+  "@aiQuestionFrequency": {},
+  "aiQuestionDuration": "训练时长",
+  "@aiQuestionDuration": {},
+  "aiQuestionEquipment": "设备可用性",
+  "@aiQuestionEquipment": {},
+  "aiDurationMinutes": "{count}分钟",
+  "@aiDurationMinutes": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "aiImportHeading": "导入AI分析计划",
+  "@aiImportHeading": {},
+  "aiImportSubheading": "将AI返回的JSON计划粘贴到下方，预览后直接导入",
+  "@aiImportSubheading": {},
+  "aiJsonLabel": "JSON内容",
+  "@aiJsonLabel": {},
+  "aiJsonHelper": "请粘贴AI生成的训练计划JSON",
+  "@aiJsonHelper": {},
+  "aiParsing": "解析中...",
+  "@aiParsing": {},
+  "aiParseJson": "解析JSON",
+  "@aiParseJson": {},
+  "aiErrorEmptyJson": "请输入JSON内容",
+  "@aiErrorEmptyJson": {},
+  "aiErrorInvalidJson": "未能识别有效的训练计划JSON，请确保AI回复中包含 days 数组。",
+  "@aiErrorInvalidJson": {},
+  "aiErrorParseFailed": "JSON解析失败: {error}",
+  "@aiErrorParseFailed": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "aiGeneratePromptHeading": "生成AI提示词",
+  "@aiGeneratePromptHeading": {},
+  "aiGeneratePromptSubheading": "设置开始日期并生成提示词，复制到AI应用获取训练计划",
+  "@aiGeneratePromptSubheading": {},
+  "aiStartDateLabel": "开始日期",
+  "@aiStartDateLabel": {},
+  "aiDateDisplay": "{year}年{month}月{day}日",
+  "@aiDateDisplay": {
+    "placeholders": {
+      "year": { "type": "int" },
+      "month": { "type": "int" },
+      "day": { "type": "int" }
+    }
+  },
+  "aiGeneratePromptButton": "生成提示词",
+  "@aiGeneratePromptButton": {},
+  "aiGeneratedPromptLabel": "生成的提示词",
+  "@aiGeneratedPromptLabel": {},
+  "aiCopyToClipboard": "复制到剪贴板",
+  "@aiCopyToClipboard": {},
+  "aiCopyHint": "将此提示词复制到豆包/千问等AI应用，获取JSON后返回粘贴",
+  "@aiCopyHint": {},
+  "aiCopiedToast": "已复制到剪贴板",
+  "@aiCopiedToast": {},
+  "aiPasteJsonHeading": "粘贴AI返回的JSON",
+  "@aiPasteJsonHeading": {},
+  "aiPasteJsonSubheading": "将AI生成的JSON粘贴到下方文本框",
+  "@aiPasteJsonSubheading": {},
+  "aiPreviewEmpty": "请先解析JSON以预览训练计划",
+  "@aiPreviewEmpty": {},
+  "aiPreviewHeading": "预览训练计划",
+  "@aiPreviewHeading": {},
+  "aiPlanNameLabel": "计划名称: {name}",
+  "@aiPlanNameLabel": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "aiImporting": "导入中...",
+  "@aiImporting": {},
+  "aiConfirmImport": "确认导入",
+  "@aiConfirmImport": {},
+  "aiMatchSummary": "匹配：{matched}个 ✅ | 待选：{candidates}个 ⚠️ | 未匹配：{unmatched}个",
+  "@aiMatchSummary": {
+    "placeholders": {
+      "matched": { "type": "int" },
+      "candidates": { "type": "int" },
+      "unmatched": { "type": "int" }
+    }
+  },
+  "aiDayNameMon": "周一",
+  "@aiDayNameMon": {},
+  "aiDayNameTue": "周二",
+  "@aiDayNameTue": {},
+  "aiDayNameWed": "周三",
+  "@aiDayNameWed": {},
+  "aiDayNameThu": "周四",
+  "@aiDayNameThu": {},
+  "aiDayNameFri": "周五",
+  "@aiDayNameFri": {},
+  "aiDayNameSat": "周六",
+  "@aiDayNameSat": {},
+  "aiDayNameSun": "周日",
+  "@aiDayNameSun": {},
+  "aiDayTitle": "第{n}天 - {name}",
+  "@aiDayTitle": {
+    "placeholders": {
+      "n": { "type": "int" },
+      "name": { "type": "String" }
+    }
+  },
+  "aiRestDay": "休息日",
+  "@aiRestDay": {},
+  "aiExerciseCountSuffix": "{count}个动作",
+  "@aiExerciseCountSuffix": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "aiTargetMusclesLabel": "目标肌群: {muscles}",
+  "@aiTargetMusclesLabel": {
+    "placeholders": {
+      "muscles": { "type": "String" }
+    }
+  },
+  "aiCandidatesBadge": "{count}个候选",
+  "@aiCandidatesBadge": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "aiOriginalLabel": "原: {name}",
+  "@aiOriginalLabel": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "aiDecreaseSets": "减少",
+  "@aiDecreaseSets": {},
+  "aiIncreaseSets": "增加",
+  "@aiIncreaseSets": {},
+  "aiSetsUnit": "组",
+  "@aiSetsUnit": {},
+  "aiSelectMatchTitle": "选择匹配的动作",
+  "@aiSelectMatchTitle": {},
+  "aiSelectMatchSubtitle": "AI生成的\"{name}\"有{count}个候选",
+  "@aiSelectMatchSubtitle": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "count": { "type": "int" }
+    }
+  },
+  "aiKeepUnmatched": "保持为\"无详情\"",
+  "@aiKeepUnmatched": {},
+  "aiImportConfirmTitle": "确认导入",
+  "@aiImportConfirmTitle": {},
+  "aiImportConfirmBody": "确定要导入这个训练计划吗？计划将被添加到日历中。",
+  "@aiImportConfirmBody": {},
+  "aiImportSuccessToast": "训练计划导入成功！",
+  "@aiImportSuccessToast": {},
+  "aiImportFailedToast": "导入失败: {error}",
+  "@aiImportFailedToast": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "aiNextPreviewImport": "下一步：预览导入",
+  "@aiNextPreviewImport": {},
+  "aiComplete": "完成",
+  "@aiComplete": {},
+  "aiNextGeneratePrompt": "下一步：生成提示词",
+  "@aiNextGeneratePrompt": {},
+  "aiNextPasteJson": "下一步：粘贴JSON",
+  "@aiNextPasteJson": {}
 }

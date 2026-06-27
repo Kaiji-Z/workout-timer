@@ -2063,6 +2063,420 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'全部'**
   String get equipmentAll;
+
+  /// No description provided for @aiCloseTooltip.
+  ///
+  /// In zh, this message translates to:
+  /// **'关闭'**
+  String get aiCloseTooltip;
+
+  /// No description provided for @aiTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'AI 计划生成器'**
+  String get aiTitle;
+
+  /// No description provided for @aiPreviousStep.
+  ///
+  /// In zh, this message translates to:
+  /// **'上一步'**
+  String get aiPreviousStep;
+
+  /// No description provided for @aiStepImportAnalysis.
+  ///
+  /// In zh, this message translates to:
+  /// **'导入分析'**
+  String get aiStepImportAnalysis;
+
+  /// No description provided for @aiStepPreviewImport.
+  ///
+  /// In zh, this message translates to:
+  /// **'预览导入'**
+  String get aiStepPreviewImport;
+
+  /// No description provided for @aiStepProfile.
+  ///
+  /// In zh, this message translates to:
+  /// **'个人资料'**
+  String get aiStepProfile;
+
+  /// No description provided for @aiStepGeneratePrompt.
+  ///
+  /// In zh, this message translates to:
+  /// **'生成提示词'**
+  String get aiStepGeneratePrompt;
+
+  /// No description provided for @aiStepPasteJson.
+  ///
+  /// In zh, this message translates to:
+  /// **'粘贴JSON'**
+  String get aiStepPasteJson;
+
+  /// No description provided for @aiTabNewPlan.
+  ///
+  /// In zh, this message translates to:
+  /// **'新建计划'**
+  String get aiTabNewPlan;
+
+  /// No description provided for @aiTabImportAnalysis.
+  ///
+  /// In zh, this message translates to:
+  /// **'导入分析'**
+  String get aiTabImportAnalysis;
+
+  /// No description provided for @aiNewPlanHeading.
+  ///
+  /// In zh, this message translates to:
+  /// **'个人训练资料'**
+  String get aiNewPlanHeading;
+
+  /// No description provided for @aiNewPlanSubheading.
+  ///
+  /// In zh, this message translates to:
+  /// **'请回答以下问题，帮助AI生成最适合您的训练计划'**
+  String get aiNewPlanSubheading;
+
+  /// No description provided for @aiQuestionFrequency.
+  ///
+  /// In zh, this message translates to:
+  /// **'每周训练频率'**
+  String get aiQuestionFrequency;
+
+  /// No description provided for @aiQuestionDuration.
+  ///
+  /// In zh, this message translates to:
+  /// **'训练时长'**
+  String get aiQuestionDuration;
+
+  /// No description provided for @aiQuestionEquipment.
+  ///
+  /// In zh, this message translates to:
+  /// **'设备可用性'**
+  String get aiQuestionEquipment;
+
+  /// No description provided for @aiDurationMinutes.
+  ///
+  /// In zh, this message translates to:
+  /// **'{count}分钟'**
+  String aiDurationMinutes(int count);
+
+  /// No description provided for @aiImportHeading.
+  ///
+  /// In zh, this message translates to:
+  /// **'导入AI分析计划'**
+  String get aiImportHeading;
+
+  /// No description provided for @aiImportSubheading.
+  ///
+  /// In zh, this message translates to:
+  /// **'将AI返回的JSON计划粘贴到下方，预览后直接导入'**
+  String get aiImportSubheading;
+
+  /// No description provided for @aiJsonLabel.
+  ///
+  /// In zh, this message translates to:
+  /// **'JSON内容'**
+  String get aiJsonLabel;
+
+  /// No description provided for @aiJsonHelper.
+  ///
+  /// In zh, this message translates to:
+  /// **'请粘贴AI生成的训练计划JSON'**
+  String get aiJsonHelper;
+
+  /// No description provided for @aiParsing.
+  ///
+  /// In zh, this message translates to:
+  /// **'解析中...'**
+  String get aiParsing;
+
+  /// No description provided for @aiParseJson.
+  ///
+  /// In zh, this message translates to:
+  /// **'解析JSON'**
+  String get aiParseJson;
+
+  /// No description provided for @aiErrorEmptyJson.
+  ///
+  /// In zh, this message translates to:
+  /// **'请输入JSON内容'**
+  String get aiErrorEmptyJson;
+
+  /// No description provided for @aiErrorInvalidJson.
+  ///
+  /// In zh, this message translates to:
+  /// **'未能识别有效的训练计划JSON，请确保AI回复中包含 days 数组。'**
+  String get aiErrorInvalidJson;
+
+  /// No description provided for @aiErrorParseFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'JSON解析失败: {error}'**
+  String aiErrorParseFailed(String error);
+
+  /// No description provided for @aiGeneratePromptHeading.
+  ///
+  /// In zh, this message translates to:
+  /// **'生成AI提示词'**
+  String get aiGeneratePromptHeading;
+
+  /// No description provided for @aiGeneratePromptSubheading.
+  ///
+  /// In zh, this message translates to:
+  /// **'设置开始日期并生成提示词，复制到AI应用获取训练计划'**
+  String get aiGeneratePromptSubheading;
+
+  /// No description provided for @aiStartDateLabel.
+  ///
+  /// In zh, this message translates to:
+  /// **'开始日期'**
+  String get aiStartDateLabel;
+
+  /// No description provided for @aiDateDisplay.
+  ///
+  /// In zh, this message translates to:
+  /// **'{year}年{month}月{day}日'**
+  String aiDateDisplay(int year, int month, int day);
+
+  /// No description provided for @aiGeneratePromptButton.
+  ///
+  /// In zh, this message translates to:
+  /// **'生成提示词'**
+  String get aiGeneratePromptButton;
+
+  /// No description provided for @aiGeneratedPromptLabel.
+  ///
+  /// In zh, this message translates to:
+  /// **'生成的提示词'**
+  String get aiGeneratedPromptLabel;
+
+  /// No description provided for @aiCopyToClipboard.
+  ///
+  /// In zh, this message translates to:
+  /// **'复制到剪贴板'**
+  String get aiCopyToClipboard;
+
+  /// No description provided for @aiCopyHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'将此提示词复制到豆包/千问等AI应用，获取JSON后返回粘贴'**
+  String get aiCopyHint;
+
+  /// No description provided for @aiCopiedToast.
+  ///
+  /// In zh, this message translates to:
+  /// **'已复制到剪贴板'**
+  String get aiCopiedToast;
+
+  /// No description provided for @aiPasteJsonHeading.
+  ///
+  /// In zh, this message translates to:
+  /// **'粘贴AI返回的JSON'**
+  String get aiPasteJsonHeading;
+
+  /// No description provided for @aiPasteJsonSubheading.
+  ///
+  /// In zh, this message translates to:
+  /// **'将AI生成的JSON粘贴到下方文本框'**
+  String get aiPasteJsonSubheading;
+
+  /// No description provided for @aiPreviewEmpty.
+  ///
+  /// In zh, this message translates to:
+  /// **'请先解析JSON以预览训练计划'**
+  String get aiPreviewEmpty;
+
+  /// No description provided for @aiPreviewHeading.
+  ///
+  /// In zh, this message translates to:
+  /// **'预览训练计划'**
+  String get aiPreviewHeading;
+
+  /// No description provided for @aiPlanNameLabel.
+  ///
+  /// In zh, this message translates to:
+  /// **'计划名称: {name}'**
+  String aiPlanNameLabel(String name);
+
+  /// No description provided for @aiImporting.
+  ///
+  /// In zh, this message translates to:
+  /// **'导入中...'**
+  String get aiImporting;
+
+  /// No description provided for @aiConfirmImport.
+  ///
+  /// In zh, this message translates to:
+  /// **'确认导入'**
+  String get aiConfirmImport;
+
+  /// No description provided for @aiMatchSummary.
+  ///
+  /// In zh, this message translates to:
+  /// **'匹配：{matched}个 ✅ | 待选：{candidates}个 ⚠️ | 未匹配：{unmatched}个'**
+  String aiMatchSummary(int matched, int candidates, int unmatched);
+
+  /// No description provided for @aiDayNameMon.
+  ///
+  /// In zh, this message translates to:
+  /// **'周一'**
+  String get aiDayNameMon;
+
+  /// No description provided for @aiDayNameTue.
+  ///
+  /// In zh, this message translates to:
+  /// **'周二'**
+  String get aiDayNameTue;
+
+  /// No description provided for @aiDayNameWed.
+  ///
+  /// In zh, this message translates to:
+  /// **'周三'**
+  String get aiDayNameWed;
+
+  /// No description provided for @aiDayNameThu.
+  ///
+  /// In zh, this message translates to:
+  /// **'周四'**
+  String get aiDayNameThu;
+
+  /// No description provided for @aiDayNameFri.
+  ///
+  /// In zh, this message translates to:
+  /// **'周五'**
+  String get aiDayNameFri;
+
+  /// No description provided for @aiDayNameSat.
+  ///
+  /// In zh, this message translates to:
+  /// **'周六'**
+  String get aiDayNameSat;
+
+  /// No description provided for @aiDayNameSun.
+  ///
+  /// In zh, this message translates to:
+  /// **'周日'**
+  String get aiDayNameSun;
+
+  /// No description provided for @aiDayTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'第{n}天 - {name}'**
+  String aiDayTitle(int n, String name);
+
+  /// No description provided for @aiRestDay.
+  ///
+  /// In zh, this message translates to:
+  /// **'休息日'**
+  String get aiRestDay;
+
+  /// No description provided for @aiExerciseCountSuffix.
+  ///
+  /// In zh, this message translates to:
+  /// **'{count}个动作'**
+  String aiExerciseCountSuffix(int count);
+
+  /// No description provided for @aiTargetMusclesLabel.
+  ///
+  /// In zh, this message translates to:
+  /// **'目标肌群: {muscles}'**
+  String aiTargetMusclesLabel(String muscles);
+
+  /// No description provided for @aiCandidatesBadge.
+  ///
+  /// In zh, this message translates to:
+  /// **'{count}个候选'**
+  String aiCandidatesBadge(int count);
+
+  /// No description provided for @aiOriginalLabel.
+  ///
+  /// In zh, this message translates to:
+  /// **'原: {name}'**
+  String aiOriginalLabel(String name);
+
+  /// No description provided for @aiDecreaseSets.
+  ///
+  /// In zh, this message translates to:
+  /// **'减少'**
+  String get aiDecreaseSets;
+
+  /// No description provided for @aiIncreaseSets.
+  ///
+  /// In zh, this message translates to:
+  /// **'增加'**
+  String get aiIncreaseSets;
+
+  /// No description provided for @aiSetsUnit.
+  ///
+  /// In zh, this message translates to:
+  /// **'组'**
+  String get aiSetsUnit;
+
+  /// No description provided for @aiSelectMatchTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'选择匹配的动作'**
+  String get aiSelectMatchTitle;
+
+  /// No description provided for @aiSelectMatchSubtitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'AI生成的\"{name}\"有{count}个候选'**
+  String aiSelectMatchSubtitle(String name, int count);
+
+  /// No description provided for @aiKeepUnmatched.
+  ///
+  /// In zh, this message translates to:
+  /// **'保持为\"无详情\"'**
+  String get aiKeepUnmatched;
+
+  /// No description provided for @aiImportConfirmTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'确认导入'**
+  String get aiImportConfirmTitle;
+
+  /// No description provided for @aiImportConfirmBody.
+  ///
+  /// In zh, this message translates to:
+  /// **'确定要导入这个训练计划吗？计划将被添加到日历中。'**
+  String get aiImportConfirmBody;
+
+  /// No description provided for @aiImportSuccessToast.
+  ///
+  /// In zh, this message translates to:
+  /// **'训练计划导入成功！'**
+  String get aiImportSuccessToast;
+
+  /// No description provided for @aiImportFailedToast.
+  ///
+  /// In zh, this message translates to:
+  /// **'导入失败: {error}'**
+  String aiImportFailedToast(String error);
+
+  /// No description provided for @aiNextPreviewImport.
+  ///
+  /// In zh, this message translates to:
+  /// **'下一步：预览导入'**
+  String get aiNextPreviewImport;
+
+  /// No description provided for @aiComplete.
+  ///
+  /// In zh, this message translates to:
+  /// **'完成'**
+  String get aiComplete;
+
+  /// No description provided for @aiNextGeneratePrompt.
+  ///
+  /// In zh, this message translates to:
+  /// **'下一步：生成提示词'**
+  String get aiNextGeneratePrompt;
+
+  /// No description provided for @aiNextPasteJson.
+  ///
+  /// In zh, this message translates to:
+  /// **'下一步：粘贴JSON'**
+  String get aiNextPasteJson;
 }
 
 class _AppLocalizationsDelegate

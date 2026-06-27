@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workout_timer/core/service_locator.dart';
+import 'package:workout_timer/l10n/app_localizations.dart';
 import 'package:workout_timer/screens/ai_plan_wizard_screen.dart';
 import 'package:workout_timer/theme/theme_provider.dart';
 import 'package:workout_timer/providers/plan_provider.dart';
@@ -22,7 +23,7 @@ void main() {
   });
 
   group('AIPlanWizardScreen', () {
-    testWidgets('starts from step 1 (个人资料) in default mode', (tester) async {
+    testWidgets('starts from step 1 (Profile) in default mode', (tester) async {
       final themeProvider = ThemeProvider();
       await themeProvider.initialize();
 
@@ -32,17 +33,21 @@ void main() {
             ChangeNotifierProvider.value(value: themeProvider),
             ChangeNotifierProvider(create: (_) => PlanProvider()),
           ],
-          child: const MaterialApp(home: AIPlanWizardScreen()),
+          child: MaterialApp(
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: const AIPlanWizardScreen(),
+          ),
         ),
       );
 
       await tester.pumpAndSettle();
 
       // In default mode, should start from step 1
-      expect(find.text('个人资料'), findsOneWidget);
+      expect(find.text('Profile'), findsOneWidget);
     });
 
-    testWidgets('shows 新建计划 and 导入分析 tabs', (tester) async {
+    testWidgets('shows New plan and Import analysis tabs', (tester) async {
       final themeProvider = ThemeProvider();
       await themeProvider.initialize();
 
@@ -52,18 +57,22 @@ void main() {
             ChangeNotifierProvider.value(value: themeProvider),
             ChangeNotifierProvider(create: (_) => PlanProvider()),
           ],
-          child: const MaterialApp(home: AIPlanWizardScreen()),
+          child: MaterialApp(
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: const AIPlanWizardScreen(),
+          ),
         ),
       );
 
       await tester.pumpAndSettle();
 
       // Should show both tab options
-      expect(find.text('新建计划'), findsOneWidget);
-      expect(find.text('导入分析'), findsOneWidget);
+      expect(find.text('New plan'), findsOneWidget);
+      expect(find.text('Import analysis'), findsOneWidget);
     });
 
-    testWidgets('switches to 导入分析 tab on tap', (tester) async {
+    testWidgets('switches to Import analysis tab on tap', (tester) async {
       final themeProvider = ThemeProvider();
       await themeProvider.initialize();
 
@@ -73,18 +82,22 @@ void main() {
             ChangeNotifierProvider.value(value: themeProvider),
             ChangeNotifierProvider(create: (_) => PlanProvider()),
           ],
-          child: const MaterialApp(home: AIPlanWizardScreen()),
+          child: MaterialApp(
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: const AIPlanWizardScreen(),
+          ),
         ),
       );
 
       await tester.pumpAndSettle();
 
-      // Tap the 导入分析 tab
-      await tester.tap(find.text('导入分析'));
+      // Tap the Import analysis tab
+      await tester.tap(find.text('Import analysis'));
       await tester.pumpAndSettle();
 
       // Should show import form
-      expect(find.text('导入AI分析计划'), findsOneWidget);
+      expect(find.text('Import AI-analyzed plan'), findsOneWidget);
     });
   });
 }
