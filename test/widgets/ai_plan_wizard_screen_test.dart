@@ -99,5 +99,39 @@ void main() {
       // Should show import form
       expect(find.text('Import AI-analyzed plan'), findsOneWidget);
     });
+
+    testWidgets(
+      'import tab step indicator shows start-week step',
+      (tester) async {
+        final themeProvider = ThemeProvider();
+        await themeProvider.initialize();
+
+        await tester.pumpWidget(
+          MultiProvider(
+            providers: [
+              ChangeNotifierProvider.value(value: themeProvider),
+              ChangeNotifierProvider(create: (_) => PlanProvider()),
+            ],
+            child: MaterialApp(
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: AppLocalizations.supportedLocales,
+              home: const AIPlanWizardScreen(),
+            ),
+          ),
+        );
+
+        await tester.pumpAndSettle();
+
+        // Switch to Import analysis tab
+        await tester.tap(find.text('Import analysis'));
+        await tester.pumpAndSettle();
+
+        // Step indicator should show 3 labels for the import flow, including
+        // the new "Start week" step.
+        expect(find.text('Import analysis'), findsWidgets);
+        expect(find.text('Start week'), findsOneWidget);
+        expect(find.text('Preview import'), findsOneWidget);
+      },
+    );
   });
 }
