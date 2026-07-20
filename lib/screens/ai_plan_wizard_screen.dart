@@ -135,6 +135,10 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
   bool _isImporting = false;
   final Map<String, int> _editableSets = {};
 
+  // Start-week selection (import flow): null = not chosen, true = this week,
+  // false = next week. Drives _startDate at import time.
+  bool? _startFromThisWeek;
+
   // Pre-matching state: key = "day{dayOfWeek}-{exerciseName}"
   final Map<String, MatchResult> _matchResults = {};
   final Map<String, Exercise> _manualSelections = {};
@@ -150,6 +154,18 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
       now.month,
       now.day,
     ).add(Duration(days: daysUntilMonday == 0 ? 7 : daysUntilMonday));
+  }
+
+  /// The Monday of the current week. If today is Monday, returns today.
+  /// Used when the user picks "this week" in the import flow — note this may
+  /// land in the past (e.g. on Wednesday, Monday was 2 days ago), which is the
+  /// documented behavior: exercises whose dayOfWeek maps to a past date will
+  /// be scheduled to that past date.
+  static DateTime _thisWeeksMonday() {
+    final now = DateTime.now();
+    final daysSinceMonday = (now.weekday - DateTime.monday + 7) % 7;
+    return DateTime(now.year, now.month, now.day)
+        .subtract(Duration(days: daysSinceMonday));
   }
 
   @override
@@ -246,8 +262,9 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
               physics: const NeverScrollableScrollPhysics(),
               children: _activeTab == 1
                   ? [
-                      // Import analysis flow: 2 pages
+                      // Import analysis flow: 3 pages
                       _buildStep1(theme), // Contains the tab with import form
+                      _buildStep5(theme), // Start-week selection
                       _buildStep4(theme), // Preview + import
                     ]
                   : [
@@ -269,7 +286,11 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
     final l10n = AppLocalizations.of(context)!;
     final isImport = _activeTab == 1;
     final stepLabels = isImport
-        ? [l10n.aiStepImportAnalysis, l10n.aiStepPreviewImport]
+        ? [
+            l10n.aiStepImportAnalysis,
+            l10n.aiStepStartWeek,
+            l10n.aiStepPreviewImport,
+          ]
         : [
             l10n.aiStepProfile,
             l10n.aiStepGeneratePrompt,
@@ -657,7 +678,10 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
         _parsedPlan = parsedPlan;
         _matchResults.clear();
         _manualSelections.clear();
-        _currentStep = 1; // Go to preview step (step 2 in import mode)
+        // Reset start-week choice: re-parsing is a new plan, force user to
+        // explicitly pick this/next week again before preview.
+        _startFromThisWeek = null;
+        _currentStep = 1; // Go to start-week selection (step 2 in import mode)
         _pageController.animateToPage(
           1,
           duration: const Duration(milliseconds: 300),
@@ -1111,6 +1135,133 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
         _parseError = l10n.aiErrorParseFailed(e.toString());
       });
     }
+  }
+
+  // ==================== 第5步：选择起始周（导入流程专用） ====================
+  Widget _buildStep5(AppThemeData theme) {
+    final l10n = AppLocalizations.of(context)!;
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l10n.aiStartWeekHeading,
+            style: Theme.of(context)
+                .textTheme
+                .headlineLarge!
+                .copyWith(fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            l10n.aiStartWeekSubheading,
+            style: Theme.of(context)
+                .textTheme
+                .bodyMedium!
+                .copyWith(color: theme.secondaryTextColor),
+          ),
+          const SizedBox(height: 24),
+          _buildStartWeekOption(
+            label: l10n.aiStartWeekThisWeek,
+            description: l10n.aiStartWeekThisWeekDesc,
+            icon: Icons.calendar_view_week,
+            isSelected: _startFromThisWeek == true,
+            onTap: () => setState(() => _startFromThisWeek = true),
+            theme: theme,
+          ),
+          const SizedBox(height: 12),
+          _buildStartWeekOption(
+            label: l10n.aiStartWeekNextWeek,
+            description: l10n.aiStartWeekNextWeekDesc,
+            icon: Icons.event_available,
+            isSelected: _startFromThisWeek == false,
+            onTap: () => setState(() => _startFromThisWeek = false),
+            theme: theme,
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// A single selectable card for the start-week step.
+  Widget _buildStartWeekOption({
+    required String label,
+    required String description,
+    required IconData icon,
+    required bool isSelected,
+    required VoidCallback onTap,
+    required AppThemeData theme,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+          child: Container(
+            padding: const EdgeInsets.all(AppDimensions.screenPadding),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? theme.accentColor.withValues(alpha: 0.15)
+                : theme.surfaceColorRaised,
+            borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+            border: Border.all(
+              color: isSelected
+                  ? theme.accentColor
+                  : theme.accentColor.withValues(alpha: 0.3),
+              width: isSelected ? 2 : 1,
+            ),
+            boxShadow: AppElevation.resting(theme.shadowColor),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? theme.accentColor
+                      : theme.accentColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
+                ),
+                child: Icon(
+                  icon,
+                  color: isSelected
+                      ? theme.onAccentColor
+                      : theme.accentColor,
+                  size: 22,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      label,
+                      style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: isSelected
+                            ? theme.accentColor
+                            : theme.textColor,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      description,
+                      style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                        color: theme.secondaryTextColor,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (isSelected)
+                Icon(Icons.check_circle, color: theme.accentColor, size: 24),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   // ==================== 第4步：预览 + 导入 ====================
@@ -1644,7 +1795,15 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
     if (confirmed != true) return;
 
     if (!mounted) return;
-    setState(() => _isImporting = true);
+    setState(() {
+      _isImporting = true;
+      // Resolve start date from the user's this/next-week choice.
+      // _startFromThisWeek is guaranteed non-null here because the bottom
+      // button for step 1 is disabled until a choice is made.
+      _startDate = _startFromThisWeek == true
+          ? _thisWeeksMonday()
+          : _nextMonday();
+    });
 
     try {
       final planProvider = context.read<PlanProvider>();
@@ -1687,10 +1846,10 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
     VoidCallback? onPressed;
 
     if (_activeTab == 1) {
-      // Import analysis flow
+      // Import analysis flow: 3 steps (JSON → start-week → preview)
       switch (_currentStep) {
         case 0:
-          buttonText = l10n.aiNextPreviewImport;
+          buttonText = l10n.aiNextStartWeek;
           isEnabled = _parsedPlan != null;
           onPressed = isEnabled
               ? () {
@@ -1704,6 +1863,21 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
               : null;
           break;
         case 1:
+          buttonText = l10n.aiNextPreviewImport;
+          // Force the user to pick this/next week before continuing.
+          isEnabled = _parsedPlan != null && _startFromThisWeek != null;
+          onPressed = isEnabled
+              ? () {
+                  setState(() => _currentStep = 2);
+                  _pageController.animateToPage(
+                    2,
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                  );
+                }
+              : null;
+          break;
+        case 2:
           buttonText = l10n.aiComplete;
           isEnabled = _parsedPlan != null && !_isImporting;
           onPressed = isEnabled ? _importPlan : null;
@@ -1776,7 +1950,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
   }
 
   void _nextStep() {
-    final maxStep = _activeTab == 1 ? 1 : 3;
+    final maxStep = _activeTab == 1 ? 2 : 3;
     if (_currentStep < maxStep) {
       setState(() => _currentStep++);
       _pageController.nextPage(
