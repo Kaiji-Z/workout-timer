@@ -2112,6 +2112,12 @@ abstract class AppLocalizations {
   /// **'粘贴JSON'**
   String get aiStepPasteJson;
 
+  /// No description provided for @aiStepStartWeek.
+  ///
+  /// In zh, this message translates to:
+  /// **'起始周'**
+  String get aiStepStartWeek;
+
   /// No description provided for @aiTabNewPlan.
   ///
   /// In zh, this message translates to:
@@ -2286,6 +2292,42 @@ abstract class AppLocalizations {
   /// **'请先解析JSON以预览训练计划'**
   String get aiPreviewEmpty;
 
+  /// No description provided for @aiStartWeekHeading.
+  ///
+  /// In zh, this message translates to:
+  /// **'选择起始周'**
+  String get aiStartWeekHeading;
+
+  /// No description provided for @aiStartWeekSubheading.
+  ///
+  /// In zh, this message translates to:
+  /// **'计划将从你选的这周的周一开始，按 dayOfWeek 排程。'**
+  String get aiStartWeekSubheading;
+
+  /// No description provided for @aiStartWeekThisWeek.
+  ///
+  /// In zh, this message translates to:
+  /// **'本周'**
+  String get aiStartWeekThisWeek;
+
+  /// No description provided for @aiStartWeekThisWeekDesc.
+  ///
+  /// In zh, this message translates to:
+  /// **'从本周一开始（若今天不是周一，今天之前的动作会排到过去日期）'**
+  String get aiStartWeekThisWeekDesc;
+
+  /// No description provided for @aiStartWeekNextWeek.
+  ///
+  /// In zh, this message translates to:
+  /// **'下周'**
+  String get aiStartWeekNextWeek;
+
+  /// No description provided for @aiStartWeekNextWeekDesc.
+  ///
+  /// In zh, this message translates to:
+  /// **'从下周一开始'**
+  String get aiStartWeekNextWeekDesc;
+
   /// No description provided for @aiPreviewHeading.
   ///
   /// In zh, this message translates to:
@@ -2459,6 +2501,12 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'下一步：预览导入'**
   String get aiNextPreviewImport;
+
+  /// No description provided for @aiNextStartWeek.
+  ///
+  /// In zh, this message translates to:
+  /// **'下一步：起始周'**
+  String get aiNextStartWeek;
 
   /// No description provided for @aiComplete.
   ///

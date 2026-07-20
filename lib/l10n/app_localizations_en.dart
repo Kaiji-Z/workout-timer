@@ -1176,6 +1176,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiStepPasteJson => 'Paste JSON';
 
   @override
+  String get aiStepStartWeek => 'Start week';
+
+  @override
   String get aiTabNewPlan => 'New plan';
 
   @override
@@ -1273,6 +1276,26 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aiPreviewEmpty => 'Parse the JSON first to preview the plan';
+
+  @override
+  String get aiStartWeekHeading => 'Choose start week';
+
+  @override
+  String get aiStartWeekSubheading =>
+      'The plan will be scheduled starting from the Monday of your chosen week, by dayOfWeek.';
+
+  @override
+  String get aiStartWeekThisWeek => 'This week';
+
+  @override
+  String get aiStartWeekThisWeekDesc =>
+      'Starting from this Monday (if today is not Monday, exercises before today will be scheduled to past dates)';
+
+  @override
+  String get aiStartWeekNextWeek => 'Next week';
+
+  @override
+  String get aiStartWeekNextWeekDesc => 'Starting from next Monday';
 
   @override
   String get aiPreviewHeading => 'Preview workout plan';
@@ -1379,6 +1402,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aiNextPreviewImport => 'Next: preview import';
+
+  @override
+  String get aiNextStartWeek => 'Next: start week';
 
   @override
   String get aiComplete => 'Done';

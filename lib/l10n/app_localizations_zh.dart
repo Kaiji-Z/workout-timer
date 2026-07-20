@@ -1149,6 +1149,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get aiStepPasteJson => '粘贴JSON';
 
   @override
+  String get aiStepStartWeek => '起始周';
+
+  @override
   String get aiTabNewPlan => '新建计划';
 
   @override
@@ -1240,6 +1243,24 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get aiPreviewEmpty => '请先解析JSON以预览训练计划';
+
+  @override
+  String get aiStartWeekHeading => '选择起始周';
+
+  @override
+  String get aiStartWeekSubheading => '计划将从你选的这周的周一开始，按 dayOfWeek 排程。';
+
+  @override
+  String get aiStartWeekThisWeek => '本周';
+
+  @override
+  String get aiStartWeekThisWeekDesc => '从本周一开始（若今天不是周一，今天之前的动作会排到过去日期）';
+
+  @override
+  String get aiStartWeekNextWeek => '下周';
+
+  @override
+  String get aiStartWeekNextWeekDesc => '从下周一开始';
 
   @override
   String get aiPreviewHeading => '预览训练计划';
@@ -1345,6 +1366,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get aiNextPreviewImport => '下一步：预览导入';
+
+  @override
+  String get aiNextStartWeek => '下一步：起始周';
 
   @override
   String get aiComplete => '完成';
