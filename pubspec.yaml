@@ -1,6 +1,7 @@
 name: workout_timer
 description: "撸铁计时器 - 专业的健身休息计时应用"
 publish_to: 'none'
+license: MIT
 
 version: 1.2.0+2
 
