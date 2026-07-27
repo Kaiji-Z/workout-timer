@@ -70,8 +70,11 @@ void main() {
         of: appBarFinder,
         matching: find.text('Clear'),
       );
-      expect(clearInAppBar, findsNothing,
-          reason: 'Clear button must be removed from history AppBar');
+      expect(
+        clearInAppBar,
+        findsNothing,
+        reason: 'Clear button must be removed from history AppBar',
+      );
     });
   });
 }

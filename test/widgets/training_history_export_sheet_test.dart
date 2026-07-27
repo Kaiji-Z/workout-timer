@@ -55,11 +55,7 @@ void main() {
 
   group('TrainingHistoryExportSheet', () {
     testWidgets('renders all six preset range chips', (tester) async {
-      await pumpSheet(
-        tester,
-        totalRecords: 10,
-        onExport: (a, b) async {},
-      );
+      await pumpSheet(tester, totalRecords: 10, onExport: (a, b) async {});
 
       // Four duration presets + "all" + "custom"
       expect(find.text('Last 4 weeks'), findsOneWidget);
@@ -70,23 +66,19 @@ void main() {
       expect(find.text('Custom'), findsOneWidget);
     });
 
-    testWidgets('shows the export button with the total record count', (tester) async {
-      await pumpSheet(
-        tester,
-        totalRecords: 12,
-        onExport: (a, b) async {},
-      );
+    testWidgets('shows the export button with the total record count', (
+      tester,
+    ) async {
+      await pumpSheet(tester, totalRecords: 12, onExport: (a, b) async {});
 
       // Default selection (last 4 weeks) shows the button with count = 12.
       expect(find.textContaining('12'), findsWidgets);
     });
 
-    testWidgets('disables the export button when there are no records', (tester) async {
-      await pumpSheet(
-        tester,
-        totalRecords: 0,
-        onExport: (a, b) async {},
-      );
+    testWidgets('disables the export button when there are no records', (
+      tester,
+    ) async {
+      await pumpSheet(tester, totalRecords: 0, onExport: (a, b) async {});
 
       // Find the "no records" message and verify the button is disabled.
       expect(find.text('No training records in this range'), findsOneWidget);
@@ -94,47 +86,54 @@ void main() {
       final button = tester.widget<ElevatedButton>(
         find.byKey(const ValueKey('export_history_button')),
       );
-      expect(button.enabled, isFalse,
-          reason: 'export button must be disabled when there are 0 records');
-    });
-
-    testWidgets('tapping a preset invokes onExport with a date range ending today',
-        (tester) async {
-      DateTime? capturedFrom;
-      DateTime? capturedTo;
-
-      await pumpSheet(
-        tester,
-        totalRecords: 5,
-        onExport: (from, to) async {
-          capturedFrom = from;
-          capturedTo = to;
-        },
+      expect(
+        button.enabled,
+        isFalse,
+        reason: 'export button must be disabled when there are 0 records',
       );
-
-      // Tap "Last 4 weeks" preset chip.
-      await tester.tap(find.text('Last 4 weeks'));
-      await tester.pumpAndSettle();
-
-      // Tap the export button (keyed in the sheet widget).
-      await tester.tap(find.byKey(const ValueKey('export_history_button')));
-      await tester.pumpAndSettle();
-
-      expect(capturedFrom, isNotNull);
-      expect(capturedTo, isNotNull);
-
-      // The `to` end of the range should be today.
-      final today = DateTime.now();
-      expect(capturedTo!.year, today.year);
-      expect(capturedTo!.month, today.month);
-      expect(capturedTo!.day, today.day);
-
-      // `from` should be roughly 4 weeks (27-28 days) before today.
-      final diff = today.difference(capturedFrom!).inDays;
-      expect(diff, inInclusiveRange(27, 28));
     });
 
-    testWidgets('tapping "All" invokes onExport with a wide range', (tester) async {
+    testWidgets(
+      'tapping a preset invokes onExport with a date range ending today',
+      (tester) async {
+        DateTime? capturedFrom;
+        DateTime? capturedTo;
+
+        await pumpSheet(
+          tester,
+          totalRecords: 5,
+          onExport: (from, to) async {
+            capturedFrom = from;
+            capturedTo = to;
+          },
+        );
+
+        // Tap "Last 4 weeks" preset chip.
+        await tester.tap(find.text('Last 4 weeks'));
+        await tester.pumpAndSettle();
+
+        // Tap the export button (keyed in the sheet widget).
+        await tester.tap(find.byKey(const ValueKey('export_history_button')));
+        await tester.pumpAndSettle();
+
+        expect(capturedFrom, isNotNull);
+        expect(capturedTo, isNotNull);
+
+        // The `to` end of the range should be today.
+        final today = DateTime.now();
+        expect(capturedTo!.year, today.year);
+        expect(capturedTo!.month, today.month);
+        expect(capturedTo!.day, today.day);
+
+        // `from` should be roughly 4 weeks (27-28 days) before today.
+        final diff = today.difference(capturedFrom!).inDays;
+        expect(diff, inInclusiveRange(27, 28));
+      },
+    );
+
+    testWidgets('tapping "All" invokes onExport with a wide range', (
+      tester,
+    ) async {
       DateTime? capturedFrom;
       DateTime? capturedTo;
 

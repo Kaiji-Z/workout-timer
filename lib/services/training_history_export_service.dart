@@ -96,9 +96,11 @@ class TrainingHistoryExportService {
     // Inclusive on both ends: compare date-only to avoid off-by-one with time
     // components on `to`.
     final fromDay = DateTime(from.year, from.month, from.day);
-    final toDay = DateTime(to.year, to.month, to.day).add(
-      const Duration(days: 1),
-    ); // exclusive upper bound (start of next day)
+    final toDay = DateTime(
+      to.year,
+      to.month,
+      to.day,
+    ).add(const Duration(days: 1)); // exclusive upper bound (start of next day)
 
     final result = <_NormalizedEntry>[];
 
@@ -165,13 +167,13 @@ class TrainingHistoryExportService {
 
     // --- Profile ---
     buffer.writeln('## ${l10n.exportMarkdownProfile}');
-    buffer.writeln('- ${l10n.exportMarkdownGoal}: ${_goalLabel(l10n, profile.goal)}');
+    buffer.writeln(
+      '- ${l10n.exportMarkdownGoal}: ${_goalLabel(l10n, profile.goal)}',
+    );
     buffer.writeln(
       '- ${l10n.exportMarkdownExperience}: ${_experienceLabel(l10n, profile.experience)}',
     );
-    buffer.writeln(
-      '- ${l10n.exportMarkdownFrequency}: ${profile.frequency}',
-    );
+    buffer.writeln('- ${l10n.exportMarkdownFrequency}: ${profile.frequency}');
     buffer.writeln(
       '- ${l10n.exportMarkdownEquipment}: ${_equipmentLabel(l10n, profile.equipment)}',
     );
@@ -241,20 +243,25 @@ class TrainingHistoryExportService {
           : (ex.name.isNotEmpty ? ex.name : ex.exerciseId);
       final muscleLabel = ex.exercise?.primaryMuscle.displayName ?? '';
       final equip = ex.exercise?.equipment ?? '';
-      final qualifier = [muscleLabel, equip]
-          .where((s) => s.isNotEmpty)
-          .join(' · ');
+      final qualifier = [
+        muscleLabel,
+        equip,
+      ].where((s) => s.isNotEmpty).join(' · ');
       buffer.writeln(
         '$i. **$name**${qualifier.isNotEmpty ? ' ($qualifier)' : ''}',
       );
 
       final sets = ex.setsData ?? const <SetData>[];
       for (final s in sets) {
-        buffer.writeln('   - ${l10n.exportMarkdownSet(s.setNumber)}: ${s.displayText}');
+        buffer.writeln(
+          '   - ${l10n.exportMarkdownSet(s.setNumber)}: ${s.displayText}',
+        );
       }
       final vol = ex.totalVolume;
       if (vol > 0) {
-        buffer.writeln('   - _${l10n.exportMarkdownVolumeNote}: ${vol.toStringAsFixed(1)}kg_');
+        buffer.writeln(
+          '   - _${l10n.exportMarkdownVolumeNote}: ${vol.toStringAsFixed(1)}kg_',
+        );
       }
       i++;
     }
@@ -324,8 +331,7 @@ class TrainingHistoryExportService {
         'date': _dateOnly(record.date),
         'weekday': record.date.weekday,
         'durationSeconds': record.durationSeconds,
-        'trainedMuscles':
-            record.trainedMuscles.map((m) => m.name).toList(),
+        'trainedMuscles': record.trainedMuscles.map((m) => m.name).toList(),
         'totalSets': record.totalSets,
         if ((record.planId ?? '').isNotEmpty) 'planId': record.planId,
         if ((record.planName ?? '').isNotEmpty) 'planName': record.planName,
@@ -352,15 +358,12 @@ class TrainingHistoryExportService {
       if (exercise != null && exercise.name.isNotEmpty) 'name': exercise.name,
       if (exercise != null && exercise.nameEn.isNotEmpty)
         'nameEn': exercise.nameEn,
-      if (exercise != null)
-        'primaryMuscle': exercise.primaryMuscle.name,
+      if (exercise != null) 'primaryMuscle': exercise.primaryMuscle.name,
       if (exercise != null && exercise.equipment.isNotEmpty)
         'equipment': exercise.equipment,
       'completedSets': ex.completedSets,
       if (ex.maxWeight != null && ex.maxWeight! > 0) 'maxWeight': ex.maxWeight,
-      'sets': (ex.setsData ?? const <SetData>[])
-          .map(_setDataToJson)
-          .toList(),
+      'sets': (ex.setsData ?? const <SetData>[]).map(_setDataToJson).toList(),
     };
   }
 
@@ -481,11 +484,11 @@ class _NormalizedEntry {
   final WorkoutSession? session;
 
   const _NormalizedEntry({required this.type, this.record, this.session})
-      : assert(
-          (type == _Type.detailed && record != null) ||
-              (type == _Type.legacy && session != null),
-          'entry must match its type',
-        );
+    : assert(
+        (type == _Type.detailed && record != null) ||
+            (type == _Type.legacy && session != null),
+        'entry must match its type',
+      );
 
   DateTime get date {
     if (type == _Type.detailed) return record!.date;

@@ -11,14 +11,7 @@ import 'ui_components.dart';
 typedef ExportRangeCallback = Future<void> Function(DateTime from, DateTime to);
 
 /// Preset time ranges for the export sheet.
-enum _ExportPreset {
-  weeks4,
-  months3,
-  months6,
-  months12,
-  all,
-  custom,
-}
+enum _ExportPreset { weeks4, months3, months6, months12, all, custom }
 
 /// Shows a bottom sheet that lets the user pick a time range for exporting
 /// training history.
@@ -81,7 +74,8 @@ class _ExportSheetState extends State<_ExportSheet> {
 
     final hasRecords = widget.totalRecords > 0;
     final canExport =
-        hasRecords && (_selected != null || (_customFrom != null && _customTo != null));
+        hasRecords &&
+        (_selected != null || (_customFrom != null && _customTo != null));
 
     return Container(
       decoration: BoxDecoration(
@@ -167,9 +161,7 @@ class _ExportSheetState extends State<_ExportSheet> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
             side: BorderSide(
-              color: isSelected
-                  ? theme.accentColor
-                  : theme.dividerColor,
+              color: isSelected ? theme.accentColor : theme.dividerColor,
             ),
           ),
           onSelected: (_) => _handlePresetTap(preset),
@@ -248,8 +240,9 @@ class _ExportSheetState extends State<_ExportSheet> {
     return ElevatedButton(
       key: const ValueKey('export_history_button'),
       style: ElevatedButton.styleFrom(
-        backgroundColor:
-            canExport ? theme.accentColor : theme.accentColor.withValues(alpha: 0.4),
+        backgroundColor: canExport
+            ? theme.accentColor
+            : theme.accentColor.withValues(alpha: 0.4),
         foregroundColor: theme.surfaceColor,
         padding: const EdgeInsets.symmetric(vertical: 14),
         shape: RoundedRectangleBorder(

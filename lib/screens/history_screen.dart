@@ -125,9 +125,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => Center(
-        child: CircularProgressIndicator(color: theme.accentColor),
-      ),
+      builder: (context) =>
+          Center(child: CircularProgressIndicator(color: theme.accentColor)),
     );
 
     try {
@@ -165,24 +164,23 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
       // Open share sheet (native only).
       if (!kIsWeb) {
-        await Share.shareXFiles(
-          [XFile(savedPath)],
-          text: l10n.exportHistorySheetTitle,
-        );
+        await Share.shareXFiles([
+          XFile(savedPath),
+        ], text: l10n.exportHistorySheetTitle);
       }
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.exportHistorySuccess)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.exportHistorySuccess)));
       }
     } catch (e) {
       debugPrint('Export failed: $e');
       if (mounted) Navigator.of(context).pop(); // pop progress dialog
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.exportHistoryFailed('$e'))),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.exportHistoryFailed('$e'))));
       }
     }
   }
@@ -232,16 +230,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
         actions: [
           TextButton.icon(
             onPressed: () => _exportTrainingHistory(),
-            icon: Icon(
-              Icons.ios_share,
-              size: 18,
-              color: theme.accentColor,
-            ),
+            icon: Icon(Icons.ios_share, size: 18, color: theme.accentColor),
             label: Text(
               l10n.historyExportAction,
-              style: Theme.of(context).textTheme.labelLarge!.copyWith(
-                    color: theme.accentColor,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.labelLarge!.copyWith(color: theme.accentColor),
             ),
           ),
         ],
@@ -363,9 +357,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   void _navigateToDetail(WorkoutRecord record) async {
     await Navigator.push(
       context,
-      FadeUpPageRoute(
-        page: RecordDetailScreen(record: record),
-      ),
+      FadeUpPageRoute(page: RecordDetailScreen(record: record)),
     );
     // 返回后刷新列表以反映编辑后的数据
     if (mounted) {
@@ -412,171 +404,170 @@ class _RecordCard extends StatelessWidget {
       ),
       onDismissed: (direction) => onDelete(),
       child: AnimatedCard(
-          onTap: onTap,
-          child: Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            padding: const EdgeInsets.all(AppDimensions.screenPadding),
-            decoration: BoxDecoration(
-              color: theme.surfaceColorRaised,
-              borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
-              boxShadow: AppElevation.raised(theme.shadowColor),
-            ),
-            child: Row(
-              children: [
-                // 图标
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    gradient: record.isPlanMode
-                        ? LinearGradient(
-                            colors: [
-                              theme.accentColor,
-                              theme.accentColor.withValues(alpha: 0.8),
-                            ],
-                          )
-                        : LinearGradient(
-                            colors: [theme.primaryColor, theme.secondaryColor],
-                          ),
-                    borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-                  ),
-                  child: Center(
-                    child: record.isPlanMode
-                        ? Icon(
-                            Icons.playlist_add_check,
-                            color: theme.onAccentColor,
-                            size: 24,
-                          )
-                        : Text(
-                            '${record.totalSets}',
-                            style: Theme.of(context).textTheme.headlineMedium!
-                                .copyWith(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w700,
-                                  color: theme.onAccentColor,
-                                ),
-                          ),
-                  ),
+        onTap: onTap,
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          padding: const EdgeInsets.all(AppDimensions.screenPadding),
+          decoration: BoxDecoration(
+            color: theme.surfaceColorRaised,
+            borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
+            boxShadow: AppElevation.raised(theme.shadowColor),
+          ),
+          child: Row(
+            children: [
+              // 图标
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  gradient: record.isPlanMode
+                      ? LinearGradient(
+                          colors: [
+                            theme.accentColor,
+                            theme.accentColor.withValues(alpha: 0.8),
+                          ],
+                        )
+                      : LinearGradient(
+                          colors: [theme.primaryColor, theme.secondaryColor],
+                        ),
+                  borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
                 ),
-                const SizedBox(width: 16),
-                // 内容
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // 计划名称或"自由训练"
-                      Row(
-                        children: [
-                          if (record.isPlanMode) ...[
-                            Flexible(
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 6,
-                                  vertical: 2,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: theme.accentColor.withValues(
-                                    alpha: 0.1,
-                                  ),
-                                  borderRadius: BorderRadius.circular(
-                                    AppDimensions.radiusSm,
-                                  ),
-                                ),
-                                child: Text(
-                                  record.planName ?? l10n.historyPlanMode,
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 1,
-                                  style: Theme.of(context).textTheme.bodySmall!
-                                      .copyWith(
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.w600,
-                                        color: theme.accentColor,
-                                      ),
+                child: Center(
+                  child: record.isPlanMode
+                      ? Icon(
+                          Icons.playlist_add_check,
+                          color: theme.onAccentColor,
+                          size: 24,
+                        )
+                      : Text(
+                          '${record.totalSets}',
+                          style: Theme.of(context).textTheme.headlineMedium!
+                              .copyWith(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w700,
+                                color: theme.onAccentColor,
+                              ),
+                        ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              // 内容
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // 计划名称或"自由训练"
+                    Row(
+                      children: [
+                        if (record.isPlanMode) ...[
+                          Flexible(
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: theme.accentColor.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(
+                                  AppDimensions.radiusSm,
                                 ),
                               ),
+                              child: Text(
+                                record.planName ?? l10n.historyPlanMode,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                style: Theme.of(context).textTheme.bodySmall!
+                                    .copyWith(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600,
+                                      color: theme.accentColor,
+                                    ),
+                              ),
                             ),
-                            const SizedBox(width: 8),
-                          ],
-                          Text(
-                            record.dateText,
-                            style: Theme.of(context).textTheme.bodySmall!,
                           ),
+                          const SizedBox(width: 8),
                         ],
-                      ),
-                      const SizedBox(height: 4),
-                      // 训练部位
-                      if (record.trainedMuscles.isNotEmpty)
                         Text(
-                          record.trainedMusclesText,
-                          style: Theme.of(context).textTheme.bodyMedium!
-                              .copyWith(fontWeight: FontWeight.w600),
-                        )
-                      else
-                        Text(
-                          l10n.historyFreeWorkout,
-                          style: Theme.of(context).textTheme.bodyMedium!
-                              .copyWith(fontWeight: FontWeight.w600),
+                          record.dateText,
+                          style: Theme.of(context).textTheme.bodySmall!,
                         ),
-                      const SizedBox(height: 4),
-                      // 统计信息
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.timer_outlined,
-                            size: 14,
-                            color: theme.secondaryTextColor,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            record.durationText,
-                            style: Theme.of(context).textTheme.bodySmall!,
-                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    // 训练部位
+                    if (record.trainedMuscles.isNotEmpty)
+                      Text(
+                        record.trainedMusclesText,
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      )
+                    else
+                      Text(
+                        l10n.historyFreeWorkout,
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    const SizedBox(height: 4),
+                    // 统计信息
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.timer_outlined,
+                          size: 14,
+                          color: theme.secondaryTextColor,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          record.durationText,
+                          style: Theme.of(context).textTheme.bodySmall!,
+                        ),
+                        const SizedBox(width: 12),
+                        Icon(
+                          Icons.repeat,
+                          size: 14,
+                          color: theme.secondaryTextColor,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          l10n.historySetsSuffix(record.totalSets),
+                          style: Theme.of(context).textTheme.bodySmall!,
+                        ),
+                        if (record.exerciseCount > 0) ...[
                           const SizedBox(width: 12),
                           Icon(
-                            Icons.repeat,
+                            Icons.fitness_center,
                             size: 14,
                             color: theme.secondaryTextColor,
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            l10n.historySetsSuffix(record.totalSets),
+                            l10n.historyExercisesSuffix(record.exerciseCount),
                             style: Theme.of(context).textTheme.bodySmall!,
                           ),
-                          if (record.exerciseCount > 0) ...[
-                            const SizedBox(width: 12),
-                            Icon(
-                              Icons.fitness_center,
-                              size: 14,
-                              color: theme.secondaryTextColor,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              l10n.historyExercisesSuffix(
-                                  record.exerciseCount),
-                              style: Theme.of(context).textTheme.bodySmall!,
-                            ),
-                          ],
                         ],
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
+                  ],
                 ),
-                // 箭头
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: theme.borderColor.withValues(alpha: 0.3),
-                    borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
-                  ),
-                  child: Icon(
-                    Icons.chevron_right,
-                    color: theme.secondaryTextColor,
-                  ),
+              ),
+              // 箭头
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: theme.borderColor.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
                 ),
-              ],
-            ),
+                child: Icon(
+                  Icons.chevron_right,
+                  color: theme.secondaryTextColor,
+                ),
+              ),
+            ],
           ),
         ),
+      ),
     );
   }
 }

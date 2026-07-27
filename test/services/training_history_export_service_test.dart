@@ -55,7 +55,8 @@ void main() {
       exercises: [
         RecordedExercise(
           exerciseId: 'bench-press',
-          exercise: null, // Service should still emit exerciseId even without Exercise model
+          exercise:
+              null, // Service should still emit exerciseId even without Exercise model
           completedSets: 2,
           maxWeight: 82.5, // matches the heaviest set below
           setsData: const [
@@ -133,19 +134,22 @@ void main() {
       expect(result.fileName, endsWith('.md'));
     });
 
-    test('markdown contains H1, profile section, records section, and JSON block', () {
-      final result = service.export(
-        from: from,
-        to: to,
-        records: sampleRecords(),
-        profile: profile,
-      );
+    test(
+      'markdown contains H1, profile section, records section, and JSON block',
+      () {
+        final result = service.export(
+          from: from,
+          to: to,
+          records: sampleRecords(),
+          profile: profile,
+        );
 
-      // Top-level markdown section headers.
-      expect(result.markdown, contains('# ')); // H1
-      expect(result.markdown, contains('```json'));
-      expect(result.markdown, contains('```'));
-    });
+        // Top-level markdown section headers.
+        expect(result.markdown, contains('# ')); // H1
+        expect(result.markdown, contains('```json'));
+        expect(result.markdown, contains('```'));
+      },
+    );
 
     test('filters out records whose date is outside [from, to]', () {
       final result = service.export(
@@ -161,37 +165,44 @@ void main() {
       expect(result.markdown, isNot(contains('2025-12-01')));
     });
 
-    test('embedded JSON is parseable and has the documented top-level shape', () {
-      final result = service.export(
-        from: from,
-        to: to,
-        records: sampleRecords(),
-        profile: profile,
-      );
+    test(
+      'embedded JSON is parseable and has the documented top-level shape',
+      () {
+        final result = service.export(
+          from: from,
+          to: to,
+          records: sampleRecords(),
+          profile: profile,
+        );
 
-      final json = _extractJsonBlock(result.markdown);
-      expect(json, isNotNull, reason: 'markdown must contain a ```json block');
+        final json = _extractJsonBlock(result.markdown);
+        expect(
+          json,
+          isNotNull,
+          reason: 'markdown must contain a ```json block',
+        );
 
-      final decoded = jsonDecode(json!) as Map<String, dynamic>;
+        final decoded = jsonDecode(json!) as Map<String, dynamic>;
 
-      expect(decoded['exportVersion'], 1);
-      expect(decoded['exportedAt'], isA<String>());
-      expect(decoded['range'], isA<Map>());
-      expect((decoded['range'] as Map)['from'], '2026-04-27');
-      expect((decoded['range'] as Map)['to'], '2026-07-27');
+        expect(decoded['exportVersion'], 1);
+        expect(decoded['exportedAt'], isA<String>());
+        expect(decoded['range'], isA<Map>());
+        expect((decoded['range'] as Map)['from'], '2026-04-27');
+        expect((decoded['range'] as Map)['to'], '2026-07-27');
 
-      // Profile block.
-      final profileBlock = decoded['profile'] as Map<String, dynamic>;
-      expect(profileBlock['goal'], 'muscle_building');
-      expect(profileBlock['experience'], 'intermediate');
-      expect(profileBlock['frequency'], 4);
-      expect(profileBlock['equipment'], 'gym');
-      expect(profileBlock['focusAreas'], ['chest', 'back']);
+        // Profile block.
+        final profileBlock = decoded['profile'] as Map<String, dynamic>;
+        expect(profileBlock['goal'], 'muscle_building');
+        expect(profileBlock['experience'], 'intermediate');
+        expect(profileBlock['frequency'], 4);
+        expect(profileBlock['equipment'], 'gym');
+        expect(profileBlock['focusAreas'], ['chest', 'back']);
 
-      // Records: 3 in-range (2 detailed + 1 legacy session).
-      final recordsList = decoded['records'] as List<dynamic>;
-      expect(recordsList.length, 3);
-    });
+        // Records: 3 in-range (2 detailed + 1 legacy session).
+        final recordsList = decoded['records'] as List<dynamic>;
+        expect(recordsList.length, 3);
+      },
+    );
 
     test('summary counts sessions, sets, duration, and legacy entries', () {
       final result = service.export(
@@ -215,98 +226,116 @@ void main() {
       expect(summary['totalDurationSeconds'], isA<int>());
     });
 
-    test('legacy WorkoutRecord (no per-set data) is migrated to non-empty sets', () {
-      final result = service.export(
-        from: from,
-        to: to,
-        records: sampleRecords(),
-        profile: profile,
-      );
+    test(
+      'legacy WorkoutRecord (no per-set data) is migrated to non-empty sets',
+      () {
+        final result = service.export(
+          from: from,
+          to: to,
+          records: sampleRecords(),
+          profile: profile,
+        );
 
-      final json = _extractJsonBlock(result.markdown)!;
-      final decoded = jsonDecode(json) as Map<String, dynamic>;
-      final records = decoded['records'] as List<dynamic>;
+        final json = _extractJsonBlock(result.markdown)!;
+        final decoded = jsonDecode(json) as Map<String, dynamic>;
+        final records = decoded['records'] as List<dynamic>;
 
-      // Find the legacy-format detailed record (squat, dated 2026-06-15).
-      final squatRecord = records.firstWhere(
-        (r) =>
-            (r as Map)['type'] == 'detailed' &&
-            r['date'] == '2026-06-15',
-        orElse: () => throw StateError('legacy-format detailed record missing'),
-      ) as Map<String, dynamic>;
+        // Find the legacy-format detailed record (squat, dated 2026-06-15).
+        final squatRecord =
+            records.firstWhere(
+                  (r) =>
+                      (r as Map)['type'] == 'detailed' &&
+                      r['date'] == '2026-06-15',
+                  orElse: () =>
+                      throw StateError('legacy-format detailed record missing'),
+                )
+                as Map<String, dynamic>;
 
-      final exercises = squatRecord['exercises'] as List<dynamic>;
-      expect(exercises, isNotEmpty);
+        final exercises = squatRecord['exercises'] as List<dynamic>;
+        expect(exercises, isNotEmpty);
 
-      final firstExercise = exercises.first as Map<String, dynamic>;
-      final sets = firstExercise['sets'] as List<dynamic>;
-      // Migration synthesizes one SetData per completedSets (3 here).
-      expect(sets.length, 3);
-      // Each migrated set should carry the maxWeight as its weight.
-      for (final s in sets) {
-        expect((s as Map)['weight'], 100.0);
-      }
-    });
+        final firstExercise = exercises.first as Map<String, dynamic>;
+        final sets = firstExercise['sets'] as List<dynamic>;
+        // Migration synthesizes one SetData per completedSets (3 here).
+        expect(sets.length, 3);
+        // Each migrated set should carry the maxWeight as its weight.
+        for (final s in sets) {
+          expect((s as Map)['weight'], 100.0);
+        }
+      },
+    );
 
-    test('WorkoutSession becomes a "legacy" type entry with sets + restTimeSeconds', () {
-      final result = service.export(
-        from: from,
-        to: to,
-        records: sampleRecords(),
-        profile: profile,
-      );
+    test(
+      'WorkoutSession becomes a "legacy" type entry with sets + restTimeSeconds',
+      () {
+        final result = service.export(
+          from: from,
+          to: to,
+          records: sampleRecords(),
+          profile: profile,
+        );
 
-      final json = _extractJsonBlock(result.markdown)!;
-      final decoded = jsonDecode(json) as Map<String, dynamic>;
-      final records = decoded['records'] as List<dynamic>;
+        final json = _extractJsonBlock(result.markdown)!;
+        final decoded = jsonDecode(json) as Map<String, dynamic>;
+        final records = decoded['records'] as List<dynamic>;
 
-      final legacyEntry = records.firstWhere(
-        (r) => (r as Map)['type'] == 'legacy',
-        orElse: () => throw StateError('legacy WorkoutSession entry missing'),
-      ) as Map<String, dynamic>;
+        final legacyEntry =
+            records.firstWhere(
+                  (r) => (r as Map)['type'] == 'legacy',
+                  orElse: () =>
+                      throw StateError('legacy WorkoutSession entry missing'),
+                )
+                as Map<String, dynamic>;
 
-      expect(legacyEntry['sets'], 5);
-      expect(legacyEntry['restTimeSeconds'], 60);
-      expect(legacyEntry['date'], '2026-05-10');
-      // Legacy entries must NOT carry the full detailed-exercise shape.
-      expect(legacyEntry.containsKey('exercises'), isFalse);
-    });
+        expect(legacyEntry['sets'], 5);
+        expect(legacyEntry['restTimeSeconds'], 60);
+        expect(legacyEntry['date'], '2026-05-10');
+        // Legacy entries must NOT carry the full detailed-exercise shape.
+        expect(legacyEntry.containsKey('exercises'), isFalse);
+      },
+    );
 
-    test('detailed record preserves exerciseId, name fields, and per-set data', () {
-      final result = service.export(
-        from: from,
-        to: to,
-        records: sampleRecords(),
-        profile: profile,
-      );
+    test(
+      'detailed record preserves exerciseId, name fields, and per-set data',
+      () {
+        final result = service.export(
+          from: from,
+          to: to,
+          records: sampleRecords(),
+          profile: profile,
+        );
 
-      final json = _extractJsonBlock(result.markdown)!;
-      final decoded = jsonDecode(json) as Map<String, dynamic>;
-      final records = decoded['records'] as List<dynamic>;
+        final json = _extractJsonBlock(result.markdown)!;
+        final decoded = jsonDecode(json) as Map<String, dynamic>;
+        final records = decoded['records'] as List<dynamic>;
 
-      final benchRecord = records.firstWhere(
-        (r) =>
-            (r as Map)['type'] == 'detailed' &&
-            r['date'] == '2026-07-27',
-      ) as Map<String, dynamic>;
+        final benchRecord =
+            records.firstWhere(
+                  (r) =>
+                      (r as Map)['type'] == 'detailed' &&
+                      r['date'] == '2026-07-27',
+                )
+                as Map<String, dynamic>;
 
-      expect(benchRecord['durationSeconds'], 2730);
-      expect(benchRecord['planName'], '推日 A');
-      expect(benchRecord['trainedMuscles'], ['chest', 'arms']);
-      expect(benchRecord['totalSets'], 2);
+        expect(benchRecord['durationSeconds'], 2730);
+        expect(benchRecord['planName'], '推日 A');
+        expect(benchRecord['trainedMuscles'], ['chest', 'arms']);
+        expect(benchRecord['totalSets'], 2);
 
-      final ex = (benchRecord['exercises'] as List).first as Map<String, dynamic>;
-      expect(ex['exerciseId'], 'bench-press');
-      expect(ex['completedSets'], 2);
-      expect(ex['maxWeight'], 82.5);
+        final ex =
+            (benchRecord['exercises'] as List).first as Map<String, dynamic>;
+        expect(ex['exerciseId'], 'bench-press');
+        expect(ex['completedSets'], 2);
+        expect(ex['maxWeight'], 82.5);
 
-      final sets = ex['sets'] as List<dynamic>;
-      expect(sets.length, 2);
-      expect((sets[0] as Map)['reps'], 8);
-      expect((sets[0] as Map)['weight'], 80.0);
-      expect((sets[1] as Map)['reps'], 6);
-      expect((sets[1] as Map)['weight'], 82.5);
-    });
+        final sets = ex['sets'] as List<dynamic>;
+        expect(sets.length, 2);
+        expect((sets[0] as Map)['reps'], 8);
+        expect((sets[0] as Map)['weight'], 80.0);
+        expect((sets[1] as Map)['reps'], 6);
+        expect((sets[1] as Map)['weight'], 82.5);
+      },
+    );
 
     test('range.from == range.to filters records to a single day', () {
       final result = service.export(
@@ -339,24 +368,26 @@ void main() {
       expect((decoded['summary'] as Map)['sessionCount'], 0);
     });
 
-    test('records are emitted in reverse-chronological order (newest first)', () {
-      final result = service.export(
-        from: from,
-        to: to,
-        records: sampleRecords(),
-        profile: profile,
-      );
+    test(
+      'records are emitted in reverse-chronological order (newest first)',
+      () {
+        final result = service.export(
+          from: from,
+          to: to,
+          records: sampleRecords(),
+          profile: profile,
+        );
 
-      final json = _extractJsonBlock(result.markdown)!;
-      final decoded = jsonDecode(json) as Map<String, dynamic>;
-      final records = decoded['records'] as List<dynamic>;
+        final json = _extractJsonBlock(result.markdown)!;
+        final decoded = jsonDecode(json) as Map<String, dynamic>;
+        final records = decoded['records'] as List<dynamic>;
 
-      final dates = records
-          .map((r) => (r as Map)['date'] as String)
-          .toList();
-      final sortedDesc = List<String>.from(dates)..sort((a, b) => b.compareTo(a));
-      expect(dates, sortedDesc);
-    });
+        final dates = records.map((r) => (r as Map)['date'] as String).toList();
+        final sortedDesc = List<String>.from(dates)
+          ..sort((a, b) => b.compareTo(a));
+        expect(dates, sortedDesc);
+      },
+    );
   });
 }
 

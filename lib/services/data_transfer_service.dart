@@ -83,10 +83,9 @@ class DataTransferService {
 
     // 同时弹出系统分享面板（用户可以额外发到微信等）
     if (!kIsWeb) {
-      await Share.shareXFiles(
-        [XFile(savedPath)],
-        text: _currentLocalizations().dataTransferShareText,
-      );
+      await Share.shareXFiles([
+        XFile(savedPath),
+      ], text: _currentLocalizations().dataTransferShareText);
     }
 
     return savedPath;
@@ -205,7 +204,9 @@ class DataTransferService {
   /// 返回导入的记录总数
   Future<int> pickAndImport() async {
     if (kIsWeb) {
-      throw UnsupportedError(_currentLocalizations().dataTransferWebUnsupported);
+      throw UnsupportedError(
+        _currentLocalizations().dataTransferWebUnsupported,
+      );
     }
 
     final result = await FilePicker.platform.pickFiles(
