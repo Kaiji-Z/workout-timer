@@ -57,7 +57,7 @@ void main() {
           exerciseId: 'bench-press',
           exercise: null, // Service should still emit exerciseId even without Exercise model
           completedSets: 2,
-          maxWeight: 80.0,
+          maxWeight: 82.5, // matches the heaviest set below
           setsData: const [
             SetData(setNumber: 1, reps: 8, weight: 80.0),
             SetData(setNumber: 2, reps: 6, weight: 82.5),
