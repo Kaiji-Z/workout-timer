@@ -1,6 +1,6 @@
 # AGENTS.md - WorkoutTimer Flutter App
 
-**Updated:** 2026-06-22
+**Updated:** 2026-07-27
 **Branch:** master
 
 ## OVERVIEW
@@ -98,7 +98,7 @@ lib/
 │   ├── ai_plan_wizard_screen.dart # AI-powered plan generation
 │   ├── ai_analysis_screen.dart    # AI analysis dashboard (1163 lines)
 │   ├── exercise_selection_screen.dart # Exercise picker (811 lines)
-│   ├── history_screen.dart   # Workout history list
+│   ├── history_screen.dart   # Workout history list + training history export entry
 │   ├── record_detail_screen.dart   # Detailed record view (832 lines)
 │   ├── stats_screen.dart     # Statistics dashboard
 │   ├── user_preferences_screen.dart # Training preferences (531 lines)
@@ -123,6 +123,7 @@ lib/
 │   ├── touch_target.dart    # Touch target size helpers (accessibility)
 │   ├── semantics_helpers.dart # Semantic labeling helpers
 │   └── volume_trend_charts.dart # Volume trend chart widgets
+│   └── training_history_export_sheet.dart # Time-range picker for AI export
 ├── theme/                    # Flat Vitality theme (3 themes: amberGold, coralOrange, skyBlue)
 │   ├── app_theme.dart        # Theme data models
 │   └── theme_provider.dart   # Theme state + persistence
@@ -139,7 +140,8 @@ lib/
 │   ├── battery_optimization_service.dart # Battery optimization request (Android)
 │   ├── user_preferences_service.dart # Training preferences persistence
 │   ├── timer_service.dart    # Android foreground service via MethodChannel
-│   ├── data_transfer_service.dart # Data export/import (JSON)
+│   ├── data_transfer_service.dart # Data export/import (JSON) + Downloads writer
+│   ├── training_history_export_service.dart # Training history Markdown archive for AI agent
 │   ├── workout_repository.dart   # Session data
 │   ├── plan_repository.dart      # Plan CRUD
 │   └── record_repository.dart    # Record CRUD
@@ -462,6 +464,7 @@ expect(find.text('开始运动'), findsOneWidget);
 | Exercise favorites | `services/exercise_favorites_service.dart` |
 | Battery optimization | `services/battery_optimization_service.dart` |
 | Data export/import | `services/data_transfer_service.dart` |
+| **Training history export (for AI agent)** | `services/training_history_export_service.dart` + `widgets/training_history_export_sheet.dart` — produces single-file Markdown (narrative + embedded JSON) of every session/exercise/set in a time range, written to Downloads + shared. Entry: History screen AppBar. |
 | User preferences | `services/user_preferences_service.dart` |
 | Bottom navigation | `main.dart` (`MainNavigation` widget) |
 | AI plan wizard | `screens/ai_plan_wizard_screen.dart` |
