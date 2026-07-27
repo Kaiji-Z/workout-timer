@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:workout_timer/main.dart';
+import 'package:workout_timer/providers/locale_provider.dart';
 import 'package:workout_timer/theme/theme_provider.dart';
 import 'package:workout_timer/screens/timer_screen.dart';
 
@@ -13,12 +14,18 @@ void main() {
       // Launch the app
       final themeProvider = ThemeProvider();
       await themeProvider.initialize();
-      await tester.pumpWidget(MyApp(themeProvider: themeProvider, scaffoldMessengerKey: GlobalKey<ScaffoldMessengerState>()));
+      final localeProvider = LocaleProvider();
+      await localeProvider.initialize();
+      await tester.pumpWidget(MyApp(
+        themeProvider: themeProvider,
+        localeProvider: localeProvider,
+        scaffoldMessengerKey: GlobalKey<ScaffoldMessengerState>(),
+      ));
       await tester.pumpAndSettle();
 
       // Verify initial state - timer screen shows
       expect(find.byType(TimerScreen), findsOneWidget);
-      
+
       // Verify header is displayed
       expect(find.text('WORKOUT TIMER'), findsOneWidget);
     });
@@ -26,7 +33,13 @@ void main() {
     testWidgets('Navigation to settings works', (tester) async {
       final themeProvider = ThemeProvider();
       await themeProvider.initialize();
-      await tester.pumpWidget(MyApp(themeProvider: themeProvider, scaffoldMessengerKey: GlobalKey<ScaffoldMessengerState>()));
+      final localeProvider = LocaleProvider();
+      await localeProvider.initialize();
+      await tester.pumpWidget(MyApp(
+        themeProvider: themeProvider,
+        localeProvider: localeProvider,
+        scaffoldMessengerKey: GlobalKey<ScaffoldMessengerState>(),
+      ));
       await tester.pumpAndSettle();
 
       // Navigate to settings
@@ -40,7 +53,13 @@ void main() {
     testWidgets('Navigation to history works', (tester) async {
       final themeProvider = ThemeProvider();
       await themeProvider.initialize();
-      await tester.pumpWidget(MyApp(themeProvider: themeProvider, scaffoldMessengerKey: GlobalKey<ScaffoldMessengerState>()));
+      final localeProvider = LocaleProvider();
+      await localeProvider.initialize();
+      await tester.pumpWidget(MyApp(
+        themeProvider: themeProvider,
+        localeProvider: localeProvider,
+        scaffoldMessengerKey: GlobalKey<ScaffoldMessengerState>(),
+      ));
       await tester.pumpAndSettle();
 
       // Navigate to history

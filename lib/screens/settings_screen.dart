@@ -427,30 +427,29 @@ class _SettingsScreenState extends State<SettingsScreen>
             child: Column(
               children: [
                 Consumer<LocaleProvider>(
-                  builder: (context, lp, _) => Column(
-                    children: [
-                      RadioListTile<String>(
-                        value: 'system',
-                        groupValue: lp.localeCode,
-                        title: Text(l10n.settingsLanguageSystem),
-                        onChanged: (v) =>
-                            context.read<LocaleProvider>().setLocaleCode(v!),
-                      ),
-                      RadioListTile<String>(
-                        value: 'zh',
-                        groupValue: lp.localeCode,
-                        title: Text(l10n.settingsLanguageZh),
-                        onChanged: (v) =>
-                            context.read<LocaleProvider>().setLocaleCode(v!),
-                      ),
-                      RadioListTile<String>(
-                        value: 'en',
-                        groupValue: lp.localeCode,
-                        title: Text(l10n.settingsLanguageEn),
-                        onChanged: (v) =>
-                            context.read<LocaleProvider>().setLocaleCode(v!),
-                      ),
-                    ],
+                  builder: (context, lp, _) => RadioGroup<String>(
+                    groupValue: lp.localeCode,
+                    onChanged: (v) {
+                      if (v != null) {
+                        context.read<LocaleProvider>().setLocaleCode(v);
+                      }
+                    },
+                    child: Column(
+                      children: [
+                        RadioListTile<String>(
+                          value: 'system',
+                          title: Text(l10n.settingsLanguageSystem),
+                        ),
+                        RadioListTile<String>(
+                          value: 'zh',
+                          title: Text(l10n.settingsLanguageZh),
+                        ),
+                        RadioListTile<String>(
+                          value: 'en',
+                          title: Text(l10n.settingsLanguageEn),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
