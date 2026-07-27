@@ -26,7 +26,7 @@ void main() {
         restSeconds: 60,
       ),
     );
-  };
+  }
 
   group('BodyweightCoefficientService.isBodyweightExercise', () {
     test('returns false for null', () {

@@ -20,12 +20,13 @@ void main() {
     return {
       'id': id,
       'name': name ?? 'Bench Press',
-      if (nameZh != null) 'nameZh': nameZh,
+      if (nameZh != null) 'nameZh': nameZh, // ignore: use_null_aware_elements
       'primaryMuscles': primaryMuscles ?? const [],
       'secondaryMuscles': secondaryMuscles ?? const [],
       'equipment': equipment,
       'level': level,
-      if (images != null) 'images': images,
+      if (images != null) 'images': images, // ignore: use_null_aware_elements
+      // ignore: use_null_aware_elements
       if (instructions != null) 'instructions': instructions,
     };
   }
