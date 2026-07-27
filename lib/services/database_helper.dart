@@ -28,6 +28,11 @@ class DatabaseHelper {
   DatabaseHelper._privateConstructor();
   static final DatabaseHelper instance = DatabaseHelper._privateConstructor();
 
+  /// When true, [_initDatabase] uses an in-memory database (ffi). Set by
+  /// [resetForTesting] for unit/widget tests on desktop test runners where
+  /// `getDatabasesPath()` is unavailable. Has no effect in production.
+  static bool _useInMemoryForTesting = false;
+
   static Database? _database;
   Future<Database> get database async {
     if (_database != null) return _database!;
@@ -35,9 +40,29 @@ class DatabaseHelper {
     return _database!;
   }
 
+  /// Clears the cached [Database] handle so the next [database] access opens a
+  /// fresh in-memory database. Intended for tests that need a clean schema
+  /// between runs. No-op safety: this method only mutates static test state;
+  /// calling it from production code does nothing harmful (the next access
+  /// simply re-opens the real file).
+  ///
+  /// Must be paired with `sqfliteFfiInit()` + `databaseFactory = databaseFactoryFfi`
+  /// in the test's `setUpAll`.
+  @visibleForTesting
+  static Future<void> resetForTesting() async {
+    // Best-effort close: ignore errors if the handle is already closed.
+    try {
+      await _database?.close();
+    } catch (_) {}
+    _database = null;
+    _useInMemoryForTesting = true;
+  }
+
   Future<Database> _initDatabase() async {
-    if (kIsWeb) {
-      // For web, initialize sqflite ffi and use in-memory database
+    if (kIsWeb || _useInMemoryForTesting) {
+      // For web (or desktop unit/widget tests), initialize sqflite ffi and
+      // use an in-memory database so the singleton works without a real
+      // file system.
       sqfliteFfiInit();
       databaseFactory = databaseFactoryFfi;
       return await databaseFactory.openDatabase(

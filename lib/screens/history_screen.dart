@@ -1,10 +1,15 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 import '../l10n/app_localizations.dart';
 import '../main.dart';
 import '../models/workout_session.dart';
 import '../models/workout_record.dart';
+import '../services/data_transfer_service.dart';
+import '../services/training_history_export_service.dart';
+import '../services/user_preferences_service.dart';
 import '../services/workout_repository.dart';
 import '../providers/record_provider.dart';
 import '../theme/theme_provider.dart';
@@ -13,6 +18,7 @@ import '../utils/dimensions.dart';
 import '../animations/list_animations.dart';
 import '../animations/page_transitions.dart';
 import '../animations/animation_primitives.dart';
+import '../widgets/training_history_export_sheet.dart';
 import 'record_detail_screen.dart';
 
 class HistoryScreen extends StatefulWidget {
@@ -65,12 +71,119 @@ class _HistoryScreenState extends State<HistoryScreen> {
     }
   }
 
-  Future<void> _clearHistory() async {
+  /// Open the training-history export sheet, then on range selection build
+  /// the Markdown archive, write it to Downloads, and open the share sheet.
+  Future<void> _exportTrainingHistory() async {
+    // Load records once — same source the list view uses.
+    final List<dynamic> allRecords;
     try {
-      await _repository.clearAllSessions();
-      setState(() {});
+      allRecords = await _loadAllRecords();
     } catch (e) {
-      debugPrint('Error clearing history: $e');
+      debugPrint('Error loading records for export: $e');
+      return;
+    }
+
+    if (!mounted) return;
+
+    await showTrainingHistoryExportSheet(
+      context,
+      totalRecords: allRecords.length,
+      onExport: (from, to) => _performExport(from, to, allRecords),
+      onCustomRequested: () => _pickCustomRangeAndExport(allRecords),
+    );
+  }
+
+  Future<void> _pickCustomRangeAndExport(List<dynamic> allRecords) async {
+    final l10n = AppLocalizations.of(context)!;
+    final now = DateTime.now();
+
+    final picked = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(now.year - 20, 1, 1),
+      lastDate: now,
+      initialDateRange: DateTimeRange(
+        start: now.subtract(const Duration(days: 90)),
+        end: now,
+      ),
+      helpText: l10n.exportHistoryCustomRangeTitle,
+    );
+
+    if (picked == null) return;
+    await _performExport(picked.start, picked.end, allRecords);
+  }
+
+  Future<void> _performExport(
+    DateTime from,
+    DateTime to,
+    List<dynamic> allRecords,
+  ) async {
+    final l10n = AppLocalizations.of(context)!;
+    final theme = context.read<ThemeProvider>().currentTheme;
+
+    // Show progress indicator (export may take a moment for large histories).
+    if (!mounted) return;
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => Center(
+        child: CircularProgressIndicator(color: theme.accentColor),
+      ),
+    );
+
+    try {
+      final profile = await UserPreferencesService().loadPreferences();
+      final result = TrainingHistoryExportService().export(
+        from: from,
+        to: to,
+        records: allRecords,
+        profile: profile,
+      );
+
+      // Write to Downloads on Android, otherwise fall back to temp dir.
+      final dataTransfer = DataTransferService();
+      String savedPath;
+      if (!kIsWeb) {
+        try {
+          savedPath = await dataTransfer.saveToDownloads(
+            result.markdown,
+            result.fileName,
+          );
+        } catch (_) {
+          // saveToDownloads always returns a path (Downloads or temp fallback).
+          savedPath = await dataTransfer.saveToDownloads(
+            result.markdown,
+            result.fileName,
+          );
+        }
+      } else {
+        // Web: no file system — copy to clipboard as a fallback.
+        savedPath = result.fileName;
+      }
+
+      // Pop progress dialog.
+      if (mounted) Navigator.of(context).pop();
+
+      // Open share sheet (native only).
+      if (!kIsWeb) {
+        await Share.shareXFiles(
+          [XFile(savedPath)],
+          text: l10n.exportHistorySheetTitle,
+        );
+      }
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.exportHistorySuccess)),
+        );
+      }
+    } catch (e) {
+      debugPrint('Export failed: $e');
+      if (mounted) Navigator.of(context).pop(); // pop progress dialog
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.exportHistoryFailed('$e'))),
+        );
+      }
     }
   }
 
@@ -117,13 +230,18 @@ class _HistoryScreenState extends State<HistoryScreen> {
           ],
         ),
         actions: [
-          TextButton(
-            onPressed: () => _showClearConfirmDialog(),
-            child: Text(
-              l10n.settingsClear,
-              style: Theme.of(
-                context,
-              ).textTheme.labelLarge!.copyWith(color: theme.accentColor),
+          TextButton.icon(
+            onPressed: () => _exportTrainingHistory(),
+            icon: Icon(
+              Icons.ios_share,
+              size: 18,
+              color: theme.accentColor,
+            ),
+            label: Text(
+              l10n.historyExportAction,
+              style: Theme.of(context).textTheme.labelLarge!.copyWith(
+                    color: theme.accentColor,
+                  ),
             ),
           ),
         ],
@@ -238,32 +356,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
             );
           }
         },
-      ),
-    );
-  }
-
-  void _showClearConfirmDialog() {
-    final theme = context.read<ThemeProvider>().currentTheme;
-    final l10n = AppLocalizations.of(context)!;
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.historyClearConfirmTitle),
-        content: Text(l10n.historyClearConfirmBody),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(l10n.settingsCancel),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _clearHistory();
-            },
-            child: Text(l10n.settingsClear,
-                style: TextStyle(color: theme.errorColor)),
-          ),
-        ],
       ),
     );
   }

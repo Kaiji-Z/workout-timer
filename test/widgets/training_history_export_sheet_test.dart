@@ -58,7 +58,7 @@ void main() {
       await pumpSheet(
         tester,
         totalRecords: 10,
-        onExport: (_, __) async {},
+        onExport: (a, b) async {},
       );
 
       // Four duration presets + "all" + "custom"
@@ -74,7 +74,7 @@ void main() {
       await pumpSheet(
         tester,
         totalRecords: 12,
-        onExport: (_, __) async {},
+        onExport: (a, b) async {},
       );
 
       // Default selection (last 4 weeks) shows the button with count = 12.
@@ -85,7 +85,7 @@ void main() {
       await pumpSheet(
         tester,
         totalRecords: 0,
-        onExport: (_, __) async {},
+        onExport: (a, b) async {},
       );
 
       // Find the "no records" message and verify the button is disabled.

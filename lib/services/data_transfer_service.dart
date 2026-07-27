@@ -73,7 +73,7 @@ class DataTransferService {
     // 优先保存到 Downloads 目录
     String savedPath;
     if (Platform.isAndroid) {
-      savedPath = await _saveToDownloads(jsonStr, fileName);
+      savedPath = await saveToDownloads(jsonStr, fileName);
     } else {
       // iOS / 其他平台用临时目录 + 分享
       final tempDir = await getTemporaryDirectory();
@@ -94,7 +94,10 @@ class DataTransferService {
 
   /// 保存文件到 Android Downloads 目录
   /// 依次尝试 Environment.DIRECTORY_DOWNLOADS 的多个公共路径
-  Future<String> _saveToDownloads(String content, String fileName) async {
+  ///
+  /// Public so other features (e.g. training-history export) can reuse the
+  /// same Downloads-path-probing logic without duplicating it.
+  Future<String> saveToDownloads(String content, String fileName) async {
     // 尝试标准 Downloads 公共目录
     final List<String> downloadPaths = [
       '/storage/emulated/0/Download',

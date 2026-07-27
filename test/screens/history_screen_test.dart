@@ -23,7 +23,7 @@ void main() {
 
     // Reset the DatabaseHelper singleton so each test starts from a clean
     // in-memory schema.
-    await DatabaseHelper.instance.resetForTesting();
+    await DatabaseHelper.resetForTesting();
   });
 
   /// Pump HistoryScreen inside the providers it expects.

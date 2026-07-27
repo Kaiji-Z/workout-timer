@@ -17,7 +17,7 @@ void main() {
   final DateTime to = DateTime(2026, 7, 27);
 
   /// A fully-detailed WorkoutRecord with per-set data.
-  WorkoutRecord _detailedRecord({
+  WorkoutRecord detailedRecord({
     required String id,
     required DateTime date,
     required int durationSeconds,
@@ -46,7 +46,7 @@ void main() {
   /// the same shape the history screen loads.
   List<dynamic> sampleRecords() {
     // 1. Fully-detailed record with complete per-set data.
-    final detailed = _detailedRecord(
+    final detailed = detailedRecord(
       id: 'detailed-1',
       date: DateTime(2026, 7, 27),
       durationSeconds: 2730,
@@ -68,7 +68,7 @@ void main() {
 
     // 2. Legacy WorkoutRecord: only completedSets + maxWeight, no per-set data.
     //    Service must call migrateToSetData() so the exported JSON has sets[].
-    final legacyDetailed = _detailedRecord(
+    final legacyDetailed = detailedRecord(
       id: 'detailed-legacy-2',
       date: DateTime(2026, 6, 15),
       durationSeconds: 1800,
@@ -92,7 +92,7 @@ void main() {
     );
 
     // 4. OUT OF RANGE — must be filtered out.
-    final outOfRange = _detailedRecord(
+    final outOfRange = detailedRecord(
       id: 'out-of-range-4',
       date: DateTime(2025, 12, 1), // well before `from`
       durationSeconds: 600,
