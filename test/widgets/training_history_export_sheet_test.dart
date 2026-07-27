@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workout_timer/core/service_locator.dart';
 import 'package:workout_timer/l10n/app_localizations.dart';
 import 'package:workout_timer/theme/theme_provider.dart';
@@ -8,6 +10,9 @@ import 'package:workout_timer/widgets/training_history_export_sheet.dart';
 void main() {
   setUp(() {
     ServiceLocator.setup();
+    // ThemeProvider.initialize() calls SharedPreferences.getInstance(), which
+    // hangs on a real platform channel in widget tests without a mock.
+    SharedPreferences.setMockInitialValues({});
   });
 
   /// Helper: pumps the export sheet inside a MaterialApp + ThemeProvider.
@@ -15,6 +20,7 @@ void main() {
     WidgetTester tester, {
     required int totalRecords,
     required ExportRangeCallback onExport,
+    VoidCallback? onCustomRequested,
   }) async {
     final themeProvider = ThemeProvider();
     await themeProvider.initialize();
@@ -32,6 +38,7 @@ void main() {
                   context,
                   totalRecords: totalRecords,
                   onExport: onExport,
+                  onCustomRequested: onCustomRequested,
                 ),
                 child: const Text('open'),
               ),
@@ -85,7 +92,7 @@ void main() {
       expect(find.text('No training records in this range'), findsOneWidget);
 
       final button = tester.widget<ElevatedButton>(
-        find.byType(ElevatedButton),
+        find.byKey(const ValueKey('export_history_button')),
       );
       expect(button.enabled, isFalse,
           reason: 'export button must be disabled when there are 0 records');
@@ -109,8 +116,8 @@ void main() {
       await tester.tap(find.text('Last 4 weeks'));
       await tester.pumpAndSettle();
 
-      // Tap the export button.
-      await tester.tap(find.byType(ElevatedButton));
+      // Tap the export button (keyed in the sheet widget).
+      await tester.tap(find.byKey(const ValueKey('export_history_button')));
       await tester.pumpAndSettle();
 
       expect(capturedFrom, isNotNull);
@@ -142,7 +149,7 @@ void main() {
 
       await tester.tap(find.text('All'));
       await tester.pumpAndSettle();
-      await tester.tap(find.byType(ElevatedButton));
+      await tester.tap(find.byKey(const ValueKey('export_history_button')));
       await tester.pumpAndSettle();
 
       expect(capturedFrom, isNotNull);
