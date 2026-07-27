@@ -2125,4 +2125,118 @@ class AppLocalizationsZh extends AppLocalizations {
   String statsRecordsCount(int count) {
     return '$count次记录';
   }
+
+  @override
+  String get historyExportAction => '导出档案';
+
+  @override
+  String get exportHistorySheetTitle => '导出训练历史';
+
+  @override
+  String get exportHistorySheetDescription => '选择时间范围，导出训练记录档案供 AI agent 分析。';
+
+  @override
+  String get exportHistoryRange4w => '近 4 周';
+
+  @override
+  String get exportHistoryRange3m => '近 3 月';
+
+  @override
+  String get exportHistoryRange6m => '近 6 月';
+
+  @override
+  String get exportHistoryRange12m => '近 12 月';
+
+  @override
+  String get exportHistoryRangeAll => '全部';
+
+  @override
+  String get exportHistoryRangeCustom => '自定义';
+
+  @override
+  String exportHistoryRangeFromTo(String from, String to) {
+    return '$from 至 $to';
+  }
+
+  @override
+  String exportHistoryButtonLabel(int count) {
+    return '导出 $count 条训练记录';
+  }
+
+  @override
+  String get exportHistoryNoRecords => '该范围内无训练记录';
+
+  @override
+  String get exportHistorySuccess => '已导出到 Downloads 并弹出分享面板';
+
+  @override
+  String exportHistoryFailed(String error) {
+    return '导出失败：$error';
+  }
+
+  @override
+  String get exportHistoryCustomRangeTitle => '选择日期范围';
+
+  @override
+  String get exportHistoryLoading => '正在生成训练档案…';
+
+  @override
+  String get exportMarkdownH1 => '训练档案 / Training History Archive';
+
+  @override
+  String get exportMarkdownProfile => '用户档案 / Profile';
+
+  @override
+  String get exportMarkdownRecords => '训练记录 / Training Sessions';
+
+  @override
+  String get exportMarkdownSessionDuration => '时长';
+
+  @override
+  String get exportMarkdownSessionSets => '总组数';
+
+  @override
+  String get exportMarkdownSessionPlan => '计划';
+
+  @override
+  String get exportMarkdownSessionMuscles => '训练部位';
+
+  @override
+  String exportMarkdownSet(int n) {
+    return '第 $n 组';
+  }
+
+  @override
+  String get exportMarkdownVolumeNote => '训练量';
+
+  @override
+  String get exportMarkdownLegacyNote => '简化记录（无动作级数据）';
+
+  @override
+  String get exportMarkdownStructured =>
+      '结构化数据 / Structured Data (for AI ingestion)';
+
+  @override
+  String get exportMarkdownGeneratedAt => '生成时间';
+
+  @override
+  String get exportMarkdownRange => '时间范围';
+
+  @override
+  String get exportMarkdownSessions => '训练次数';
+
+  @override
+  String get exportMarkdownGoal => '目标';
+
+  @override
+  String get exportMarkdownExperience => '经验等级';
+
+  @override
+  String get exportMarkdownFrequency => '每周频率';
+
+  @override
+  String get exportMarkdownEquipment => '器械';
+
+  @override
+  String get exportMarkdownFocusAreas => '重点肌群';
 }

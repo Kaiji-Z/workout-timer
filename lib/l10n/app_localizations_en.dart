@@ -2179,4 +2179,119 @@ class AppLocalizationsEn extends AppLocalizations {
   String statsRecordsCount(int count) {
     return '$count records';
   }
+
+  @override
+  String get historyExportAction => 'Export Archive';
+
+  @override
+  String get exportHistorySheetTitle => 'Export Training History';
+
+  @override
+  String get exportHistorySheetDescription =>
+      'Pick a time range to export your training records for AI agent analysis.';
+
+  @override
+  String get exportHistoryRange4w => 'Last 4 weeks';
+
+  @override
+  String get exportHistoryRange3m => 'Last 3 months';
+
+  @override
+  String get exportHistoryRange6m => 'Last 6 months';
+
+  @override
+  String get exportHistoryRange12m => 'Last 12 months';
+
+  @override
+  String get exportHistoryRangeAll => 'All';
+
+  @override
+  String get exportHistoryRangeCustom => 'Custom';
+
+  @override
+  String exportHistoryRangeFromTo(String from, String to) {
+    return '$from to $to';
+  }
+
+  @override
+  String exportHistoryButtonLabel(int count) {
+    return 'Export $count session(s)';
+  }
+
+  @override
+  String get exportHistoryNoRecords => 'No training records in this range';
+
+  @override
+  String get exportHistorySuccess =>
+      'Exported to Downloads and share sheet opened';
+
+  @override
+  String exportHistoryFailed(String error) {
+    return 'Export failed: $error';
+  }
+
+  @override
+  String get exportHistoryCustomRangeTitle => 'Select date range';
+
+  @override
+  String get exportHistoryLoading => 'Generating training archive…';
+
+  @override
+  String get exportMarkdownH1 => 'Training History Archive';
+
+  @override
+  String get exportMarkdownProfile => 'Profile';
+
+  @override
+  String get exportMarkdownRecords => 'Training Sessions';
+
+  @override
+  String get exportMarkdownSessionDuration => 'Duration';
+
+  @override
+  String get exportMarkdownSessionSets => 'Total sets';
+
+  @override
+  String get exportMarkdownSessionPlan => 'Plan';
+
+  @override
+  String get exportMarkdownSessionMuscles => 'Trained muscles';
+
+  @override
+  String exportMarkdownSet(int n) {
+    return 'Set $n';
+  }
+
+  @override
+  String get exportMarkdownVolumeNote => 'Volume';
+
+  @override
+  String get exportMarkdownLegacyNote => 'Legacy record (no per-exercise data)';
+
+  @override
+  String get exportMarkdownStructured => 'Structured Data (for AI ingestion)';
+
+  @override
+  String get exportMarkdownGeneratedAt => 'Generated';
+
+  @override
+  String get exportMarkdownRange => 'Range';
+
+  @override
+  String get exportMarkdownSessions => 'Sessions';
+
+  @override
+  String get exportMarkdownGoal => 'Goal';
+
+  @override
+  String get exportMarkdownExperience => 'Experience';
+
+  @override
+  String get exportMarkdownFrequency => 'Weekly frequency';
+
+  @override
+  String get exportMarkdownEquipment => 'Equipment';
+
+  @override
+  String get exportMarkdownFocusAreas => 'Focus areas';
 }

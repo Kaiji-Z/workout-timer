@@ -1668,5 +1668,94 @@
     }
   },
   "settingsEmailCopied": "邮箱已复制",
-  "@settingsEmailCopied": {}
+  "@settingsEmailCopied": {},
+
+  "historyExportAction": "导出档案",
+  "@historyExportAction": {},
+  "exportHistorySheetTitle": "导出训练历史",
+  "@exportHistorySheetTitle": {},
+  "exportHistorySheetDescription": "选择时间范围，导出训练记录档案供 AI agent 分析。",
+  "@exportHistorySheetDescription": {},
+  "exportHistoryRange4w": "近 4 周",
+  "@exportHistoryRange4w": {},
+  "exportHistoryRange3m": "近 3 月",
+  "@exportHistoryRange3m": {},
+  "exportHistoryRange6m": "近 6 月",
+  "@exportHistoryRange6m": {},
+  "exportHistoryRange12m": "近 12 月",
+  "@exportHistoryRange12m": {},
+  "exportHistoryRangeAll": "全部",
+  "@exportHistoryRangeAll": {},
+  "exportHistoryRangeCustom": "自定义",
+  "@exportHistoryRangeCustom": {},
+  "exportHistoryRangeFromTo": "{from} 至 {to}",
+  "@exportHistoryRangeFromTo": {
+    "placeholders": {
+      "from": { "type": "String" },
+      "to": { "type": "String" }
+    }
+  },
+  "exportHistoryButtonLabel": "导出 {count} 条训练记录",
+  "@exportHistoryButtonLabel": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "exportHistoryNoRecords": "该范围内无训练记录",
+  "@exportHistoryNoRecords": {},
+  "exportHistorySuccess": "已导出到 Downloads 并弹出分享面板",
+  "@exportHistorySuccess": {},
+  "exportHistoryFailed": "导出失败：{error}",
+  "@exportHistoryFailed": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "exportHistoryCustomRangeTitle": "选择日期范围",
+  "@exportHistoryCustomRangeTitle": {},
+  "exportHistoryLoading": "正在生成训练档案…",
+  "@exportHistoryLoading": {},
+
+  "exportMarkdownH1": "训练档案 / Training History Archive",
+  "@exportMarkdownH1": {},
+  "exportMarkdownProfile": "用户档案 / Profile",
+  "@exportMarkdownProfile": {},
+  "exportMarkdownRecords": "训练记录 / Training Sessions",
+  "@exportMarkdownRecords": {},
+  "exportMarkdownSessionDuration": "时长",
+  "@exportMarkdownSessionDuration": {},
+  "exportMarkdownSessionSets": "总组数",
+  "@exportMarkdownSessionSets": {},
+  "exportMarkdownSessionPlan": "计划",
+  "@exportMarkdownSessionPlan": {},
+  "exportMarkdownSessionMuscles": "训练部位",
+  "@exportMarkdownSessionMuscles": {},
+  "exportMarkdownSet": "第 {n} 组",
+  "@exportMarkdownSet": {
+    "placeholders": {
+      "n": { "type": "int" }
+    }
+  },
+  "exportMarkdownVolumeNote": "训练量",
+  "@exportMarkdownVolumeNote": {},
+  "exportMarkdownLegacyNote": "简化记录（无动作级数据）",
+  "@exportMarkdownLegacyNote": {},
+  "exportMarkdownStructured": "结构化数据 / Structured Data (for AI ingestion)",
+  "@exportMarkdownStructured": {},
+  "exportMarkdownGeneratedAt": "生成时间",
+  "@exportMarkdownGeneratedAt": {},
+  "exportMarkdownRange": "时间范围",
+  "@exportMarkdownRange": {},
+  "exportMarkdownSessions": "训练次数",
+  "@exportMarkdownSessions": {},
+  "exportMarkdownGoal": "目标",
+  "@exportMarkdownGoal": {},
+  "exportMarkdownExperience": "经验等级",
+  "@exportMarkdownExperience": {},
+  "exportMarkdownFrequency": "每周频率",
+  "@exportMarkdownFrequency": {},
+  "exportMarkdownEquipment": "器械",
+  "@exportMarkdownEquipment": {},
+  "exportMarkdownFocusAreas": "重点肌群",
+  "@exportMarkdownFocusAreas": {}
 }

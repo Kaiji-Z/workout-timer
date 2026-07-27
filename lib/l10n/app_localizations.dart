@@ -3796,6 +3796,216 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'{count}次记录'**
   String statsRecordsCount(int count);
+
+  /// No description provided for @historyExportAction.
+  ///
+  /// In zh, this message translates to:
+  /// **'导出档案'**
+  String get historyExportAction;
+
+  /// No description provided for @exportHistorySheetTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'导出训练历史'**
+  String get exportHistorySheetTitle;
+
+  /// No description provided for @exportHistorySheetDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'选择时间范围，导出训练记录档案供 AI agent 分析。'**
+  String get exportHistorySheetDescription;
+
+  /// No description provided for @exportHistoryRange4w.
+  ///
+  /// In zh, this message translates to:
+  /// **'近 4 周'**
+  String get exportHistoryRange4w;
+
+  /// No description provided for @exportHistoryRange3m.
+  ///
+  /// In zh, this message translates to:
+  /// **'近 3 月'**
+  String get exportHistoryRange3m;
+
+  /// No description provided for @exportHistoryRange6m.
+  ///
+  /// In zh, this message translates to:
+  /// **'近 6 月'**
+  String get exportHistoryRange6m;
+
+  /// No description provided for @exportHistoryRange12m.
+  ///
+  /// In zh, this message translates to:
+  /// **'近 12 月'**
+  String get exportHistoryRange12m;
+
+  /// No description provided for @exportHistoryRangeAll.
+  ///
+  /// In zh, this message translates to:
+  /// **'全部'**
+  String get exportHistoryRangeAll;
+
+  /// No description provided for @exportHistoryRangeCustom.
+  ///
+  /// In zh, this message translates to:
+  /// **'自定义'**
+  String get exportHistoryRangeCustom;
+
+  /// No description provided for @exportHistoryRangeFromTo.
+  ///
+  /// In zh, this message translates to:
+  /// **'{from} 至 {to}'**
+  String exportHistoryRangeFromTo(String from, String to);
+
+  /// No description provided for @exportHistoryButtonLabel.
+  ///
+  /// In zh, this message translates to:
+  /// **'导出 {count} 条训练记录'**
+  String exportHistoryButtonLabel(int count);
+
+  /// No description provided for @exportHistoryNoRecords.
+  ///
+  /// In zh, this message translates to:
+  /// **'该范围内无训练记录'**
+  String get exportHistoryNoRecords;
+
+  /// No description provided for @exportHistorySuccess.
+  ///
+  /// In zh, this message translates to:
+  /// **'已导出到 Downloads 并弹出分享面板'**
+  String get exportHistorySuccess;
+
+  /// No description provided for @exportHistoryFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'导出失败：{error}'**
+  String exportHistoryFailed(String error);
+
+  /// No description provided for @exportHistoryCustomRangeTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'选择日期范围'**
+  String get exportHistoryCustomRangeTitle;
+
+  /// No description provided for @exportHistoryLoading.
+  ///
+  /// In zh, this message translates to:
+  /// **'正在生成训练档案…'**
+  String get exportHistoryLoading;
+
+  /// No description provided for @exportMarkdownH1.
+  ///
+  /// In zh, this message translates to:
+  /// **'训练档案 / Training History Archive'**
+  String get exportMarkdownH1;
+
+  /// No description provided for @exportMarkdownProfile.
+  ///
+  /// In zh, this message translates to:
+  /// **'用户档案 / Profile'**
+  String get exportMarkdownProfile;
+
+  /// No description provided for @exportMarkdownRecords.
+  ///
+  /// In zh, this message translates to:
+  /// **'训练记录 / Training Sessions'**
+  String get exportMarkdownRecords;
+
+  /// No description provided for @exportMarkdownSessionDuration.
+  ///
+  /// In zh, this message translates to:
+  /// **'时长'**
+  String get exportMarkdownSessionDuration;
+
+  /// No description provided for @exportMarkdownSessionSets.
+  ///
+  /// In zh, this message translates to:
+  /// **'总组数'**
+  String get exportMarkdownSessionSets;
+
+  /// No description provided for @exportMarkdownSessionPlan.
+  ///
+  /// In zh, this message translates to:
+  /// **'计划'**
+  String get exportMarkdownSessionPlan;
+
+  /// No description provided for @exportMarkdownSessionMuscles.
+  ///
+  /// In zh, this message translates to:
+  /// **'训练部位'**
+  String get exportMarkdownSessionMuscles;
+
+  /// No description provided for @exportMarkdownSet.
+  ///
+  /// In zh, this message translates to:
+  /// **'第 {n} 组'**
+  String exportMarkdownSet(int n);
+
+  /// No description provided for @exportMarkdownVolumeNote.
+  ///
+  /// In zh, this message translates to:
+  /// **'训练量'**
+  String get exportMarkdownVolumeNote;
+
+  /// No description provided for @exportMarkdownLegacyNote.
+  ///
+  /// In zh, this message translates to:
+  /// **'简化记录（无动作级数据）'**
+  String get exportMarkdownLegacyNote;
+
+  /// No description provided for @exportMarkdownStructured.
+  ///
+  /// In zh, this message translates to:
+  /// **'结构化数据 / Structured Data (for AI ingestion)'**
+  String get exportMarkdownStructured;
+
+  /// No description provided for @exportMarkdownGeneratedAt.
+  ///
+  /// In zh, this message translates to:
+  /// **'生成时间'**
+  String get exportMarkdownGeneratedAt;
+
+  /// No description provided for @exportMarkdownRange.
+  ///
+  /// In zh, this message translates to:
+  /// **'时间范围'**
+  String get exportMarkdownRange;
+
+  /// No description provided for @exportMarkdownSessions.
+  ///
+  /// In zh, this message translates to:
+  /// **'训练次数'**
+  String get exportMarkdownSessions;
+
+  /// No description provided for @exportMarkdownGoal.
+  ///
+  /// In zh, this message translates to:
+  /// **'目标'**
+  String get exportMarkdownGoal;
+
+  /// No description provided for @exportMarkdownExperience.
+  ///
+  /// In zh, this message translates to:
+  /// **'经验等级'**
+  String get exportMarkdownExperience;
+
+  /// No description provided for @exportMarkdownFrequency.
+  ///
+  /// In zh, this message translates to:
+  /// **'每周频率'**
+  String get exportMarkdownFrequency;
+
+  /// No description provided for @exportMarkdownEquipment.
+  ///
+  /// In zh, this message translates to:
+  /// **'器械'**
+  String get exportMarkdownEquipment;
+
+  /// No description provided for @exportMarkdownFocusAreas.
+  ///
+  /// In zh, this message translates to:
+  /// **'重点肌群'**
+  String get exportMarkdownFocusAreas;
 }
 
 class _AppLocalizationsDelegate
