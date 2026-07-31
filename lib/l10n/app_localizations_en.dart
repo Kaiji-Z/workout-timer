@@ -9,7 +9,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'Iron Timer';
+  String get appTitle => 'Workout Timer';
 
   @override
   String get navPlans => 'Plans';
@@ -300,7 +300,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorGeneric => 'Operation failed, please retry';
 
   @override
-  String get dataTransferShareText => 'Iron Timer data backup';
+  String get dataTransferShareText => 'Workout Timer data backup';
 
   @override
   String get dataTransferWebUnsupported =>
@@ -709,7 +709,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsPrivacyHeadline =>
-      'Iron Timer does not collect any personal information';
+      'Workout Timer does not collect any personal information';
 
   @override
   String get settingsPrivacyDataStorage => 'Data Storage';
@@ -796,35 +796,35 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get oemInstructionHuawei =>
-      'In \"App launch management\", find Iron Timer, turn off \"Automatic management\", then manually enable all three toggles';
+      'In \"App launch management\", find Workout Timer, turn off \"Automatic management\", then manually enable all three toggles';
 
   @override
   String get oemInstructionHonor =>
-      'In \"App launch management\", find Iron Timer, turn off \"Automatic management\", then manually enable all three toggles';
+      'In \"App launch management\", find Workout Timer, turn off \"Automatic management\", then manually enable all three toggles';
 
   @override
   String get oemInstructionXiaomi =>
-      'In \"Autostart management\", find Iron Timer and enable autostart. Then under \"Battery saver policy\" choose \"No restrictions\"';
+      'In \"Autostart management\", find Workout Timer and enable autostart. Then under \"Battery saver policy\" choose \"No restrictions\"';
 
   @override
   String get oemInstructionOppo =>
-      'In \"Autostart management\", find Iron Timer and allow autostart';
+      'In \"Autostart management\", find Workout Timer and allow autostart';
 
   @override
   String get oemInstructionVivo =>
-      'In \"High background power use\" or \"Autostart\", find Iron Timer and allow background running';
+      'In \"High background power use\" or \"Autostart\", find Workout Timer and allow background running';
 
   @override
   String get oemInstructionMeizu =>
-      'In \"Smart sleep\" or \"Background management\", find Iron Timer and allow background running';
+      'In \"Smart sleep\" or \"Background management\", find Workout Timer and allow background running';
 
   @override
   String get oemInstructionSamsung =>
-      'In \"Battery\" settings, find Iron Timer and choose \"Unrestricted\"';
+      'In \"Battery\" settings, find Workout Timer and choose \"Unrestricted\"';
 
   @override
   String get oemInstructionOneplus =>
-      'In \"Battery optimization\" advanced settings, find Iron Timer and choose \"Don\'t optimize\"';
+      'In \"Battery optimization\" advanced settings, find Workout Timer and choose \"Don\'t optimize\"';
 
   @override
   String get prefTitle => 'Training Preferences';

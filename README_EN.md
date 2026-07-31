@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🏋️ Iron Timer
+# 🏋️ Workout Timer
 
 **Own your rest. Own your set.**
 
@@ -23,7 +23,7 @@ Free · Open Source · No Ads · No Sign-up · No Cloud
 
 A fitness app that does **one thing** well: manage your rest between sets.
 
-You know the feeling — you finish a set of bench press, pick up your phone, and 15 minutes of short videos later your body has gone cold and your training momentum is gone. Iron Timer exists to fix that.
+You know the feeling — you finish a set of bench press, pick up your phone, and 15 minutes of short videos later your body has gone cold and your training momentum is gone. Workout Timer exists to fix that.
 
 Press start, the countdown runs. Time's up, you get a sound + vibration nudge. That simple.
 

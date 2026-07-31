@@ -42,7 +42,7 @@ class ExportResult {
 class TrainingHistoryExportService {
   static const int _exportVersion = 1;
   static const String _appVersion = '1.0.0';
-  static const String _appName = 'Iron Timer';
+  static const String _appName = 'Workout Timer';
 
   /// Resolve the current [AppLocalizations] for service-layer use (no
   /// BuildContext available). Falls back to Chinese if not registered yet.
