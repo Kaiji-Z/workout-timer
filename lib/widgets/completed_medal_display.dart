@@ -168,7 +168,7 @@ class _CompletedMedalDisplayState extends State<CompletedMedalDisplay>
 
     // === 几何对齐计算（用数学，不靠猜）===
     // medal.svg viewBox = "100 25 534 660"，圆盘中心 (367,448) 半径 ≈197（直径 394）。
-    // viewBox 高度 660 覆盖了所有 path（最低 y=683），避免底部被裁。
+    // viewBox 高度 660：y[25,685]，覆盖 outline path 最低 y=671.56（底部缎带曲线下沿）。
     //
     // 圆盘直径目标 = size × 0.72（小于 timerSize，给缎带/花环留溢出空间，
     // 防止整体溢出屏幕）。这样 SVG 总高 = 0.72×size × 660/394 ≈ size × 1.21。
