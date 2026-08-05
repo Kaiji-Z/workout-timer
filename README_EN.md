@@ -148,10 +148,10 @@ export FLUTTER_STORAGE_BASE_URL=https://storage.flutter-io.cn
 |------|----------|
 | Flutter 3.10+ / Dart 3.10+ | Cross-platform UI |
 | Provider (ChangeNotifier) | State management |
-| SQLite (sqflite) | Local database, 4 incremental migrations |
+| SQLite (sqflite) | Local database, 5 incremental migrations |
 | fl_chart | Data visualization |
 | flutter_local_notifications | Notification alerts |
-| Orbitron + Rajdhani | Timer-specific fonts |
+| Rajdhani | Timer-specific font |
 
 ---
 
@@ -160,12 +160,13 @@ export FLUTTER_STORAGE_BASE_URL=https://storage.flutter-io.cn
 ```
 lib/
 ├── main.dart                 # Entry, MultiProvider, bottom nav
-├── providers/                # State management (ChangeNotifier × 5)
+├── providers/                # State management (ChangeNotifier × 6)
 │   ├── timer_provider.dart   # Countdown + set counter
 │   ├── training_provider.dart # Training state machine
 │   ├── plan_provider.dart    # Plan CRUD
 │   ├── record_provider.dart  # Workout log + stats
-│   └── training_progress_provider.dart # Real-time training progress
+│   ├── training_progress_provider.dart # Real-time training progress
+│   └── locale_provider.dart  # System locale / EN-ZH switching
 ├── models/                   # Data models (fromMap/toMap/copyWith)
 ├── screens/                  # 11 screens
 ├── widgets/                  # Reusable components (15+)
@@ -176,7 +177,7 @@ lib/
 │   ├── animation_primitives.dart # AnimatedCard, CountUp, Shimmer
 │   └── page_transitions.dart # FadeUpPageRoute, ScaleFadePageRoute
 ├── services/                 # Database, notifications, AI, stats
-│   ├── database_helper.dart  # SQLite v4, incremental migrations
+│   ├── database_helper.dart  # SQLite v5, incremental migrations
 │   ├── notification_service.dart
 │   ├── ai_prompt_service.dart
 │   ├── stats_calculator_service.dart
@@ -207,7 +208,6 @@ Issues and PRs welcome.
 | Resource | Source |
 |------|------|
 | Exercise database | [yuhonas/free-exercise-db](https://github.com/yuhonas/free-exercise-db) (CC0) |
-| Orbitron font | [Google Fonts](https://fonts.google.com/specimen/Orbitron) (SIL OFL) |
 | Rajdhani font | [Google Fonts](https://fonts.google.com/specimen/Rajdhani) (SIL OFL) |
 
 ---

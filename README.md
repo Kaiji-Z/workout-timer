@@ -148,10 +148,10 @@ export FLUTTER_STORAGE_BASE_URL=https://storage.flutter-io.cn
 |------|------|
 | Flutter 3.10+ / Dart 3.10+ | 跨平台 UI |
 | Provider (ChangeNotifier) | 状态管理 |
-| SQLite (sqflite) | 本地数据库，4 版增量迁移 |
+| SQLite (sqflite) | 本地数据库，5 版增量迁移 |
 | fl_chart | 数据可视化 |
 | flutter_local_notifications | 通知提醒 |
-| Orbitron + Rajdhani | 计时器专用字体 |
+| Rajdhani | 计时器专用字体 |
 
 ---
 
@@ -160,12 +160,13 @@ export FLUTTER_STORAGE_BASE_URL=https://storage.flutter-io.cn
 ```
 lib/
 ├── main.dart                 # 入口，MultiProvider，底部导航
-├── providers/                     # 状态管理 (ChangeNotifier × 5)
+├── providers/                     # 状态管理 (ChangeNotifier × 6)
 │   ├── timer_provider.dart   # 倒计时 + 组数
 │   ├── training_provider.dart # 训练状态机
 │   ├── plan_provider.dart    # 计划 CRUD
 │   ├── record_provider.dart  # 训练记录 + 统计
-│   └── training_progress_provider.dart # 实时训练进度
+│   ├── training_progress_provider.dart # 实时训练进度
+│   └── locale_provider.dart  # 系统语言/中英文切换
 ├── models/                   # 数据模型 (fromMap/toMap/copyWith)
 ├── screens/                  # 11 个页面
 ├── widgets/                  # 可复用组件 (15+)
@@ -176,7 +177,7 @@ lib/
 │   ├── animation_primitives.dart # AnimatedCard, CountUp, Shimmer
 │   └── page_transitions.dart # FadeUpPageRoute, ScaleFadePageRoute
 ├── services/                 # 数据库、通知、AI、统计
-│   ├── database_helper.dart  # SQLite v4，增量迁移
+│   ├── database_helper.dart  # SQLite v5，增量迁移
 │   ├── notification_service.dart
 │   ├── ai_prompt_service.dart
 │   ├── stats_calculator_service.dart
@@ -207,7 +208,6 @@ lib/
 | 资源 | 来源 |
 |------|------|
 | 健身动作数据库 | [yuhonas/free-exercise-db](https://github.com/yuhonas/free-exercise-db) (CC0) |
-| Orbitron 字体 | [Google Fonts](https://fonts.google.com/specimen/Orbitron) (SIL OFL) |
 | Rajdhani 字体 | [Google Fonts](https://fonts.google.com/specimen/Rajdhani) (SIL OFL) |
 
 ---

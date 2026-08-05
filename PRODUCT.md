@@ -64,4 +64,4 @@ product
 - **语义化与无障碍**：Tooltip、Semantics 标注、实时播报（live region）。计时器倒计时数字应有语义标签（如"剩余 45 秒"），不只是视觉显示。
 - **减少动效**：尊重 `MediaSource-prefer-reduced-motion` 等价物。完成奖牌动画、按压缩放、数字 count-up 应可降级为淡入或瞬时切换，不强制动画。
 - **运动场景考虑**：屏幕反光（避免纯黑深色模式在强光下不可读）、手汗湿滑（按钮足够大、间距足够）、单手操作（关键操作在拇指可达区）。
-- **i18n**：当前界面以中文为主，框架已就位（gen-l10n）。设计需为多语言预留弹性（中文按钮文案换英文后不溢出）。
+- **i18n**：界面已完全中英双语（gen-l10n，`AppLocalizations` 流经 screens/widgets/main.dart，并有 `test/i18n/no_hardcoded_chinese_test.dart` 守卫）。设计需为多语言预留弹性（中文按钮文案换英文后不溢出）。
