@@ -7,8 +7,9 @@ import '../theme/app_theme.dart';
 /// 设计特点:
 /// - 外环：正计时进度条（实线，圆头，每 60 分钟一圈）
 /// - 内环：倒计时进度条（虚线 60 段，平头，一秒一段）
+/// - idle 状态:外环空轨道 + 内环淡虚线轨道 + 数字 Light 字重 + 极轻呼吸
 /// - 扁平设计，高对比度
-/// - .SF Pro Display / .SF Pro Text 字体
+/// - Rajdhani (Light 用于 idle, SemiBold/Bold 用于激活态)
 class AnimatedTimerDisplay extends StatefulWidget {
   final int seconds;
   final String label;
@@ -31,26 +32,84 @@ class AnimatedTimerDisplay extends StatefulWidget {
   State<AnimatedTimerDisplay> createState() => _AnimatedTimerDisplayState();
 }
 
-class _AnimatedTimerDisplayState extends State<AnimatedTimerDisplay> {
+class _AnimatedTimerDisplayState extends State<AnimatedTimerDisplay>
+    with SingleTickerProviderStateMixin {
+  // idle 状态的呼吸动画:3 秒周期,scale 1.0 → 1.015 → 1.0。
+  // 幅度刻意压到 1.5% — 肉眼"察觉不到在动但感觉是活的",不抢戏。
+  // 激活态不启动该动画(数字已经在跳秒,不需要额外呼吸)。
+  late final AnimationController _idleBreathController;
+  late final Animation<double> _idleBreath;
+  bool _reduceMotion = false;
+
+  /// idle = 既没累计时长,内环又是满段(training_widget 传入的空闲信号)
+  bool get _isIdle =>
+      widget.sessionDuration == 0 && widget.countdownProgress >= 1.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _idleBreathController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 3),
+    );
+    _idleBreath = Tween<double>(begin: 1.0, end: 1.015).animate(
+      CurvedAnimation(
+        parent: _idleBreathController,
+        // ease-in-out 让呼吸两端都有减速,模拟自然呼吸节律
+        curve: Curves.easeInOut,
+      ),
+    );
+    _idleBreathController.repeat(reverse: true);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // 尊重系统 reduce-motion 设置:开启时禁用呼吸,静态呈现 idle
+    _reduceMotion =
+        MediaQuery.accessibleNavigationOf(context) ||
+        MediaQuery.disableAnimationsOf(context);
+  }
+
+  @override
+  void dispose() {
+    _idleBreathController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final useBreath = _isIdle && !_reduceMotion;
+    if (!useBreath) _idleBreathController.stop();
+    final ringChild = SizedBox(
+      width: widget.size,
+      height: widget.size,
+      child: CustomPaint(
+        painter: _TimerRingPainter(
+          sessionDuration: widget.sessionDuration,
+          countdownProgress: widget.countdownProgress,
+          isIdle: _isIdle,
+          theme: widget.theme,
+        ),
+      ),
+    );
+
     return SizedBox(
       width: widget.size,
       height: widget.size,
       child: Stack(
         alignment: Alignment.center,
         children: [
-          SizedBox(
-            width: widget.size,
-            height: widget.size,
-            child: CustomPaint(
-              painter: _TimerRingPainter(
-                sessionDuration: widget.sessionDuration,
-                countdownProgress: widget.countdownProgress,
-                theme: widget.theme,
-              ),
-            ),
-          ),
+          useBreath
+              ? AnimatedBuilder(
+                  animation: _idleBreath,
+                  builder: (context, child) => Transform.scale(
+                    scale: _idleBreath.value,
+                    child: child,
+                  ),
+                  child: ringChild,
+                )
+              : ringChild,
           _buildTimerCard(),
         ],
       ),
@@ -60,6 +119,11 @@ class _AnimatedTimerDisplayState extends State<AnimatedTimerDisplay> {
   Widget _buildTimerCard() {
     final timeText = _formatTime(widget.seconds);
     final cardSize = widget.size * 0.65;
+    // idle 用 Light 字重 + 0.85 透明,提示"未激活";激活态恢复 SemiBold 实色
+    final isIdle = _isIdle;
+    final digitColor = isIdle
+        ? widget.theme.textColor.withValues(alpha: 0.85)
+        : widget.theme.textColor;
 
     return Container(
       width: cardSize,
@@ -97,8 +161,10 @@ class _AnimatedTimerDisplayState extends State<AnimatedTimerDisplay> {
               key: ValueKey(timeText),
               style: Theme.of(context).textTheme.displayLarge!.copyWith(
                 fontFamily: 'Rajdhani',
+                fontWeight: isIdle ? FontWeight.w300 : FontWeight.w700,
                 fontSize: widget.size * 0.18,
                 letterSpacing: -0.5,
+                color: digitColor,
               ),
             ),
           ),
@@ -130,6 +196,7 @@ class _AnimatedTimerDisplayState extends State<AnimatedTimerDisplay> {
 class _TimerRingPainter extends CustomPainter {
   final int sessionDuration;
   final double countdownProgress;
+  final bool isIdle;
   final AppThemeData theme;
 
   // ── 尺寸常量 ──
@@ -146,6 +213,7 @@ class _TimerRingPainter extends CustomPainter {
   _TimerRingPainter({
     required this.sessionDuration,
     required this.countdownProgress,
+    this.isIdle = false,
     required this.theme,
   });
 
@@ -258,8 +326,14 @@ class _TimerRingPainter extends CustomPainter {
     final totalAngle = 2 * math.pi;
     final segmentAngle = totalAngle / _segmentsPerRing;
     final activeSegmentAngle = segmentAngle - _segmentGapRadians;
-    final clampedProgress = countdownProgress.clamp(0.0, 1.0);
-    final activeSegments = (clampedProgress * _segmentsPerRing).round();
+
+    // idle 状态:只画淡虚线轨道(不画活跃段),不透明度提高到 0.18,
+    // 让"环已就绪待填充"的暗示比运行中的 0.1 背景段更可见。
+    // 激活态:画 0.1 背景段 + 实色活跃段(原有逻辑)。
+    final trackAlpha = isIdle ? 0.18 : 0.1;
+    final activeSegments = isIdle
+        ? 0
+        : (countdownProgress.clamp(0.0, 1.0) * _segmentsPerRing).round();
 
     // 绘制 60 段背景（淡色）
     for (int i = 0; i < _segmentsPerRing; i++) {
@@ -271,14 +345,14 @@ class _TimerRingPainter extends CustomPainter {
         activeSegmentAngle,
         false,
         Paint()
-          ..color = theme.accentColor.withValues(alpha: 0.1)
+          ..color = theme.accentColor.withValues(alpha: trackAlpha)
           ..strokeWidth = _innerStrokeWidth
           ..style = PaintingStyle.stroke
           ..strokeCap = StrokeCap.butt,
       );
     }
 
-    // 绘制活跃段（实色）
+    // 绘制活跃段（实色）— idle 时 activeSegments=0,跳过
     for (int i = 0; i < activeSegments; i++) {
       final startAngle =
           -math.pi / 2 + i * segmentAngle + _segmentGapRadians / 2;
@@ -300,6 +374,7 @@ class _TimerRingPainter extends CustomPainter {
   bool shouldRepaint(covariant _TimerRingPainter oldDelegate) {
     return oldDelegate.sessionDuration != sessionDuration ||
         oldDelegate.countdownProgress != countdownProgress ||
+        oldDelegate.isIdle != isIdle ||
         oldDelegate.theme != theme;
   }
 }
