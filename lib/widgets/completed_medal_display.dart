@@ -140,6 +140,28 @@ class _CompletedMedalDisplayState extends State<CompletedMedalDisplay>
     return '${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
   }
 
+  /// 用 TextPainter 测量文字在某字号下的实际宽度，返回需要缩放到
+  /// [maxWidth] 的缩放比（<=1.0）。这样不依赖 FittedBox（在 Column/Transition
+  /// 嵌套里不可靠），直接算出合适 fontSize。
+  double _scaleFactorForText(String text, double fontSize, double maxWidth,
+      {FontWeight fontWeight = FontWeight.normal, String? fontFamily}) {
+    final painter = TextPainter(
+      text: TextSpan(
+        text: text,
+        style: TextStyle(
+          fontSize: fontSize,
+          fontWeight: fontWeight,
+          fontFamily: fontFamily,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+      maxLines: 1,
+    )..layout();
+    if (painter.width <= 0) return 1.0;
+    final ratio = maxWidth / painter.width;
+    return ratio < 1.0 ? ratio : 1.0;
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = widget.size;
@@ -231,77 +253,81 @@ class _CompletedMedalDisplayState extends State<CompletedMedalDisplay>
                       fit: BoxFit.fill,
                     ),
                   ),
-                  // 中心文字：对齐圆盘中心（= 容器中心）。
-                  // 文字块（时间 + 分隔线 + 文案）整体几何中心对齐圆盘中心，
-                  // 向上微调让"训练完成"完全落在圆盘内部。
-                  // 关键：Column 用 crossAxisAlignment.stretch 让每个子节点拿到
-                  // tight 宽度约束，FittedBox(scaleDown) 才能正确感知最大可用宽度
-                  // 并在文字过长时缩小（英文 "Workout complete" / 超 100 分钟 "100:00"）。
-                  Center(
-                    child: FractionalTranslation(
-                      translation: const Offset(0, -0.15),
-                      child: SizedBox(
-                        width: diskDiameter * 0.70,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            // 时长数字（黑色）— FittedBox 防止超长溢出
-                            SlideTransition(
-                              position: _digitSlide,
-                              child: FadeTransition(
-                                opacity: _digitOpacity,
-                                child: FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    _formatTime(widget.sessionDuration),
-                                    style: TextStyle(
-                                      fontFamily: 'Rajdhani',
-                                      fontSize: diskDiameter * 0.22,
-                                      fontWeight: FontWeight.w700,
-                                      color: Colors.black,
-                                      letterSpacing: -0.5,
-                                    ),
-                                  ),
+                  // 中心文字：圆盘中心 = 容器中心 = (size/2, size/2)。
+                  // 用 TextPainter 手动算缩放比（FittedBox 在 Column+Transition 嵌套
+                  // 里不可靠），直接设 fontSize，保证文字宽度 <= 圆盘内可用宽度。
+                  // 用户要求：时间往下移，接近中心横线（分隔线）。
+                  Builder(builder: (context) {
+                    // 圆盘内可用宽度：文字总宽 ≤ 圆盘直径 × 0.50（半宽 ≤ 半径×0.5），
+                    // 给花环留出边缘空间（花环沿圆盘外缘分布）。
+                    // 之前 0.62 导致文字半宽 ≈ 圆盘半径，撞到边缘花环。
+                    final maxTextWidth = diskDiameter * 0.50;
+                    // 时间数字：理想字号
+                    final timeText = _formatTime(widget.sessionDuration);
+                    final timeIdealFontSize = diskDiameter * 0.22;
+                    final timeScale = _scaleFactorForText(
+                      timeText, timeIdealFontSize, maxTextWidth,
+                      fontWeight: FontWeight.w700, fontFamily: 'Rajdhani',
+                    );
+                    final timeFontSize = timeIdealFontSize * timeScale;
+                    // 训练完成文案：理想字号
+                    final captionText =
+                        AppLocalizations.of(context)!.widgetTrainingComplete;
+                    final captionIdealFontSize = diskDiameter * 0.085;
+                    final captionScale = _scaleFactorForText(
+                      captionText, captionIdealFontSize, maxTextWidth,
+                      fontWeight: FontWeight.w600,
+                    );
+                    final captionFontSize = captionIdealFontSize * captionScale;
+                    return Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // 时长数字（黑色）— 紧贴分隔线上方
+                          SlideTransition(
+                            position: _digitSlide,
+                            child: FadeTransition(
+                              opacity: _digitOpacity,
+                              child: Text(
+                                timeText,
+                                style: TextStyle(
+                                  fontFamily: 'Rajdhani',
+                                  fontSize: timeFontSize,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.black,
+                                  letterSpacing: -0.5,
+                                  height: 1.0,
                                 ),
                               ),
                             ),
-                            SizedBox(height: diskDiameter * 0.02),
-                            // 分隔线（居中）
-                            Center(
-                              child: Container(
-                                width: diskDiameter * 0.22,
-                                height: 1.5,
-                                color: Colors.black.withValues(alpha: 0.3),
-                              ),
-                            ),
-                            SizedBox(height: diskDiameter * 0.02),
-                            // 训练完成文案（黑色，复用 l10n）— FittedBox 适应多语言
-                            SlideTransition(
-                              position: _captionSlide,
-                              child: FadeTransition(
-                                opacity: _captionOpacity,
-                                child: FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    AppLocalizations.of(context)!
-                                        .widgetTrainingComplete,
-                                    style: TextStyle(
-                                      fontSize: diskDiameter * 0.085,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.black,
-                                    ),
-                                  ),
+                          ),
+                          SizedBox(height: diskDiameter * 0.01),
+                          // 分隔线（中心横线 — 圆盘的视觉中心锚点）
+                          Container(
+                            width: diskDiameter * 0.22,
+                            height: 1.5,
+                            color: Colors.black.withValues(alpha: 0.3),
+                          ),
+                          SizedBox(height: diskDiameter * 0.01),
+                          // 训练完成文案（黑色，复用 l10n）
+                          SlideTransition(
+                            position: _captionSlide,
+                            child: FadeTransition(
+                              opacity: _captionOpacity,
+                              child: Text(
+                                captionText,
+                                style: TextStyle(
+                                  fontSize: captionFontSize,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.black,
                                 ),
                               ),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                    ),
-                  ),
+                    );
+                  }),
                 ],
               ),
             ),
