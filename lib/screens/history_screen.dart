@@ -402,21 +402,12 @@ class _RecordCard extends StatelessWidget {
           ),
           child: Row(
             children: [
-              // 图标
+              // 图标 — 深靛蓝实心,与暖背景形成对决
               Container(
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  gradient: record.isPlanMode
-                      ? LinearGradient(
-                          colors: [
-                            theme.accentColor,
-                            theme.accentColor.withValues(alpha: 0.8),
-                          ],
-                        )
-                      : LinearGradient(
-                          colors: [theme.primaryColor, theme.secondaryColor],
-                        ),
+                  color: theme.accentColor,
                   borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
                 ),
                 child: Center(
@@ -608,9 +599,7 @@ class _SessionCard extends StatelessWidget {
               width: 48,
               height: 48,
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [theme.primaryColor, theme.secondaryColor],
-                ),
+                color: theme.accentColor,
                 borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
               ),
               child: Center(
