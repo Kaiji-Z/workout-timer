@@ -70,7 +70,7 @@ typography:
     fontFeature: "tabular-nums"
   # 计时器专用字体 — 不在 Material TextTheme 中,独立使用
   timer-display:
-    fontFamily: "Orbitron, Rajdhani, monospace"
+    fontFamily: "Rajdhani, monospace"
     fontWeight: 700
     fontFeature: "tabular-nums"
 rounded:
@@ -213,7 +213,7 @@ components:
 
 **Display Font:** .SF Pro Display(系统字体,fallback `-apple-system, system-ui, sans-serif`)
 **Body Font:** .SF Pro Text(系统字体,同 fallback)
-**Timer Font:** Orbitron / Rajdhani(独立打包于 `fonts/`,仅用于计时器倒计时数字)
+**Timer Font:** Rajdhani(独立打包于 `fonts/`,仅用于计时器倒计时数字)
 
 **Character:** 系统字体保证原生质感与性能;计时器专用等宽几何字体让数字有"机器般的精准感"——这是产品核心,值得一个专属字体。所有数字角色(display / display-medium / title / label)启用 `tabular-nums`(等宽数字),防止倒计时跳动时数字宽度变化。
 
@@ -232,13 +232,13 @@ components:
 
 ### 计时器专属(不在 TextTheme)
 
-- **Timer Display** (Orbitron, w700, tabular-nums):倒计时大号数字。响应式尺寸 `screenWidth × 0.9` clamp(280, 400)。这是全屏视觉中心。
+- **Timer Display** (Rajdhani, w700, tabular-nums):倒计时大号数字。响应式尺寸 `screenWidth × 0.9` clamp(280, 400)。这是全屏视觉中心。
 
 ### Named Rules
 
 **The Tabular-Numbers Rule.** 任何会变化的数字(倒计时、组数、重量、统计值)必须用 `FontFeature.tabularFigures()`。等宽数字防止跳动,这是计时器可读性的底线。
 
-**The One Display Font Rule.** Orbitron/Rajdhani **只**用于计时器倒计时数字,不用于标题、按钮、正文。它的稀缺性正是它的力量——出现在哪里,哪里就是视觉中心。
+**The One Display Font Rule.** Rajdhani **只**用于计时器倒计时数字,不用于标题、按钮、正文。它的稀缺性正是它的力量——出现在哪里,哪里就是视觉中心。
 
 ## 4. Elevation
 
@@ -345,7 +345,7 @@ components:
 
 - **Do** 保持暖背景与深靛蓝强调同时在场(The Duality Rule)。每个主要屏幕都要有这场对决。
 - **Do** 用 `AppThemeData` 字段取色,永不硬编码 `Colors.white`/`Colors.black`——深色模式会崩。
-- **Do** 让计时器倒计时数字用 Orbitron 并占据视觉中心(The One Display Font Rule)。
+- **Do** 让计时器倒计时数字用 Rajdhani 并占据视觉中心(The One Display Font Rule)。
 - **Do** 给所有会变化的数字加 `FontFeature.tabularFigures()`(The Tabular-Numbers Rule)。
 - **Do** 用 `AppElevation.resting/raised/floating` 三层阴影,不写散落的 `BoxShadow` 字面量。
 - **Do** 用 `AppDimensions` 的 8 级圆角 token(xxs→pill),不发明新圆角值。
@@ -366,4 +366,4 @@ components:
 - **Don't** 在卡片上同时堆 `1px border` + `宽软阴影`——选其一(单一实色边框,或不超过 8px blur 的阴影)。
 - **Don't** 卡片圆角超过 16px——`radiusXl` 是卡片上限,24px+ 留给弹层,28px 留给胶囊。
 - **Don't** 在浅色模式硬编码深色值,或反之——永远走 `ThemeProvider.currentTheme`。
-- **Don't** 让 Orbitron 出现在标题、按钮或正文——它只属于计时器倒计时(The One Display Font Rule)。
+- **Don't** 让 Rajdhani 出现在标题、按钮或正文——它只属于计时器倒计时(The One Display Font Rule)。

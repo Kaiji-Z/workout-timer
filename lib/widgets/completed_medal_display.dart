@@ -209,8 +209,9 @@ class _CompletedMedalDisplayState extends State<CompletedMedalDisplay>
           Text(
             _formatTime(widget.sessionDuration),
             style: Theme.of(context).textTheme.displaySmall!.copyWith(
+              fontFamily: 'Rajdhani',
               color: widget.theme.onAccentColor,
-              letterSpacing: -1,
+              letterSpacing: -0.5,
             ),
           ),
           const SizedBox(height: 4),

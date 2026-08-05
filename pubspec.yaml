@@ -33,8 +33,6 @@ dependencies:
 
   uuid: ^4.2.1
 
-  google_fonts: ^6.2.1
-
   cached_network_image: ^3.4.0
 
   path: any
@@ -68,11 +66,6 @@ flutter:
     - assets/data/
 
   fonts:
-    - family: Orbitron
-      fonts:
-        - asset: fonts/Orbitron-Medium.ttf
-          weight: 500
-
     - family: Rajdhani
       fonts:
         - asset: fonts/Rajdhani-Light-6.ttf

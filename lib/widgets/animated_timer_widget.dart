@@ -96,8 +96,9 @@ class _AnimatedTimerDisplayState extends State<AnimatedTimerDisplay> {
               timeText,
               key: ValueKey(timeText),
               style: Theme.of(context).textTheme.displayLarge!.copyWith(
+                fontFamily: 'Rajdhani',
                 fontSize: widget.size * 0.18,
-                letterSpacing: -2,
+                letterSpacing: -0.5,
               ),
             ),
           ),

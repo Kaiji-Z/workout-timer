@@ -426,7 +426,7 @@ expect(find.text('开始运动'), findsOneWidget);
 ### Fonts
 - Display: `.SF Pro Display` (system font)
 - Body: `.SF Pro Text` (system font)
-- Timer: `Orbitron`, `Rajdhani` (custom fonts, bundled in `fonts/`)
+- Timer: `Rajdhani` (custom font, bundled in `fonts/`)
 
 ### Navigation Bar
 - Floating design with `extendBody: true`
@@ -656,7 +656,7 @@ feat: everything
 | Resource | Source | License |
 |----------|--------|---------|
 | Exercise database | [yuhonas/free-exercise-db](https://github.com/yuhonas/free-exercise-db) | CC0 Public Domain |
-| Fonts (Orbitron, Rajdhani) | Google Fonts | SIL Open Font License |
+| Fonts (Rajdhani) | Google Fonts | SIL Open Font License |
 
 ---
 
@@ -683,7 +683,7 @@ https://gitee.com/kaiji-z/free-exercise-db/raw/main/exercises/{exercise_id}/imag
 - **The 15% Tint Rule** — 激活态背景统一 `accentColor.withValues(alpha: 0.15)`。
 - **The No-Glow Rule** — 禁止发光/玻璃/彩色光晕;仅进度环抗锯齿柔化例外。
 - **The Tabular-Numbers Rule** — 所有会变化的数字用 `FontFeature.tabularFigures()`。
-- **The One Display Font Rule** — Orbitron/Rajdhani 只用于计时器倒计时数字。
+- **The One Display Font Rule** — Rajdhani 只用于计时器倒计时数字。
 
 **反例(永远不做)**:广告堆满的健身 App / 冷冰冰的临床记录器 / 过度玻璃动画堆砌 / 千篇一律的 SaaS 仪表盘。
 
