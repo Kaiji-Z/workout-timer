@@ -8,8 +8,11 @@ import '../theme/app_theme.dart';
 /// 从计时器圆环变形为奖牌的动画效果:
 /// Phase 1: 圆环收缩 (400ms)
 /// Phase 2: 圆环 → 奖牌变形 (500ms)
-/// Phase 3: 内容淡入 (300ms)
+/// Phase 3: 内容级联登场 — check 盖章 → 时长数字 → 完成文案 (各错峰 150ms)
 /// Phase 4: 微呼吸动画 (永久)
+///
+/// 仪式感来自时序与节奏,不来自装饰:check 用 easeOutBack 轻微过冲(盖章力度),
+/// 数字和文案依次淡入 + 上滑。无发光、无彩色变化(Flat Vitality 红线)。
 ///
 /// 奖牌大小对齐计时器内环内缘:
 /// medalRadius = innerRingRadius - innerStrokeWidth/2
@@ -40,13 +43,19 @@ class _CompletedMedalDisplayState extends State<CompletedMedalDisplay>
   // Animation controllers
   late AnimationController _shrinkController;
   late AnimationController _morphController;
-  late AnimationController _contentFadeController;
+  late AnimationController _checkController; // check 图标:盖章式弹出
+  late AnimationController _digitController; // 时长数字:淡入 + 上滑
+  late AnimationController _captionController; // 完成文案:淡入 + 上滑
   late AnimationController _breathingController;
 
   // Animations
   late Animation<double> _shrinkAnimation;
   late Animation<double> _morphAnimation;
-  late Animation<double> _contentOpacityAnimation;
+  late Animation<double> _checkScaleAnimation;
+  late Animation<double> _digitOpacityAnimation;
+  late Animation<Offset> _digitSlideAnimation;
+  late Animation<double> _captionOpacityAnimation;
+  late Animation<Offset> _captionSlideAnimation;
   late Animation<double> _breathingAnimation;
 
   /// 奖牌半径 — 对齐内环内缘
@@ -92,13 +101,43 @@ class _CompletedMedalDisplayState extends State<CompletedMedalDisplay>
       end: 1.0,
     ).animate(CurvedAnimation(parent: _morphController, curve: Curves.easeOut));
 
-    // Phase 3: Content fade in (300ms)
-    _contentFadeController = AnimationController(
-      duration: const Duration(milliseconds: 300),
+    // Phase 3a: Check 盖章 (350ms, easeOutBack — 轻微过冲给"盖下去"的力度)
+    _checkController = AnimationController(
+      duration: const Duration(milliseconds: 350),
       vsync: this,
     );
-    _contentOpacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _contentFadeController, curve: Curves.easeOut),
+    _checkScaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _checkController, curve: Curves.easeOutBack),
+    );
+
+    // Phase 3b: 时长数字 (400ms, 淡入 + 从下方 12px 上滑)
+    _digitController = AnimationController(
+      duration: const Duration(milliseconds: 400),
+      vsync: this,
+    );
+    _digitOpacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _digitController, curve: Curves.easeOut),
+    );
+    _digitSlideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.3),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(parent: _digitController, curve: Curves.easeOut),
+    );
+
+    // Phase 3c: 完成文案 (400ms, 淡入 + 从下方 12px 上滑)
+    _captionController = AnimationController(
+      duration: const Duration(milliseconds: 400),
+      vsync: this,
+    );
+    _captionOpacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _captionController, curve: Curves.easeOut),
+    );
+    _captionSlideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.3),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(parent: _captionController, curve: Curves.easeOut),
     );
 
     // Phase 4: Breathing animation (forever, 2s cycle)
@@ -118,12 +157,22 @@ class _CompletedMedalDisplayState extends State<CompletedMedalDisplay>
     // Phase 2: Morph
     _morphController.forward();
 
-    // Phase 3: Content fade in (after morph starts)
+    // Phase 3: 内容级联登场(morph 开始 200ms 后启动,与原时序对齐)
     await Future.delayed(const Duration(milliseconds: 200));
-    _contentFadeController.forward();
 
-    // Phase 4: Start breathing (after all phases complete)
-    await Future.delayed(const Duration(milliseconds: 400));
+    // 3a: check 先盖章(easeOutBack 弹出)
+    _checkController.forward();
+
+    // 3b: check 落定后 150ms,数字登场
+    await Future.delayed(const Duration(milliseconds: 150));
+    _digitController.forward();
+
+    // 3c: 数字启动后 150ms,文案登场(与数字有重叠,不等到数字完全结束)
+    await Future.delayed(const Duration(milliseconds: 150));
+    _captionController.forward();
+
+    // Phase 4: 全部登场后启动呼吸
+    await Future.delayed(const Duration(milliseconds: 250));
     _breathingController.repeat(reverse: true);
   }
 
@@ -131,7 +180,9 @@ class _CompletedMedalDisplayState extends State<CompletedMedalDisplay>
   void dispose() {
     _shrinkController.dispose();
     _morphController.dispose();
-    _contentFadeController.dispose();
+    _checkController.dispose();
+    _digitController.dispose();
+    _captionController.dispose();
     _breathingController.dispose();
     super.dispose();
   }
@@ -173,11 +224,8 @@ class _CompletedMedalDisplayState extends State<CompletedMedalDisplay>
                             medalRadius: _medalRadius,
                           ),
                         ),
-                        // Medal filled content (fades in)
-                        FadeTransition(
-                          opacity: _contentOpacityAnimation,
-                          child: _buildMedalContent(),
-                        ),
+                        // Medal filled content — 内部三个元素各自独立时序
+                        _buildMedalContent(),
                       ],
                     ),
                   ),
@@ -204,23 +252,45 @@ class _CompletedMedalDisplayState extends State<CompletedMedalDisplay>
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.check, size: 48, color: widget.theme.onAccentColor),
-          const SizedBox(height: 8),
-          Text(
-            _formatTime(widget.sessionDuration),
-            style: Theme.of(context).textTheme.displaySmall!.copyWith(
-              fontFamily: 'Rajdhani',
+          // 3a: check 盖章 — ScaleTransition 用 easeOutBack 驱动,从 0 弹到 1
+          ScaleTransition(
+            scale: _checkScaleAnimation,
+            child: Icon(
+              Icons.check,
+              size: 48,
               color: widget.theme.onAccentColor,
-              letterSpacing: -0.5,
+            ),
+          ),
+          const SizedBox(height: 8),
+          // 3b: 时长数字 — 淡入 + 上滑
+          SlideTransition(
+            position: _digitSlideAnimation,
+            child: FadeTransition(
+              opacity: _digitOpacityAnimation,
+              child: Text(
+                _formatTime(widget.sessionDuration),
+                style: Theme.of(context).textTheme.displaySmall!.copyWith(
+                  fontFamily: 'Rajdhani',
+                  color: widget.theme.onAccentColor,
+                  letterSpacing: -0.5,
+                ),
+              ),
             ),
           ),
           const SizedBox(height: 4),
-          Text(
-            AppLocalizations.of(context)!.widgetTrainingComplete,
-            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-              color: widget.theme.onAccentColor.withValues(alpha: 0.8),
+          // 3c: 完成文案 — 淡入 + 上滑
+          SlideTransition(
+            position: _captionSlideAnimation,
+            child: FadeTransition(
+              opacity: _captionOpacityAnimation,
+              child: Text(
+                AppLocalizations.of(context)!.widgetTrainingComplete,
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: widget.theme.onAccentColor.withValues(alpha: 0.8),
+                ),
+              ),
             ),
           ),
         ],
