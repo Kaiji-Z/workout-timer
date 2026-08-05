@@ -232,6 +232,8 @@ class _TrainingWidgetState extends State<TrainingWidget>
   /// 计时器显示 — 完成状态使用奖牌动画
   Widget _buildTimerDisplay(TrainingProvider training, AppThemeData theme) {
     // 完成状态： 奖牌变形动画
+    // 奖牌圆盘直径 = timerSize（与计时器圆环等大），
+    // SVG 的缎带/花环会溢出 SizedBox 但通过 Clip.none 显示。
     if (training.isCompleted) {
       return Center(
         child: CompletedMedalDisplay(

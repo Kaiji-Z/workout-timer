@@ -64,7 +64,7 @@ class _CompletedMedalDisplayState extends State<CompletedMedalDisplay>
       duration: const Duration(milliseconds: 400),
       vsync: this,
     );
-    _shrinkAnimation = Tween(begin: 1.0, end: 0.0).animate(
+    _shrinkAnimation = Tween(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _shrinkController, curve: Curves.easeIn),
     );
 
@@ -143,22 +143,38 @@ class _CompletedMedalDisplayState extends State<CompletedMedalDisplay>
   @override
   Widget build(BuildContext context) {
     final size = widget.size;
-    // SVG viewBox 是 534×620，圆盘占中间约 394×394（直径=半径197×2）。
-    // 为让圆盘对齐 size，SVG 总高度 = size × (620/394) ≈ size × 1.57。
-    // 宽度同理 = size × (534/394) ≈ size × 1.35。
-    // 但这样缎带会超出 size 高度 — 用 Clip.none 允许溢出。
-    final medalW = size * 1.35;
-    final medalH = size * 1.57;
+
+    // === 几何对齐计算（用数学，不靠猜）===
+    // medal.svg viewBox = "100 25 534 660"，圆盘中心 (367,448) 半径 ≈197（直径 394）。
+    // viewBox 高度 660 覆盖了所有 path（最低 y=683），避免底部被裁。
+    //
+    // 圆盘直径目标 = size × 0.72（小于 timerSize，给缎带/花环留溢出空间，
+    // 防止整体溢出屏幕）。这样 SVG 总高 = 0.72×size × 660/394 ≈ size × 1.21。
+    //   缩放比 = (size × 0.72) / 394
+    //   SVG 渲染宽 = 534 × scale ≈ size × 0.976
+    //   SVG 渲染高 = 660 × scale ≈ size × 1.206
+    //   圆盘中心 y 在 viewBox 中的比例 = (448-25)/660 = 0.641
+    //   圆盘中心钉到容器中心 (size/2, size/2)。
+    const double viewBoxW = 534;
+    const double viewBoxH = 660;
+    const double diskDiameterInSvg = 394;
+    const double diskDiameterFrac = 0.72; // 圆盘占 size 的比例
+    const double diskCenterYFrac = 423 / viewBoxH; // 0.641
+    final double diskDiameter = size * diskDiameterFrac;
+    final double scale = diskDiameter / diskDiameterInSvg;
+    final double svgW = viewBoxW * scale; // ≈ size × 0.976
+    final double svgH = viewBoxH * scale; // ≈ size × 1.206
+    // SVG 左上角位置（容器坐标系，可负 = 溢出 SizedBox）
+    final double svgOffsetX = (size - svgW) / 2; // 圆盘水平居中 → SVG 也水平居中
+    final double svgOffsetY = size / 2 - svgH * diskCenterYFrac; // 圆盘中心钉到 size/2
 
     return SizedBox(
       width: size,
       height: size,
       child: Stack(
-        alignment: Alignment.center,
         clipBehavior: Clip.none,
         children: [
-          // Phase 1: 残留的计时器圆环（收缩消失）
-          // 用一个简单的 CustomPaint 画正在收缩的环，过渡到奖牌
+          // Phase 1: 残留的计时器圆环（居中，收缩消失）
           AnimatedBuilder(
             animation: _shrinkAnimation,
             builder: (context, _) {
@@ -182,83 +198,101 @@ class _CompletedMedalDisplayState extends State<CompletedMedalDisplay>
             },
           ),
 
-          // Phase 2-4: 奖牌（SVG + 文字）+ 呼吸
+          // Phase 2-4: 奖牌（SVG + 文字）一起 pop + breath
+          // 圆盘中心已被精确钉到容器中心，所以 scale 用 center 对齐，
+          // 缎带/底点会对称地向上下扩散，圆盘不动。
           AnimatedBuilder(
             animation: Listenable.merge([
               _popAnimation,
               _breathAnimation,
             ]),
-            builder: (context, _) {
+            builder: (context, child) {
               // pop 完成前不启动呼吸（_breathAnimation 初始值 0.98 会缩太小）
               final breathScale = _popAnimation.value < 0.99
                   ? 1.0
                   : _breathAnimation.value;
-              final scale = _popAnimation.value * breathScale;
-              return Transform.scale(
-                scale: scale.clamp(0.0, 1.05),
-                child: SizedBox(
-                  width: medalW,
-                  height: medalH,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    clipBehavior: Clip.none,
-                    children: [
-                      // 奖牌 SVG（缎带+圆盘+花环）
-                      SvgPicture.asset(
-                        'assets/images/medal.svg',
-                        width: medalW,
-                        height: medalH,
-                        fit: BoxFit.contain,
-                      ),
-                      // 中心文字叠加层（对齐圆盘中心）
-                      // SVG 圆盘中心在 viewBox 垂直偏下处（(448-25)/620 ≈ 0.68），
-                      // 但我们把整个 SVG 居中放，圆盘偏下 = 文字也要偏下对齐圆盘。
-                      // 用 FractionalOffset 对齐到圆盘中心。
-                      Positioned(
-                        // 圆盘中心在 SVG 高度的 (448-25)/620 ≈ 68.2% 处
-                        top: medalH * 0.68 - size * 0.12,
-                        left: 0,
-                        right: 0,
+              final s = (_popAnimation.value * breathScale).clamp(0.0, 1.05);
+              return Transform.scale(scale: s, child: child);
+            },
+            child: SizedBox(
+              width: size,
+              height: size,
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  // 奖牌 SVG：Positioned 精确钉位，圆盘中心 = 容器中心
+                  Positioned(
+                    left: svgOffsetX,
+                    top: svgOffsetY,
+                    child: SvgPicture.asset(
+                      'assets/images/medal.svg',
+                      width: svgW,
+                      height: svgH,
+                      fit: BoxFit.fill,
+                    ),
+                  ),
+                  // 中心文字：对齐圆盘中心（= 容器中心）。
+                  // 文字块（时间 + 分隔线 + 文案）整体几何中心对齐圆盘中心，
+                  // 向上微调让"训练完成"完全落在圆盘内部。
+                  // 关键：Column 用 crossAxisAlignment.stretch 让每个子节点拿到
+                  // tight 宽度约束，FittedBox(scaleDown) 才能正确感知最大可用宽度
+                  // 并在文字过长时缩小（英文 "Workout complete" / 超 100 分钟 "100:00"）。
+                  Center(
+                    child: FractionalTranslation(
+                      translation: const Offset(0, -0.15),
+                      child: SizedBox(
+                        width: diskDiameter * 0.70,
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            // 时长数字（黑色）
+                            // 时长数字（黑色）— FittedBox 防止超长溢出
                             SlideTransition(
                               position: _digitSlide,
                               child: FadeTransition(
                                 opacity: _digitOpacity,
-                                child: Text(
-                                  _formatTime(widget.sessionDuration),
-                                  style: TextStyle(
-                                    fontFamily: 'Rajdhani',
-                                    fontSize: size * 0.16,
-                                    fontWeight: FontWeight.w700,
-                                    color: Colors.black,
-                                    letterSpacing: -0.5,
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    _formatTime(widget.sessionDuration),
+                                    style: TextStyle(
+                                      fontFamily: 'Rajdhani',
+                                      fontSize: diskDiameter * 0.22,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.black,
+                                      letterSpacing: -0.5,
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                            SizedBox(height: size * 0.01),
-                            // 分隔线
-                            Container(
-                              width: size * 0.18,
-                              height: 1.5,
-                              color: Colors.black.withValues(alpha: 0.3),
+                            SizedBox(height: diskDiameter * 0.02),
+                            // 分隔线（居中）
+                            Center(
+                              child: Container(
+                                width: diskDiameter * 0.22,
+                                height: 1.5,
+                                color: Colors.black.withValues(alpha: 0.3),
+                              ),
                             ),
-                            SizedBox(height: size * 0.01),
-                            // 训练完成文案（黑色，复用 l10n）
+                            SizedBox(height: diskDiameter * 0.02),
+                            // 训练完成文案（黑色，复用 l10n）— FittedBox 适应多语言
                             SlideTransition(
                               position: _captionSlide,
                               child: FadeTransition(
                                 opacity: _captionOpacity,
-                                child: Text(
-                                  AppLocalizations.of(context)!
-                                      .widgetTrainingComplete,
-                                  style: TextStyle(
-                                    fontSize: size * 0.05,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.black,
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    AppLocalizations.of(context)!
+                                        .widgetTrainingComplete,
+                                    style: TextStyle(
+                                      fontSize: diskDiameter * 0.085,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.black,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -266,11 +300,11 @@ class _CompletedMedalDisplayState extends State<CompletedMedalDisplay>
                           ],
                         ),
                       ),
-                    ],
+                    ),
                   ),
-                ),
-              );
-            },
+                ],
+              ),
+            ),
           ),
         ],
       ),
