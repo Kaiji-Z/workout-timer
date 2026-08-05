@@ -1,21 +1,23 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 
 /// 训练完成奖牌显示组件
 ///
-/// 从计时器圆环变形为奖牌的动画效果:
-/// Phase 1: 圆环收缩 (400ms)
-/// Phase 2: 圆环 → 奖牌变形 (500ms)
-/// Phase 3: 内容级联登场 — check 盖章 → 时长数字 → 完成文案 (各错峰 150ms)
-/// Phase 4: 微呼吸动画 (永久)
+/// 基于 assets/images/medal.svg（用户提供的 Adobe Illustrator 月桂花环素材）。
+/// SVG 包含：缎带 + 圆盘外轮廓 + 左右月桂花环 + 底部圆点（全部深靛蓝）。
+/// 中心的 "I" 已从 SVG 删除，由本组件用 Text widget 叠加（时长 + 训练完成文案）。
 ///
-/// 仪式感来自时序与节奏,不来自装饰:check 用 easeOutBack 轻微过冲(盖章力度),
-/// 数字和文案依次淡入 + 上滑。无发光、无彩色变化(Flat Vitality 红线)。
+/// 动画序列（与之前计时器状态平滑过渡）:
+/// Phase 1: 圆环从满环收缩（400ms），圆心不变
+/// Phase 2: 奖牌 SVG 从 scale 0.6 弹出到 1.0（easeOutBack 500ms，盖章力度）
+/// Phase 3: 中心文字级联登场（check 已在 SVG 内，这里只做文字）
+/// Phase 4: 微呼吸（2s 周期，scale 0.98-1.02）
 ///
-/// 奖牌大小对齐计时器内环内缘:
-/// medalRadius = innerRingRadius - innerStrokeWidth/2
+/// 圆心对齐：SVG 的 viewBox 已调整使圆盘（圆心 367,448 半径 197）居中。
+/// 渲染时用 SizedBox 限定为 widget.size，圆盘中心 = widget.size/2 = 计时器圆心。
 class CompletedMedalDisplay extends StatefulWidget {
   final int sessionDuration;
   final AppThemeData theme;
@@ -34,156 +36,101 @@ class CompletedMedalDisplay extends StatefulWidget {
 
 class _CompletedMedalDisplayState extends State<CompletedMedalDisplay>
     with TickerProviderStateMixin {
-  // ── 尺寸常量（与 _TimerRingPainter 一致） ──
-  static const double _outerStrokeWidth = 8.0;
-  static const double _innerStrokeWidth = 6.0;
-  static const double _innerOuterGap = 12.0;
-  static const double _edgeMargin = 8.0;
-
-  // Animation controllers
+  // 圆环收缩（从计时器过渡到奖牌）
   late AnimationController _shrinkController;
-  late AnimationController _morphController;
-  late AnimationController _checkController; // check 图标:盖章式弹出
-  late AnimationController _digitController; // 时长数字:淡入 + 上滑
-  late AnimationController _captionController; // 完成文案:淡入 + 上滑
-  late AnimationController _breathingController;
-
-  // Animations
   late Animation<double> _shrinkAnimation;
-  late Animation<double> _morphAnimation;
-  late Animation<double> _checkScaleAnimation;
-  late Animation<double> _digitOpacityAnimation;
-  late Animation<Offset> _digitSlideAnimation;
-  late Animation<double> _captionOpacityAnimation;
-  late Animation<Offset> _captionSlideAnimation;
-  late Animation<double> _breathingAnimation;
 
-  /// 奖牌半径 — 对齐内环内缘
-  double get _medalRadius {
-    final totalRadius = widget.size / 2;
-    final outerRadius = totalRadius - _edgeMargin;
-    final innerRingRadius =
-        (outerRadius -
-                _outerStrokeWidth / 2 -
-                _innerOuterGap -
-                _innerStrokeWidth / 2)
-            .clamp(0.0, outerRadius - _outerStrokeWidth);
-    return (innerRingRadius - _innerStrokeWidth / 2).clamp(
-      0.0,
-      innerRingRadius,
-    );
-  }
+  // 奖牌弹出（easeOutBack 盖章）
+  late AnimationController _popController;
+  late Animation<double> _popAnimation;
+
+  // 文字级联
+  late AnimationController _digitController;
+  late Animation<double> _digitOpacity;
+  late Animation<Offset> _digitSlide;
+  late AnimationController _captionController;
+  late Animation<double> _captionOpacity;
+  late Animation<Offset> _captionSlide;
+
+  // 呼吸
+  late AnimationController _breathController;
+  late Animation<double> _breathAnimation;
 
   @override
   void initState() {
     super.initState();
-    _initAnimations();
-    _startAnimationSequence();
-  }
-
-  void _initAnimations() {
-    // Phase 1: Ring shrink (400ms, ease-out)
+    // Phase 1: 环收缩（400ms）
     _shrinkController = AnimationController(
       duration: const Duration(milliseconds: 400),
       vsync: this,
     );
-    _shrinkAnimation = Tween<double>(begin: 1.0, end: 0.85).animate(
-      CurvedAnimation(parent: _shrinkController, curve: Curves.easeOut),
+    _shrinkAnimation = Tween(begin: 1.0, end: 0.0).animate(
+      CurvedAnimation(parent: _shrinkController, curve: Curves.easeIn),
     );
 
-    // Phase 2: Ring → medal morph (500ms, ease-out)
-    _morphController = AnimationController(
+    // Phase 2: 奖牌弹出（500ms easeOutBack）
+    _popController = AnimationController(
       duration: const Duration(milliseconds: 500),
       vsync: this,
     );
-    _morphAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(parent: _morphController, curve: Curves.easeOut));
-
-    // Phase 3a: Check 盖章 (350ms, easeOutBack — 轻微过冲给"盖下去"的力度)
-    _checkController = AnimationController(
-      duration: const Duration(milliseconds: 350),
-      vsync: this,
-    );
-    _checkScaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _checkController, curve: Curves.easeOutBack),
+    _popAnimation = Tween(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _popController, curve: Curves.easeOutBack),
     );
 
-    // Phase 3b: 时长数字 (400ms, 淡入 + 从下方 12px 上滑)
+    // Phase 3a: 时长数字（400ms 淡入+上滑）
     _digitController = AnimationController(
       duration: const Duration(milliseconds: 400),
       vsync: this,
     );
-    _digitOpacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+    _digitOpacity = Tween(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _digitController, curve: Curves.easeOut),
     );
-    _digitSlideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.3),
-      end: Offset.zero,
-    ).animate(
+    _digitSlide = Tween(begin: const Offset(0, 0.3), end: Offset.zero).animate(
       CurvedAnimation(parent: _digitController, curve: Curves.easeOut),
     );
 
-    // Phase 3c: 完成文案 (400ms, 淡入 + 从下方 12px 上滑)
+    // Phase 3b: 训练完成文案
     _captionController = AnimationController(
       duration: const Duration(milliseconds: 400),
       vsync: this,
     );
-    _captionOpacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+    _captionOpacity = Tween(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _captionController, curve: Curves.easeOut),
     );
-    _captionSlideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.3),
-      end: Offset.zero,
-    ).animate(
+    _captionSlide = Tween(begin: const Offset(0, 0.3), end: Offset.zero).animate(
       CurvedAnimation(parent: _captionController, curve: Curves.easeOut),
     );
 
-    // Phase 4: Breathing animation (forever, 2s cycle)
-    _breathingController = AnimationController(
+    // Phase 4: 呼吸
+    _breathController = AnimationController(
       duration: const Duration(milliseconds: 2000),
       vsync: this,
     );
-    _breathingAnimation = Tween<double>(begin: 0.98, end: 1.02).animate(
-      CurvedAnimation(parent: _breathingController, curve: Curves.easeInOut),
+    _breathAnimation = Tween(begin: 0.98, end: 1.02).animate(
+      CurvedAnimation(parent: _breathController, curve: Curves.easeInOut),
     );
+
+    _runSequence();
   }
 
-  Future<void> _startAnimationSequence() async {
-    // Phase 1: Shrink
-    await _shrinkController.forward();
-
-    // Phase 2: Morph
-    _morphController.forward();
-
-    // Phase 3: 内容级联登场(morph 开始 200ms 后启动,与原时序对齐)
-    await Future.delayed(const Duration(milliseconds: 200));
-
-    // 3a: check 先盖章(easeOutBack 弹出)
-    _checkController.forward();
-
-    // 3b: check 落定后 150ms,数字登场
-    await Future.delayed(const Duration(milliseconds: 150));
-    _digitController.forward();
-
-    // 3c: 数字启动后 150ms,文案登场(与数字有重叠,不等到数字完全结束)
-    await Future.delayed(const Duration(milliseconds: 150));
-    _captionController.forward();
-
-    // Phase 4: 全部登场后启动呼吸
+  Future<void> _runSequence() async {
+    await _shrinkController.forward();         // 环收缩
+    _popController.forward();                   // 奖牌弹出
     await Future.delayed(const Duration(milliseconds: 250));
-    _breathingController.repeat(reverse: true);
+    _digitController.forward();                 // 数字登场
+    await Future.delayed(const Duration(milliseconds: 150));
+    _captionController.forward();               // 文案登场
+    await Future.delayed(const Duration(milliseconds: 300));
+    _breathController.repeat(reverse: true);    // 呼吸
   }
 
   @override
   void dispose() {
     _shrinkController.dispose();
-    _morphController.dispose();
-    _checkController.dispose();
+    _popController.dispose();
     _digitController.dispose();
     _captionController.dispose();
-    _breathingController.dispose();
+    _breathController.dispose();
     super.dispose();
   }
 
@@ -195,103 +142,135 @@ class _CompletedMedalDisplayState extends State<CompletedMedalDisplay>
 
   @override
   Widget build(BuildContext context) {
-    // 保持与 AnimatedTimerDisplay 相同的容器大小，确保位置对齐
+    final size = widget.size;
+    // SVG viewBox 是 534×620，圆盘占中间约 394×394（直径=半径197×2）。
+    // 为让圆盘对齐 size，SVG 总高度 = size × (620/394) ≈ size × 1.57。
+    // 宽度同理 = size × (534/394) ≈ size × 1.35。
+    // 但这样缎带会超出 size 高度 — 用 Clip.none 允许溢出。
+    final medalW = size * 1.35;
+    final medalH = size * 1.57;
+
     return SizedBox(
-      width: widget.size,
-      height: widget.size,
-      child: AnimatedBuilder(
-        animation: _breathingAnimation,
-        builder: (context, _) {
-          return ScaleTransition(
-            scale: _breathingAnimation,
-            child: AnimatedBuilder(
-              animation: Listenable.merge([_shrinkAnimation, _morphAnimation]),
-              builder: (context, _) {
-                return Transform.scale(
-                  scale: _shrinkAnimation.value,
-                  child: SizedBox(
-                    width: widget.size,
-                    height: widget.size,
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        // Ring that morphs to medal border
-                        CustomPaint(
-                          size: Size(widget.size, widget.size),
-                          painter: _MedalMorphPainter(
-                            morphProgress: _morphAnimation.value,
-                            theme: widget.theme,
-                            medalRadius: _medalRadius,
-                          ),
-                        ),
-                        // Medal filled content — 内部三个元素各自独立时序
-                        _buildMedalContent(),
-                      ],
+      width: size,
+      height: size,
+      child: Stack(
+        alignment: Alignment.center,
+        clipBehavior: Clip.none,
+        children: [
+          // Phase 1: 残留的计时器圆环（收缩消失）
+          // 用一个简单的 CustomPaint 画正在收缩的环，过渡到奖牌
+          AnimatedBuilder(
+            animation: _shrinkAnimation,
+            builder: (context, _) {
+              if (_shrinkAnimation.value >= 0.99) {
+                return const SizedBox.shrink();
+              }
+              return Opacity(
+                opacity: 1.0 - _shrinkAnimation.value,
+                child: Transform.scale(
+                  scale: 1.0 - _shrinkAnimation.value * 0.3,
+                  child: CustomPaint(
+                    size: Size(size, size),
+                    painter: _FadingRingPainter(
+                      progress: 1.0,
+                      color: widget.theme.accentColor,
+                      alpha: 1.0 - _shrinkAnimation.value,
                     ),
                   ),
-                );
-              },
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildMedalContent() {
-    final diameter = _medalRadius * 2;
-
-    return Container(
-      width: diameter,
-      height: diameter,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: widget.theme.accentColor,
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // 3a: check 盖章 — ScaleTransition 用 easeOutBack 驱动,从 0 弹到 1
-          ScaleTransition(
-            scale: _checkScaleAnimation,
-            child: Icon(
-              Icons.check,
-              size: 48,
-              color: widget.theme.onAccentColor,
-            ),
-          ),
-          const SizedBox(height: 8),
-          // 3b: 时长数字 — 淡入 + 上滑
-          SlideTransition(
-            position: _digitSlideAnimation,
-            child: FadeTransition(
-              opacity: _digitOpacityAnimation,
-              child: Text(
-                _formatTime(widget.sessionDuration),
-                style: Theme.of(context).textTheme.displaySmall!.copyWith(
-                  fontFamily: 'Rajdhani',
-                  color: widget.theme.onAccentColor,
-                  letterSpacing: -0.5,
                 ),
-              ),
-            ),
+              );
+            },
           ),
-          const SizedBox(height: 4),
-          // 3c: 完成文案 — 淡入 + 上滑
-          SlideTransition(
-            position: _captionSlideAnimation,
-            child: FadeTransition(
-              opacity: _captionOpacityAnimation,
-              child: Text(
-                AppLocalizations.of(context)!.widgetTrainingComplete,
-                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: widget.theme.onAccentColor.withValues(alpha: 0.8),
+
+          // Phase 2-4: 奖牌（SVG + 文字）+ 呼吸
+          AnimatedBuilder(
+            animation: Listenable.merge([
+              _popAnimation,
+              _breathAnimation,
+            ]),
+            builder: (context, _) {
+              // pop 完成前不启动呼吸（_breathAnimation 初始值 0.98 会缩太小）
+              final breathScale = _popAnimation.value < 0.99
+                  ? 1.0
+                  : _breathAnimation.value;
+              final scale = _popAnimation.value * breathScale;
+              return Transform.scale(
+                scale: scale.clamp(0.0, 1.05),
+                child: SizedBox(
+                  width: medalW,
+                  height: medalH,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    clipBehavior: Clip.none,
+                    children: [
+                      // 奖牌 SVG（缎带+圆盘+花环）
+                      SvgPicture.asset(
+                        'assets/images/medal.svg',
+                        width: medalW,
+                        height: medalH,
+                        fit: BoxFit.contain,
+                      ),
+                      // 中心文字叠加层（对齐圆盘中心）
+                      // SVG 圆盘中心在 viewBox 垂直偏下处（(448-25)/620 ≈ 0.68），
+                      // 但我们把整个 SVG 居中放，圆盘偏下 = 文字也要偏下对齐圆盘。
+                      // 用 FractionalOffset 对齐到圆盘中心。
+                      Positioned(
+                        // 圆盘中心在 SVG 高度的 (448-25)/620 ≈ 68.2% 处
+                        top: medalH * 0.68 - size * 0.12,
+                        left: 0,
+                        right: 0,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // 时长数字（黑色）
+                            SlideTransition(
+                              position: _digitSlide,
+                              child: FadeTransition(
+                                opacity: _digitOpacity,
+                                child: Text(
+                                  _formatTime(widget.sessionDuration),
+                                  style: TextStyle(
+                                    fontFamily: 'Rajdhani',
+                                    fontSize: size * 0.16,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.black,
+                                    letterSpacing: -0.5,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: size * 0.01),
+                            // 分隔线
+                            Container(
+                              width: size * 0.18,
+                              height: 1.5,
+                              color: Colors.black.withValues(alpha: 0.3),
+                            ),
+                            SizedBox(height: size * 0.01),
+                            // 训练完成文案（黑色，复用 l10n）
+                            SlideTransition(
+                              position: _captionSlide,
+                              child: FadeTransition(
+                                opacity: _captionOpacity,
+                                child: Text(
+                                  AppLocalizations.of(context)!
+                                      .widgetTrainingComplete,
+                                  style: TextStyle(
+                                    fontSize: size * 0.05,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ),
+              );
+            },
           ),
         ],
       ),
@@ -299,150 +278,37 @@ class _CompletedMedalDisplayState extends State<CompletedMedalDisplay>
   }
 }
 
-/// 奖牌变形绘制器
-///
-/// - morphProgress = 0.0: 显示完整的计时器圆环（与 _TimerRingPainter 相同风格）
-/// - morphProgress = 1.0: 显示奖牌装饰边框
-class _MedalMorphPainter extends CustomPainter {
-  final double morphProgress;
-  final AppThemeData theme;
-  final double medalRadius;
+/// 过渡用的收缩圆环（从计时器满环渐隐到无）
+class _FadingRingPainter extends CustomPainter {
+  final double progress;
+  final Color color;
+  final double alpha;
 
-  // Dimensions (matching _TimerRingPainter)
-  static const double _outerStrokeWidth = 8.0;
-  static const double _innerStrokeWidth = 6.0;
-  static const double _innerOuterGap = 12.0;
-  static const double _edgeMargin = 8.0;
-  static const int _segmentsPerRing = 60;
-  static const double _segmentGapRadians = math.pi / 180 * 1.2;
-
-  // Medal decoration
-  static const double _medalBorderWidth = 4.0;
-  static const double _medalInnerRingWidth = 2.0;
-
-  _MedalMorphPainter({
-    required this.morphProgress,
-    required this.theme,
-    required this.medalRadius,
+  _FadingRingPainter({
+    required this.progress,
+    required this.color,
+    required this.alpha,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
-    final totalRadius = size.width / 2;
-
-    final outerRadius = totalRadius - _edgeMargin;
-    final innerRadius =
-        (outerRadius -
-                _outerStrokeWidth / 2 -
-                _innerOuterGap -
-                _innerStrokeWidth / 2)
-            .clamp(0.0, outerRadius - _outerStrokeWidth);
-
-    if (morphProgress < 0.5) {
-      final ringProgress = morphProgress * 2;
-      _paintMorphingRings(
-        canvas,
-        center,
-        outerRadius,
-        innerRadius,
-        ringProgress,
-      );
-    } else {
-      final medalProgress = (morphProgress - 0.5) * 2;
-      _paintMedalBorder(canvas, center, medalProgress);
-    }
-  }
-
-  void _paintMorphingRings(
-    Canvas canvas,
-    Offset center,
-    double outerRadius,
-    double innerRadius,
-    double progress,
-  ) {
-    final opacity = 1.0 - progress * 0.7;
-    final strokeThicken = 1.0 + progress * 1.5;
-
-    // Outer ring background (fading)
-    canvas.drawCircle(
-      center,
-      outerRadius,
-      Paint()
-        ..color = theme.accentColor.withValues(alpha: 0.12 * opacity)
-        ..strokeWidth = _outerStrokeWidth * strokeThicken
-        ..style = PaintingStyle.stroke
-        ..strokeCap = StrokeCap.round,
-    );
-
-    // Outer ring full circle (fading)
-    final rect = Rect.fromCircle(center: center, radius: outerRadius);
+    final radius = size.width / 2 - 12;
+    final paint = Paint()
+      ..color = color.withValues(alpha: alpha)
+      ..strokeWidth = 10
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
     canvas.drawArc(
-      rect,
+      Rect.fromCircle(center: center, radius: radius),
       -math.pi / 2,
-      2 * math.pi,
+      2 * math.pi * progress,
       false,
-      Paint()
-        ..color = theme.accentColor.withValues(alpha: opacity)
-        ..strokeWidth = _outerStrokeWidth * strokeThicken
-        ..style = PaintingStyle.stroke
-        ..strokeCap = StrokeCap.round,
+      paint,
     );
-
-    // Inner dashed ring (fading)
-    if (innerRadius > 0) {
-      final innerRect = Rect.fromCircle(center: center, radius: innerRadius);
-      final segmentAngle = 2 * math.pi / _segmentsPerRing;
-      final activeSegmentAngle = segmentAngle - _segmentGapRadians;
-
-      for (int i = 0; i < _segmentsPerRing; i++) {
-        final startAngle =
-            -math.pi / 2 + i * segmentAngle + _segmentGapRadians / 2;
-        canvas.drawArc(
-          innerRect,
-          startAngle,
-          activeSegmentAngle,
-          false,
-          Paint()
-            ..color = theme.accentColor.withValues(alpha: opacity * 0.5)
-            ..strokeWidth = _innerStrokeWidth * strokeThicken
-            ..style = PaintingStyle.stroke
-            ..strokeCap = StrokeCap.butt,
-        );
-      }
-    }
-  }
-
-  void _paintMedalBorder(Canvas canvas, Offset center, double progress) {
-    // Outer decorative ring — 外缘对齐内环内缘
-    final outerBorderRadius = medalRadius + _medalBorderWidth;
-    canvas.drawCircle(
-      center,
-      outerBorderRadius,
-      Paint()
-        ..color = theme.accentColor.withValues(alpha: 0.3 * progress)
-        ..strokeWidth = _medalBorderWidth
-        ..style = PaintingStyle.stroke,
-    );
-
-    // Inner decorative ring
-    final innerRingRadius = medalRadius - _medalBorderWidth - 4;
-    if (innerRingRadius > 0) {
-      canvas.drawCircle(
-        center,
-        innerRingRadius,
-        Paint()
-          ..color = const Color(0x33FFFFFF).withValues(alpha: 0.33 * progress)
-          ..strokeWidth = _medalInnerRingWidth
-          ..style = PaintingStyle.stroke,
-      );
-    }
   }
 
   @override
-  bool shouldRepaint(covariant _MedalMorphPainter oldDelegate) {
-    return oldDelegate.morphProgress != morphProgress ||
-        oldDelegate.theme != theme ||
-        oldDelegate.medalRadius != medalRadius;
-  }
+  bool shouldRepaint(covariant _FadingRingPainter old) =>
+      old.alpha != alpha || old.progress != progress;
 }
