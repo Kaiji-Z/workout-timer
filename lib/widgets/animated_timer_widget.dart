@@ -119,12 +119,8 @@ class _AnimatedTimerDisplayState extends State<AnimatedTimerDisplay>
   Widget _buildTimerCard() {
     final timeText = _formatTime(widget.seconds);
     final cardSize = widget.size * 0.65;
-    // idle 用 Light 字重 + 0.85 透明,提示"未激活";激活态恢复 SemiBold 实色
-    final isIdle = _isIdle;
-    final digitColor = isIdle
-        ? widget.theme.textColor.withValues(alpha: 0.85)
-        : widget.theme.textColor;
-
+    // idle 与激活态数字一致:w700 实色。idle 的"待发"信号靠满环传达,
+    // 不靠弱化数字 — 数字是倒计时起点,弱化它反而让人看不出是倒计时。
     return Container(
       width: cardSize,
       height: cardSize,
@@ -161,10 +157,9 @@ class _AnimatedTimerDisplayState extends State<AnimatedTimerDisplay>
               key: ValueKey(timeText),
               style: Theme.of(context).textTheme.displayLarge!.copyWith(
                 fontFamily: 'Rajdhani',
-                fontWeight: isIdle ? FontWeight.w300 : FontWeight.w700,
+                fontWeight: FontWeight.w700,
                 fontSize: widget.size * 0.18,
                 letterSpacing: -0.5,
-                color: digitColor,
               ),
             ),
           ),
@@ -327,12 +322,12 @@ class _TimerRingPainter extends CustomPainter {
     final segmentAngle = totalAngle / _segmentsPerRing;
     final activeSegmentAngle = segmentAngle - _segmentGapRadians;
 
-    // idle 状态:只画淡虚线轨道(不画活跃段),不透明度提高到 0.18,
-    // 让"环已就绪待填充"的暗示比运行中的 0.1 背景段更可见。
-    // 激活态:画 0.1 背景段 + 实色活跃段(原有逻辑)。
-    final trackAlpha = isIdle ? 0.18 : 0.1;
+    // idle 状态:内环画满段(60 段全实色),传达"装填完毕的完整倒计时"。
+    // 一按 Start,满环开始从顶部消减 — 满 → 空的变化本身就是"倒计时开始"的信号。
+    // 激活态(resting):背景段 + 实色活跃段(按 progress 消减)。
+    const trackAlpha = 0.1;
     final activeSegments = isIdle
-        ? 0
+        ? _segmentsPerRing // idle: 全部 60 段实色 = 装满的倒计时
         : (countdownProgress.clamp(0.0, 1.0) * _segmentsPerRing).round();
 
     // 绘制 60 段背景（淡色）
