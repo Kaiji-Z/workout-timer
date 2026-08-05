@@ -79,3 +79,10 @@ nul
 .impeccable.md
 /docs/plans/
 /docs/references/
+
+# IDE / agent tool state (not project artifacts)
+.zcode/
+.playwright-mcp/
+
+# Impeccable design critique snapshots (local review history)
+.impeccable/
