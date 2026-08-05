@@ -1038,14 +1038,21 @@ class _SettingsScreenState extends State<SettingsScreen>
     required Widget child,
     EdgeInsetsGeometry? padding,
   }) {
-    return Container(
-      padding: padding ?? const EdgeInsets.symmetric(vertical: 4),
-      decoration: BoxDecoration(
-        color: theme.surfaceColorRaised,
-        borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
-        boxShadow: AppElevation.resting(theme.shadowColor),
+    // Use Material (not Container+BoxDecoration) so descendant ListTile/
+    // RadioListTile/InkWell widgets paint their ink splash on a proper
+    // Material canvas. A plain Container with a background color sits
+    // between the ListTile and its Material ancestor, hiding the ripple
+    // and tripping Flutter's "ListTile background color or ink splashes
+    // may be invisible" assertion in tests.
+    return Material(
+      color: theme.surfaceColorRaised,
+      borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
+      shadowColor: theme.shadowColor,
+      elevation: 2,
+      child: Padding(
+        padding: padding ?? const EdgeInsets.symmetric(vertical: 4),
+        child: child,
       ),
-      child: child,
     );
   }
 
