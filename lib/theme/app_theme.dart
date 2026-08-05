@@ -137,8 +137,13 @@ class AppThemeData {
       progressRingColor: const Color(0xFF536DFE),
       progressBgColor: const Color(0x40FFFFFF),
       progressStrokeWidth: progressStrokeWidth,
-      // 装饰圆圈 - 保持白色半透明
-      decorativeCircleColors: decorativeCircleColors,
+      // 装饰圆圈 - 深色模式下近透明,只留极淡呼吸感
+      // (浅色模式的 0x18 白圆在 #1E1E2E 上仍显灰白斑块,进一步弱化)
+      decorativeCircleColors: const [
+        Color(0x0AFFFFFF),
+        Color(0x07FFFFFF),
+        Color(0x04FFFFFF),
+      ],
       // 语义色 - 深色背景下使用更亮的颜色
       errorColor: const Color(0xFFEF5350),
       successColor: const Color(0xFF66BB6A),
@@ -328,9 +333,9 @@ const amberGoldTheme = AppThemeData(
   progressStrokeWidth: 10.0,
   // Decorative
   decorativeCircleColors: [
-    Color(0x40FFFFFF),
-    Color(0x30FFFFFF),
-    Color(0x20FFFFFF),
+    Color(0x18FFFFFF),
+    Color(0x10FFFFFF),
+    Color(0x08FFFFFF),
   ],
   // Surface hierarchy (3-tier depth system)
   surfaceColorRaised: Color(0xFFF5F5F5),
@@ -362,9 +367,9 @@ const coralOrangeTheme = AppThemeData(
   progressStrokeWidth: 10.0,
   // Decorative
   decorativeCircleColors: [
-    Color(0x40FFFFFF),
-    Color(0x30FFFFFF),
-    Color(0x20FFFFFF),
+    Color(0x18FFFFFF),
+    Color(0x10FFFFFF),
+    Color(0x08FFFFFF),
   ],
   // Surface hierarchy (3-tier depth system)
   surfaceColorRaised: Color(0xFFF5F5F5),
@@ -400,9 +405,9 @@ const skyBlueTheme = AppThemeData(
   progressStrokeWidth: 10.0,
   // Decorative
   decorativeCircleColors: [
-    Color(0x40FFFFFF),
-    Color(0x30FFFFFF),
-    Color(0x20FFFFFF),
+    Color(0x18FFFFFF),
+    Color(0x10FFFFFF),
+    Color(0x08FFFFFF),
   ],
   // Surface hierarchy (3-tier depth system)
   surfaceColorRaised: Color(0xFFF5F5F5),
