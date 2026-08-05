@@ -132,29 +132,9 @@ class SemanticChart extends StatelessWidget {
 ///
 /// Example:
 /// ```dart
-/// LiveTimer(
-///   value: '剩余时间 30 秒',
-///   child: Text('00:30'),
+/// Semantics(
+///   liveRegion: true,
+///   label: '剩余时间 30 秒',
+///   child: ExcludeSemantics(child: Text('00:30')),
 /// )
 /// ```
-class LiveTimer extends StatelessWidget {
-  final Widget child;
-  final String value;
-  final bool assertive;
-
-  const LiveTimer({
-    super.key,
-    required this.child,
-    required this.value,
-    this.assertive = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Semantics(
-      liveRegion: true,
-      label: value,
-      child: ExcludeSemantics(child: child),
-    );
-  }
-}
