@@ -105,10 +105,6 @@ class AppThemeData {
   Color get backgroundColor => primaryColor;
   Color get backgroundGradientEnd => secondaryColor;
   Color get borderColor => progressRingColor.withValues(alpha: 0.3);
-  List<Color> get timerGradientColors => [
-    progressRingColor,
-    progressRingColor.withValues(alpha: 0.7),
-  ];
 
   /// 生成深色模式变体
   /// 保持原有色调，调整亮度和对比度以适应深色背景
