@@ -207,25 +207,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: Row(
-          children: [
-            Container(
-              width: 4,
-              height: 20,
-              margin: const EdgeInsets.only(right: 12),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(colors: theme.timerGradientColors),
-                borderRadius: BorderRadius.circular(AppDimensions.radiusXxs),
-              ),
-            ),
-            Text(
-              l10n.historyTitle,
-              style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-                fontWeight: FontWeight.w700,
-                letterSpacing: -0.5,
-              ),
-            ),
-          ],
+        title: Text(
+          l10n.historyTitle,
+          style: Theme.of(context).textTheme.headlineMedium!.copyWith(
+            fontWeight: FontWeight.w700,
+            letterSpacing: -0.5,
+          ),
         ),
         actions: [
           TextButton.icon(

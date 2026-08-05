@@ -209,26 +209,13 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
           icon: Icon(Icons.close, color: theme.textColor),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Row(
-          children: [
-            Container(
-              width: 4,
-              height: 20,
-              margin: const EdgeInsets.only(right: 12),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(colors: theme.timerGradientColors),
-                borderRadius: BorderRadius.circular(AppDimensions.radiusXxs),
-              ),
-            ),
-            Text(
-              l10n.prefTitle,
-              style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-                fontWeight: FontWeight.w700,
-                letterSpacing: -0.5,
-                color: theme.textColor,
-              ),
-            ),
-          ],
+        title: Text(
+          l10n.prefTitle,
+          style: Theme.of(context).textTheme.headlineMedium!.copyWith(
+            fontWeight: FontWeight.w700,
+            letterSpacing: -0.5,
+            color: theme.textColor,
+          ),
         ),
       ),
       body: _isLoading

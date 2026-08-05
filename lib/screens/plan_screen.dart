@@ -42,26 +42,13 @@ class _PlanScreenState extends State<PlanScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: Row(
-          children: [
-            Container(
-              width: 4,
-              height: 20,
-              margin: const EdgeInsets.only(right: 12),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(colors: theme.timerGradientColors),
-                borderRadius: BorderRadius.circular(AppDimensions.radiusXxs),
-              ),
-            ),
-            Text(
-              l10n.planTitle,
-              style: Theme.of(context).textTheme.headlineLarge!.copyWith(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                letterSpacing: -0.5,
-              ),
-            ),
-          ],
+        title: Text(
+          l10n.planTitle,
+          style: Theme.of(context).textTheme.headlineLarge!.copyWith(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            letterSpacing: -0.5,
+          ),
         ),
         actions: [
           TextButton(

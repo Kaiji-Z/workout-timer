@@ -726,15 +726,6 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
       ),
       title: Row(
         children: [
-          Container(
-            width: 4,
-            height: 20,
-            margin: const EdgeInsets.only(right: 12),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(colors: theme.timerGradientColors),
-              borderRadius: BorderRadius.circular(AppDimensions.radiusXxs),
-            ),
-          ),
           Icon(Icons.psychology, color: theme.accentColor, size: 22),
           const SizedBox(width: 8),
           Text(
