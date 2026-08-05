@@ -350,6 +350,17 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get trainingSaveFailedDb =>
+      'Database error. Please restart the app and retry.';
+
+  @override
+  String get trainingSaveFailedStorage =>
+      'Not enough storage. Please free up space and retry.';
+
+  @override
+  String get trainingSaveFailedGeneric => 'Save failed. Please try again.';
+
+  @override
   String get calDayHasPlan => 'has workout plan';
 
   @override

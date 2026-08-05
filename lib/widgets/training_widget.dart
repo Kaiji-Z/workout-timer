@@ -145,26 +145,29 @@ class _TrainingWidgetState extends State<TrainingWidget>
             ),
           ),
           // Plan icon button
-          Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: () =>
-                  _showPlanSelector(theme, planProvider, progressProvider),
-              borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: _isPlanMode
-                      ? theme.accentColor.withValues(alpha: 0.1)
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
-                ),
-                child: Icon(
-                  Icons.playlist_add_check,
-                  size: 24,
-                  color: _isPlanMode
-                      ? theme.accentColor
-                      : theme.secondaryTextColor,
+          Tooltip(
+            message: AppLocalizations.of(context)!.trainingSelectPlan,
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () =>
+                    _showPlanSelector(theme, planProvider, progressProvider),
+                borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: _isPlanMode
+                        ? theme.accentColor.withValues(alpha: 0.1)
+                        : Colors.transparent,
+                    borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
+                  ),
+                  child: Icon(
+                    Icons.playlist_add_check,
+                    size: 24,
+                    color: _isPlanMode
+                        ? theme.accentColor
+                        : theme.secondaryTextColor,
+                  ),
                 ),
               ),
             ),
@@ -866,18 +869,42 @@ class _TrainingWidgetState extends State<TrainingWidget>
           );
         }
       }
-    } catch (e) {
+    } catch (e, st) {
+      debugPrint('Training save failed: $e\n$st');
       if (context.mounted) {
+        // Translate common failure modes to user-facing copy; the raw
+        // exception string stays in the dev log, not on the user's screen.
+        final l10n = AppLocalizations.of(context)!;
+        final userMessage = _translateSaveError(e, l10n);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              AppLocalizations.of(context)!.trainingSaveFailed('$e'),
-            ),
+            content: Text(userMessage),
             backgroundColor: theme.errorColor,
             behavior: SnackBarBehavior.floating,
           ),
         );
       }
     }
+  }
+
+  /// Map a save-workout exception to a short user-facing message.
+  ///
+  /// The raw exception + stack trace are logged via [debugPrint] by the
+  /// caller; this method only decides what the user sees. Unknown failures
+  /// fall back to a generic retry prompt instead of leaking `error.toString()`.
+  String _translateSaveError(Object e, AppLocalizations l10n) {
+    final raw = e.toString().toLowerCase();
+    if (raw.contains('database') ||
+        raw.contains('sqlite') ||
+        raw.contains('sqflite')) {
+      return l10n.trainingSaveFailedDb;
+    }
+    if (raw.contains('filesystem') ||
+        raw.contains('no space') ||
+        raw.contains('disk') ||
+        raw.contains('storage')) {
+      return l10n.trainingSaveFailedStorage;
+    }
+    return l10n.trainingSaveFailedGeneric;
   }
 }

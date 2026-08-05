@@ -348,6 +348,15 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String get trainingSaveFailedDb => '数据库错误，请重启应用后重试';
+
+  @override
+  String get trainingSaveFailedStorage => '存储空间不足，请清理后重试';
+
+  @override
+  String get trainingSaveFailedGeneric => '保存失败，请重试';
+
+  @override
   String get calDayHasPlan => '有训练计划';
 
   @override

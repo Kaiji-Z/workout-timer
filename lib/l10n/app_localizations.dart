@@ -661,6 +661,24 @@ abstract class AppLocalizations {
   /// **'保存失败: {error}'**
   String trainingSaveFailed(String error);
 
+  /// No description provided for @trainingSaveFailedDb.
+  ///
+  /// In zh, this message translates to:
+  /// **'数据库错误，请重启应用后重试'**
+  String get trainingSaveFailedDb;
+
+  /// No description provided for @trainingSaveFailedStorage.
+  ///
+  /// In zh, this message translates to:
+  /// **'存储空间不足，请清理后重试'**
+  String get trainingSaveFailedStorage;
+
+  /// No description provided for @trainingSaveFailedGeneric.
+  ///
+  /// In zh, this message translates to:
+  /// **'保存失败，请重试'**
+  String get trainingSaveFailedGeneric;
+
   /// No description provided for @calDayHasPlan.
   ///
   /// In zh, this message translates to:
