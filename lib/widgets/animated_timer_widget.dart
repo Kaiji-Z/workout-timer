@@ -80,7 +80,27 @@ class _AnimatedTimerDisplayState extends State<AnimatedTimerDisplay>
   @override
   Widget build(BuildContext context) {
     final useBreath = _isIdle && !_reduceMotion;
-    if (!useBreath) _idleBreathController.stop();
+    // 呼吸 controller 的启停要平滑,不能硬切:
+    // - 进入 idle:repeat(reverse),呼吸开始,controller 在 1.0 ↔ 1.015 间往返
+    // - 离开 idle:reverse(from: 当前值),让 scale 从可能停在的中间值(如 1.008)
+    //   自然回落到 1.0(begin),播一次就停。整个退出过程约半周期(1.5s),
+    //   覆盖了环从满段开始消减的视觉过渡,不再"啪"地硬跳。
+    if (useBreath) {
+      if (!_idleBreathController.isAnimating) {
+        _idleBreathController.value = 0;
+        _idleBreathController.repeat(reverse: true);
+      }
+    } else {
+      if (_idleBreathController.isAnimating) {
+        _idleBreathController.stop();
+      }
+      // 非呼吸态:如果 scale 还没回到 1.0,反向播放拉回(只触发一次)
+      if (_idleBreathController.value > 0 &&
+          !_idleBreathController.isAnimating) {
+        _idleBreathController.reverse(from: _idleBreathController.value);
+      }
+    }
+
     final ringChild = SizedBox(
       width: widget.size,
       height: widget.size,
@@ -100,16 +120,17 @@ class _AnimatedTimerDisplayState extends State<AnimatedTimerDisplay>
       child: Stack(
         alignment: Alignment.center,
         children: [
-          useBreath
-              ? AnimatedBuilder(
-                  animation: _idleBreath,
-                  builder: (context, child) => Transform.scale(
-                    scale: _idleBreath.value,
-                    child: child,
-                  ),
-                  child: ringChild,
-                )
-              : ringChild,
+          // Transform.scale 跟随呼吸 controller 实时值。
+          // controller 退出时 reverse 回落到 1.0,所以这里永远读取 controller 值,
+          // 无需 useBreath 分支 — 状态切换的平滑性由 controller 的 reverse 保证。
+          AnimatedBuilder(
+            animation: _idleBreath,
+            builder: (context, child) => Transform.scale(
+              scale: _idleBreath.value,
+              child: child,
+            ),
+            child: ringChild,
+          ),
           _buildTimerCard(),
         ],
       ),
