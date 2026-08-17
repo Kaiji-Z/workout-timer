@@ -134,4 +134,46 @@ class NotificationService {
       debugPrint('Failed to request notification permissions: $e');
     }
   }
+
+  /// 空闲提醒（方案 A）：exercising 持续超过阈值时提醒用户。
+  /// 独立通知 id（100），不覆盖休息完成通知（id 0）。
+  /// 点击通知默认打开 app（launch intent）。
+  Future<void> showIdleReminder({required int minutes}) async {
+    try {
+      if (kIsWeb) return;
+
+      final l10n = _currentLocalizations();
+      final prefs = await SharedPreferences.getInstance();
+      final soundEnabled = prefs.getBool('sound_enabled') ?? true;
+      final vibrationEnabled = prefs.getBool('vibration_enabled') ?? true;
+
+      final androidDetails = AndroidNotificationDetails(
+        'timer_channel',
+        'Timer Notifications',
+        importance: Importance.high,
+        priority: Priority.high,
+        playSound: soundEnabled,
+        enableVibration: vibrationEnabled,
+        icon: '@drawable/ic_launcher',
+      );
+      const iosDetails = DarwinNotificationDetails(
+        presentAlert: true,
+        presentBadge: false,
+        presentSound: true,
+      );
+      final details = NotificationDetails(
+        android: androidDetails,
+        iOS: iosDetails,
+      );
+
+      await _notifications.show(
+        id: 100,
+        title: l10n.notifIdleReminderTitle,
+        body: l10n.notifIdleReminderBody(minutes),
+        notificationDetails: details,
+      );
+    } catch (e) {
+      debugPrint('Failed to show idle reminder: $e');
+    }
+  }
 }

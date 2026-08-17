@@ -799,6 +799,20 @@ class _TrainingWidgetState extends State<TrainingWidget>
     TrainingProgressProvider progressProvider,
   ) async {
     try {
+      // 方案 B：时长异常时先弹修正对话框（忘记停止导致计时器空转）
+      if (training.hasAbnormalDuration) {
+        final corrected = await _showDurationCorrectionDialog(
+          context,
+          training,
+          theme,
+        );
+        if (corrected == null) return; // 用户关闭对话框，取消保存
+        if (corrected > 0) {
+          training.correctSessionDuration(corrected);
+        }
+        if (!context.mounted) return;
+      }
+
       if (_isPlanMode && _selectedPlan != null) {
         // 计划模式：先显示批量数据输入对话框
         if (_detailedRecordingEnabled) {
@@ -887,6 +901,100 @@ class _TrainingWidgetState extends State<TrainingWidget>
         );
       }
     }
+  }
+
+  /// 时长修正对话框（方案 B）。
+  ///
+  /// 返回值：
+  /// - null：对话框被销毁（如页面退出），取消保存
+  /// - 0：保持原时长
+  /// - >0：用户修正后的时长（秒）
+  Future<int?> _showDurationCorrectionDialog(
+    BuildContext context,
+    TrainingProvider training,
+    AppThemeData theme,
+  ) {
+    final l10n = AppLocalizations.of(context)!;
+    // 估算分钟数（预填值）
+    final estimateMinutes = training.estimatedSessionDuration ~/ 60;
+    final controller = TextEditingController(text: '$estimateMinutes');
+
+    return showDialog<int>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: theme.surfaceColor,
+        title: Text(
+          l10n.trainingDurationCorrectionTitle,
+          style: TextStyle(color: theme.textColor),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l10n.trainingDurationCorrectionMessage(
+                _formatHoursMinutes(training.sessionDuration),
+                training.currentSet,
+              ),
+              style: TextStyle(color: theme.textColor.withValues(alpha: 0.8)),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: controller,
+              keyboardType: TextInputType.number,
+              autofocus: true,
+              style: TextStyle(color: theme.textColor),
+              decoration: InputDecoration(
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: theme.accentColor.withValues(alpha: 0.4),
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: theme.accentColor),
+                ),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(0),
+            child: Text(
+              l10n.trainingDurationCorrectionKeep,
+              style: TextStyle(color: theme.secondaryTextColor),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              final minutes = int.tryParse(controller.text.trim()) ?? 0;
+              Navigator.of(dialogContext).pop(
+                minutes > 0 ? minutes * 60 : 0,
+              );
+            },
+            child: Text(
+              l10n.trainingDurationCorrectionApply,
+              style: TextStyle(
+                color: theme.accentColor,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    ).whenComplete(controller.dispose);
+  }
+
+  /// 把秒数格式化为 "X 小时 Y 分" 或 "Y 分钟"（修正对话框用）
+  String _formatHoursMinutes(int totalSeconds) {
+    final minutes = totalSeconds ~/ 60;
+    if (minutes >= 60) {
+      final hours = minutes ~/ 60;
+      final mins = minutes % 60;
+      return mins > 0 ? '$hours h $mins min' : '$hours h';
+    }
+    return '$minutes min';
   }
 
   /// Map a save-workout exception to a short user-facing message.

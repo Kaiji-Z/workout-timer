@@ -2305,4 +2305,42 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get exportMarkdownFocusAreas => 'Focus areas';
+
+  @override
+  String get notifIdleReminderTitle => 'Workout still in progress';
+
+  @override
+  String notifIdleReminderBody(int minutes) {
+    return 'You\'ve been exercising for over $minutes min without a rest. If you\'re done, come back and stop the timer.';
+  }
+
+  @override
+  String get trainingDurationCorrectionTitle =>
+      'Session duration may be too long';
+
+  @override
+  String trainingDurationCorrectionMessage(String duration, int sets) {
+    return 'This session recorded $duration ($sets sets). If the timer kept running after you finished, correct it to the actual duration (minutes):';
+  }
+
+  @override
+  String get trainingDurationCorrectionKeep => 'Keep original';
+
+  @override
+  String get trainingDurationCorrectionApply => 'Correct and save';
+
+  @override
+  String get settingsIdleReminder => 'Idle reminder';
+
+  @override
+  String get settingsIdleReminderDesc =>
+      'Notify when exercising for too long without interaction';
+
+  @override
+  String get settingsIdleReminderAfter => 'Remind after';
+
+  @override
+  String settingsMinutes(int minutes) {
+    return '$minutes min';
+  }
 }

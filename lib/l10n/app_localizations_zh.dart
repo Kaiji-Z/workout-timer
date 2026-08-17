@@ -2248,4 +2248,40 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get exportMarkdownFocusAreas => '重点肌群';
+
+  @override
+  String get notifIdleReminderTitle => '训练还在进行中';
+
+  @override
+  String notifIdleReminderBody(int minutes) {
+    return '已经运动超过$minutes分钟没有休息了。如果训练已结束，请回到应用停止计时。';
+  }
+
+  @override
+  String get trainingDurationCorrectionTitle => '训练时长可能过长';
+
+  @override
+  String trainingDurationCorrectionMessage(String duration, int sets) {
+    return '本次训练计时 $duration（共 $sets 组）。如果计时包含了忘记停止的时间，请修正为实际时长（分钟）：';
+  }
+
+  @override
+  String get trainingDurationCorrectionKeep => '保持原时长';
+
+  @override
+  String get trainingDurationCorrectionApply => '修正并保存';
+
+  @override
+  String get settingsIdleReminder => '空闲提醒';
+
+  @override
+  String get settingsIdleReminderDesc => '运动中长时间无操作时发送通知提醒';
+
+  @override
+  String get settingsIdleReminderAfter => '提醒阈值';
+
+  @override
+  String settingsMinutes(int minutes) {
+    return '$minutes 分钟';
+  }
 }

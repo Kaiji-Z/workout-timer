@@ -35,6 +35,8 @@ class _SettingsScreenState extends State<SettingsScreen>
   bool _soundEnabled = true;
   bool _vibrationEnabled = true;
   bool _detailedRecordingEnabled = false;
+  bool _idleReminderEnabled = true;
+  int _idleReminderMinutes = 10;
   String _customMessage = '';
   String _selectedSound = 'default';
   bool _isBatteryOptimizationIgnored = true; // Default true (non-Android)
@@ -160,6 +162,8 @@ class _SettingsScreenState extends State<SettingsScreen>
       _soundEnabled = _prefs.getBool('sound_enabled') ?? true;
       _vibrationEnabled = _prefs.getBool('vibration_enabled') ?? true;
       _detailedRecordingEnabled = _prefs.getBool('detailed_recording') ?? false;
+      _idleReminderEnabled = _prefs.getBool('idle_reminder_enabled') ?? true;
+      _idleReminderMinutes = _prefs.getInt('idle_reminder_minutes') ?? 10;
       _customMessage = _prefs.getString('custom_message') ?? '';
       _messageController.text = _customMessage;
       _selectedSound = _soundService.getSelectedSound();
@@ -181,7 +185,57 @@ class _SettingsScreenState extends State<SettingsScreen>
     await _prefs.setBool('sound_enabled', _soundEnabled);
     await _prefs.setBool('vibration_enabled', _vibrationEnabled);
     await _prefs.setBool('detailed_recording', _detailedRecordingEnabled);
+    await _prefs.setBool('idle_reminder_enabled', _idleReminderEnabled);
+    await _prefs.setInt('idle_reminder_minutes', _idleReminderMinutes);
     await _prefs.setString('custom_message', _customMessage);
+  }
+
+  /// 空闲提醒阈值选择（5/10/15/30/60 分钟）
+  Future<void> _showIdleReminderPicker(
+    BuildContext context,
+    AppThemeData theme,
+  ) async {
+    final l10n = AppLocalizations.of(context)!;
+    const options = [5, 10, 15, 30, 60];
+    final selected = await showDialog<int>(
+      context: context,
+      builder: (dialogContext) => SimpleDialog(
+        backgroundColor: theme.surfaceColor,
+        title: Text(
+          l10n.settingsIdleReminderAfter,
+          style: TextStyle(color: theme.textColor),
+        ),
+        children: options
+            .map(
+              (minutes) => SimpleDialogOption(
+                onPressed: () => Navigator.of(dialogContext).pop(minutes),
+                child: Row(
+                  children: [
+                    Icon(
+                      minutes == _idleReminderMinutes
+                          ? Icons.check_circle
+                          : Icons.radio_button_unchecked,
+                      color: minutes == _idleReminderMinutes
+                          ? theme.accentColor
+                          : theme.secondaryTextColor,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      l10n.settingsMinutes(minutes),
+                      style: TextStyle(color: theme.textColor),
+                    ),
+                  ],
+                ),
+              ),
+            )
+            .toList(),
+      ),
+    );
+    if (selected != null && selected != _idleReminderMinutes) {
+      setState(() => _idleReminderMinutes = selected);
+      _saveSettings();
+    }
   }
 
   Future<void> _clearHistory(AppThemeData theme) async {
@@ -295,6 +349,34 @@ class _SettingsScreenState extends State<SettingsScreen>
                   setState(() => _detailedRecordingEnabled = value);
                   _saveSettings();
                 }, theme),
+                Divider(
+                  color: theme.surfaceColor.withValues(alpha: 0.1),
+                  height: 1,
+                ),
+                // 空闲提醒（方案 A）：运动中长时间无操作时通知提醒
+                _buildSettingsSwitch(l10n.settingsIdleReminder, _idleReminderEnabled, (
+                  value,
+                ) {
+                  setState(() => _idleReminderEnabled = value);
+                  _saveSettings();
+                }, theme, subtitle: l10n.settingsIdleReminderDesc),
+                if (_idleReminderEnabled) ...[
+                  Divider(
+                    color: theme.surfaceColor.withValues(alpha: 0.1),
+                    height: 1,
+                  ),
+                  ListTile(
+                    title: Text(
+                      l10n.settingsIdleReminderAfter,
+                      style: TextStyle(color: theme.textColor),
+                    ),
+                    trailing: Text(
+                      l10n.settingsMinutes(_idleReminderMinutes),
+                      style: TextStyle(color: theme.accentColor),
+                    ),
+                    onTap: () => _showIdleReminderPicker(context, theme),
+                  ),
+                ],
               ],
             ),
           ),
@@ -1195,8 +1277,9 @@ class _SettingsScreenState extends State<SettingsScreen>
     String title,
     bool value,
     ValueChanged<bool> onChanged,
-    AppThemeData theme,
-  ) {
+    AppThemeData theme, {
+    String? subtitle,
+  }) {
     // 根据深色/浅色模式确定关闭态颜色
     final bool isDark = theme.isDark;
     final Color inactiveTrack = isDark
@@ -1211,6 +1294,12 @@ class _SettingsScreenState extends State<SettingsScreen>
 
     return SwitchListTile(
       title: Text(title, style: TextStyle(color: theme.textColor)),
+      subtitle: subtitle != null
+          ? Text(
+              subtitle,
+              style: TextStyle(color: theme.secondaryTextColor),
+            )
+          : null,
       value: value,
       onChanged: onChanged,
       activeThumbColor: theme.surfaceColor,

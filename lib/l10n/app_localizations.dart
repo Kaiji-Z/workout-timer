@@ -4024,6 +4024,66 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'重点肌群'**
   String get exportMarkdownFocusAreas;
+
+  /// No description provided for @notifIdleReminderTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'训练还在进行中'**
+  String get notifIdleReminderTitle;
+
+  /// No description provided for @notifIdleReminderBody.
+  ///
+  /// In zh, this message translates to:
+  /// **'已经运动超过{minutes}分钟没有休息了。如果训练已结束，请回到应用停止计时。'**
+  String notifIdleReminderBody(int minutes);
+
+  /// No description provided for @trainingDurationCorrectionTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'训练时长可能过长'**
+  String get trainingDurationCorrectionTitle;
+
+  /// No description provided for @trainingDurationCorrectionMessage.
+  ///
+  /// In zh, this message translates to:
+  /// **'本次训练计时 {duration}（共 {sets} 组）。如果计时包含了忘记停止的时间，请修正为实际时长（分钟）：'**
+  String trainingDurationCorrectionMessage(String duration, int sets);
+
+  /// No description provided for @trainingDurationCorrectionKeep.
+  ///
+  /// In zh, this message translates to:
+  /// **'保持原时长'**
+  String get trainingDurationCorrectionKeep;
+
+  /// No description provided for @trainingDurationCorrectionApply.
+  ///
+  /// In zh, this message translates to:
+  /// **'修正并保存'**
+  String get trainingDurationCorrectionApply;
+
+  /// No description provided for @settingsIdleReminder.
+  ///
+  /// In zh, this message translates to:
+  /// **'空闲提醒'**
+  String get settingsIdleReminder;
+
+  /// No description provided for @settingsIdleReminderDesc.
+  ///
+  /// In zh, this message translates to:
+  /// **'运动中长时间无操作时发送通知提醒'**
+  String get settingsIdleReminderDesc;
+
+  /// No description provided for @settingsIdleReminderAfter.
+  ///
+  /// In zh, this message translates to:
+  /// **'提醒阈值'**
+  String get settingsIdleReminderAfter;
+
+  /// No description provided for @settingsMinutes.
+  ///
+  /// In zh, this message translates to:
+  /// **'{minutes} 分钟'**
+  String settingsMinutes(int minutes);
 }
 
 class _AppLocalizationsDelegate

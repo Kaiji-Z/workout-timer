@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../core/service_locator.dart';
+import '../services/notification_service.dart';
 import '../services/timer_service.dart';
 
 /// 训练状态枚举
@@ -25,6 +28,15 @@ class TrainingProvider extends ChangeNotifier {
   int _totalRestTime = 0; // 总休息时长（秒）
   bool _isPaused = false;
 
+  // 依赖（通知服务，用于空闲提醒）
+  final NotificationService? _notificationService;
+
+  // 空闲提醒（方案 A：exercising 持续过久时发通知）
+  Timer? _idleReminderTimer;
+  bool _idleReminderEnabled = true;
+  int _idleReminderMinutes = 10;
+  bool _idleReminderFired = false; // 当前 exercising 段是否已提醒过
+
   // 计时器
   Timer? _timer;
   Timer? _sessionTimer; // Session timer for UI updates
@@ -35,6 +47,13 @@ class TrainingProvider extends ChangeNotifier {
   _sessionStartTime; // When session started (for accurate time tracking)
   DateTime? _pauseStartTime; // When session was paused (to exclude paused time)
   DateTime? _restStartTime; // When rest period started (for accurate countdown)
+
+  /// 构造注入 NotificationService（测试可传 null 或 mock）
+  TrainingProvider({NotificationService? notificationService})
+    : _notificationService = notificationService ??
+          (ServiceLocator.isRegistered<NotificationService>()
+              ? ServiceLocator.get<NotificationService>()
+              : null);
 
   // Getters
   TrainingState get state => _state;
@@ -55,6 +74,37 @@ class TrainingProvider extends ChangeNotifier {
 
   /// 总时长（秒）
   int get sessionDuration => _sessionDuration;
+
+  /// 时长是否异常（方案 B 的触发条件）：
+  /// 总时长 ≥ 45 分钟 且 组均 > 15 分钟。
+  /// 正常训练（组 + 组间休息）组均约 3-5 分钟；忘记停止会让组均飙升。
+  bool get hasAbnormalDuration {
+    if (_sessionDuration < 45 * 60) return false;
+    final sets = _currentSet > 0 ? _currentSet : 1;
+    return _sessionDuration / sets > 15 * 60;
+  }
+
+  /// 估算的实际训练时长（秒）：组数 × 5 分钟，下限 5 分钟。
+  /// 作为修正对话框的预填值，用户可调整。
+  int get estimatedSessionDuration {
+    final estimate = (_currentSet > 0 ? _currentSet : 1) * 5 * 60;
+    return estimate.clamp(5 * 60, _sessionDuration);
+  }
+
+  /// 修正会话时长（方案 B：保存前用户确认修正值）。
+  /// 仅 completed 状态可用；修正值不能超过原计时（修正只减不增）。
+  void correctSessionDuration(int seconds) {
+    if (_state != TrainingState.completed) return;
+    if (seconds <= 0) return;
+    _sessionDuration = seconds.clamp(0, _sessionDuration);
+    notifyListeners();
+  }
+
+  /// 测试专用：注入会话时长（真实时长由墙钟计算，无法在测试中快进）。
+  @visibleForTesting
+  void debugSetSessionDuration(int seconds) {
+    _sessionDuration = seconds;
+  }
 
   /// 格式化的总时长 MM:SS
   String get sessionDurationFormatted {
@@ -113,6 +163,9 @@ class TrainingProvider extends ChangeNotifier {
     _stopwatch = Stopwatch()..start();
     _startExerciseTimer();
 
+    // 空闲提醒：刷新配置（设置页可能改过）并开始计时
+    _refreshIdleReminderPrefsAndSchedule();
+
     if (_canUsePlatformServices) {
       TimerService.startService();
       _updateServiceNotification();
@@ -136,6 +189,8 @@ class TrainingProvider extends ChangeNotifier {
     _stopwatch = Stopwatch()..start();
     _startExerciseTimer();
 
+    _scheduleIdleReminder();
+
     if (_canUsePlatformServices) {
       TimerService.startService();
       _updateServiceNotification();
@@ -148,6 +203,7 @@ class TrainingProvider extends ChangeNotifier {
   void pauseExercise() {
     if (_state != TrainingState.exercising) return;
 
+    _cancelIdleReminder();
     _state = TrainingState.exercisePaused;
     _isPaused = true;
     _stopwatch?.stop();
@@ -172,6 +228,7 @@ class TrainingProvider extends ChangeNotifier {
   void resumeFromPause() {
     if (_state != TrainingState.exercisePaused) return;
 
+    _scheduleIdleReminder();
     _state = TrainingState.exercising;
     _isPaused = false;
     // Fix: Resume session stopwatch too, not just exercise stopwatch
@@ -194,6 +251,7 @@ class TrainingProvider extends ChangeNotifier {
   void startRest() {
     if (_state != TrainingState.exercising) return;
 
+    _cancelIdleReminder();
     // 保存当前运动时间
     _totalExerciseTime += _exerciseTime;
 
@@ -273,6 +331,7 @@ class TrainingProvider extends ChangeNotifier {
       return;
     }
 
+    _cancelIdleReminder();
     // 保存当前运动时间
     if (_state == TrainingState.exercising) {
       _totalExerciseTime += _exerciseTime;
@@ -307,6 +366,7 @@ class TrainingProvider extends ChangeNotifier {
 
   /// 重置训练
   void resetWorkout() {
+    _cancelIdleReminder();
     _stopwatch?.stop();
     _stopwatch = null;
     _timer?.cancel();
@@ -395,6 +455,45 @@ class TrainingProvider extends ChangeNotifier {
 
   // Private methods
 
+  /// 读取空闲提醒配置（SharedPreferences）并调度提醒计时器。
+  /// 每次 startExercise 时调用，保证设置页的修改在下次训练生效。
+  Future<void> _refreshIdleReminderPrefsAndSchedule() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      _idleReminderEnabled = prefs.getBool('idle_reminder_enabled') ?? true;
+      _idleReminderMinutes = prefs.getInt('idle_reminder_minutes') ?? 10;
+    } catch (_) {
+      // 读不到就用默认值
+    }
+    _scheduleIdleReminder();
+  }
+
+  /// 调度空闲提醒：exercising 持续超过阈值（默认 10 分钟）发一次通知。
+  /// 每个 exercising 段只提醒一次；暂停/休息/结束会取消，恢复时重新计时。
+  void _scheduleIdleReminder() {
+    _idleReminderTimer?.cancel();
+    _idleReminderTimer = null;
+    _idleReminderFired = false;
+    if (!_idleReminderEnabled || _state != TrainingState.exercising) return;
+
+    _idleReminderTimer = Timer(
+      Duration(minutes: _idleReminderMinutes),
+      _fireIdleReminder,
+    );
+  }
+
+  void _cancelIdleReminder() {
+    _idleReminderTimer?.cancel();
+    _idleReminderTimer = null;
+    _idleReminderFired = false;
+  }
+
+  void _fireIdleReminder() {
+    if (_state != TrainingState.exercising || _idleReminderFired) return;
+    _idleReminderFired = true;
+    _notificationService?.showIdleReminder(minutes: _idleReminderMinutes);
+  }
+
   /// Whether platform services (TimerService) are available.
   /// Returns false on web or when ServicesBinding is not initialized (e.g., unit tests).
   static bool get _canUsePlatformServices {
@@ -481,6 +580,7 @@ class TrainingProvider extends ChangeNotifier {
     _state = TrainingState.exercising;
     _exerciseTime = 0;
     _isPaused = false;
+    _scheduleIdleReminder();
     // Note: Session stopwatch continues running
 
     _stopwatch = Stopwatch()..start();
@@ -508,6 +608,7 @@ class TrainingProvider extends ChangeNotifier {
     _sessionStopwatch?.stop();
     _timer?.cancel();
     _sessionTimer?.cancel();
+    _idleReminderTimer?.cancel();
     super.dispose();
   }
 }
