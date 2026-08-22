@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -13,6 +12,7 @@ import '../theme/theme_provider.dart';
 import '../theme/app_theme.dart';
 import '../utils/dimensions.dart';
 import '../theme/build_context_text_styles.dart';
+import '../widgets/ai_analysis_components.dart';
 
 /// Full-screen page for AI training analysis.
 /// Generates a rich prompt from workout data and lets users copy it to external AI tools.
@@ -669,37 +669,43 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Section 1: Instructions
-            _buildInstructionsBox(theme),
+            buildAnalysisInstructionsBox(context, theme),
             const SizedBox(height: 24),
 
             // Section 2: Training Data Report
-            _buildSectionHeader(l10n.anReportHeading, theme),
+            buildAnalysisSectionHeader(context, l10n.anReportHeading, theme),
             const SizedBox(height: 12),
 
             // a) Basic Info
-            _buildGlassCard(theme: theme, child: _buildBasicInfoSection(theme)),
+            buildAnalysisGlassCard(
+              theme: theme,
+              child: _buildBasicInfoSection(theme),
+            ),
             const SizedBox(height: 12),
 
             // b) Trend Changes
-            _buildGlassCard(theme: theme, child: _buildTrendSection(theme)),
+            buildAnalysisGlassCard(
+              theme: theme,
+              child: _buildTrendSection(theme),
+            ),
             const SizedBox(height: 12),
 
             // c) Muscle Volume Distribution
-            _buildGlassCard(
+            buildAnalysisGlassCard(
               theme: theme,
               child: _buildMuscleDistributionSection(theme),
             ),
             const SizedBox(height: 12),
 
             // d) Sets Per Muscle Group (NEW)
-            _buildGlassCard(
+            buildAnalysisGlassCard(
               theme: theme,
               child: _buildSetsPerMuscleSection(theme),
             ),
             const SizedBox(height: 12),
 
             // e) Estimated 1RM (REPLACED from PR)
-            _buildGlassCard(
+            buildAnalysisGlassCard(
               theme: theme,
               child: _buildEstimated1RMSection(theme),
             ),
@@ -707,7 +713,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
 
             // f) 1RM Progression — MONTH ONLY
             if (!isWeek) ...[
-              _buildGlassCard(
+              buildAnalysisGlassCard(
                 theme: theme,
                 child: _build1RMProgressionSection(theme),
               ),
@@ -715,13 +721,16 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
             ],
 
             // g) Recovery Status
-            _buildGlassCard(theme: theme, child: _buildRecoverySection(theme)),
+            buildAnalysisGlassCard(
+              theme: theme,
+              child: _buildRecoverySection(theme),
+            ),
             const SizedBox(height: 12),
 
             const SizedBox(height: 24),
 
             // Section 3: Generated Prompt
-            _buildSectionHeader(l10n.anPromptHeading, theme),
+            buildAnalysisSectionHeader(context, l10n.anPromptHeading, theme),
             const SizedBox(height: 12),
             _buildPromptContainer(theme),
             const SizedBox(height: 16),
@@ -759,97 +768,6 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
     );
   }
 
-  Widget _buildInstructionsBox(AppThemeData theme) {
-    final l10n = context.l10n;
-    return Container(
-      padding: const EdgeInsets.all(AppDimensions.screenPadding),
-      decoration: BoxDecoration(
-        color: theme.accentColor.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-        border: Border.all(
-          color: theme.accentColor.withValues(alpha: 0.2),
-          width: 1,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.info_outline, size: 18, color: theme.accentColor),
-              const SizedBox(width: 8),
-              Text(
-                l10n.anInstructionsHeading,
-                style: context.labelLarge.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: theme.accentColor,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          _buildInstructionStep(l10n.anInstruction1, theme),
-          _buildInstructionStep(l10n.anInstruction2, theme),
-          _buildInstructionStep(l10n.anInstruction3, theme),
-          _buildInstructionStep(l10n.anInstruction4, theme),
-          _buildInstructionStep(l10n.anInstruction5, theme),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInstructionStep(String text, AppThemeData theme) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
-      child: Text(text, style: context.bodySmall.copyWith(fontSize: 13)),
-    );
-  }
-
-  Widget _buildSectionHeader(String title, AppThemeData theme) {
-    return Text(
-      title,
-      style: context.headlineLarge.copyWith(
-        fontSize: 20,
-        fontWeight: FontWeight.w700,
-      ),
-    );
-  }
-
-  Widget _buildSubsectionHeader(String title, AppThemeData theme) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Text(
-        title,
-        style: context.labelLarge.copyWith(fontWeight: FontWeight.w600),
-      ),
-    );
-  }
-
-  Widget _buildGlassCard({required AppThemeData theme, required Widget child}) {
-    final isDark = theme.isDark;
-    final bgAlpha = isDark ? 0.08 : 0.12;
-    final borderAlpha = isDark ? 0.20 : 0.30;
-
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-        child: Container(
-          padding: const EdgeInsets.all(AppDimensions.screenPadding),
-          decoration: BoxDecoration(
-            color: theme.surfaceColor.withValues(alpha: bgAlpha),
-            borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
-            border: Border.all(
-              color: theme.surfaceColor.withValues(alpha: borderAlpha),
-              width: 1,
-            ),
-          ),
-          child: child,
-        ),
-      ),
-    );
-  }
-
   Widget _buildBasicInfoSection(AppThemeData theme) {
     final l10n = context.l10n;
     final totalVolume = _statsCalc.calculateTotalVolume(widget.records);
@@ -870,20 +788,28 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSubsectionHeader(l10n.anBasicInfo, theme),
-        _buildDataRow(
+        buildAnalysisSubsectionHeader(context, l10n.anBasicInfo, theme),
+        buildAnalysisDataRow(
+          context,
           l10n.anSessionCount,
           l10n.anSessionsAndDays(sessionCount, workoutDays),
           theme,
         ),
-        _buildDataRow(l10n.anTotalVolume, '${fmtVol(totalVolume)} kg', theme),
-        _buildDataRow(
+        buildAnalysisDataRow(
+          context,
+          l10n.anTotalVolume,
+          '${fmtVol(totalVolume)} kg',
+          theme,
+        ),
+        buildAnalysisDataRow(
+          context,
           l10n.anDensity,
           l10n.anDensityValue(density.toStringAsFixed(1)),
           theme,
         ),
         if (sessionCount > 0)
-          _buildDataRow(
+          buildAnalysisDataRow(
+            context,
             l10n.anAvgPerSession,
             l10n.anAvgPerSessionValue(
               fmtVol(avgVolumePerSession),
@@ -900,7 +826,8 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSubsectionHeader(
+        buildAnalysisSubsectionHeader(
+          context,
           widget.periodType == 'week' ? l10n.anTrendWeek : l10n.anTrendMonth,
           theme,
         ),
@@ -917,7 +844,11 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSubsectionHeader(l10n.anMuscleDistribution, theme),
+        buildAnalysisSubsectionHeader(
+          context,
+          l10n.anMuscleDistribution,
+          theme,
+        ),
         Text(
           _formatMuscleVolumeDistribution(l10n),
           style: context.bodyMedium.copyWith(fontSize: 13, height: 1.5),
@@ -931,7 +862,8 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSubsectionHeader(
+        buildAnalysisSubsectionHeader(
+          context,
           widget.periodType == 'week'
               ? l10n.anSetsPerMuscleWeek
               : l10n.anSetsPerMuscleMonth,
@@ -950,7 +882,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSubsectionHeader(l10n.anEstimated1rm, theme),
+        buildAnalysisSubsectionHeader(context, l10n.anEstimated1rm, theme),
         Text(
           _formatEstimated1RM(l10n),
           style: context.bodyMedium.copyWith(fontSize: 13, height: 1.5),
@@ -964,7 +896,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSubsectionHeader(l10n.an1rmProgression, theme),
+        buildAnalysisSubsectionHeader(context, l10n.an1rmProgression, theme),
         Text(
           _format1RMProgression(l10n),
           style: context.bodyMedium.copyWith(fontSize: 13, height: 1.5),
@@ -978,30 +910,12 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSubsectionHeader(l10n.anRecovery, theme),
+        buildAnalysisSubsectionHeader(context, l10n.anRecovery, theme),
         Text(
           _formatRecoveryManagement(l10n),
           style: context.bodyMedium.copyWith(fontSize: 13, height: 1.5),
         ),
       ],
-    );
-  }
-
-  Widget _buildDataRow(String label, String value, AppThemeData theme) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('$label: ', style: context.bodySmall.copyWith(fontSize: 13)),
-          Expanded(
-            child: Text(
-              value,
-              style: context.bodyMedium.copyWith(fontSize: 13),
-            ),
-          ),
-        ],
-      ),
     );
   }
 
