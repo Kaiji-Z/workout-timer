@@ -17,6 +17,7 @@ import 'ai_plan_wizard_screen.dart';
 import '../theme/app_theme.dart';
 import '../animations/page_transitions.dart';
 import '../main.dart';
+import '../theme/build_context_text_styles.dart';
 
 /// 计划页面 - Flat Vitality 设计
 ///
@@ -45,7 +46,7 @@ class _PlanScreenState extends State<PlanScreen> {
         elevation: 0,
         title: Text(
           l10n.planTitle,
-          style: Theme.of(context).textTheme.headlineLarge!.copyWith(
+          style: context.headlineLarge.copyWith(
             fontSize: 18,
             fontWeight: FontWeight.w700,
             letterSpacing: -0.5,
@@ -56,9 +57,7 @@ class _PlanScreenState extends State<PlanScreen> {
             onPressed: () async {
               final result = await Navigator.push<bool>(
                 context,
-                FadeUpPageRoute(
-                  page: const AIPlanWizardScreen(),
-                ),
+                FadeUpPageRoute(page: const AIPlanWizardScreen()),
               );
               if (result == true && context.mounted) {
                 context.read<PlanProvider>().loadPlans();
@@ -71,7 +70,7 @@ class _PlanScreenState extends State<PlanScreen> {
                 const SizedBox(width: 4),
                 Text(
                   l10n.planAiButton,
-                  style: Theme.of(context).textTheme.labelLarge!.copyWith(
+                  style: context.labelLarge.copyWith(
                     fontWeight: FontWeight.w600,
                     color: theme.accentColor,
                   ),
@@ -137,16 +136,16 @@ class _PlanScreenState extends State<PlanScreen> {
             children: [
               Text(
                 isToday ? l10n.planTodayPlans : l10n.plansForDate(dateStr),
-                style: Theme.of(context).textTheme.titleLarge!,
+                style: context.titleLarge,
               ),
               if (plansForDate.isNotEmpty)
                 TextButton(
                   onPressed: () => _showAddPlanToDateSheet(planProvider),
                   child: Text(
                     l10n.planAddButton,
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodyMedium!.copyWith(color: theme.accentColor),
+                    style: context.bodyMedium.copyWith(
+                      color: theme.accentColor,
+                    ),
                   ),
                 ),
             ],
@@ -156,73 +155,70 @@ class _PlanScreenState extends State<PlanScreen> {
 
         // 当日计划列表
         if (plansForDate.isNotEmpty)
-          ...plansForDate
-              .map(
-                (plan) => Dismissible(
-                  key: ValueKey(plan.id),
-                  direction: DismissDirection.endToStart,
-                  background: Container(
-                    margin: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 6,
-                    ),
-                    alignment: Alignment.centerRight,
-                    padding: const EdgeInsets.only(right: 20),
-                    decoration: BoxDecoration(
-                      color: theme.errorColor,
-                      borderRadius: BorderRadius.circular(
-                        AppDimensions.radiusXl,
-                      ),
-                    ),
-                    child: Icon(
-                      Icons.delete_outline,
-                      color: theme.onAccentColor,
-                      size: 24,
-                    ),
-                  ),
-                  confirmDismiss: (direction) async {
-                    return await showDialog<bool>(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        title: Text(l10n.planRemoveTitle),
-                        content: Text(
-                          l10n.planRemoveFromDateConfirm(
-                              _selectedDate.month, _selectedDate.day, plan.name),
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(context, false),
-                            child: Text(l10n.widgetCancel),
-                          ),
-                          TextButton(
-                            onPressed: () => Navigator.pop(context, true),
-                            child: Text(
-                              l10n.planRemoveAction,
-                              style: TextStyle(color: theme.errorColor),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                  onDismissed: (direction) {
-                    planProvider.removePlanFromDate(plan.id, _selectedDate);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          l10n.planRemovedToast(_selectedDate.month,
-                              _selectedDate.day, plan.name),
-                        ),
-                        behavior: SnackBarBehavior.floating,
-                      ),
-                    );
-                  },
-                  child: PlanCard(
-                    plan: plan,
-                    onTap: () => _showPlanDetail(plan),
-                  ),
+          ...plansForDate.map(
+            (plan) => Dismissible(
+              key: ValueKey(plan.id),
+              direction: DismissDirection.endToStart,
+              background: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                alignment: Alignment.centerRight,
+                padding: const EdgeInsets.only(right: 20),
+                decoration: BoxDecoration(
+                  color: theme.errorColor,
+                  borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
                 ),
-              )
+                child: Icon(
+                  Icons.delete_outline,
+                  color: theme.onAccentColor,
+                  size: 24,
+                ),
+              ),
+              confirmDismiss: (direction) async {
+                return await showDialog<bool>(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: Text(l10n.planRemoveTitle),
+                    content: Text(
+                      l10n.planRemoveFromDateConfirm(
+                        _selectedDate.month,
+                        _selectedDate.day,
+                        plan.name,
+                      ),
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, false),
+                        child: Text(l10n.widgetCancel),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, true),
+                        child: Text(
+                          l10n.planRemoveAction,
+                          style: TextStyle(color: theme.errorColor),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+              onDismissed: (direction) {
+                planProvider.removePlanFromDate(plan.id, _selectedDate);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      l10n.planRemovedToast(
+                        _selectedDate.month,
+                        _selectedDate.day,
+                        plan.name,
+                      ),
+                    ),
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+              },
+              child: PlanCard(plan: plan, onTap: () => _showPlanDetail(plan)),
+            ),
+          )
         else
           _buildEmptyDayPlan(theme),
 
@@ -245,9 +241,7 @@ class _PlanScreenState extends State<PlanScreen> {
               ),
               child: Text(
                 l10n.planLibraryButton,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleLarge!.copyWith(color: theme.onAccentColor),
+                style: context.titleLarge.copyWith(color: theme.onAccentColor),
               ),
             ),
           ),
@@ -286,7 +280,7 @@ class _PlanScreenState extends State<PlanScreen> {
                 const SizedBox(height: 8),
                 Text(
                   l10n.planEmptyAddToday,
-                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                  style: context.bodyMedium.copyWith(
                     color: theme.secondaryTextColor,
                   ),
                 ),
@@ -379,10 +373,10 @@ class _PlanScreenState extends State<PlanScreen> {
                   const SizedBox(height: 16),
                   Text(
                     l10n.planSelectToAddTitle(
-                        _selectedDate.month, _selectedDate.day),
-                    style: Theme.of(
-                      context,
-                    ).textTheme.headlineLarge!.copyWith(fontSize: 18),
+                      _selectedDate.month,
+                      _selectedDate.day,
+                    ),
+                    style: context.headlineLarge.copyWith(fontSize: 18),
                   ),
                   const SizedBox(height: 16),
                   Flexible(
@@ -489,9 +483,7 @@ class _PlanScreenState extends State<PlanScreen> {
                   const SizedBox(height: 16),
                   Text(
                     l10n.planLibraryTitle,
-                    style: Theme.of(
-                      context,
-                    ).textTheme.headlineLarge!.copyWith(fontSize: 18),
+                    style: context.headlineLarge.copyWith(fontSize: 18),
                   ),
                   const SizedBox(height: 16),
                   Flexible(
@@ -684,7 +676,10 @@ class _PlanScreenState extends State<PlanScreen> {
           SnackBar(
             content: Text(
               l10n.planAddedToDateToast(
-                  _selectedDate.month, _selectedDate.day, plan.name),
+                _selectedDate.month,
+                _selectedDate.day,
+                plan.name,
+              ),
             ),
             behavior: SnackBarBehavior.floating,
           ),
@@ -742,8 +737,10 @@ class _PlanScreenState extends State<PlanScreen> {
                 }
               }
             },
-            child:
-                Text(l10n.planDelete, style: TextStyle(color: theme.errorColor)),
+            child: Text(
+              l10n.planDelete,
+              style: TextStyle(color: theme.errorColor),
+            ),
           ),
         ],
       ),
@@ -798,9 +795,9 @@ class _PlanDetailSheet extends StatelessWidget {
             // 计划名称
             Text(
               plan.name,
-              style: Theme.of(
-                context,
-              ).textTheme.headlineLarge!.copyWith(fontWeight: FontWeight.w700),
+              style: context.headlineLarge.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
             ),
             const SizedBox(height: 8),
             // 右上角删除按钮
@@ -821,9 +818,9 @@ class _PlanDetailSheet extends StatelessWidget {
             // 目标部位
             Text(
               l10n.planDetailTargetMuscles(plan.targetMusclesText),
-              style: Theme.of(
-                context,
-              ).textTheme.bodyMedium!.copyWith(color: theme.secondaryTextColor),
+              style: context.bodyMedium.copyWith(
+                color: theme.secondaryTextColor,
+              ),
             ),
             const SizedBox(height: 8),
 
@@ -831,10 +828,18 @@ class _PlanDetailSheet extends StatelessWidget {
             Row(
               children: [
                 _buildStatItem(
-                    context, '${plan.exerciseCount}', l10n.planDetailExerciseCountUnit, theme),
+                  context,
+                  '${plan.exerciseCount}',
+                  l10n.planDetailExerciseCountUnit,
+                  theme,
+                ),
                 const SizedBox(width: 24),
                 _buildStatItem(
-                    context, '${plan.totalSets}', l10n.planDetailSetsUnit, theme),
+                  context,
+                  '${plan.totalSets}',
+                  l10n.planDetailSetsUnit,
+                  theme,
+                ),
                 const SizedBox(width: 24),
                 _buildStatItem(
                   context,
@@ -847,8 +852,7 @@ class _PlanDetailSheet extends StatelessWidget {
             const SizedBox(height: 24),
 
             // 动作列表
-            Text(l10n.planDetailExerciseList,
-                style: Theme.of(context).textTheme.titleLarge!),
+            Text(l10n.planDetailExerciseList, style: context.titleLarge),
             const SizedBox(height: 12),
             ...plan.exercises.asMap().entries.map((entry) {
               final index = entry.key;
@@ -888,8 +892,7 @@ class _PlanDetailSheet extends StatelessWidget {
                                 ? () {
                                     final exercise = planExercise.exercise;
                                     final imageUrl = exercise?.imageUrl;
-                                    if (exercise == null ||
-                                        imageUrl == null) {
+                                    if (exercise == null || imageUrl == null) {
                                       return;
                                     }
                                     if (exercise.images.isNotEmpty) {
@@ -928,8 +931,7 @@ class _PlanDetailSheet extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(
                                   AppDimensions.radiusLg,
                                 ),
-                                child:
-                                    hasDetails && imageUrl != null
+                                child: hasDetails && imageUrl != null
                                     ? Hero(
                                         tag: imageUrl,
                                         child: CachedNetworkImage(
@@ -982,18 +984,17 @@ class _PlanDetailSheet extends StatelessWidget {
                                 hasDetails
                                     ? planExercise.name
                                     : '${planExercise.name} ${l10n.planDetailNoDetailsSuffix}',
-                                style: Theme.of(context).textTheme.bodyMedium!
-                                    .copyWith(
-                                      fontSize: 15,
-                                      color: hasDetails
-                                          ? theme.textColor
-                                          : theme.secondaryTextColor.withValues(
-                                              alpha: 0.7,
-                                            ),
-                                      fontStyle: hasDetails
-                                          ? null
-                                          : FontStyle.italic,
-                                    ),
+                                style: context.bodyMedium.copyWith(
+                                  fontSize: 15,
+                                  color: hasDetails
+                                      ? theme.textColor
+                                      : theme.secondaryTextColor.withValues(
+                                          alpha: 0.7,
+                                        ),
+                                  fontStyle: hasDetails
+                                      ? null
+                                      : FontStyle.italic,
+                                ),
                               ),
                               // 肌肉标签和器材信息
                               if (hasDetails && exercise != null) ...[
@@ -1027,9 +1028,7 @@ class _PlanDetailSheet extends StatelessWidget {
                                     const SizedBox(width: 6),
                                     Text(
                                       exercise.equipmentDisplayName(l10n),
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.bodySmall!,
+                                      style: context.bodySmall,
                                     ),
                                   ],
                                 ),
@@ -1038,9 +1037,12 @@ class _PlanDetailSheet extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          l10n.planDetailEffectiveSets(planExercise.effectiveSets),
-                          style: Theme.of(context).textTheme.bodyMedium!
-                              .copyWith(color: theme.secondaryTextColor),
+                          l10n.planDetailEffectiveSets(
+                            planExercise.effectiveSets,
+                          ),
+                          style: context.bodyMedium.copyWith(
+                            color: theme.secondaryTextColor,
+                          ),
                         ),
                       ],
                     ),
@@ -1059,7 +1061,7 @@ class _PlanDetailSheet extends StatelessWidget {
                     icon: Icon(Icons.calendar_today, color: theme.accentColor),
                     label: Text(
                       l10n.planDetailAddToCalendar,
-                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      style: context.bodyMedium.copyWith(
                         color: theme.accentColor,
                       ),
                     ),
@@ -1085,7 +1087,7 @@ class _PlanDetailSheet extends StatelessWidget {
                     icon: Icon(Icons.play_arrow, color: theme.onAccentColor),
                     label: Text(
                       l10n.planDetailStartTraining,
-                      style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                      style: context.titleLarge.copyWith(
                         color: theme.onAccentColor,
                       ),
                     ),
@@ -1119,13 +1121,13 @@ class _PlanDetailSheet extends StatelessWidget {
       children: [
         Text(
           value,
-          style: Theme.of(context).textTheme.headlineLarge!.copyWith(
+          style: context.headlineLarge.copyWith(
             fontSize: 20,
             fontWeight: FontWeight.w700,
             color: theme.accentColor,
           ),
         ),
-        Text(label, style: Theme.of(context).textTheme.bodySmall!),
+        Text(label, style: context.bodySmall),
       ],
     );
   }

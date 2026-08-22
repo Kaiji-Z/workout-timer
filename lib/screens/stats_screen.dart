@@ -16,6 +16,7 @@ import '../widgets/volume_trend_charts.dart';
 import 'ai_analysis_screen.dart';
 import '../services/user_preferences_service.dart';
 import '../animations/page_transitions.dart';
+import '../theme/build_context_text_styles.dart';
 
 class StatsScreen extends StatefulWidget {
   const StatsScreen({super.key});
@@ -261,7 +262,7 @@ class _StatsScreenState extends State<StatsScreen>
         elevation: 0,
         title: Text(
           l10n.navStats,
-          style: Theme.of(context).textTheme.headlineMedium!.copyWith(
+          style: context.headlineMedium.copyWith(
             fontWeight: FontWeight.w700,
             letterSpacing: -0.5,
             color: theme.textColor,
@@ -273,7 +274,7 @@ class _StatsScreenState extends State<StatsScreen>
             icon: Icon(Icons.psychology, size: 20, color: theme.accentColor),
             label: Text(
               l10n.statsAiAnalysis,
-              style: Theme.of(context).textTheme.labelLarge!.copyWith(
+              style: context.labelLarge.copyWith(
                 fontWeight: FontWeight.w600,
                 color: theme.accentColor,
               ),
@@ -286,9 +287,7 @@ class _StatsScreenState extends State<StatsScreen>
           indicatorWeight: 2,
           labelColor: theme.textColor,
           unselectedLabelColor: theme.secondaryTextColor,
-          labelStyle: Theme.of(
-            context,
-          ).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.w600),
+          labelStyle: context.labelLarge.copyWith(fontWeight: FontWeight.w600),
           tabs: [
             Tab(text: l10n.statsWeekView),
             Tab(text: l10n.statsMonthView),
@@ -605,13 +604,11 @@ class _StatsScreenState extends State<StatsScreen>
                       weekDays.last.month,
                       weekDays.last.day,
                     ),
-                    style: Theme.of(
-                      context,
-                    ).textTheme.titleLarge!.copyWith(color: theme.textColor),
+                    style: context.titleLarge.copyWith(color: theme.textColor),
                   ),
                   Text(
                     l10n.statsYearLabel(weekStart.year),
-                    style: Theme.of(context).textTheme.bodySmall!,
+                    style: context.bodySmall,
                   ),
                 ],
               ),
@@ -625,11 +622,10 @@ class _StatsScreenState extends State<StatsScreen>
                         padding: const EdgeInsets.symmetric(horizontal: 4),
                         child: Text(
                           l10n.statsToday,
-                          style: Theme.of(context).textTheme.bodySmall!
-                              .copyWith(
-                                fontWeight: FontWeight.w500,
-                                color: theme.accentColor,
-                              ),
+                          style: context.bodySmall.copyWith(
+                            fontWeight: FontWeight.w500,
+                            color: theme.accentColor,
+                          ),
                         ),
                       ),
                     ),
@@ -664,7 +660,7 @@ class _StatsScreenState extends State<StatsScreen>
                   children: [
                     Text(
                       weekdayShort(index, l10n),
-                      style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                      style: context.bodySmall.copyWith(
                         fontSize: 11,
                         color: theme.secondaryTextColor,
                       ),
@@ -694,17 +690,16 @@ class _StatsScreenState extends State<StatsScreen>
                       child: Center(
                         child: Text(
                           '${day.day}',
-                          style: Theme.of(context).textTheme.labelLarge!
-                              .copyWith(
-                                fontWeight: isToday
-                                    ? FontWeight.w700
-                                    : FontWeight.w500,
-                                color: isToday
-                                    ? theme.surfaceColor
-                                    : hasWorkout
-                                    ? theme.primaryColor
-                                    : theme.textColor,
-                              ),
+                          style: context.labelLarge.copyWith(
+                            fontWeight: isToday
+                                ? FontWeight.w700
+                                : FontWeight.w500,
+                            color: isToday
+                                ? theme.surfaceColor
+                                : hasWorkout
+                                ? theme.primaryColor
+                                : theme.textColor,
+                          ),
                         ),
                       ),
                     ),
@@ -739,9 +734,7 @@ class _StatsScreenState extends State<StatsScreen>
           ),
           Text(
             l10n.statsYearLabel(_selectedYear),
-            style: Theme.of(
-              context,
-            ).textTheme.headlineMedium!.copyWith(color: theme.textColor),
+            style: context.headlineMedium.copyWith(color: theme.textColor),
           ),
           if (!_isCurrentMonth())
             GestureDetector(
@@ -750,7 +743,7 @@ class _StatsScreenState extends State<StatsScreen>
                 padding: const EdgeInsets.symmetric(horizontal: 4),
                 child: Text(
                   l10n.statsToday,
-                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                  style: context.bodySmall.copyWith(
                     fontWeight: FontWeight.w500,
                     color: theme.accentColor,
                   ),
@@ -863,34 +856,32 @@ class _StatsScreenState extends State<StatsScreen>
                         children: [
                           Text(
                             l10n.statsMonthLabel(month),
-                            style: Theme.of(context).textTheme.bodySmall!
-                                .copyWith(
-                                  fontWeight: isSelected
-                                      ? FontWeight.w600
-                                      : FontWeight.w500,
-                                  color: isSelected
-                                      ? theme.onAccentColor
-                                      : isFuture
-                                      ? theme.secondaryTextColor.withValues(
-                                          alpha: 0.3,
-                                        )
-                                      : theme.textColor,
-                                ),
+                            style: context.bodySmall.copyWith(
+                              fontWeight: isSelected
+                                  ? FontWeight.w600
+                                  : FontWeight.w500,
+                              color: isSelected
+                                  ? theme.onAccentColor
+                                  : isFuture
+                                  ? theme.secondaryTextColor.withValues(
+                                      alpha: 0.3,
+                                    )
+                                  : theme.textColor,
+                            ),
                           ),
                           if (count > 0) ...[
                             const SizedBox(height: 2),
                             Text(
                               '$count',
-                              style: Theme.of(context).textTheme.labelLarge!
-                                  .copyWith(
-                                    fontWeight: FontWeight.w700,
-                                    color: isSelected
-                                        ? theme.onAccentColor
-                                        : heatBlue,
-                                    fontFeatures: const [
-                                      FontFeature.tabularFigures(),
-                                    ],
-                                  ),
+                              style: context.labelLarge.copyWith(
+                                fontWeight: FontWeight.w700,
+                                color: isSelected
+                                    ? theme.onAccentColor
+                                    : heatBlue,
+                                fontFeatures: const [
+                                  FontFeature.tabularFigures(),
+                                ],
+                              ),
                             ),
                           ],
                         ],
@@ -922,7 +913,7 @@ class _StatsScreenState extends State<StatsScreen>
           const SizedBox(height: 16),
           Text(
             l10n.statsNoData,
-            style: Theme.of(context).textTheme.titleLarge!.copyWith(
+            style: context.titleLarge.copyWith(
               color: theme.textColor,
               letterSpacing: 1,
             ),
@@ -930,7 +921,7 @@ class _StatsScreenState extends State<StatsScreen>
           const SizedBox(height: 8),
           Text(
             l10n.statsEmptyHint,
-            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+            style: context.bodyMedium.copyWith(
               color: theme.secondaryTextColor.withValues(alpha: 0.6),
             ),
           ),

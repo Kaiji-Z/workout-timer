@@ -7,6 +7,7 @@ import '../services/user_preferences_service.dart';
 import '../theme/theme_provider.dart';
 import '../theme/app_theme.dart';
 import '../utils/dimensions.dart';
+import '../theme/build_context_text_styles.dart';
 
 class UserPreferencesScreen extends StatefulWidget {
   const UserPreferencesScreen({super.key});
@@ -139,8 +140,9 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
       final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content: Text(l10n.prefSaved),
-            duration: const Duration(seconds: 1)),
+          content: Text(l10n.prefSaved),
+          duration: const Duration(seconds: 1),
+        ),
       );
     }
   }
@@ -211,7 +213,7 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
         ),
         title: Text(
           l10n.prefTitle,
-          style: Theme.of(context).textTheme.headlineMedium!.copyWith(
+          style: context.headlineMedium.copyWith(
             fontWeight: FontWeight.w700,
             letterSpacing: -0.5,
             color: theme.textColor,
@@ -238,7 +240,7 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
                         children: [
                           Text(
                             l10n.prefBodyWeightHint,
-                            style: Theme.of(context).textTheme.bodySmall!,
+                            style: context.bodySmall,
                           ),
                           const SizedBox(height: 12),
                           Row(
@@ -301,7 +303,7 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
                                           color: theme.secondaryTextColor,
                                         ),
                                   ),
-                                  style: Theme.of(context).textTheme.bodyLarge!,
+                                  style: context.bodyLarge,
                                   onChanged: (value) {
                                     final weight = double.tryParse(value);
                                     _updateBodyWeight(weight ?? 0.0);
@@ -326,8 +328,7 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
                         spacing: 8,
                         runSpacing: 8,
                         children: _goalValues.map((value) {
-                          final isSelected =
-                              _preferences.goal == value;
+                          final isSelected = _preferences.goal == value;
                           return _buildSelectionChip(
                             label: _goalLabel(value, l10n),
                             isSelected: isSelected,
@@ -350,13 +351,11 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
                         spacing: 8,
                         runSpacing: 8,
                         children: _experienceValues.map((value) {
-                          final isSelected =
-                              _preferences.experience == value;
+                          final isSelected = _preferences.experience == value;
                           return _buildSelectionChip(
                             label: _experienceLabel(value, l10n),
                             isSelected: isSelected,
-                            onTap: () =>
-                                _updateExperience(value),
+                            onTap: () => _updateExperience(value),
                             theme: theme,
                           );
                         }).toList(),
@@ -375,13 +374,11 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
                         spacing: 8,
                         runSpacing: 8,
                         children: _equipmentValues.map((value) {
-                          final isSelected =
-                              _preferences.equipment == value;
+                          final isSelected = _preferences.equipment == value;
                           return _buildSelectionChip(
                             label: _equipmentLabel(value, l10n),
                             isSelected: isSelected,
-                            onTap: () =>
-                                _updateEquipment(value),
+                            onTap: () => _updateEquipment(value),
                             theme: theme,
                           );
                         }).toList(),
@@ -400,13 +397,11 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
                         spacing: 8,
                         runSpacing: 8,
                         children: _frequencyValues.map((value) {
-                          final isSelected =
-                              _preferences.frequency == value;
+                          final isSelected = _preferences.frequency == value;
                           return _buildSelectionChip(
                             label: l10n.prefFrequencyDays(value),
                             isSelected: isSelected,
-                            onTap: () =>
-                                _updateFrequency(value),
+                            onTap: () => _updateFrequency(value),
                             theme: theme,
                           );
                         }).toList(),
@@ -458,7 +453,7 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
       padding: const EdgeInsets.only(bottom: 12),
       child: Text(
         title,
-        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+        style: context.bodyMedium.copyWith(
           fontSize: 13,
           fontWeight: FontWeight.w600,
           color: theme.secondaryTextColor,
@@ -525,7 +520,7 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
           ),
           child: Text(
             label,
-            style: Theme.of(context).textTheme.labelLarge!.copyWith(
+            style: context.labelLarge.copyWith(
               color: isSelected ? theme.surfaceColor : theme.accentColor,
             ),
           ),
@@ -568,9 +563,7 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
               ],
               Text(
                 label,
-                style: Theme.of(
-                  context,
-                ).textTheme.labelLarge!.copyWith(color: theme.accentColor),
+                style: context.labelLarge.copyWith(color: theme.accentColor),
               ),
             ],
           ),

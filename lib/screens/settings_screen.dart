@@ -17,6 +17,7 @@ import '../providers/locale_provider.dart';
 import '../utils/dimensions.dart';
 import '../animations/page_transitions.dart';
 import 'user_preferences_screen.dart';
+import '../theme/build_context_text_styles.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -288,7 +289,7 @@ class _SettingsScreenState extends State<SettingsScreen>
         backgroundColor: Colors.transparent,
         title: Text(
           l10n.settingsTitle,
-          style: Theme.of(context).textTheme.headlineMedium!.copyWith(
+          style: context.headlineMedium.copyWith(
             fontWeight: FontWeight.w700,
             letterSpacing: -0.5,
             color: theme.textColor,
@@ -617,7 +618,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                     ),
                     subtitle: Text(
                       l10n.settingsExportSubtitle,
-                      style: Theme.of(context).textTheme.bodySmall!,
+                      style: context.bodySmall,
                     ),
                     onTap: () => _exportData(theme),
                   ),
@@ -630,7 +631,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                     ),
                     subtitle: Text(
                       l10n.settingsImportSubtitle,
-                      style: Theme.of(context).textTheme.bodySmall!,
+                      style: context.bodySmall,
                     ),
                     onTap: () => _importData(theme),
                   ),
@@ -666,7 +667,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                 ),
                 subtitle: Text(
                   l10n.settingsTrainingPreferencesSubtitle,
-                  style: Theme.of(context).textTheme.bodySmall!,
+                  style: context.bodySmall,
                 ),
                 trailing: Icon(
                   Icons.chevron_right,
@@ -699,7 +700,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                     ),
                     subtitle: Text(
                       l10n.settingsPrivacyPolicySubtitle,
-                      style: Theme.of(context).textTheme.bodySmall!,
+                      style: context.bodySmall,
                     ),
                     trailing: Icon(
                       Icons.chevron_right,
@@ -729,7 +730,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                     ),
                     subtitle: Text(
                       l10n.settingsDeveloperName,
-                      style: Theme.of(context).textTheme.bodySmall!,
+                      style: context.bodySmall,
                     ),
                   ),
                   Divider(color: theme.dividerColor, height: 1),
@@ -740,7 +741,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                     ),
                     subtitle: Text(
                       'lookatmedia@163.com',
-                      style: Theme.of(context).textTheme.bodySmall!,
+                      style: context.bodySmall,
                     ),
                     trailing: Icon(
                       Icons.content_copy,
@@ -1112,7 +1113,7 @@ class _SettingsScreenState extends State<SettingsScreen>
             children: [
               Text(
                 l10n.settingsSelectTheme,
-                style: Theme.of(context).textTheme.headlineMedium!.copyWith(
+                style: context.headlineMedium.copyWith(
                   fontSize: 20,
                   color: themeProvider.currentTheme.textColor,
                 ),
@@ -1169,7 +1170,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                   ),
                   subtitle: Text(
                     theme.description,
-                    style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                    style: context.bodySmall.copyWith(
                       color: themeProvider.currentTheme.secondaryTextColor,
                     ),
                   ),

@@ -10,6 +10,7 @@ import '../models/muscle_group.dart';
 
 import '../theme/app_theme.dart';
 import '../utils/dimensions.dart';
+import '../theme/build_context_text_styles.dart';
 
 /// 训练记录详情页面 - Flat Vitality 设计
 ///
@@ -77,9 +78,7 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
         ),
         title: Text(
           l10n.recDetailTitle,
-          style: Theme.of(
-            context,
-          ).textTheme.headlineMedium!.copyWith(fontWeight: FontWeight.w700),
+          style: context.headlineMedium.copyWith(fontWeight: FontWeight.w700),
         ),
         actions: [
           if (_hasChanges)
@@ -87,7 +86,7 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
               onPressed: _saveChanges,
               child: Text(
                 l10n.recSave,
-                style: Theme.of(context).textTheme.labelLarge!.copyWith(
+                style: context.labelLarge.copyWith(
                   color: theme.accentColor,
                   fontWeight: FontWeight.w600,
                 ),
@@ -106,8 +105,7 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
 
             // 动作详情
             if (_exercises.isNotEmpty) ...[
-              Text(l10n.recDetailExercisesSection,
-                  style: Theme.of(context).textTheme.titleLarge!),
+              Text(l10n.recDetailExercisesSection, style: context.titleLarge),
               const SizedBox(height: 12),
               ..._exercises.asMap().entries.map((entry) {
                 return _buildExerciseItem(entry.key, entry.value, theme);
@@ -144,9 +142,7 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
           (index) => Center(
             child: Text(
               '${index + 1}',
-              style: Theme.of(
-                context,
-              ).textTheme.bodyMedium!.copyWith(fontWeight: FontWeight.w600),
+              style: context.bodyMedium.copyWith(fontWeight: FontWeight.w600),
             ),
           ),
         ),
@@ -286,7 +282,7 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
                       alignment: Alignment.centerLeft,
                       child: Text(
                         widget.record.fullDateText,
-                        style: Theme.of(context).textTheme.headlineMedium!,
+                        style: context.headlineMedium,
                       ),
                     ),
                     if (widget.record.isPlanMode) ...[
@@ -317,11 +313,10 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
                                 widget.record.planName ?? l10n.historyPlanMode,
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
-                                style: Theme.of(context).textTheme.bodySmall!
-                                    .copyWith(
-                                      fontWeight: FontWeight.w500,
-                                      color: theme.accentColor,
-                                    ),
+                                style: context.bodySmall.copyWith(
+                                  fontWeight: FontWeight.w500,
+                                  color: theme.accentColor,
+                                ),
                               ),
                             ),
                           ],
@@ -352,7 +347,7 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
                     const SizedBox(width: 6),
                     Text(
                       widget.record.durationText,
-                      style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                      style: context.titleLarge.copyWith(
                         color: theme.accentColor,
                       ),
                     ),
@@ -423,7 +418,7 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
           fit: BoxFit.scaleDown,
           child: Text(
             value,
-            style: Theme.of(context).textTheme.headlineLarge!.copyWith(
+            style: context.headlineLarge.copyWith(
               fontSize: 22,
               fontWeight: FontWeight.w700,
             ),
@@ -432,7 +427,7 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
         const SizedBox(height: 4),
         FittedBox(
           fit: BoxFit.scaleDown,
-          child: Text(label, style: Theme.of(context).textTheme.bodySmall!),
+          child: Text(label, style: context.bodySmall),
         ),
       ],
     );
@@ -465,7 +460,7 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
             alignment: Alignment.centerLeft,
             child: Text(
               _getExerciseDisplayName(index, exercise),
-              style: Theme.of(context).textTheme.titleLarge!,
+              style: context.titleLarge,
             ),
           ),
 
@@ -487,8 +482,9 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
                         alignment: Alignment.centerLeft,
                         child: Text(
                           l10n.dialogSetTitle(setData.setNumber),
-                          style: Theme.of(context).textTheme.bodyMedium!
-                              .copyWith(color: theme.secondaryTextColor),
+                          style: context.bodyMedium.copyWith(
+                            color: theme.secondaryTextColor,
+                          ),
                         ),
                       ),
                     ),
@@ -509,7 +505,7 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
                     const SizedBox(width: 4),
 
                     // 乘号
-                    Text('×', style: Theme.of(context).textTheme.titleLarge!),
+                    Text('×', style: context.titleLarge),
 
                     const SizedBox(width: 4),
 
@@ -520,8 +516,9 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
                         keyboardType: TextInputType.number,
                         decoration: InputDecoration(
                           hintText: '0',
-                          hintStyle: Theme.of(context).textTheme.bodyMedium!
-                              .copyWith(color: theme.secondaryTextColor),
+                          hintStyle: context.bodyMedium.copyWith(
+                            color: theme.secondaryTextColor,
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(
                               AppDimensions.radiusMd,
@@ -538,14 +535,14 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
                             ),
                           ),
                           suffixText: 'kg',
-                          suffixStyle: Theme.of(context).textTheme.bodySmall!,
+                          suffixStyle: context.bodySmall,
                           isDense: true,
                           contentPadding: const EdgeInsets.symmetric(
                             horizontal: 8,
                             vertical: 8,
                           ),
                         ),
-                        style: Theme.of(context).textTheme.bodyMedium!,
+                        style: context.bodyMedium,
                         onChanged: (value) {
                           final weight = double.tryParse(value);
                           _updateWeight(index, setData.setNumber, weight);
@@ -588,9 +585,9 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
                   const SizedBox(width: 4),
                   Text(
                     l10n.recDetailAddSet,
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodyMedium!.copyWith(color: theme.accentColor),
+                    style: context.bodyMedium.copyWith(
+                      color: theme.accentColor,
+                    ),
                   ),
                 ],
               ),
@@ -608,11 +605,10 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(l10n.recDetailTotalVolume,
-                      style: Theme.of(context).textTheme.bodySmall!),
+                  Text(l10n.recDetailTotalVolume, style: context.bodySmall),
                   Text(
                     '${exercise.totalVolume.toStringAsFixed(1)} kg',
-                    style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                    style: context.bodySmall.copyWith(
                       fontWeight: FontWeight.w600,
                       color: theme.accentColor,
                     ),
@@ -635,9 +631,9 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
                   ),
                   child: Text(
                     l10n.recDetailAddDataPrompt,
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodyMedium!.copyWith(color: theme.accentColor),
+                    style: context.bodyMedium.copyWith(
+                      color: theme.accentColor,
+                    ),
                   ),
                 ),
               ),
@@ -730,10 +726,7 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
   /// Calculate max weight from sets data
   double? _calculateMaxWeight(List<SetData> setsData) {
     if (setsData.isEmpty) return null;
-    final weights = setsData
-        .map((s) => s.weight)
-        .whereType<double>()
-        .toList();
+    final weights = setsData.map((s) => s.weight).whereType<double>().toList();
     if (weights.isEmpty) return null;
     return weights.reduce((a, b) => a > b ? a : b);
   }
@@ -748,9 +741,7 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
         icon: Icon(Icons.delete_outline, color: theme.errorColor),
         label: Text(
           l10n.recDetailDeleteButton,
-          style: Theme.of(
-            context,
-          ).textTheme.labelLarge!.copyWith(color: theme.errorColor),
+          style: context.labelLarge.copyWith(color: theme.errorColor),
         ),
         style: OutlinedButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 14),
@@ -805,8 +796,10 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
                 }
               }
             },
-            child: Text(l10n.recDetailDeleteAction,
-                style: TextStyle(color: theme.errorColor)),
+            child: Text(
+              l10n.recDetailDeleteAction,
+              style: TextStyle(color: theme.errorColor),
+            ),
           ),
         ],
       ),
