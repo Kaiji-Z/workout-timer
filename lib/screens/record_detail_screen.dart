@@ -36,9 +36,10 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
     // 初始化重量控制器
     for (int i = 0; i < _exercises.length; i++) {
       final exercise = _exercises[i];
-      if (exercise.setsData != null) {
+      final setsData = exercise.setsData;
+      if (setsData != null) {
         _weightControllers[i] = {};
-        for (final setData in exercise.setsData!) {
+        for (final setData in setsData) {
           _weightControllers[i]![setData.setNumber] = TextEditingController(
             text: setData.weight?.toString() ?? '',
           );
@@ -61,7 +62,8 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().currentTheme;
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
+    if (l10n == null) return const SizedBox.shrink();
 
     return Scaffold(
       backgroundColor: theme.backgroundColor,
@@ -259,7 +261,8 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
   }
 
   Widget _buildSummaryCard(AppThemeData theme) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
+    if (l10n == null) return const SizedBox.shrink();
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -440,9 +443,9 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
     RecordedExercise exercise,
     AppThemeData theme,
   ) {
-    final l10n = AppLocalizations.of(context)!;
-    final hasSetData =
-        exercise.setsData != null && exercise.setsData!.isNotEmpty;
+    final l10n = AppLocalizations.of(context);
+    if (l10n == null) return const SizedBox.shrink();
+    final setsData = exercise.setsData;
     final exerciseControllers = _weightControllers[index] ?? {};
 
     return Container(
@@ -469,9 +472,9 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
           const SizedBox(height: 12),
 
           // 详情行: 每组数据
-          if (hasSetData) ...[
+          if (setsData != null && setsData.isNotEmpty) ...[
             // 显示组数据
-            ...exercise.setsData!.map(
+            ...setsData.map(
               (setData) => Padding(
                 padding: const EdgeInsets.only(bottom: 8),
                 child: Row(
@@ -728,15 +731,16 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
   double? _calculateMaxWeight(List<SetData> setsData) {
     if (setsData.isEmpty) return null;
     final weights = setsData
-        .where((s) => s.weight != null)
-        .map((s) => s.weight!)
+        .map((s) => s.weight)
+        .whereType<double>()
         .toList();
     if (weights.isEmpty) return null;
     return weights.reduce((a, b) => a > b ? a : b);
   }
 
   Widget _buildDeleteButton(AppThemeData theme) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
+    if (l10n == null) return const SizedBox.shrink();
     return SizedBox(
       width: double.infinity,
       child: OutlinedButton.icon(

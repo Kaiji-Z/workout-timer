@@ -200,7 +200,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().currentTheme;
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
+    if (l10n == null) return const SizedBox.shrink();
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -244,7 +245,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 ),
               ),
             );
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          } else if (snapshot.data?.isEmpty ?? true) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -305,7 +306,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
               ),
             );
           } else {
-            final records = snapshot.data!;
+            final records = snapshot.data ?? <dynamic>[];
             return ListView.builder(
               padding: EdgeInsets.only(
                 left: 16,
@@ -371,7 +372,8 @@ class _RecordCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
+    if (l10n == null) return const SizedBox.shrink();
     return Dismissible(
       key: Key(record.id),
       direction: DismissDirection.endToStart,
@@ -566,7 +568,8 @@ class _SessionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
+    if (l10n == null) return const SizedBox.shrink();
     return Dismissible(
       key: Key(session.id),
       direction: DismissDirection.endToStart,

@@ -44,10 +44,11 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
     super.initState();
 
     // 编辑模式：初始化数据
-    if (isEditMode) {
-      _selectedMuscles = List.from(widget.plan!.targetMuscles);
-      _selectedExercises = List.from(widget.plan!.exercises);
-      _nameController.text = widget.plan!.name;
+    final editingPlan = widget.plan;
+    if (isEditMode && editingPlan != null) {
+      _selectedMuscles = List.from(editingPlan.targetMuscles);
+      _selectedExercises = List.from(editingPlan.exercises);
+      _nameController.text = editingPlan.name;
       // 编辑模式默认跳到第3步（确认/微调）
       _currentStep = 2;
     }
@@ -1018,9 +1019,10 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
 
     setState(() => _isSaving = true);
     try {
-      if (isEditMode) {
+      final editingPlan = widget.plan;
+      if (isEditMode && editingPlan != null) {
         // 编辑模式
-        final updatedPlan = widget.plan!.copyWith(
+        final updatedPlan = editingPlan.copyWith(
           name: name,
           targetMuscles: _selectedMuscles,
           exercises: _selectedExercises,
@@ -1064,8 +1066,8 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
   /// 检查是否有未保存的更改
   Future<bool> _hasUnsavedChanges() async {
     // 编辑模式：与原始计划比较
-    if (isEditMode) {
-      final original = widget.plan!;
+    final original = widget.plan;
+    if (isEditMode && original != null) {
       final nameChanged = _nameController.text.trim() != original.name;
       final musclesChanged = !listEquals(
         _selectedMuscles,

@@ -35,7 +35,8 @@ class _PlanScreenState extends State<PlanScreen> {
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().currentTheme;
     final planProvider = context.watch<PlanProvider>();
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
+    if (l10n == null) return const SizedBox.shrink();
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -114,7 +115,8 @@ class _PlanScreenState extends State<PlanScreen> {
   }
 
   Widget _buildPlanList(PlanProvider planProvider, AppThemeData theme) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
+    if (l10n == null) return const SizedBox.shrink();
     // 获取选中日期的计划
     final plansForDate = planProvider.getPlansForDate(_selectedDate);
 
@@ -255,7 +257,8 @@ class _PlanScreenState extends State<PlanScreen> {
   }
 
   Widget _buildEmptyDayPlan(AppThemeData theme) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
+    if (l10n == null) return const SizedBox.shrink();
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -763,7 +766,8 @@ class _PlanDetailSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().currentTheme;
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
+    if (l10n == null) return const SizedBox.shrink();
 
     return Container(
       decoration: BoxDecoration(
@@ -850,14 +854,16 @@ class _PlanDetailSheet extends StatelessWidget {
               final index = entry.key;
               final planExercise = entry.value;
               final hasDetails = planExercise.hasDetails;
+              final exercise = planExercise.exercise;
+              final imageUrl = exercise?.imageUrl;
 
               return Material(
                 color: Colors.transparent,
                 child: InkWell(
-                  onTap: hasDetails && planExercise.exercise != null
+                  onTap: hasDetails && exercise != null
                       ? () => ExerciseDetailSheet.show(
                           context,
-                          exercise: planExercise.exercise!,
+                          exercise: exercise,
                           isSelected: false,
                           onToggle: () => Navigator.pop(context),
                           readOnly: true,
@@ -878,29 +884,26 @@ class _PlanDetailSheet extends StatelessWidget {
                         Material(
                           color: Colors.transparent,
                           child: InkWell(
-                            onTap:
-                                hasDetails &&
-                                    planExercise.exercise?.imageUrl != null
+                            onTap: hasDetails && imageUrl != null
                                 ? () {
-                                    if (planExercise
-                                        .exercise!
-                                        .images
-                                        .isNotEmpty) {
+                                    final exercise = planExercise.exercise;
+                                    final imageUrl = exercise?.imageUrl;
+                                    if (exercise == null ||
+                                        imageUrl == null) {
+                                      return;
+                                    }
+                                    if (exercise.images.isNotEmpty) {
                                       FullscreenImageViewer.showCarousel(
                                         context,
-                                        images: planExercise.exercise!.images,
+                                        images: exercise.images,
                                         initialIndex: 0,
-                                        title: planExercise.exercise!.name,
+                                        title: exercise.name,
                                       );
-                                    } else if (planExercise
-                                            .exercise!
-                                            .imageUrl !=
-                                        null) {
+                                    } else {
                                       FullscreenImageViewer.show(
                                         context,
-                                        imageUrl:
-                                            planExercise.exercise!.imageUrl!,
-                                        title: planExercise.exercise!.name,
+                                        imageUrl: imageUrl,
+                                        title: exercise.name,
                                       );
                                     }
                                   }
@@ -926,13 +929,11 @@ class _PlanDetailSheet extends StatelessWidget {
                                   AppDimensions.radiusLg,
                                 ),
                                 child:
-                                    hasDetails &&
-                                        planExercise.exercise?.imageUrl != null
+                                    hasDetails && imageUrl != null
                                     ? Hero(
-                                        tag: planExercise.exercise!.imageUrl!,
+                                        tag: imageUrl,
                                         child: CachedNetworkImage(
-                                          imageUrl:
-                                              planExercise.exercise!.imageUrl!,
+                                          imageUrl: imageUrl,
                                           fit: BoxFit.cover,
                                           placeholder: (context, url) => Icon(
                                             Icons.fitness_center,
@@ -995,8 +996,7 @@ class _PlanDetailSheet extends StatelessWidget {
                                     ),
                               ),
                               // 肌肉标签和器材信息
-                              if (hasDetails &&
-                                  planExercise.exercise != null) ...[
+                              if (hasDetails && exercise != null) ...[
                                 const SizedBox(height: 4),
                                 Row(
                                   children: [
@@ -1014,10 +1014,7 @@ class _PlanDetailSheet extends StatelessWidget {
                                         ),
                                       ),
                                       child: Text(
-                                        planExercise
-                                            .exercise!
-                                            .primaryMuscle
-                                            .displayName,
+                                        exercise.primaryMuscle.displayName,
                                         style: Theme.of(context)
                                             .textTheme
                                             .bodySmall!
@@ -1029,9 +1026,7 @@ class _PlanDetailSheet extends StatelessWidget {
                                     ),
                                     const SizedBox(width: 6),
                                     Text(
-                                      planExercise
-                                          .exercise!
-                                          .equipmentDisplayName(l10n),
+                                      exercise.equipmentDisplayName(l10n),
                                       style: Theme.of(
                                         context,
                                       ).textTheme.bodySmall!,
