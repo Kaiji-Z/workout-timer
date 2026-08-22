@@ -211,7 +211,8 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().currentTheme;
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
+    if (l10n == null) return const SizedBox.shrink();
 
     return Scaffold(
       backgroundColor: theme.backgroundColor,
@@ -294,7 +295,8 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
 
   // ==================== 第1步：Tab切换（新建计划 / 导入分析） ====================
   Widget _buildStep1(AppThemeData theme) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
+    if (l10n == null) return const SizedBox.shrink();
     return Column(
       children: [
         // Tab bar
@@ -358,7 +360,8 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
 
   // ==================== 新建计划表单（原Step1内容） ====================
   Widget _buildNewPlanForm(AppThemeData theme) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
+    if (l10n == null) return const SizedBox.shrink();
     if (!_preferencesLoaded) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -473,7 +476,9 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
 
   // ==================== 导入分析表单（新增） ====================
   Widget _buildImportAnalysisForm(AppThemeData theme) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
+    if (l10n == null) return const SizedBox.shrink();
+    final parseError = _parseError;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -517,7 +522,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
             onPressed: _isParsing ? null : _parseJsonForImport,
             height: 56,
           ),
-          if (_parseError != null) ...[
+          if (parseError != null) ...[
             const SizedBox(height: 16),
             Container(
               padding: const EdgeInsets.all(12),
@@ -532,7 +537,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      _parseError!,
+                      parseError,
                       style: Theme.of(
                         context,
                       ).textTheme.bodyMedium!.copyWith(color: theme.errorColor),
@@ -550,7 +555,8 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
   /// Run pre-matching against the exercise database after JSON is parsed.
   /// Populates _matchResults so the preview UI can show status badges.
   Future<void> _runPreMatching() async {
-    if (_parsedPlan == null) return;
+    final parsedPlan = _parsedPlan;
+    if (parsedPlan == null) return;
 
     setState(() => _isMatching = true);
 
@@ -564,7 +570,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
 
       _matchResults.clear();
 
-      for (final day in _parsedPlan!.days) {
+      for (final day in parsedPlan.days) {
         for (final exercise in day.exercises) {
           final key = 'day${day.dayOfWeek}-${exercise.exerciseName}';
           final result = await matcher.matchExercise(exercise.exerciseName);
@@ -707,8 +713,9 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
   }
 
   Future<void> _copyToClipboard() async {
-    if (_generatedPrompt != null) {
-      await Clipboard.setData(ClipboardData(text: _generatedPrompt!));
+    final prompt = _generatedPrompt;
+    if (prompt != null) {
+      await Clipboard.setData(ClipboardData(text: prompt));
       if (mounted) {
         final theme = context.read<ThemeProvider>().currentTheme;
         final l10n = AppLocalizations.of(context)!;
@@ -724,7 +731,9 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
 
   // ==================== 第3步：粘贴JSON ====================
   Widget _buildStep3(AppThemeData theme) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
+    if (l10n == null) return const SizedBox.shrink();
+    final parseError = _parseError;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -772,7 +781,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
             height: 56,
           ),
 
-          if (_parseError != null) ...[
+          if (parseError != null) ...[
             const SizedBox(height: 16),
             Container(
               padding: const EdgeInsets.all(12),
@@ -787,7 +796,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      _parseError!,
+                      parseError,
                       style: Theme.of(
                         context,
                       ).textTheme.bodyMedium!.copyWith(color: theme.errorColor),
@@ -851,8 +860,10 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
 
   // ==================== 第4步：预览 + 导入 ====================
   Widget _buildStep4(AppThemeData theme) {
-    final l10n = AppLocalizations.of(context)!;
-    if (_parsedPlan == null) {
+    final l10n = AppLocalizations.of(context);
+    if (l10n == null) return const SizedBox.shrink();
+    final parsedPlan = _parsedPlan;
+    if (parsedPlan == null) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -886,7 +897,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  l10n.aiPlanNameLabel(_parsedPlan!.name),
+                  l10n.aiPlanNameLabel(parsedPlan.name),
                   style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                     color: theme.secondaryTextColor,
                   ),
@@ -897,7 +908,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
                 if (!_isMatching && _matchResults.isNotEmpty) ...[
                   aiWizardMatchSummary(
                     context,
-                    parsedPlan: _parsedPlan!,
+                    parsedPlan: parsedPlan,
                     matchResults: _matchResults,
                     manualSelections: _manualSelections,
                     theme: theme,
@@ -905,7 +916,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
                   const SizedBox(height: 16),
                 ],
 
-                ..._parsedPlan!.days.map(
+                ...parsedPlan.days.map(
                   (day) => aiWizardDayCard(
                     context,
                     day: day,
@@ -946,7 +957,8 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
   }
 
   Future<void> _importPlan() async {
-    if (_parsedPlan == null) return;
+    final parsedPlan = _parsedPlan;
+    if (parsedPlan == null) return;
 
     final theme = context.read<ThemeProvider>().currentTheme;
     final l10n = AppLocalizations.of(context)!;
@@ -985,7 +997,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
     try {
       final planProvider = context.read<PlanProvider>();
       await planProvider.importWeeklyPlanWithMatches(
-        _parsedPlan!,
+        parsedPlan,
         _startDate,
         _manualSelections,
       );
@@ -1017,7 +1029,8 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
 
   // ==================== 底部按钮 ====================
   Widget _buildBottomButton(AppThemeData theme) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
+    if (l10n == null) return const SizedBox.shrink();
     String buttonText;
     bool isEnabled;
     VoidCallback? onPressed;

@@ -108,20 +108,22 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
         if (sets == null || sets.isEmpty) continue;
 
         for (final set in sets) {
-          if (set.weight == null || set.weight! <= 0) continue;
-          if (set.reps == null || set.reps! <= 0) continue;
+          final weight = set.weight;
+          final reps = set.reps;
+          if (weight == null || weight <= 0) continue;
+          if (reps == null || reps <= 0) continue;
 
           final e1RM = StatsCalculatorService.estimate1RM(
-            set.weight!,
-            set.reps!,
+            weight,
+            reps,
           );
           final current = sessionBest[name];
           if (current == null || e1RM > current.estimated1RM) {
             sessionBest[name] = Estimated1RMPoint(
               date: record.date,
               estimated1RM: e1RM,
-              weight: set.weight!,
-              reps: set.reps,
+              weight: weight,
+              reps: reps,
             );
           }
         }
@@ -424,8 +426,9 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
   Set<PrimaryMuscleGroup> _getMusclesFromRecord(WorkoutRecord record) {
     final fromExercises = <PrimaryMuscleGroup>{};
     for (final e in record.exercises) {
-      if (e.exercise != null) {
-        fromExercises.add(e.exercise!.primaryMuscle);
+      final exercise = e.exercise;
+      if (exercise != null) {
+        fromExercises.add(exercise.primaryMuscle);
       }
     }
     if (fromExercises.isNotEmpty) return fromExercises;
@@ -1033,7 +1036,9 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
         onPressed: _generatedPrompt == null
             ? null
             : () {
-                Clipboard.setData(ClipboardData(text: _generatedPrompt!));
+                final prompt = _generatedPrompt;
+                if (prompt == null) return;
+                Clipboard.setData(ClipboardData(text: prompt));
                 setState(() => _isPromptCopied = true);
                 ScaffoldMessenger.of(
                   context,

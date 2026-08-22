@@ -192,7 +192,8 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
   }
 
   Widget _buildSearchBar(AppThemeData theme) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
+    if (l10n == null) return const SizedBox.shrink();
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Container(
@@ -241,7 +242,8 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
   }
 
   Widget _buildMuscleFilterChips(AppThemeData theme) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
+    if (l10n == null) return const SizedBox.shrink();
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -329,7 +331,8 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
 
   /// 器械类型筛选标签
   Widget _buildEquipmentFilterChips(AppThemeData theme) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
+    if (l10n == null) return const SizedBox.shrink();
     // 器械类型列表（key 匹配 e.equipment；label 走 l10n，与 Exercise.equipmentDisplayName 一致）
     final equipmentTypes = [
       {'key': null, 'label': l10n.equipmentAll},
@@ -437,7 +440,8 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
   }
 
   Widget _buildExerciseList(PlanProvider planProvider, AppThemeData theme) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
+    if (l10n == null) return const SizedBox.shrink();
     // 获取所有动作
     List<Exercise> exercises = planProvider.exercises;
 
@@ -762,7 +766,9 @@ class _ExerciseListItem extends StatefulWidget {
 class _ExerciseListItemState extends State<_ExerciseListItem> {
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
+    if (l10n == null) return const SizedBox.shrink();
+    final imageUrl = widget.exercise.imageUrl;
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -797,10 +803,10 @@ class _ExerciseListItemState extends State<_ExerciseListItem> {
                       title: widget.exercise.name,
                       heroTag: widget.exercise.imageUrl, // 传递 Hero 标签
                     );
-                  } else if (widget.exercise.imageUrl != null) {
+                      } else if (imageUrl != null) {
                     FullscreenImageViewer.show(
                       context,
-                      imageUrl: widget.exercise.imageUrl!,
+                      imageUrl: imageUrl,
                       title: widget.exercise.name,
                     );
                   }
@@ -815,13 +821,13 @@ class _ExerciseListItemState extends State<_ExerciseListItem> {
                         : widget.theme.accentColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
                   ),
-                  child: ClipRRect(
+                    child: ClipRRect(
                     borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-                    child: widget.exercise.imageUrl != null
+                    child: imageUrl != null
                         ? Hero(
-                            tag: widget.exercise.imageUrl!,
+                            tag: imageUrl,
                             child: CachedNetworkImage(
-                              imageUrl: widget.exercise.imageUrl!,
+                              imageUrl: imageUrl,
                               fit: BoxFit.cover,
                               placeholder: (context, url) => Icon(
                                 Icons.fitness_center,

@@ -251,7 +251,8 @@ class _StatsScreenState extends State<StatsScreen>
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().currentTheme;
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
+    if (l10n == null) return const SizedBox.shrink();
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -330,7 +331,8 @@ class _StatsScreenState extends State<StatsScreen>
   /// 训练量概览 — 降级为紧凑次要指标行（总组数 / 总时长）
   /// 周视图
   Widget _buildWeekView(AppThemeData theme) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
+    if (l10n == null) return const SizedBox.shrink();
     // Show global empty state if no records at all
     if (_getAllRecords().isEmpty) {
       return _buildGlobalEmptyState(theme);
@@ -467,7 +469,8 @@ class _StatsScreenState extends State<StatsScreen>
     final previousMonthRecords = _filterByMonth(prevYear, prevMonth);
     final volumeChange = _calculateVolumeChange(records, previousMonthRecords);
 
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
+    if (l10n == null) return const SizedBox.shrink();
     return SingleChildScrollView(
       padding: EdgeInsets.only(
         left: 16,
@@ -559,7 +562,8 @@ class _StatsScreenState extends State<StatsScreen>
 
   /// 周选择器
   Widget _buildWeekSelector(AppThemeData theme) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
+    if (l10n == null) return const SizedBox.shrink();
     final weekStart = _getStartOfWeek(_selectedWeekStart);
     final weekDays = _getWeekDays(weekStart);
     final today = DateTime.now();
@@ -716,7 +720,8 @@ class _StatsScreenState extends State<StatsScreen>
 
   /// 年份选择器
   Widget _buildYearSelector(AppThemeData theme) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
+    if (l10n == null) return const SizedBox.shrink();
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
@@ -771,7 +776,8 @@ class _StatsScreenState extends State<StatsScreen>
 
   /// 月份网格
   Widget _buildMonthGrid(Map<int, int> counts, AppThemeData theme) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
+    if (l10n == null) return const SizedBox.shrink();
     final now = DateTime.now();
     final maxCount = counts.values.fold(0, (max, e) => e > max ? e : max);
 
@@ -902,7 +908,8 @@ class _StatsScreenState extends State<StatsScreen>
 
   /// Global empty state when there are no records at all
   Widget _buildGlobalEmptyState(AppThemeData theme) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
+    if (l10n == null) return const SizedBox.shrink();
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
