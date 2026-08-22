@@ -97,7 +97,8 @@ class _ExerciseSelectorState extends State<ExerciseSelector> {
   }
 
   Widget _buildSearchBar(AppThemeData theme) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
+    if (l10n == null) return const SizedBox.shrink();
     return Container(
       decoration: BoxDecoration(
         color: theme.surfaceColorRaised,
@@ -143,7 +144,8 @@ class _ExerciseSelectorState extends State<ExerciseSelector> {
   }
 
   Widget _buildMuscleFilterChips(AppThemeData theme) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
+    if (l10n == null) return const SizedBox.shrink();
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
@@ -229,7 +231,8 @@ class _ExerciseSelectorState extends State<ExerciseSelector> {
   }
 
   Widget _buildExerciseList(PlanProvider planProvider, AppThemeData theme) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
+    if (l10n == null) return const SizedBox.shrink();
     // 获取所有动作
     List<Exercise> exercises = planProvider.exercises;
 
@@ -296,7 +299,8 @@ class _ExerciseSelectorState extends State<ExerciseSelector> {
   }
 
   Widget _buildSelectedPreview(AppThemeData theme) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
+    if (l10n == null) return const SizedBox.shrink();
     return Container(
       constraints: const BoxConstraints(maxHeight: 110),
       padding: const EdgeInsets.all(AppDimensions.screenPadding),
@@ -434,7 +438,9 @@ class _ExerciseListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
+    if (l10n == null) return const SizedBox.shrink();
+    final imageUrl = exercise.imageUrl;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
       decoration: BoxDecoration(
@@ -453,10 +459,11 @@ class _ExerciseListItem extends StatelessWidget {
           color: Colors.transparent,
           child: InkWell(
             onTap: () {
-              if (exercise.imageUrl != null) {
+              final imageUrl = exercise.imageUrl;
+              if (imageUrl != null) {
                 FullscreenImageViewer.show(
                   context,
-                  imageUrl: exercise.imageUrl!,
+                  imageUrl: imageUrl,
                   title: exercise.name,
                 );
               }
@@ -473,11 +480,11 @@ class _ExerciseListItem extends StatelessWidget {
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-                child: exercise.imageUrl != null
+                child: imageUrl != null
                     ? Hero(
-                        tag: exercise.imageUrl!,
+                        tag: imageUrl,
                         child: CachedNetworkImage(
-                          imageUrl: exercise.imageUrl!,
+                          imageUrl: imageUrl,
                           fit: BoxFit.cover,
                           placeholder: (context, url) => Icon(
                             Icons.fitness_center,
@@ -626,7 +633,8 @@ class _ExerciseDetailSheetState extends State<ExerciseDetailSheet>
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().currentTheme;
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
+    if (l10n == null) return const SizedBox.shrink();
     final hasImages = widget.exercise.images.isNotEmpty;
 
     return DraggableScrollableSheet(
@@ -814,7 +822,8 @@ class _ExerciseDetailSheetState extends State<ExerciseDetailSheet>
 
   /// 图片轮播组件（交叉渐隐自动轮播）
   Widget _buildImageCarousel(AppThemeData theme) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
+    if (l10n == null) return const SizedBox.shrink();
     final images = widget.exercise.images;
 
     return Column(
@@ -910,7 +919,8 @@ class _ExerciseDetailSheetState extends State<ExerciseDetailSheet>
 
   /// 动作指导组件
   Widget _buildInstructions(AppThemeData theme) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
+    if (l10n == null) return const SizedBox.shrink();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -983,7 +993,8 @@ class _ExerciseDetailSheetState extends State<ExerciseDetailSheet>
 
   /// 推荐配置组件
   Widget _buildRecommendation(AppThemeData theme) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
+    if (l10n == null) return const SizedBox.shrink();
     return Container(
       padding: const EdgeInsets.all(AppDimensions.screenPadding),
       decoration: BoxDecoration(
@@ -1149,7 +1160,8 @@ class _FullscreenImageGalleryState extends State<_FullscreenImageGallery>
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().currentTheme;
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
+    if (l10n == null) return const SizedBox.shrink();
 
     return Dialog(
       backgroundColor: Colors.black,

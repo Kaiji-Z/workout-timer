@@ -17,7 +17,8 @@ Widget aiWizardStepIndicator(
   required bool isImportTab,
   required AppThemeData theme,
 }) {
-  final l10n = AppLocalizations.of(context)!;
+  final l10n = AppLocalizations.of(context);
+  if (l10n == null) return const SizedBox.shrink();
   final stepLabels = isImportTab
       ? [
           l10n.aiStepImportAnalysis,
@@ -185,7 +186,8 @@ Widget aiWizardStartWeekStep(
   required ValueChanged<bool> onSelectionChanged,
   required AppThemeData theme,
 }) {
-  final l10n = AppLocalizations.of(context)!;
+  final l10n = AppLocalizations.of(context);
+  if (l10n == null) return const SizedBox.shrink();
   return SingleChildScrollView(
     padding: const EdgeInsets.all(20),
     child: Column(
@@ -317,7 +319,8 @@ Widget aiWizardPromptStep(
   required ValueChanged<DateTime> onStartDateChanged,
   required AppThemeData theme,
 }) {
-  final l10n = AppLocalizations.of(context)!;
+  final l10n = AppLocalizations.of(context);
+  if (l10n == null) return const SizedBox.shrink();
   return SingleChildScrollView(
     padding: const EdgeInsets.all(20),
     child: Column(
@@ -355,6 +358,9 @@ Widget aiWizardPromptStep(
                 firstDate: DateTime.now(),
                 lastDate: DateTime.now().add(const Duration(days: 365)),
                 builder: (context, child) {
+                  if (child == null) {
+                    return const SizedBox.shrink();
+                  }
                   return Theme(
                     data: ThemeData(
                       useMaterial3: true,
@@ -368,7 +374,7 @@ Widget aiWizardPromptStep(
                         onError: theme.onAccentColor,
                       ),
                     ),
-                    child: child!,
+                    child: child,
                   );
                 },
               );

@@ -22,7 +22,8 @@ Widget aiWizardMatchSummary(
   required Map<String, Exercise> manualSelections,
   required AppThemeData theme,
 }) {
-  final l10n = AppLocalizations.of(context)!;
+  final l10n = AppLocalizations.of(context);
+  if (l10n == null) return const SizedBox.shrink();
   int matched = 0;
   int candidates = 0;
   int unmatched = 0;
@@ -106,7 +107,8 @@ Widget aiWizardDayCard(
   onShowCandidates,
   required AppThemeData theme,
 }) {
-  final l10n = AppLocalizations.of(context)!;
+  final l10n = AppLocalizations.of(context);
+  if (l10n == null) return const SizedBox.shrink();
   final dayName = _dayName(day.dayOfWeek, l10n);
 
   return Card(
@@ -180,7 +182,8 @@ Widget _buildExerciseRow(
   onShowCandidates,
   required AppThemeData theme,
 }) {
-  final l10n = AppLocalizations.of(context)!;
+  final l10n = AppLocalizations.of(context);
+  if (l10n == null) return const SizedBox.shrink();
   final exerciseKey = 'day$dayOfWeek-${exercise.exerciseName}';
   final currentSets = editableSets[exerciseKey] ?? exercise.targetSets;
 
@@ -190,10 +193,12 @@ Widget _buildExerciseRow(
   final isMatched = hasManualSelection || (matchResult?.isSuccess ?? false);
 
   // Display name: manual selection > auto-match > original
-  final displayName = hasManualSelection
-      ? manualSelections[exerciseKey]!.name
-      : (matchResult?.isSuccess == true && matchResult?.exercise != null
-            ? matchResult!.exercise!.name
+  final manualSelection = manualSelections[exerciseKey];
+  final matchedExercise = matchResult?.exercise;
+  final displayName = manualSelection != null
+      ? manualSelection.name
+      : (matchResult?.isSuccess == true && matchedExercise != null
+            ? matchedExercise.name
             : exercise.exerciseName);
 
   // Build status badge widget
@@ -409,7 +414,8 @@ void aiWizardCandidateSheet(
                   final candidate = matchResult.candidates[index];
                   final isSelected =
                       manualSelections[matchKey]?.id == candidate.id;
-                  final l10n = AppLocalizations.of(context)!;
+                  final l10n = AppLocalizations.of(context);
+                  if (l10n == null) return const SizedBox.shrink();
 
                   return ListTile(
                     leading: Container(

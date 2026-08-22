@@ -60,7 +60,8 @@ Widget buildFrequencyOverview(
   Map<String, dynamic> stats,
   AppThemeData theme,
 ) {
-  final l10n = AppLocalizations.of(context)!;
+  final l10n = AppLocalizations.of(context);
+  if (l10n == null) return const SizedBox.shrink();
   return Row(
     children: [
       Expanded(
@@ -118,7 +119,8 @@ Widget buildHeroVolume(
   double? volumeChange,
   required double userBodyWeight,
 }) {
-  final l10n = AppLocalizations.of(context)!;
+  final l10n = AppLocalizations.of(context);
+  if (l10n == null) return const SizedBox.shrink();
   final totalVolume = _statsCalc.calculateTotalVolume(
     workoutRecords,
     bodyWeight: userBodyWeight,
@@ -196,7 +198,8 @@ Widget _buildVolumeChangeBadge(
   double volumeChange,
   AppThemeData theme,
 ) {
-  final l10n = AppLocalizations.of(context)!;
+  final l10n = AppLocalizations.of(context);
+  if (l10n == null) return const SizedBox.shrink();
   final isUp = volumeChange >= 0;
   final changeRounded = volumeChange.round();
   // On the indigo hero, encode direction by icon + sign, not by green/red
@@ -238,7 +241,8 @@ Widget buildVolumeOverview(
   Map<String, dynamic> stats,
   AppThemeData theme,
 ) {
-  final l10n = AppLocalizations.of(context)!;
+  final l10n = AppLocalizations.of(context);
+  if (l10n == null) return const SizedBox.shrink();
   return Column(
     children: [
       Row(

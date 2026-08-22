@@ -269,11 +269,14 @@ class _ExportSheetState extends State<_ExportSheet> {
   }
 
   (DateTime, DateTime)? _currentRange() {
-    if (_customFrom != null && _customTo != null) {
-      return (_customFrom!, _customTo!);
+    final customFrom = _customFrom;
+    final customTo = _customTo;
+    if (customFrom != null && customTo != null) {
+      return (customFrom, customTo);
     }
-    if (_selected == null) return null;
-    return _presetRange(_selected!);
+    final selected = _selected;
+    if (selected == null) return null;
+    return _presetRange(selected);
   }
 
   (DateTime, DateTime) _presetRange(_ExportPreset preset) {

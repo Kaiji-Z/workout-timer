@@ -39,7 +39,8 @@ Widget buildDailyDurationChart(
   required int selectedYear,
   required int selectedMonth,
 }) {
-  final l10n = AppLocalizations.of(context)!;
+  final l10n = AppLocalizations.of(context);
+  if (l10n == null) return const SizedBox.shrink();
   final maxDuration = durations.values.fold(0, (max, e) => e > max ? e : max);
   final displayDays = days ?? (isWeekView ? 7 : 31);
 
@@ -237,7 +238,8 @@ Widget buildCommonExercisesChart(
   Map<String, int> exercises,
   AppThemeData theme,
 ) {
-  final l10n = AppLocalizations.of(context)!;
+  final l10n = AppLocalizations.of(context);
+  if (l10n == null) return const SizedBox.shrink();
   if (exercises.isEmpty) {
     return Center(
       child: Padding(
@@ -336,7 +338,8 @@ Widget buildMuscleVolumeChart(
   AppThemeData theme, {
   required double userBodyWeight,
 }) {
-  final l10n = AppLocalizations.of(context)!;
+  final l10n = AppLocalizations.of(context);
+  if (l10n == null) return const SizedBox.shrink();
   final distribution = _statsCalc.calculateMuscleVolumeDistribution(
     records,
     bodyWeight: userBodyWeight,
@@ -475,7 +478,8 @@ Widget buildPrimaryRecoveryList(
   List<WorkoutRecord> records,
   AppThemeData theme,
 ) {
-  final l10n = AppLocalizations.of(context)!;
+  final l10n = AppLocalizations.of(context);
+  if (l10n == null) return const SizedBox.shrink();
   // 计算每个主肌群的最后训练日期
   final lastTrained = <PrimaryMuscleGroup, DateTime>{};
   final now = DateTime.now();
@@ -585,7 +589,8 @@ Widget buildDensityMetric(
   List<WorkoutRecord> records,
   AppThemeData theme,
 ) {
-  final l10n = AppLocalizations.of(context)!;
+  final l10n = AppLocalizations.of(context);
+  if (l10n == null) return const SizedBox.shrink();
   if (records.isEmpty) return const SizedBox.shrink();
 
   final density = _statsCalc.calculateDensity(records);
@@ -650,7 +655,8 @@ Widget buildEstimated1RMTrend(
   List<WorkoutRecord> records,
   AppThemeData theme,
 ) {
-  final l10n = AppLocalizations.of(context)!;
+  final l10n = AppLocalizations.of(context);
+  if (l10n == null) return const SizedBox.shrink();
   final trend = _statsCalc.calculateEstimated1RMTrend(records);
 
   if (trend.isEmpty) {
@@ -807,7 +813,8 @@ Widget buildSetsPerMuscleGroupChart(
   List<WorkoutRecord> records,
   AppThemeData theme,
 ) {
-  final l10n = AppLocalizations.of(context)!;
+  final l10n = AppLocalizations.of(context);
+  if (l10n == null) return const SizedBox.shrink();
   final setsPerMuscle = _statsCalc.calculateSetsPerMuscleGroup(records);
 
   if (setsPerMuscle.isEmpty) {

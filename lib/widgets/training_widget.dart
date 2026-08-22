@@ -299,8 +299,8 @@ class _TrainingWidgetState extends State<TrainingWidget>
 
     if (training.isExercising) {
       color = theme.progressRingColor;
-      if (_isPlanMode && progressProvider.currentExercise != null) {
-        final exercise = progressProvider.currentExercise!;
+      final exercise = progressProvider.currentExercise;
+      if (_isPlanMode && exercise != null) {
         text = AppLocalizations.of(context)!.trainingExerciseProgress(
           exercise.name,
           progressProvider.currentSetInExercise + 1,
@@ -312,8 +312,8 @@ class _TrainingWidgetState extends State<TrainingWidget>
       icon = Icons.fitness_center;
     } else if (training.isResting) {
       color = theme.progressRingColor;
-      if (_isPlanMode && progressProvider.currentExercise != null) {
-        final exercise = progressProvider.currentExercise!;
+      final exercise = progressProvider.currentExercise;
+      if (_isPlanMode && exercise != null) {
         text = AppLocalizations.of(context)!.trainingExerciseRest(
           exercise.name,
           progressProvider.currentSetInExercise,
@@ -334,9 +334,10 @@ class _TrainingWidgetState extends State<TrainingWidget>
       icon = Icons.pause_circle_outline;
     } else {
       color = theme.secondaryTextColor;
-      if (_isPlanMode && _selectedPlan != null) {
+      final selectedPlan = _selectedPlan;
+      if (_isPlanMode && selectedPlan != null) {
         text = AppLocalizations.of(context)!
-            .trainingPlanReady(_selectedPlan!.name);
+            .trainingPlanReady(selectedPlan.name);
       } else {
         text = AppLocalizations.of(context)!.trainingReady;
       }
@@ -414,10 +415,11 @@ class _TrainingWidgetState extends State<TrainingWidget>
             icon: Icons.play_arrow_rounded,
             onPressed: () {
               training.startExercise();
+              final selectedPlan = _selectedPlan;
               if (_isPlanMode &&
-                  _selectedPlan != null &&
+                  selectedPlan != null &&
                   progressProvider.startTime == null) {
-                progressProvider.startPlan(_selectedPlan!);
+                progressProvider.startPlan(selectedPlan);
               }
             },
           ),
@@ -439,8 +441,8 @@ class _TrainingWidgetState extends State<TrainingWidget>
             icon: Icons.stop,
             iconColor: theme.errorColor,
             onPressed: () {
-              if (_isPlanMode && progressProvider.currentExercise != null) {
-                final completedExercise = progressProvider.currentExercise!;
+              final completedExercise = progressProvider.currentExercise;
+              if (_isPlanMode && completedExercise != null) {
                 final completedSetNumber =
                     progressProvider.currentSetInExercise + 1;
                 progressProvider.completeSet();
@@ -516,8 +518,8 @@ class _TrainingWidgetState extends State<TrainingWidget>
             icon: Icons.stop,
             iconColor: theme.errorColor,
             onPressed: () {
-              if (_isPlanMode && progressProvider.currentExercise != null) {
-                final completedExercise = progressProvider.currentExercise!;
+              final completedExercise = progressProvider.currentExercise;
+              if (_isPlanMode && completedExercise != null) {
                 final completedSetNumber =
                     progressProvider.currentSetInExercise + 1;
                 progressProvider.completeSet();
@@ -813,13 +815,14 @@ class _TrainingWidgetState extends State<TrainingWidget>
         if (!context.mounted) return;
       }
 
-      if (_isPlanMode && _selectedPlan != null) {
+      final selectedPlan = _selectedPlan;
+      if (_isPlanMode && selectedPlan != null) {
         // 计划模式：先显示批量数据输入对话框
         if (_detailedRecordingEnabled) {
           final exerciseData = await showDialog<Map<String, List<SetData>>?>(
             context: context,
             builder: (context) => BulkExerciseDataDialog(
-              exercises: _selectedPlan!.exercises,
+              exercises: selectedPlan.exercises,
               completedSets: progressProvider.completedSets,
               prePopulatedData: progressProvider.exerciseSetsData.isNotEmpty
                   ? progressProvider.exerciseSetsData
