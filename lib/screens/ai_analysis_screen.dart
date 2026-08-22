@@ -11,6 +11,7 @@ import '../services/user_preferences_service.dart';
 import '../theme/theme_provider.dart';
 import '../theme/app_theme.dart';
 import '../utils/dimensions.dart';
+import '../theme/build_context_text_styles.dart';
 
 /// Full-screen page for AI training analysis.
 /// Generates a rich prompt from workout data and lets users copy it to external AI tools.
@@ -113,10 +114,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
           if (weight == null || weight <= 0) continue;
           if (reps == null || reps <= 0) continue;
 
-          final e1RM = StatsCalculatorService.estimate1RM(
-            weight,
-            reps,
-          );
+          final e1RM = StatsCalculatorService.estimate1RM(weight, reps);
           final current = sessionBest[name];
           if (current == null || e1RM > current.estimated1RM) {
             sessionBest[name] = Estimated1RMPoint(
@@ -163,7 +161,12 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
           ? '${(entry.value / 1000).toStringAsFixed(1)}k'
           : entry.value.toStringAsFixed(0);
       buffer.writeln(
-        l10n.anPromptMuscleDistLine(i + 1, entry.key.displayName, volumeStr, pct),
+        l10n.anPromptMuscleDistLine(
+          i + 1,
+          entry.key.displayName,
+          volumeStr,
+          pct,
+        ),
       );
     }
     return buffer.toString().trimRight();
@@ -194,7 +197,11 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
           : '→';
       buffer.writeln(
         l10n.anPromptVolumeTrendWithChange(
-            fmtVol(currentVolume), change > 0 ? '+' : '', change, arrow),
+          fmtVol(currentVolume),
+          change > 0 ? '+' : '',
+          change,
+          arrow,
+        ),
       );
     } else {
       buffer.writeln(l10n.anPromptVolumeTrendNew(fmtVol(currentVolume)));
@@ -234,7 +241,11 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
           final arrow = change > 0 ? '↑' : '↓';
           buffer.writeln(
             l10n.anPromptMuscleTrend(
-                muscle.displayName, change > 0 ? '+' : '', change, arrow),
+              muscle.displayName,
+              change > 0 ? '+' : '',
+              change,
+              arrow,
+            ),
           );
         }
       }
@@ -441,8 +452,12 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
     final isWeek = widget.periodType == 'week';
     final periodLabel = isWeek ? l10n.anPeriodWeek : l10n.anPeriodMonth;
     final periodWord = isWeek ? l10n.anWeek : l10n.anMonth;
-    final dateRange = l10n.anDateRange(widget.startDate.month,
-        widget.startDate.day, widget.endDate.month, widget.endDate.day);
+    final dateRange = l10n.anDateRange(
+      widget.startDate.month,
+      widget.startDate.day,
+      widget.endDate.month,
+      widget.endDate.day,
+    );
 
     String goalLabel(String code) {
       switch (code) {
@@ -574,9 +589,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
       l10n.anPromptExperience(experienceLabel(_selectedExperience)),
     );
     buffer.writeln(l10n.anPromptFrequency(_selectedFrequency));
-    buffer.writeln(
-      l10n.anPromptEquipment(equipmentLabel(_selectedEquipment)),
-    );
+    buffer.writeln(l10n.anPromptEquipment(equipmentLabel(_selectedEquipment)));
     if (_selectedFocusAreas.isNotEmpty) {
       buffer.writeln(
         l10n.anPromptFocusAreas(
@@ -626,7 +639,9 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
     buffer.writeln(
       '- Dumbbell: Incline Dumbbell Press, Dumbbell Fly, Dumbbell Curl, Lateral Raise',
     );
-    buffer.writeln('- Cable/Machine: Cable Fly, Cable Crossover, Lat Pulldown, Leg Press');
+    buffer.writeln(
+      '- Cable/Machine: Cable Fly, Cable Crossover, Lat Pulldown, Leg Press',
+    );
     buffer.writeln('- Bodyweight: Pull-up, Dip, Push-up, Bodyweight Squat');
     buffer.writeln(l10n.anPromptNamingClosing);
     buffer.writeln();
@@ -733,7 +748,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
           const SizedBox(width: 8),
           Text(
             l10n.anTitle,
-            style: Theme.of(context).textTheme.headlineMedium!.copyWith(
+            style: context.headlineMedium.copyWith(
               fontWeight: FontWeight.w700,
               letterSpacing: -0.5,
             ),
@@ -764,7 +779,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
               const SizedBox(width: 8),
               Text(
                 l10n.anInstructionsHeading,
-                style: Theme.of(context).textTheme.labelLarge!.copyWith(
+                style: context.labelLarge.copyWith(
                   fontWeight: FontWeight.w600,
                   color: theme.accentColor,
                 ),
@@ -785,17 +800,14 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
   Widget _buildInstructionStep(String text, AppThemeData theme) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
-      child: Text(
-        text,
-        style: Theme.of(context).textTheme.bodySmall!.copyWith(fontSize: 13),
-      ),
+      child: Text(text, style: context.bodySmall.copyWith(fontSize: 13)),
     );
   }
 
   Widget _buildSectionHeader(String title, AppThemeData theme) {
     return Text(
       title,
-      style: Theme.of(context).textTheme.headlineLarge!.copyWith(
+      style: context.headlineLarge.copyWith(
         fontSize: 20,
         fontWeight: FontWeight.w700,
       ),
@@ -807,9 +819,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
       padding: const EdgeInsets.only(bottom: 8),
       child: Text(
         title,
-        style: Theme.of(
-          context,
-        ).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.w600),
+        style: context.labelLarge.copyWith(fontWeight: FontWeight.w600),
       ),
     );
   }
@@ -860,15 +870,24 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSubsectionHeader(l10n.anBasicInfo, theme),
-        _buildDataRow(l10n.anSessionCount,
-            l10n.anSessionsAndDays(sessionCount, workoutDays), theme),
+        _buildDataRow(
+          l10n.anSessionCount,
+          l10n.anSessionsAndDays(sessionCount, workoutDays),
+          theme,
+        ),
         _buildDataRow(l10n.anTotalVolume, '${fmtVol(totalVolume)} kg', theme),
         _buildDataRow(
-            l10n.anDensity, l10n.anDensityValue(density.toStringAsFixed(1)), theme),
+          l10n.anDensity,
+          l10n.anDensityValue(density.toStringAsFixed(1)),
+          theme,
+        ),
         if (sessionCount > 0)
           _buildDataRow(
             l10n.anAvgPerSession,
-            l10n.anAvgPerSessionValue(fmtVol(avgVolumePerSession), avgPerSession),
+            l10n.anAvgPerSessionValue(
+              fmtVol(avgVolumePerSession),
+              avgPerSession,
+            ),
             theme,
           ),
       ],
@@ -886,9 +905,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
         ),
         Text(
           _formatVolumeTrend(l10n),
-          style: Theme.of(
-            context,
-          ).textTheme.bodyMedium!.copyWith(fontSize: 13, height: 1.5),
+          style: context.bodyMedium.copyWith(fontSize: 13, height: 1.5),
         ),
       ],
     );
@@ -902,9 +919,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
         _buildSubsectionHeader(l10n.anMuscleDistribution, theme),
         Text(
           _formatMuscleVolumeDistribution(l10n),
-          style: Theme.of(
-            context,
-          ).textTheme.bodyMedium!.copyWith(fontSize: 13, height: 1.5),
+          style: context.bodyMedium.copyWith(fontSize: 13, height: 1.5),
         ),
       ],
     );
@@ -923,9 +938,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
         ),
         Text(
           _formatSetsPerMuscleGroup(l10n),
-          style: Theme.of(
-            context,
-          ).textTheme.bodyMedium!.copyWith(fontSize: 13, height: 1.5),
+          style: context.bodyMedium.copyWith(fontSize: 13, height: 1.5),
         ),
       ],
     );
@@ -939,9 +952,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
         _buildSubsectionHeader(l10n.anEstimated1rm, theme),
         Text(
           _formatEstimated1RM(l10n),
-          style: Theme.of(
-            context,
-          ).textTheme.bodyMedium!.copyWith(fontSize: 13, height: 1.5),
+          style: context.bodyMedium.copyWith(fontSize: 13, height: 1.5),
         ),
       ],
     );
@@ -955,9 +966,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
         _buildSubsectionHeader(l10n.an1rmProgression, theme),
         Text(
           _format1RMProgression(l10n),
-          style: Theme.of(
-            context,
-          ).textTheme.bodyMedium!.copyWith(fontSize: 13, height: 1.5),
+          style: context.bodyMedium.copyWith(fontSize: 13, height: 1.5),
         ),
       ],
     );
@@ -971,9 +980,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
         _buildSubsectionHeader(l10n.anRecovery, theme),
         Text(
           _formatRecoveryManagement(l10n),
-          style: Theme.of(
-            context,
-          ).textTheme.bodyMedium!.copyWith(fontSize: 13, height: 1.5),
+          style: context.bodyMedium.copyWith(fontSize: 13, height: 1.5),
         ),
       ],
     );
@@ -985,18 +992,11 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            '$label: ',
-            style: Theme.of(
-              context,
-            ).textTheme.bodySmall!.copyWith(fontSize: 13),
-          ),
+          Text('$label: ', style: context.bodySmall.copyWith(fontSize: 13)),
           Expanded(
             child: Text(
               value,
-              style: Theme.of(
-                context,
-              ).textTheme.bodyMedium!.copyWith(fontSize: 13),
+              style: context.bodyMedium.copyWith(fontSize: 13),
             ),
           ),
         ],
@@ -1019,9 +1019,10 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
       child: SingleChildScrollView(
         child: Text(
           _generatedPrompt ?? AppLocalizations.of(context)!.anGeneratingPrompt,
-          style: Theme.of(
-            context,
-          ).textTheme.bodySmall!.copyWith(color: theme.textColor, height: 1.5),
+          style: context.bodySmall.copyWith(
+            color: theme.textColor,
+            height: 1.5,
+          ),
         ),
       ),
     );
@@ -1051,9 +1052,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
         ),
         label: Text(
           _isPromptCopied ? l10n.anCopiedLabel : l10n.anCopyPrompt,
-          style: Theme.of(
-            context,
-          ).textTheme.titleLarge!.copyWith(color: theme.surfaceColor),
+          style: context.titleLarge.copyWith(color: theme.surfaceColor),
         ),
         style: ElevatedButton.styleFrom(
           backgroundColor: theme.accentColor,

@@ -12,6 +12,7 @@ import '../models/muscle_group.dart';
 import '../widgets/muscle_selector.dart';
 import '../theme/app_theme.dart';
 import 'exercise_selection_screen.dart';
+import '../theme/build_context_text_styles.dart';
 
 /// 创建/编辑计划页面 - 3步流程
 ///
@@ -86,7 +87,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
           ),
           title: Text(
             isEditMode ? l10n.pfEditTitle : l10n.pfCreateTitle,
-            style: Theme.of(context).textTheme.headlineLarge!.copyWith(
+            style: context.headlineLarge.copyWith(
               fontSize: 18,
               fontWeight: FontWeight.w700,
             ),
@@ -126,7 +127,12 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
         children: [
           _buildStepItem(1, l10n.pfStepSelectMuscle, _currentStep >= 0, theme),
           _buildStepLine(_currentStep >= 1, theme),
-          _buildStepItem(2, l10n.pfStepSelectExercise, _currentStep >= 1, theme),
+          _buildStepItem(
+            2,
+            l10n.pfStepSelectExercise,
+            _currentStep >= 1,
+            theme,
+          ),
           _buildStepLine(_currentStep >= 2, theme),
           _buildStepItem(3, l10n.pfStepConfirm, _currentStep >= 2, theme),
         ],
@@ -163,7 +169,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
                   ? Icon(Icons.check, color: theme.onAccentColor, size: 18)
                   : Text(
                       '$number',
-                      style: Theme.of(context).textTheme.labelLarge!.copyWith(
+                      style: context.labelLarge.copyWith(
                         fontWeight: FontWeight.w600,
                         color: isActive
                             ? theme.onAccentColor
@@ -175,7 +181,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
           const SizedBox(height: 4),
           Text(
             label,
-            style: Theme.of(context).textTheme.bodySmall!.copyWith(
+            style: context.bodySmall.copyWith(
               color: isActive ? theme.textColor : theme.secondaryTextColor,
             ),
           ),
@@ -206,16 +212,12 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
         children: [
           Text(
             l10n.pfSelectMuscleHeading,
-            style: Theme.of(
-              context,
-            ).textTheme.headlineLarge!.copyWith(fontWeight: FontWeight.w700),
+            style: context.headlineLarge.copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 8),
           Text(
             l10n.pfSelectMuscleSubheading,
-            style: Theme.of(
-              context,
-            ).textTheme.bodyMedium!.copyWith(color: theme.secondaryTextColor),
+            style: context.bodyMedium.copyWith(color: theme.secondaryTextColor),
           ),
           const SizedBox(height: 24),
           MuscleSelector(
@@ -242,9 +244,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
       children: [
         Text(
           l10n.pfQuickSelect,
-          style: Theme.of(
-            context,
-          ).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.w600),
+          style: context.labelLarge.copyWith(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 12),
         Wrap(
@@ -262,7 +262,10 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
               PrimaryMuscleGroup.core,
             ], theme),
             _buildQuickButton(
-                l10n.pfQuickFull, PrimaryMuscleGroup.values.toList(), theme),
+              l10n.pfQuickFull,
+              PrimaryMuscleGroup.values.toList(),
+              theme,
+            ),
           ],
         ),
       ],
@@ -279,9 +282,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
         children: [
           Text(
             l10n.pfSelectExerciseHeading,
-            style: Theme.of(
-              context,
-            ).textTheme.headlineLarge!.copyWith(fontWeight: FontWeight.w700),
+            style: context.headlineLarge.copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 8),
           Text(
@@ -290,9 +291,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
                   ? l10n.pfNotSelected
                   : _selectedMuscles.map((m) => m.displayName).join(', '),
             ),
-            style: Theme.of(
-              context,
-            ).textTheme.bodyMedium!.copyWith(color: theme.secondaryTextColor),
+            style: context.bodyMedium.copyWith(color: theme.secondaryTextColor),
           ),
           const SizedBox(height: 24),
 
@@ -327,9 +326,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
             children: [
               Text(
                 l10n.pfSelectedExercisesHeading,
-                style: Theme.of(
-                  context,
-                ).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.w600),
+                style: context.labelLarge.copyWith(fontWeight: FontWeight.w600),
               ),
               TextButton(
                 onPressed: () async {
@@ -359,9 +356,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
                 },
                 child: Text(
                   l10n.widgetClearAll,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.labelLarge!.copyWith(color: theme.accentColor),
+                  style: context.labelLarge.copyWith(color: theme.accentColor),
                 ),
               ),
             ],
@@ -395,7 +390,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
                         exercise.hasDetails
                             ? exercise.name
                             : '${exercise.name} ${l10n.pfNoDetailsSuffix}',
-                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        style: context.bodyMedium.copyWith(
                           fontSize: 13,
                           color: exercise.hasDetails
                               ? theme.textColor
@@ -408,7 +403,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
                       const SizedBox(width: 4),
                       Text(
                         l10n.pfSetsSuffix(exercise.targetSets),
-                        style: Theme.of(context).textTheme.bodySmall!,
+                        style: context.bodySmall,
                       ),
                       const SizedBox(width: 4),
                       Icon(
@@ -458,16 +453,15 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
                 _selectedExercises.isEmpty
                     ? AppLocalizations.of(context)!.pfSelectExerciseHeading
                     : AppLocalizations.of(context)!.pfContinueAdding,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleLarge!.copyWith(color: theme.accentColor),
+                style: context.titleLarge.copyWith(color: theme.accentColor),
               ),
               if (_selectedExercises.isNotEmpty) ...[
                 const SizedBox(height: 4),
                 Text(
-                  AppLocalizations.of(context)!
-                      .pfSelectedCountLine(_selectedExercises.length),
-                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                  AppLocalizations.of(
+                    context,
+                  )!.pfSelectedCountLine(_selectedExercises.length),
+                  style: context.bodyMedium.copyWith(
                     fontSize: 13,
                     color: theme.secondaryTextColor,
                   ),
@@ -539,7 +533,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
           ),
           child: Text(
             label,
-            style: Theme.of(context).textTheme.labelLarge!.copyWith(
+            style: context.labelLarge.copyWith(
               fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
               color: isSelected ? theme.onAccentColor : theme.accentColor,
             ),
@@ -571,8 +565,10 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
     final estimatedDuration =
         (_selectedExercises.fold(0, (sum, e) => sum + e.effectiveSets) * 2.5)
             .round();
-    final totalSets =
-        _selectedExercises.fold(0, (sum, e) => sum + e.effectiveSets);
+    final totalSets = _selectedExercises.fold(
+      0,
+      (sum, e) => sum + e.effectiveSets,
+    );
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
@@ -581,18 +577,14 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
         children: [
           Text(
             l10n.pfConfirmHeading,
-            style: Theme.of(
-              context,
-            ).textTheme.headlineLarge!.copyWith(fontWeight: FontWeight.w700),
+            style: context.headlineLarge.copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 24),
 
           // 计划名称输入
           Text(
             l10n.pfPlanNameLabel,
-            style: Theme.of(
-              context,
-            ).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.w600),
+            style: context.labelLarge.copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 8),
           Container(
@@ -605,7 +597,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
               controller: _nameController,
               decoration: InputDecoration(
                 hintText: l10n.pfPlanNameHint,
-                hintStyle: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                hintStyle: context.bodyLarge.copyWith(
                   color: theme.secondaryTextColor,
                 ),
                 border: InputBorder.none,
@@ -614,7 +606,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
                   vertical: 14,
                 ),
               ),
-              style: Theme.of(context).textTheme.bodyLarge!,
+              style: context.bodyLarge,
             ),
           ),
           const SizedBox(height: 24),
@@ -632,9 +624,9 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
               children: [
                 Text(
                   l10n.pfSummaryHeading,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.w600),
+                  style: context.labelLarge.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 const SizedBox(height: 12),
                 _buildSummaryRow(
@@ -655,15 +647,18 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
                   theme,
                 ),
                 const Divider(height: 24),
-                _buildSummaryRow(l10n.pfSummaryDuration,
-                    l10n.pfDurationValue(estimatedDuration), theme),
+                _buildSummaryRow(
+                  l10n.pfSummaryDuration,
+                  l10n.pfDurationValue(estimatedDuration),
+                  theme,
+                ),
               ],
             ),
           ),
           const SizedBox(height: 8),
           Text(
             l10n.pfDurationFootnote,
-            style: Theme.of(context).textTheme.bodySmall!.copyWith(
+            style: context.bodySmall.copyWith(
               fontSize: 12,
               color: theme.secondaryTextColor,
               fontStyle: FontStyle.italic,
@@ -674,9 +669,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
           // 动作列表（可调整组数）
           Text(
             l10n.pfAdjustSetsHeading,
-            style: Theme.of(
-              context,
-            ).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.w600),
+            style: context.labelLarge.copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 12),
           SizedBox(
@@ -714,11 +707,9 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
       children: [
         Text(
           label,
-          style: Theme.of(
-            context,
-          ).textTheme.bodyMedium!.copyWith(color: theme.secondaryTextColor),
+          style: context.bodyMedium.copyWith(color: theme.secondaryTextColor),
         ),
-        Text(value, style: Theme.of(context).textTheme.labelLarge!),
+        Text(value, style: context.labelLarge),
       ],
     );
   }
@@ -763,7 +754,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
             child: Center(
               child: Text(
                 '${index + 1}',
-                style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                style: context.bodySmall.copyWith(
                   fontWeight: FontWeight.w600,
                   color: theme.accentColor,
                 ),
@@ -779,7 +770,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
                   planExercise.hasDetails
                       ? planExercise.name
                       : '${planExercise.name} ${l10n.pfNoDetailsSuffix}',
-                  style: Theme.of(context).textTheme.labelLarge!.copyWith(
+                  style: context.labelLarge.copyWith(
                     color: planExercise.hasDetails
                         ? theme.textColor
                         : theme.secondaryTextColor.withValues(alpha: 0.7),
@@ -790,7 +781,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
                 ),
                 Text(
                   planExercise.exercise?.primaryMuscle.displayName ?? '',
-                  style: Theme.of(context).textTheme.bodySmall!,
+                  style: context.bodySmall,
                 ),
               ],
             ),
@@ -822,9 +813,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
                 alignment: Alignment.center,
                 child: Text(
                   '${planExercise.effectiveSets}',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.headlineLarge!.copyWith(fontSize: 18),
+                  style: context.headlineLarge.copyWith(fontSize: 18),
                 ),
               ),
               IconButton(
@@ -928,9 +917,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
                 ),
                 child: Text(
                   AppLocalizations.of(context)!.pfPreviousStep,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleLarge!.copyWith(fontSize: 15),
+                  style: context.titleLarge.copyWith(fontSize: 15),
                 ),
               ),
               const SizedBox(width: 12),
@@ -963,7 +950,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
                       )
                     : Text(
                         buttonText,
-                        style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                        style: context.titleLarge.copyWith(
                           color: isEnabled
                               ? theme.onAccentColor
                               : theme.secondaryTextColor,

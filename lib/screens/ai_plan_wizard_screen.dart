@@ -18,6 +18,7 @@ import '../utils/dimensions.dart';
 import '../widgets/ai_wizard_components.dart';
 import '../widgets/ai_wizard_preview.dart';
 import '../widgets/glass_widgets.dart';
+import '../theme/build_context_text_styles.dart';
 
 /// Tries to extract a valid workout plan JSON from arbitrary text.
 ///
@@ -226,7 +227,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
         ),
         title: Text(
           l10n.aiTitle,
-          style: Theme.of(context).textTheme.headlineMedium!.copyWith(
+          style: context.headlineMedium.copyWith(
             fontWeight: FontWeight.w700,
             letterSpacing: -0.5,
           ),
@@ -237,9 +238,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
               onPressed: _previousStep,
               child: Text(
                 l10n.aiPreviousStep,
-                style: Theme.of(
-                  context,
-                ).textTheme.labelLarge!.copyWith(color: theme.accentColor),
+                style: context.labelLarge.copyWith(color: theme.accentColor),
               ),
             ),
         ],
@@ -346,7 +345,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
             child: Center(
               child: Text(
                 label,
-                style: Theme.of(context).textTheme.labelLarge!.copyWith(
+                style: context.labelLarge.copyWith(
                   fontWeight: FontWeight.w600,
                   color: isActive ? theme.onAccentColor : theme.textColor,
                 ),
@@ -373,16 +372,12 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
         children: [
           Text(
             l10n.aiNewPlanHeading,
-            style: Theme.of(
-              context,
-            ).textTheme.headlineLarge!.copyWith(fontWeight: FontWeight.w700),
+            style: context.headlineLarge.copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 8),
           Text(
             l10n.aiNewPlanSubheading,
-            style: Theme.of(
-              context,
-            ).textTheme.bodyMedium!.copyWith(color: theme.secondaryTextColor),
+            style: context.bodyMedium.copyWith(color: theme.secondaryTextColor),
           ),
           const SizedBox(height: 24),
 
@@ -486,16 +481,12 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
         children: [
           Text(
             l10n.aiImportHeading,
-            style: Theme.of(
-              context,
-            ).textTheme.headlineLarge!.copyWith(fontWeight: FontWeight.w700),
+            style: context.headlineLarge.copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 8),
           Text(
             l10n.aiImportSubheading,
-            style: Theme.of(
-              context,
-            ).textTheme.bodyMedium!.copyWith(color: theme.secondaryTextColor),
+            style: context.bodyMedium.copyWith(color: theme.secondaryTextColor),
           ),
           const SizedBox(height: 24),
           TextField(
@@ -538,9 +529,9 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
                   Expanded(
                     child: Text(
                       parseError,
-                      style: Theme.of(
-                        context,
-                      ).textTheme.bodyMedium!.copyWith(color: theme.errorColor),
+                      style: context.bodyMedium.copyWith(
+                        color: theme.errorColor,
+                      ),
                     ),
                   ),
                 ],
@@ -644,9 +635,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
       children: [
         Text(
           title,
-          style: Theme.of(
-            context,
-          ).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.w600),
+          style: context.labelLarge.copyWith(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 8),
         Wrap(
@@ -679,7 +668,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
                   ),
                   child: Text(
                     entry.key,
-                    style: Theme.of(context).textTheme.labelLarge!.copyWith(
+                    style: context.labelLarge.copyWith(
                       fontWeight: isSelected
                           ? FontWeight.w600
                           : FontWeight.w500,
@@ -741,16 +730,12 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
         children: [
           Text(
             l10n.aiPasteJsonHeading,
-            style: Theme.of(
-              context,
-            ).textTheme.headlineLarge!.copyWith(fontWeight: FontWeight.w700),
+            style: context.headlineLarge.copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 8),
           Text(
             l10n.aiPasteJsonSubheading,
-            style: Theme.of(
-              context,
-            ).textTheme.bodyMedium!.copyWith(color: theme.secondaryTextColor),
+            style: context.bodyMedium.copyWith(color: theme.secondaryTextColor),
           ),
           const SizedBox(height: 24),
 
@@ -797,9 +782,9 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
                   Expanded(
                     child: Text(
                       parseError,
-                      style: Theme.of(
-                        context,
-                      ).textTheme.bodyMedium!.copyWith(color: theme.errorColor),
+                      style: context.bodyMedium.copyWith(
+                        color: theme.errorColor,
+                      ),
                     ),
                   ),
                 ],
@@ -872,9 +857,9 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
             const SizedBox(height: 16),
             Text(
               l10n.aiPreviewEmpty,
-              style: Theme.of(
-                context,
-              ).textTheme.bodyLarge!.copyWith(color: theme.secondaryTextColor),
+              style: context.bodyLarge.copyWith(
+                color: theme.secondaryTextColor,
+              ),
             ),
           ],
         ),
@@ -891,14 +876,14 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
               children: [
                 Text(
                   l10n.aiPreviewHeading,
-                  style: Theme.of(context).textTheme.headlineLarge!.copyWith(
+                  style: context.headlineLarge.copyWith(
                     fontWeight: FontWeight.w700,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   l10n.aiPlanNameLabel(parsedPlan.name),
-                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                  style: context.bodyMedium.copyWith(
                     color: theme.secondaryTextColor,
                   ),
                 ),
@@ -1127,7 +1112,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
             ),
             child: Text(
               buttonText,
-              style: Theme.of(context).textTheme.titleLarge!.copyWith(
+              style: context.titleLarge.copyWith(
                 color: isEnabled
                     ? theme.onAccentColor
                     : theme.secondaryTextColor,

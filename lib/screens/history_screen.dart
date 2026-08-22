@@ -20,6 +20,7 @@ import '../animations/page_transitions.dart';
 import '../animations/animation_primitives.dart';
 import '../widgets/training_history_export_sheet.dart';
 import 'record_detail_screen.dart';
+import '../theme/build_context_text_styles.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -210,7 +211,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
         elevation: 0,
         title: Text(
           l10n.historyTitle,
-          style: Theme.of(context).textTheme.headlineMedium!.copyWith(
+          style: context.headlineMedium.copyWith(
             fontWeight: FontWeight.w700,
             letterSpacing: -0.5,
           ),
@@ -221,9 +222,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
             icon: Icon(Icons.ios_share, size: 18, color: theme.accentColor),
             label: Text(
               l10n.historyExportAction,
-              style: Theme.of(
-                context,
-              ).textTheme.labelLarge!.copyWith(color: theme.accentColor),
+              style: context.labelLarge.copyWith(color: theme.accentColor),
             ),
           ),
         ],
@@ -239,7 +238,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
             return Center(
               child: Text(
                 l10n.historyLoadFailed,
-                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                style: context.bodyMedium.copyWith(
                   color: theme.accentColor,
                   letterSpacing: 2,
                 ),
@@ -258,14 +257,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   const SizedBox(height: 16),
                   Text(
                     l10n.historyEmpty,
-                    style: Theme.of(
-                      context,
-                    ).textTheme.titleLarge!.copyWith(letterSpacing: 1),
+                    style: context.titleLarge.copyWith(letterSpacing: 1),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     l10n.historyEmptyHint,
-                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    style: context.bodyMedium.copyWith(
                       color: theme.secondaryTextColor.withValues(alpha: 0.6),
                     ),
                   ),
@@ -282,7 +279,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     ),
                     label: Text(
                       l10n.trainingStartExercise,
-                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      style: context.bodyMedium.copyWith(
                         fontWeight: FontWeight.w600,
                         color: theme.accentColor,
                       ),
@@ -421,12 +418,11 @@ class _RecordCard extends StatelessWidget {
                         )
                       : Text(
                           '${record.totalSets}',
-                          style: Theme.of(context).textTheme.headlineMedium!
-                              .copyWith(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w700,
-                                color: theme.onAccentColor,
-                              ),
+                          style: context.headlineMedium.copyWith(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700,
+                            color: theme.onAccentColor,
+                          ),
                         ),
                 ),
               ),
@@ -456,21 +452,17 @@ class _RecordCard extends StatelessWidget {
                                 record.planName ?? l10n.historyPlanMode,
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
-                                style: Theme.of(context).textTheme.bodySmall!
-                                    .copyWith(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w600,
-                                      color: theme.accentColor,
-                                    ),
+                                style: context.bodySmall.copyWith(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                  color: theme.accentColor,
+                                ),
                               ),
                             ),
                           ),
                           const SizedBox(width: 8),
                         ],
-                        Text(
-                          record.dateText,
-                          style: Theme.of(context).textTheme.bodySmall!,
-                        ),
+                        Text(record.dateText, style: context.bodySmall),
                       ],
                     ),
                     const SizedBox(height: 4),
@@ -478,14 +470,14 @@ class _RecordCard extends StatelessWidget {
                     if (record.trainedMuscles.isNotEmpty)
                       Text(
                         record.trainedMusclesText,
-                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        style: context.bodyMedium.copyWith(
                           fontWeight: FontWeight.w600,
                         ),
                       )
                     else
                       Text(
                         l10n.historyFreeWorkout,
-                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        style: context.bodyMedium.copyWith(
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -499,10 +491,7 @@ class _RecordCard extends StatelessWidget {
                           color: theme.secondaryTextColor,
                         ),
                         const SizedBox(width: 4),
-                        Text(
-                          record.durationText,
-                          style: Theme.of(context).textTheme.bodySmall!,
-                        ),
+                        Text(record.durationText, style: context.bodySmall),
                         const SizedBox(width: 12),
                         Icon(
                           Icons.repeat,
@@ -512,7 +501,7 @@ class _RecordCard extends StatelessWidget {
                         const SizedBox(width: 4),
                         Text(
                           l10n.historySetsSuffix(record.totalSets),
-                          style: Theme.of(context).textTheme.bodySmall!,
+                          style: context.bodySmall,
                         ),
                         if (record.exerciseCount > 0) ...[
                           const SizedBox(width: 12),
@@ -524,7 +513,7 @@ class _RecordCard extends StatelessWidget {
                           const SizedBox(width: 4),
                           Text(
                             l10n.historyExercisesSuffix(record.exerciseCount),
-                            style: Theme.of(context).textTheme.bodySmall!,
+                            style: context.bodySmall,
                           ),
                         ],
                       ],
@@ -608,7 +597,7 @@ class _SessionCard extends StatelessWidget {
               child: Center(
                 child: Text(
                   '${session.totalSets}',
-                  style: Theme.of(context).textTheme.headlineMedium!.copyWith(
+                  style: context.headlineMedium.copyWith(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
                     color: theme.onAccentColor,
@@ -623,16 +612,13 @@ class _SessionCard extends StatelessWidget {
                 children: [
                   Text(
                     l10n.historyCompletedSets,
-                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    style: context.bodyMedium.copyWith(
                       fontWeight: FontWeight.w600,
                       letterSpacing: 0,
                     ),
                   ),
                   const SizedBox(height: 4),
-                  Text(
-                    formatDate(session),
-                    style: Theme.of(context).textTheme.bodySmall!,
-                  ),
+                  Text(formatDate(session), style: context.bodySmall),
                 ],
               ),
             ),
