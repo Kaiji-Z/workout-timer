@@ -7,6 +7,7 @@ import 'muscle_selector.dart';
 import '../theme/app_theme.dart';
 import '../utils/dimensions.dart';
 import '../animations/animation_primitives.dart';
+import '../theme/build_context_text_styles.dart';
 
 /// 计划卡片 - Flat Vitality 设计
 ///
@@ -35,97 +36,96 @@ class PlanCard extends StatelessWidget {
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
         decoration: BoxDecoration(
           color: theme.surfaceColorRaised,
-            borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
-            boxShadow: AppElevation.raised(theme.shadowColor),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 主要内容
-              Padding(
-                padding: const EdgeInsets.all(AppDimensions.screenPadding),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // 标题行
-                    Row(
-                      children: [
-                        Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: theme.accentColor.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(
-                              AppDimensions.radiusLg,
-                            ),
-                          ),
-                          child: Icon(
-                            Icons.fitness_center,
-                            color: theme.accentColor,
-                            size: 20,
+          borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
+          boxShadow: AppElevation.raised(theme.shadowColor),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 主要内容
+            Padding(
+              padding: const EdgeInsets.all(AppDimensions.screenPadding),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 标题行
+                  Row(
+                    children: [
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: theme.accentColor.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(
+                            AppDimensions.radiusLg,
                           ),
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                plan.name,
-                                style: Theme.of(context).textTheme.titleLarge!
-                                    .copyWith(
-                                      fontSize: 17,
-                                      color: theme.textColor,
-                                    ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
+                        child: Icon(
+                          Icons.fitness_center,
+                          color: theme.accentColor,
+                          size: 20,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              plan.name,
+                              style: context.titleLarge.copyWith(
+                                fontSize: 17,
+                                color: theme.textColor,
                               ),
-                              const SizedBox(height: 2),
-                              MuscleBadge(
-                                muscles: plan.targetMuscles,
-                                compact: true,
-                                fontSize: 12,
-                              ),
-                            ],
-                          ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 2),
+                            MuscleBadge(
+                              muscles: plan.targetMuscles,
+                              compact: true,
+                              fontSize: 12,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  if (!isCompact) ...[
+                    const SizedBox(height: 12),
+                    // 统计信息
+                    Row(
+                      children: [
+                        _buildStat(
+                          context,
+                          l10n.widgetPlanExercisesCount(plan.exerciseCount),
+                          Icons.list_alt,
+                          theme,
+                        ),
+                        const SizedBox(width: 16),
+                        _buildStat(
+                          context,
+                          l10n.widgetPlanSetsCount(plan.totalSets),
+                          Icons.repeat,
+                          theme,
+                        ),
+                        const SizedBox(width: 16),
+                        _buildStat(
+                          context,
+                          l10n.widgetPlanDuration(plan.estimatedDuration),
+                          Icons.timer_outlined,
+                          theme,
                         ),
                       ],
                     ),
-
-                    if (!isCompact) ...[
-                      const SizedBox(height: 12),
-                      // 统计信息
-                      Row(
-                        children: [
-                          _buildStat(
-                            context,
-                            l10n.widgetPlanExercisesCount(plan.exerciseCount),
-                            Icons.list_alt,
-                            theme,
-                          ),
-                          const SizedBox(width: 16),
-                          _buildStat(
-                            context,
-                            l10n.widgetPlanSetsCount(plan.totalSets),
-                            Icons.repeat,
-                            theme,
-                          ),
-                          const SizedBox(width: 16),
-                          _buildStat(
-                            context,
-                            l10n.widgetPlanDuration(plan.estimatedDuration),
-                            Icons.timer_outlined,
-                            theme,
-                          ),
-                        ],
-                      ),
-                    ],
                   ],
-                ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
+      ),
     );
   }
 
@@ -142,7 +142,7 @@ class PlanCard extends StatelessWidget {
         const SizedBox(width: 4),
         Text(
           text,
-          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+          style: context.bodyMedium.copyWith(
             fontSize: 13,
             color: theme.secondaryTextColor,
           ),
@@ -273,13 +273,15 @@ class _PlanProgressCardState extends State<PlanProgressCard>
                                   currentExercise.name,
                                   _getCurrentSetNumber(currentExercise),
                                 ),
-                                style: Theme.of(context).textTheme.labelLarge!
-                                    .copyWith(color: theme.textColor),
+                                style: context.labelLarge.copyWith(
+                                  color: theme.textColor,
+                                ),
                               )
                             : Text(
                                 widget.plan.name,
-                                style: Theme.of(context).textTheme.labelLarge!
-                                    .copyWith(color: theme.textColor),
+                                style: context.labelLarge.copyWith(
+                                  color: theme.textColor,
+                                ),
                               ),
                       ),
                     ),
@@ -314,11 +316,10 @@ class _PlanProgressCardState extends State<PlanProgressCard>
                             _getCurrentSetNumber(currentExercise),
                             currentExercise.effectiveSets,
                           ),
-                          style: Theme.of(context).textTheme.labelLarge!
-                              .copyWith(
-                                fontWeight: FontWeight.w600,
-                                color: theme.accentColor,
-                              ),
+                          style: context.labelLarge.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: theme.accentColor,
+                          ),
                         ),
                         const SizedBox(height: 12),
                       ],
@@ -355,33 +356,32 @@ class _PlanProgressCardState extends State<PlanProgressCard>
                                   exercise.hasDetails
                                       ? exercise.name
                                       : l10n.widgetNoDetail(exercise.name),
-                                  style: Theme.of(context).textTheme.bodyMedium!
-                                      .copyWith(
-                                        color: exercise.hasDetails
-                                            ? (isCompleted || isCurrent
-                                                  ? theme.textColor
-                                                  : theme.secondaryTextColor)
-                                            : theme.secondaryTextColor
-                                                  .withValues(alpha: 0.7),
-                                        fontStyle: exercise.hasDetails
-                                            ? null
-                                            : FontStyle.italic,
-                                        decoration: isCompleted
-                                            ? TextDecoration.lineThrough
-                                            : null,
-                                      ),
+                                  style: context.bodyMedium.copyWith(
+                                    color: exercise.hasDetails
+                                        ? (isCompleted || isCurrent
+                                              ? theme.textColor
+                                              : theme.secondaryTextColor)
+                                        : theme.secondaryTextColor.withValues(
+                                            alpha: 0.7,
+                                          ),
+                                    fontStyle: exercise.hasDetails
+                                        ? null
+                                        : FontStyle.italic,
+                                    decoration: isCompleted
+                                        ? TextDecoration.lineThrough
+                                        : null,
+                                  ),
                                 ),
                               ),
                               Text(
                                 '$completed/${exercise.effectiveSets}',
-                                style: Theme.of(context).textTheme.bodyMedium!
-                                    .copyWith(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w500,
-                                      color: isCompleted
-                                          ? theme.accentColor
-                                          : theme.secondaryTextColor,
-                                    ),
+                                style: context.bodyMedium.copyWith(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                  color: isCompleted
+                                      ? theme.accentColor
+                                      : theme.secondaryTextColor,
+                                ),
                               ),
                             ],
                           ),
@@ -506,9 +506,7 @@ class PlanProgressCompact extends StatelessWidget {
               alignment: Alignment.centerLeft,
               child: Text(
                 l10n.widgetProgressSummary(exerciseName, currentSet, totalSets),
-                style: Theme.of(
-                  context,
-                ).textTheme.labelLarge!.copyWith(color: theme.textColor),
+                style: context.labelLarge.copyWith(color: theme.textColor),
               ),
             ),
           ),

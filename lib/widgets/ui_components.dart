@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../theme/theme_provider.dart';
 import '../utils/dimensions.dart';
+import '../theme/build_context_text_styles.dart';
 
 // ============================================================================
 // SHARED UI COMPONENTS — Flat Vitality Design System
@@ -77,10 +78,7 @@ class SectionHeader extends StatelessWidget {
         Text(
           title,
           style:
-              titleStyle ??
-              Theme.of(
-                context,
-              ).textTheme.titleLarge!.copyWith(color: theme.textColor),
+              titleStyle ?? context.titleLarge.copyWith(color: theme.textColor),
         ),
         ?trailing,
       ],
@@ -128,16 +126,16 @@ class EmptyState extends StatelessWidget {
             const SizedBox(height: AppDimensions.spacingMd),
             Text(
               title,
-              style: Theme.of(
-                context,
-              ).textTheme.titleLarge!.copyWith(color: theme.secondaryTextColor),
+              style: context.titleLarge.copyWith(
+                color: theme.secondaryTextColor,
+              ),
             ),
             if (subtitle != null) ...[
               const SizedBox(height: AppDimensions.spacingXs),
               Text(
                 subtitle,
                 textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                style: context.bodyMedium.copyWith(
                   fontSize: 13,
                   color: theme.secondaryTextColor.withValues(alpha: 0.7),
                 ),

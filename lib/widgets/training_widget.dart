@@ -20,6 +20,7 @@ import 'completed_medal_display.dart';
 import 'plan_card.dart';
 import 'bulk_exercise_data_dialog.dart';
 import 'set_record_dialog.dart';
+import '../theme/build_context_text_styles.dart';
 
 /// 训练主界面 - 极简设计
 ///
@@ -137,7 +138,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
           Expanded(
             child: Text(
               AppLocalizations.of(context)!.navTimer,
-              style: Theme.of(context).textTheme.headlineMedium!.copyWith(
+              style: context.headlineMedium.copyWith(
                 fontWeight: FontWeight.w700,
                 letterSpacing: -0.5, // Match other pages
               ),
@@ -190,8 +191,9 @@ class _TrainingWidgetState extends State<TrainingWidget>
     if (_isPlanMode && progressProvider.currentPlan != null) {
       final nextExercise = progressProvider.getNextExercise();
       if (nextExercise != null) {
-        nextHint =
-            AppLocalizations.of(context)!.trainingNextExercise(nextExercise.name);
+        nextHint = AppLocalizations.of(
+          context,
+        )!.trainingNextExercise(nextExercise.name);
       } else {
         nextHint = AppLocalizations.of(context)!.trainingNextDone;
       }
@@ -210,10 +212,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
           if (nextHint != null)
             Padding(
               padding: const EdgeInsets.only(top: 4),
-              child: Text(
-                nextHint,
-                style: Theme.of(context).textTheme.bodySmall!,
-              ),
+              child: Text(nextHint, style: context.bodySmall),
             ),
         ],
       ),
@@ -306,8 +305,9 @@ class _TrainingWidgetState extends State<TrainingWidget>
           progressProvider.currentSetInExercise + 1,
         );
       } else {
-        text = AppLocalizations.of(context)!
-            .trainingSetExercising(training.currentSet);
+        text = AppLocalizations.of(
+          context,
+        )!.trainingSetExercising(training.currentSet);
       }
       icon = Icons.fitness_center;
     } else if (training.isResting) {
@@ -319,8 +319,9 @@ class _TrainingWidgetState extends State<TrainingWidget>
           progressProvider.currentSetInExercise,
         );
       } else {
-        text =
-            AppLocalizations.of(context)!.trainingSetRest(training.currentSet);
+        text = AppLocalizations.of(
+          context,
+        )!.trainingSetRest(training.currentSet);
       }
       icon = Icons.self_improvement;
     } else if (training.isCompleted) {
@@ -329,15 +330,17 @@ class _TrainingWidgetState extends State<TrainingWidget>
       icon = Icons.emoji_events;
     } else if (training.isExercisePaused) {
       color = theme.progressRingColor;
-      text =
-          AppLocalizations.of(context)!.trainingSetPaused(training.currentSet);
+      text = AppLocalizations.of(
+        context,
+      )!.trainingSetPaused(training.currentSet);
       icon = Icons.pause_circle_outline;
     } else {
       color = theme.secondaryTextColor;
       final selectedPlan = _selectedPlan;
       if (_isPlanMode && selectedPlan != null) {
-        text = AppLocalizations.of(context)!
-            .trainingPlanReady(selectedPlan.name);
+        text = AppLocalizations.of(
+          context,
+        )!.trainingPlanReady(selectedPlan.name);
       } else {
         text = AppLocalizations.of(context)!.trainingReady;
       }
@@ -358,8 +361,9 @@ class _TrainingWidgetState extends State<TrainingWidget>
             ),
             const SizedBox(width: 10),
             StatusBadge(
-              text: AppLocalizations.of(context)!
-                  .trainingSetCount(training.currentSet),
+              text: AppLocalizations.of(
+                context,
+              )!.trainingSetCount(training.currentSet),
               color: theme.progressRingColor,
               icon: Icons.fitness_center,
             ),
@@ -641,7 +645,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
               children: [
                 Text(
                   AppLocalizations.of(context)!.trainingSelectPlan,
-                  style: Theme.of(context).textTheme.headlineMedium!,
+                  style: context.headlineMedium,
                 ),
                 if (_isPlanMode)
                   TextButton(
@@ -686,8 +690,10 @@ class _TrainingWidgetState extends State<TrainingWidget>
                     title: Text(plan.name),
                     subtitle: Text(plan.targetMusclesText),
                     trailing: Text(
-                      AppLocalizations.of(context)!
-                          .trainingPlanSummary(plan.exerciseCount, plan.totalSets),
+                      AppLocalizations.of(context)!.trainingPlanSummary(
+                        plan.exerciseCount,
+                        plan.totalSets,
+                      ),
                     ),
                     selected: isSelected,
                     onTap: () {
@@ -851,10 +857,9 @@ class _TrainingWidgetState extends State<TrainingWidget>
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                AppLocalizations.of(context)!.trainingSavedDetail(
-                  record.totalSets,
-                  record.durationText,
-                ),
+                AppLocalizations.of(
+                  context,
+                )!.trainingSavedDetail(record.totalSets, record.durationText),
               ),
               backgroundColor: theme.progressRingColor,
               behavior: SnackBarBehavior.floating,
@@ -972,9 +977,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
           TextButton(
             onPressed: () {
               final minutes = int.tryParse(controller.text.trim()) ?? 0;
-              Navigator.of(dialogContext).pop(
-                minutes > 0 ? minutes * 60 : 0,
-              );
+              Navigator.of(dialogContext).pop(minutes > 0 ? minutes * 60 : 0);
             },
             child: Text(
               l10n.trainingDurationCorrectionApply,

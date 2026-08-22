@@ -7,6 +7,7 @@ import '../models/exercise.dart';
 import '../services/bodyweight_coefficient_service.dart';
 import '../theme/theme_provider.dart';
 import '../utils/dimensions.dart';
+import '../theme/build_context_text_styles.dart';
 
 /// 单组训练数据记录悬浮对话框 - Flat Vitality 设计风格
 ///
@@ -120,7 +121,7 @@ class _SetRecordDialogState extends State<SetRecordDialog> {
             // 标题：动作名称 + 组号
             Text(
               widget.exerciseName,
-              style: Theme.of(context).textTheme.headlineLarge!.copyWith(
+              style: context.headlineLarge.copyWith(
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
                 color: theme.textColor,
@@ -129,16 +130,16 @@ class _SetRecordDialogState extends State<SetRecordDialog> {
             const SizedBox(height: 4),
             Text(
               AppLocalizations.of(context)!.dialogSetTitle(widget.setNumber),
-              style: Theme.of(
-                context,
-              ).textTheme.bodyMedium!.copyWith(color: theme.secondaryTextColor),
+              style: context.bodyMedium.copyWith(
+                color: theme.secondaryTextColor,
+              ),
             ),
             const SizedBox(height: 24),
 
             // 次数选择器
             Text(
               AppLocalizations.of(context)!.recReps,
-              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+              style: context.bodyMedium.copyWith(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
                 color: theme.textColor,
@@ -166,12 +167,11 @@ class _SetRecordDialogState extends State<SetRecordDialog> {
                   return Center(
                     child: Text(
                       AppLocalizations.of(context)!.repsWithValue(reps),
-                      style: Theme.of(context).textTheme.headlineMedium!
-                          .copyWith(
-                            color: reps == _selectedReps
-                                ? theme.textColor
-                                : theme.secondaryTextColor,
-                          ),
+                      style: context.headlineMedium.copyWith(
+                        color: reps == _selectedReps
+                            ? theme.textColor
+                            : theme.secondaryTextColor,
+                      ),
                     ),
                   );
                 }),
@@ -205,7 +205,7 @@ class _SetRecordDialogState extends State<SetRecordDialog> {
                           (_coefficient * 100).toStringAsFixed(0),
                           (bodyWeight * _coefficient).toStringAsFixed(1),
                         ),
-                        style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                        style: context.bodySmall.copyWith(
                           color: theme.accentColor,
                         ),
                       ),
@@ -221,7 +221,7 @@ class _SetRecordDialogState extends State<SetRecordDialog> {
               _isBodyweight
                   ? AppLocalizations.of(context)!.recAddedWeightKg
                   : AppLocalizations.of(context)!.recWeightKg,
-              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+              style: context.bodyMedium.copyWith(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
                 color: theme.textColor,
@@ -238,7 +238,7 @@ class _SetRecordDialogState extends State<SetRecordDialog> {
                 hintText: _isBodyweight
                     ? AppLocalizations.of(context)!.recBodyweightOnly
                     : '0',
-                hintStyle: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                hintStyle: context.bodyLarge.copyWith(
                   color: theme.secondaryTextColor.withValues(alpha: 0.5),
                 ),
                 border: OutlineInputBorder(
@@ -254,9 +254,7 @@ class _SetRecordDialogState extends State<SetRecordDialog> {
                   vertical: 14,
                 ),
               ),
-              style: Theme.of(
-                context,
-              ).textTheme.bodyLarge!.copyWith(color: theme.textColor),
+              style: context.bodyLarge.copyWith(color: theme.textColor),
               textInputAction: TextInputAction.done,
               onSubmitted: (_) => _save(),
             ),
@@ -281,7 +279,7 @@ class _SetRecordDialogState extends State<SetRecordDialog> {
                     ),
                     child: Text(
                       AppLocalizations.of(context)!.recSkip,
-                      style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                      style: context.titleLarge.copyWith(
                         fontSize: 15,
                         color: theme.secondaryTextColor,
                       ),
@@ -308,7 +306,7 @@ class _SetRecordDialogState extends State<SetRecordDialog> {
                     ),
                     child: Text(
                       AppLocalizations.of(context)!.recSave,
-                      style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                      style: context.titleLarge.copyWith(
                         fontSize: 15,
                         color: theme.onAccentColor,
                       ),

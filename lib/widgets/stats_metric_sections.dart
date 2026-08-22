@@ -8,6 +8,7 @@ import '../services/stats_calculator_service.dart';
 import '../services/stats_aggregator_service.dart';
 import '../theme/app_theme.dart';
 import '../utils/dimensions.dart';
+import '../theme/build_context_text_styles.dart';
 
 /// 统计页「概览指标区」构建器（自 stats_screen.dart 拆出，纯函数无状态）。
 ///
@@ -27,7 +28,7 @@ Widget buildStatsSection(
     children: [
       Text(
         title,
-        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+        style: context.bodyMedium.copyWith(
           fontSize: 13,
           fontWeight: FontWeight.w600,
           color: theme.secondaryTextColor,
@@ -151,7 +152,7 @@ Widget buildHeroVolume(
             const SizedBox(width: 6),
             Text(
               l10n.statsTotalVolume,
-              style: Theme.of(context).textTheme.labelLarge!.copyWith(
+              style: context.labelLarge.copyWith(
                 color: theme.onAccentColor.withValues(alpha: 0.85),
                 fontWeight: FontWeight.w600,
                 letterSpacing: 0.5,
@@ -164,7 +165,7 @@ Widget buildHeroVolume(
         CountUp(
           target: totalVolume,
           decimalPlaces: totalVolume >= 1000 ? 0 : 1,
-          style: Theme.of(context).textTheme.displaySmall!.copyWith(
+          style: context.displaySmall.copyWith(
             fontSize: 40,
             fontWeight: FontWeight.w700,
             color: theme.onAccentColor,
@@ -180,7 +181,7 @@ Widget buildHeroVolume(
         else
           Text(
             l10n.statsNoPrevComparison,
-            style: Theme.of(context).textTheme.bodySmall!.copyWith(
+            style: context.bodySmall.copyWith(
               fontSize: 11,
               color: theme.onAccentColor.withValues(alpha: 0.7),
               fontFeatures: const [FontFeature.tabularFigures()],
@@ -222,7 +223,7 @@ Widget _buildVolumeChangeBadge(
         const SizedBox(width: 4),
         Text(
           l10n.statsVolumeChangeVsPrev(isUp ? '+' : '', changeRounded),
-          style: Theme.of(context).textTheme.labelLarge!.copyWith(
+          style: context.labelLarge.copyWith(
             fontSize: 12,
             color: theme.onAccentColor,
             fontWeight: FontWeight.w600,
@@ -343,7 +344,7 @@ Widget _buildMetricCard(
           CountUp(
             target: numValue,
             decimalPlaces: decimalPlaces,
-            style: Theme.of(context).textTheme.titleLarge!.copyWith(
+            style: context.titleLarge.copyWith(
               fontWeight: FontWeight.w700,
               color: theme.textColor,
               fontFeatures: const [FontFeature.tabularFigures()],
@@ -352,7 +353,7 @@ Widget _buildMetricCard(
         else
           Text(
             value,
-            style: Theme.of(context).textTheme.titleLarge!.copyWith(
+            style: context.titleLarge.copyWith(
               fontWeight: FontWeight.w700,
               color: theme.textColor,
               fontFeatures: const [FontFeature.tabularFigures()],
@@ -362,7 +363,7 @@ Widget _buildMetricCard(
           ),
         Text(
           label,
-          style: Theme.of(context).textTheme.bodySmall!.copyWith(
+          style: context.bodySmall.copyWith(
             fontSize: 10,
             color: theme.secondaryTextColor,
           ),
@@ -385,14 +386,14 @@ Widget _buildSubMetric(
     children: [
       Text(
         value,
-        style: Theme.of(context).textTheme.titleLarge!.copyWith(
+        style: context.titleLarge.copyWith(
           color: theme.accentColor,
           fontFeatures: const [FontFeature.tabularFigures()],
         ),
       ),
       Text(
         label,
-        style: Theme.of(context).textTheme.bodySmall!.copyWith(
+        style: context.bodySmall.copyWith(
           fontSize: 11,
           color: theme.secondaryTextColor,
         ),

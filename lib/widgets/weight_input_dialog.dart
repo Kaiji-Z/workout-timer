@@ -7,6 +7,7 @@ import '../services/bodyweight_coefficient_service.dart';
 import '../theme/theme_provider.dart';
 import '../utils/dimensions.dart';
 import 'glass_widgets.dart';
+import '../theme/build_context_text_styles.dart';
 
 /// 重量输入对话框 - Flat Vitality 设计风格
 ///
@@ -95,7 +96,7 @@ class _WeightInputDialogState extends State<WeightInputDialog> {
                     widget.setNumber,
                     widget.exerciseName,
                   ),
-                  style: Theme.of(context).textTheme.headlineLarge!.copyWith(
+                  style: context.headlineLarge.copyWith(
                     fontSize: 18,
                     color: theme.textColor,
                   ),
@@ -130,7 +131,7 @@ class _WeightInputDialogState extends State<WeightInputDialog> {
                           (_coefficient * 100).toStringAsFixed(0),
                           (bodyWeight * _coefficient).toStringAsFixed(1),
                         ),
-                        style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                        style: context.bodySmall.copyWith(
                           color: theme.accentColor,
                         ),
                       ),
@@ -150,7 +151,7 @@ class _WeightInputDialogState extends State<WeightInputDialog> {
                 labelText: _isBodyweight
                     ? AppLocalizations.of(context)!.recAddedWeightKg
                     : AppLocalizations.of(context)!.recWeightKg,
-                labelStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                labelStyle: context.bodyMedium.copyWith(
                   color: theme.secondaryTextColor,
                 ),
                 border: OutlineInputBorder(
@@ -162,9 +163,7 @@ class _WeightInputDialogState extends State<WeightInputDialog> {
                   borderSide: BorderSide(color: theme.accentColor, width: 2),
                 ),
               ),
-              style: Theme.of(
-                context,
-              ).textTheme.bodyLarge!.copyWith(color: theme.textColor),
+              style: context.bodyLarge.copyWith(color: theme.textColor),
               textInputAction: TextInputAction.next,
               onSubmitted: (_) {
                 _repsFocus.requestFocus();
@@ -179,7 +178,7 @@ class _WeightInputDialogState extends State<WeightInputDialog> {
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
                 labelText: AppLocalizations.of(context)!.recReps,
-                labelStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                labelStyle: context.bodyMedium.copyWith(
                   color: theme.secondaryTextColor,
                 ),
                 border: OutlineInputBorder(
@@ -191,9 +190,7 @@ class _WeightInputDialogState extends State<WeightInputDialog> {
                   borderSide: BorderSide(color: theme.accentColor, width: 2),
                 ),
               ),
-              style: Theme.of(
-                context,
-              ).textTheme.bodyLarge!.copyWith(color: theme.textColor),
+              style: context.bodyLarge.copyWith(color: theme.textColor),
               textInputAction: TextInputAction.done,
             ),
             const SizedBox(height: 24),
@@ -209,7 +206,7 @@ class _WeightInputDialogState extends State<WeightInputDialog> {
                   },
                   child: Text(
                     AppLocalizations.of(context)!.recSkip,
-                    style: Theme.of(context).textTheme.labelLarge!.copyWith(
+                    style: context.labelLarge.copyWith(
                       color: theme.secondaryTextColor,
                     ),
                   ),
@@ -225,7 +222,9 @@ class _WeightInputDialogState extends State<WeightInputDialog> {
                     if (weight != null && reps != null) {
                       double finalWeight = weight;
                       final bodyWeight = _bodyWeight;
-                      if (_isBodyweight && bodyWeight != null && bodyWeight > 0) {
+                      if (_isBodyweight &&
+                          bodyWeight != null &&
+                          bodyWeight > 0) {
                         finalWeight =
                             BodyweightCoefficientService.calculateEquivalentWeight(
                               exercise: widget.exercise,

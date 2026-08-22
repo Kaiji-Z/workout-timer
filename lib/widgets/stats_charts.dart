@@ -9,6 +9,7 @@ import '../services/stats_aggregator_service.dart';
 import '../services/stats_calculator_service.dart';
 import '../theme/app_theme.dart';
 import '../utils/dimensions.dart';
+import '../theme/build_context_text_styles.dart';
 
 /// 统计页「图表区」构建器与配套 painter（自 stats_screen.dart 拆出）。
 ///
@@ -50,9 +51,7 @@ Widget buildDailyDurationChart(
         padding: const EdgeInsets.all(AppDimensions.screenPadding),
         child: Text(
           l10n.statsNoData,
-          style: Theme.of(
-            context,
-          ).textTheme.bodyMedium!.copyWith(color: theme.secondaryTextColor),
+          style: context.bodyMedium.copyWith(color: theme.secondaryTextColor),
         ),
       ),
     );
@@ -77,7 +76,7 @@ Widget buildDailyDurationChart(
           const SizedBox(width: 6),
           Text(
             l10n.statsDurationPerSetsLegend,
-            style: Theme.of(context).textTheme.bodySmall!.copyWith(
+            style: context.bodySmall.copyWith(
               fontSize: 11,
               color: theme.secondaryTextColor,
             ),
@@ -215,7 +214,7 @@ Widget buildDailyDurationChart(
                         : (showLabel ? '$key' : ''),
                     textAlign: TextAlign.center,
                     overflow: TextOverflow.visible,
-                    style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                    style: context.bodySmall.copyWith(
                       fontSize: isWeekView ? 10 : 9,
                       color: theme.secondaryTextColor,
                     ),
@@ -246,9 +245,7 @@ Widget buildCommonExercisesChart(
         padding: const EdgeInsets.all(AppDimensions.screenPadding),
         child: Text(
           l10n.statsNoExerciseData,
-          style: Theme.of(
-            context,
-          ).textTheme.bodyMedium!.copyWith(color: theme.secondaryTextColor),
+          style: context.bodyMedium.copyWith(color: theme.secondaryTextColor),
         ),
       ),
     );
@@ -271,7 +268,7 @@ Widget buildCommonExercisesChart(
               width: 100,
               child: Text(
                 displayName,
-                style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                style: context.bodySmall.copyWith(
                   fontSize: 11,
                   color: theme.textColor,
                 ),
@@ -315,7 +312,7 @@ Widget buildCommonExercisesChart(
               width: 30,
               child: Text(
                 l10n.statsExerciseCount(entry.value),
-                style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                style: context.bodySmall.copyWith(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
                   color: ChartPalette.byIndex(2),
@@ -351,9 +348,7 @@ Widget buildMuscleVolumeChart(
         padding: const EdgeInsets.all(AppDimensions.screenPadding),
         child: Text(
           l10n.statsNoData,
-          style: Theme.of(
-            context,
-          ).textTheme.bodyMedium!.copyWith(color: theme.secondaryTextColor),
+          style: context.bodyMedium.copyWith(color: theme.secondaryTextColor),
         ),
       ),
     );
@@ -387,7 +382,7 @@ Widget buildMuscleVolumeChart(
       // Center text showing total volume
       Text(
         _formatVolume(totalVolume),
-        style: Theme.of(context).textTheme.headlineMedium!.copyWith(
+        style: context.headlineMedium.copyWith(
           fontSize: 20,
           fontWeight: FontWeight.w700,
           color: theme.textColor,
@@ -396,7 +391,7 @@ Widget buildMuscleVolumeChart(
       ),
       Text(
         l10n.statsTotalCapacity,
-        style: Theme.of(context).textTheme.bodySmall!.copyWith(
+        style: context.bodySmall.copyWith(
           fontSize: 11,
           color: theme.secondaryTextColor,
         ),
@@ -453,7 +448,7 @@ Widget buildMuscleVolumeChart(
                   const SizedBox(width: 6),
                   Text(
                     item.key,
-                    style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                    style: context.bodySmall.copyWith(
                       fontSize: 11,
                       color: theme.textColor,
                     ),
@@ -502,9 +497,7 @@ Widget buildPrimaryRecoveryList(
         padding: const EdgeInsets.all(AppDimensions.screenPadding),
         child: Text(
           l10n.statsNoRecoveryData,
-          style: Theme.of(
-            context,
-          ).textTheme.bodyMedium!.copyWith(color: theme.secondaryTextColor),
+          style: context.bodyMedium.copyWith(color: theme.secondaryTextColor),
         ),
       ),
     );
@@ -524,7 +517,7 @@ Widget buildPrimaryRecoveryList(
     children: [
       Text(
         l10n.statsRecoveryStatus,
-        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+        style: context.bodyMedium.copyWith(
           fontSize: 13,
           fontWeight: FontWeight.w600,
           color: theme.secondaryTextColor,
@@ -566,7 +559,7 @@ Widget buildPrimaryRecoveryList(
                 const SizedBox(width: 6),
                 Text(
                   l10n.statsRecoveryDays(muscle.displayName, days),
-                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                  style: context.bodySmall.copyWith(
                     fontWeight: FontWeight.w500,
                     color: chipColor,
                     fontFeatures: const [FontFeature.tabularFigures()],
@@ -617,14 +610,14 @@ Widget buildDensityMetric(
             children: [
               Text(
                 l10n.statsDensity,
-                style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                style: context.bodySmall.copyWith(
                   fontSize: 11,
                   color: theme.secondaryTextColor,
                 ),
               ),
               Text(
                 l10n.statsSetsPerMinute(density.toStringAsFixed(1)),
-                style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                style: context.titleLarge.copyWith(
                   fontWeight: FontWeight.w700,
                   color: theme.textColor,
                   fontFeatures: const [FontFeature.tabularFigures()],
@@ -635,7 +628,7 @@ Widget buildDensityMetric(
         ),
         Text(
           l10n.statsSetsOverMinutes(totalSets, totalMinutes.toStringAsFixed(0)),
-          style: Theme.of(context).textTheme.bodySmall!.copyWith(
+          style: context.bodySmall.copyWith(
             fontSize: 11,
             color: theme.secondaryTextColor,
             fontFeatures: const [FontFeature.tabularFigures()],
@@ -665,9 +658,7 @@ Widget buildEstimated1RMTrend(
         padding: const EdgeInsets.all(AppDimensions.screenPadding),
         child: Text(
           l10n.statsNo1rmData,
-          style: Theme.of(
-            context,
-          ).textTheme.bodyMedium!.copyWith(color: theme.secondaryTextColor),
+          style: context.bodyMedium.copyWith(color: theme.secondaryTextColor),
         ),
       ),
     );
@@ -688,7 +679,7 @@ Widget buildEstimated1RMTrend(
           const SizedBox(width: 6),
           Text(
             l10n.statsEstimated1rmTrend,
-            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+            style: context.bodyMedium.copyWith(
               fontSize: 13,
               fontWeight: FontWeight.w600,
               color: theme.textColor,
@@ -697,7 +688,7 @@ Widget buildEstimated1RMTrend(
           const SizedBox(width: 6),
           Text(
             'Mayhew',
-            style: Theme.of(context).textTheme.bodySmall!.copyWith(
+            style: context.bodySmall.copyWith(
               fontSize: 10,
               color: theme.secondaryTextColor,
             ),
@@ -723,7 +714,7 @@ Widget buildEstimated1RMTrend(
                   width: 80,
                   child: Text(
                     displayName,
-                    style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                    style: context.bodySmall.copyWith(
                       fontSize: 11,
                       color: theme.textColor,
                     ),
@@ -733,7 +724,7 @@ Widget buildEstimated1RMTrend(
                 Expanded(
                   child: Text(
                     '$e1RM kg',
-                    style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                    style: context.bodySmall.copyWith(
                       fontWeight: FontWeight.w600,
                       color: theme.textColor,
                     ),
@@ -741,7 +732,7 @@ Widget buildEstimated1RMTrend(
                 ),
                 Text(
                   l10n.statsRecordsCount(points.length),
-                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                  style: context.bodySmall.copyWith(
                     fontSize: 10,
                     color: theme.secondaryTextColor,
                   ),
@@ -766,7 +757,7 @@ Widget buildEstimated1RMTrend(
                 width: 80,
                 child: Text(
                   displayName,
-                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                  style: context.bodySmall.copyWith(
                     fontSize: 11,
                     color: theme.textColor,
                   ),
@@ -776,7 +767,7 @@ Widget buildEstimated1RMTrend(
               Expanded(
                 child: Text(
                   '${first.estimated1RM.toStringAsFixed(1)} → ${last.estimated1RM.toStringAsFixed(1)} kg',
-                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                  style: context.bodySmall.copyWith(
                     fontWeight: FontWeight.w600,
                     color: theme.textColor,
                   ),
@@ -792,7 +783,7 @@ Widget buildEstimated1RMTrend(
                 child: Text(
                   '${change >= 0 ? '+' : ''}${change.toStringAsFixed(1)}%'
                   '${weeks > 0 ? l10n.anPrompt1rmWeeksSuffix(weeks.toStringAsFixed(0)) : ''}',
-                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                  style: context.bodySmall.copyWith(
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
                     color: change >= 0 ? theme.successColor : theme.errorColor,
@@ -823,9 +814,7 @@ Widget buildSetsPerMuscleGroupChart(
         padding: const EdgeInsets.all(AppDimensions.screenPadding),
         child: Text(
           l10n.statsNoMuscleSetsData,
-          style: Theme.of(
-            context,
-          ).textTheme.bodyMedium!.copyWith(color: theme.secondaryTextColor),
+          style: context.bodyMedium.copyWith(color: theme.secondaryTextColor),
         ),
       ),
     );
@@ -851,7 +840,7 @@ Widget buildSetsPerMuscleGroupChart(
           const SizedBox(width: 6),
           Text(
             l10n.statsSetsPerMuscleTitle,
-            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+            style: context.bodyMedium.copyWith(
               fontSize: 13,
               fontWeight: FontWeight.w600,
               color: theme.textColor,
@@ -862,7 +851,7 @@ Widget buildSetsPerMuscleGroupChart(
       const SizedBox(height: 4),
       Text(
         l10n.statsMevReference,
-        style: Theme.of(context).textTheme.bodySmall!.copyWith(
+        style: context.bodySmall.copyWith(
           fontSize: 10,
           color: theme.secondaryTextColor,
         ),
@@ -883,7 +872,7 @@ Widget buildSetsPerMuscleGroupChart(
                 width: 40,
                 child: Text(
                   muscle.displayName,
-                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                  style: context.bodySmall.copyWith(
                     fontSize: 11,
                     color: theme.textColor,
                   ),
@@ -946,7 +935,7 @@ Widget buildSetsPerMuscleGroupChart(
                 width: 36,
                 child: Text(
                   l10n.statsSetsCount(sets),
-                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                  style: context.bodySmall.copyWith(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
                     color: isAboveMEV ? color : theme.secondaryTextColor,
@@ -996,7 +985,7 @@ class StatsCollapsibleSection extends StatelessWidget {
           ),
           title: Text(
             title,
-            style: Theme.of(context).textTheme.titleLarge!.copyWith(
+            style: context.titleLarge.copyWith(
               fontSize: 15,
               color: theme.textColor,
             ),

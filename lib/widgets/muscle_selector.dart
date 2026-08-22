@@ -5,6 +5,7 @@ import '../models/muscle_group.dart';
 import '../theme/theme_provider.dart';
 import '../theme/app_theme.dart';
 import '../utils/dimensions.dart';
+import '../theme/build_context_text_styles.dart';
 
 /// 肌肉部位选择器 - Flat Vitality 设计
 ///
@@ -36,7 +37,7 @@ class MuscleSelector extends StatelessWidget {
         if (showTitle) ...[
           Text(
             AppLocalizations.of(context)!.widgetSelectMuscleTitle,
-            style: Theme.of(context).textTheme.headlineMedium!,
+            style: context.headlineMedium,
           ),
           const SizedBox(height: 16),
         ],
@@ -114,7 +115,7 @@ class _MuscleChip extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 muscle.displayName,
-                style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                style: context.bodyLarge.copyWith(
                   fontSize: 15,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                   color: isSelected ? theme.onAccentColor : theme.textColor,
@@ -170,9 +171,7 @@ class MuscleBadge extends StatelessWidget {
       // 紧凑模式：用逗号分隔
       return Text(
         muscles.map((m) => m.displayName).join('、'),
-        style: Theme.of(
-          context,
-        ).textTheme.bodySmall!.copyWith(fontSize: fontSize),
+        style: context.bodySmall.copyWith(fontSize: fontSize),
       );
     }
 
@@ -191,7 +190,7 @@ class MuscleBadge extends StatelessWidget {
           ),
           child: Text(
             muscle.displayName,
-            style: Theme.of(context).textTheme.labelLarge!.copyWith(
+            style: context.labelLarge.copyWith(
               fontSize: fontSize,
               color: theme.accentColor,
             ),

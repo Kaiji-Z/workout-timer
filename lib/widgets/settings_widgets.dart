@@ -6,6 +6,7 @@ import '../l10n/app_localizations.dart';
 import '../services/data_transfer_service.dart';
 import '../theme/app_theme.dart';
 import '../utils/dimensions.dart';
+import '../theme/build_context_text_styles.dart';
 
 /// 设置页通用组件与对话框（自 settings_screen.dart 拆出）。
 ///
@@ -153,7 +154,7 @@ Future<String?> showImportDialog(
             if (localBackups.isNotEmpty) ...[
               Text(
                 l10n.settingsFoundLocalBackups,
-                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                style: context.bodyMedium.copyWith(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                   color: theme.secondaryTextColor,
@@ -170,11 +171,11 @@ Future<String?> showImportDialog(
                       backup.fileName,
                       Localizations.localeOf(context).languageCode,
                     ),
-                    style: Theme.of(context).textTheme.bodyMedium!,
+                    style: context.bodyMedium,
                   ),
                   subtitle: Text(
                     '${backup.sizeText} · ${_formatDate(backup.modifiedTime, Localizations.localeOf(context).languageCode)}',
-                    style: Theme.of(context).textTheme.bodySmall!,
+                    style: context.bodySmall,
                   ),
                   trailing: Icon(
                     Icons.restore,
@@ -198,7 +199,7 @@ Future<String?> showImportDialog(
               ),
               subtitle: Text(
                 l10n.settingsSelectManuallySubtitle,
-                style: Theme.of(context).textTheme.bodySmall!,
+                style: context.bodySmall,
               ),
               onTap: () => Navigator.pop(context, 'file_picker'),
             ),
@@ -226,7 +227,7 @@ Widget buildSettingsSectionHeader(
     padding: const EdgeInsets.only(bottom: 12),
     child: Text(
       title,
-      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+      style: context.bodyMedium.copyWith(
         fontSize: 13,
         fontWeight: FontWeight.w600,
         color: theme.secondaryTextColor,
