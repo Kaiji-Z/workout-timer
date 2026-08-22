@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../l10n/app_localizations.dart';
+import '../l10n/context_l10n.dart';
 import '../models/muscle_group.dart';
 import '../theme/theme_provider.dart';
 import '../theme/app_theme.dart';
@@ -36,7 +36,7 @@ class MuscleSelector extends StatelessWidget {
       children: [
         if (showTitle) ...[
           Text(
-            AppLocalizations.of(context)!.widgetSelectMuscleTitle,
+            context.l10n.widgetSelectMuscleTitle,
             style: context.headlineMedium,
           ),
           const SizedBox(height: 16),

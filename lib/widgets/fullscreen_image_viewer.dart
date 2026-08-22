@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import '../l10n/app_localizations.dart';
+import '../l10n/context_l10n.dart';
 import '../utils/dimensions.dart';
 
 /// 全屏图片查看器
@@ -36,7 +36,7 @@ class FullscreenImageViewer extends StatefulWidget {
         opaque: false,
         barrierColor: Colors.black87,
         barrierDismissible: true,
-        barrierLabel: AppLocalizations.of(context)!.widgetClose,
+        barrierLabel: context.l10n.widgetClose,
         transitionDuration: const Duration(milliseconds: 200),
         pageBuilder: (context, _, _) =>
             FullscreenImageViewer(imageUrl: imageUrl, title: title),
@@ -62,7 +62,7 @@ class FullscreenImageViewer extends StatefulWidget {
         opaque: false,
         barrierColor: Colors.black87,
         barrierDismissible: true,
-        barrierLabel: AppLocalizations.of(context)!.widgetClose,
+        barrierLabel: context.l10n.widgetClose,
         transitionDuration: const Duration(milliseconds: 200),
         pageBuilder: (context, _, _) => FullscreenImageViewer(
           imageUrl: images.isNotEmpty ? images.first : '',
@@ -171,9 +171,7 @@ class _FullscreenImageViewerState extends State<FullscreenImageViewer>
                             ),
                             SizedBox(height: 8),
                             Text(
-                              AppLocalizations.of(
-                                context,
-                              )!.widgetImageLoadFailed,
+                              context.l10n.widgetImageLoadFailed,
                               style: TextStyle(
                                 color: Colors.white54,
                                 fontSize: 14,
@@ -230,7 +228,7 @@ class _FullscreenImageViewerState extends State<FullscreenImageViewer>
                   child: Padding(
                     padding: EdgeInsets.all(AppDimensions.screenPadding),
                     child: Text(
-                      AppLocalizations.of(context)!.widgetTapToClose,
+                      context.l10n.widgetTapToClose,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Colors.white54,
@@ -322,7 +320,7 @@ class _FullscreenImageViewerState extends State<FullscreenImageViewer>
                     child: Row(
                       children: [
                         IconButton(
-                          tooltip: AppLocalizations.of(context)!.widgetClose,
+                          tooltip: context.l10n.widgetClose,
                           icon: Icon(Icons.close, color: Colors.white),
                           onPressed: () => Navigator.pop(context),
                         ),

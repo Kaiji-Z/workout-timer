@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
+import '../l10n/context_l10n.dart';
 import '../models/exercise.dart';
 import '../models/muscle_group.dart';
 import '../models/weekly_plan_import.dart';
@@ -379,7 +380,7 @@ void aiWizardCandidateSheet(
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    AppLocalizations.of(context)!.aiSelectMatchTitle,
+                    context.l10n.aiSelectMatchTitle,
                     style: context.headlineLarge.copyWith(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
@@ -387,7 +388,7 @@ void aiWizardCandidateSheet(
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    AppLocalizations.of(context)!.aiSelectMatchSubtitle(
+                    context.l10n.aiSelectMatchSubtitle(
                       originalName,
                       matchResult.candidates.length,
                     ),
@@ -465,7 +466,7 @@ void aiWizardCandidateSheet(
                   },
                   icon: Icon(Icons.close, color: theme.secondaryTextColor),
                   label: Text(
-                    AppLocalizations.of(context)!.aiKeepUnmatched,
+                    context.l10n.aiKeepUnmatched,
                     style: TextStyle(color: theme.secondaryTextColor),
                   ),
                 ),

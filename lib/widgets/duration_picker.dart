@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import '../l10n/app_localizations.dart';
+import '../l10n/context_l10n.dart';
 import '../theme/theme_provider.dart';
 import '../theme/app_theme.dart';
 import '../utils/dimensions.dart';
@@ -90,7 +91,7 @@ class _DurationPickerState extends State<DurationPicker> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(AppLocalizations.of(context)!.widgetRestMinDuration),
+          content: Text(context.l10n.widgetRestMinDuration),
           duration: Duration(seconds: 2),
         ),
       );
@@ -100,7 +101,7 @@ class _DurationPickerState extends State<DurationPicker> {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().currentTheme;
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
     // iPhone 5c 主题统一使用浅色风格
     final screenHeight = MediaQuery.of(context).size.height;
 
@@ -193,7 +194,7 @@ class _DurationPickerState extends State<DurationPicker> {
   }
 
   Widget _buildHeader(AppThemeData theme) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
@@ -242,7 +243,7 @@ class _DurationPickerState extends State<DurationPicker> {
   }
 
   Widget _buildBottomSection(AppThemeData theme) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       child: Column(
@@ -267,7 +268,7 @@ class _DurationPickerState extends State<DurationPicker> {
   }
 
   Widget _buildConfirmButton(AppThemeData theme) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
     return Material(
       color: Colors.transparent,
       child: InkWell(

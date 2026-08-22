@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
-import '../l10n/app_localizations.dart';
+import '../l10n/context_l10n.dart';
 import '../models/set_data.dart';
 import '../models/workout_plan.dart';
 import '../services/bodyweight_coefficient_service.dart';
@@ -172,7 +172,7 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
           children: [
             // 标题
             Text(
-              AppLocalizations.of(context)!.recRecordData,
+              context.l10n.recRecordData,
               style: context.headlineLarge.copyWith(
                 fontSize: 22,
                 color: theme.textColor,
@@ -181,7 +181,7 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
             const SizedBox(height: 8),
             // 副标题
             Text(
-              AppLocalizations.of(context)!.recScrollHint,
+              context.l10n.recScrollHint,
               style: context.bodyMedium.copyWith(
                 color: theme.secondaryTextColor,
               ),
@@ -219,7 +219,7 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
                     Navigator.of(context).pop(null);
                   },
                   child: Text(
-                    AppLocalizations.of(context)!.recSkip,
+                    context.l10n.recSkip,
                     style: context.labelLarge.copyWith(
                       color: theme.secondaryTextColor,
                     ),
@@ -242,7 +242,7 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
                     ),
                   ),
                   child: Text(
-                    AppLocalizations.of(context)!.recSave,
+                    context.l10n.recSave,
                     // 必须显式设 color:深底按钮的 Text 若继承 titleLarge.color
                     // (textColor 黑),会渲染成黑字印在深靛蓝底上不可读。
                     style: context.titleLarge.copyWith(
@@ -351,7 +351,7 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
                 borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
               ),
               child: Text(
-                AppLocalizations.of(context)!.bodyweightReference(
+                context.l10n.bodyweightReference(
                   bodyWeight.toStringAsFixed(0),
                   (coeff * 100).toStringAsFixed(0),
                   eqWeight.toStringAsFixed(1),
@@ -373,7 +373,7 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
                   fit: BoxFit.scaleDown,
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    AppLocalizations.of(context)!.dialogSetTitle(setNumber),
+                    context.l10n.dialogSetTitle(setNumber),
                     style: context.bodyMedium.copyWith(
                       color: theme.secondaryTextColor,
                     ),
@@ -410,9 +410,7 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
                   controller: weightController,
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
-                    hintText: isBw
-                        ? AppLocalizations.of(context)!.recAdded
-                        : '0',
+                    hintText: isBw ? context.l10n.recAdded : '0',
                     hintStyle: context.bodyMedium.copyWith(
                       color: theme.secondaryTextColor,
                     ),

@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import '../l10n/app_localizations.dart';
+import '../l10n/context_l10n.dart';
 import '../theme/app_theme.dart';
 
 /// 奖牌金盘上的文字/分隔线颜色。奖牌是固定金色资产，刻意不随主题明暗
@@ -286,9 +286,7 @@ class _CompletedMedalDisplayState extends State<CompletedMedalDisplay>
                       );
                       final timeFontSize = timeIdealFontSize * timeScale;
                       // 训练完成文案：理想字号
-                      final captionText = AppLocalizations.of(
-                        context,
-                      )!.widgetTrainingComplete;
+                      final captionText = context.l10n.widgetTrainingComplete;
                       final captionIdealFontSize = diskDiameter * 0.085;
                       final captionScale = _scaleFactorForText(
                         captionText,

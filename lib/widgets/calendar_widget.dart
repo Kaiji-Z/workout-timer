@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import '../l10n/app_localizations.dart';
+import '../l10n/context_l10n.dart';
 import '../theme/theme_provider.dart';
 import '../providers/plan_provider.dart';
 
@@ -87,7 +87,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
       children: [
         // 上个月
         IconButton(
-          tooltip: AppLocalizations.of(context)!.calPrevMonth,
+          tooltip: context.l10n.calPrevMonth,
           onPressed: () {
             setState(() {
               _currentMonth = DateTime(
@@ -107,7 +107,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
 
         // 下个月
         IconButton(
-          tooltip: AppLocalizations.of(context)!.calNextMonth,
+          tooltip: context.l10n.calNextMonth,
           onPressed: () {
             setState(() {
               _currentMonth = DateTime(
@@ -245,7 +245,7 @@ class _DateCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
     final locale = Localizations.localeOf(context).languageCode;
     final dateStr = DateFormat.yMd(locale).format(date);
     final semanticsLabel = l10n.calDaySemantics(
@@ -431,7 +431,7 @@ class _CompactCalendarState extends State<CompactCalendar> {
         final isToday = _isSameDay(date, todayNormalized);
         final hasPlan = markedDates.any((d) => _isSameDay(d, date));
 
-        final l10n = AppLocalizations.of(context)!;
+        final l10n = context.l10n;
         final locale = Localizations.localeOf(context).languageCode;
         final weekDayName = DateFormat.E(locale).format(date);
         final semanticsLabel = l10n.calDaySemantics(
@@ -583,7 +583,7 @@ class _WeekDatePickerState extends State<WeekDatePicker> {
             date,
             DateTime(today.year, today.month, today.day),
           );
-          final l10n = AppLocalizations.of(context)!;
+          final l10n = context.l10n;
           final locale = Localizations.localeOf(context).languageCode;
           final weekDayName = DateFormat.E(locale).format(date);
           final semanticsLabel = l10n.calDaySemantics(
