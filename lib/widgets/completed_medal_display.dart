@@ -68,9 +68,10 @@ class _CompletedMedalDisplayState extends State<CompletedMedalDisplay>
       duration: const Duration(milliseconds: 400),
       vsync: this,
     );
-    _shrinkAnimation = Tween(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _shrinkController, curve: Curves.easeIn),
-    );
+    _shrinkAnimation = Tween(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _shrinkController, curve: Curves.easeIn));
 
     // Phase 2: 奖牌弹出（500ms easeOutBack）
     _popController = AnimationController(
@@ -86,12 +87,14 @@ class _CompletedMedalDisplayState extends State<CompletedMedalDisplay>
       duration: const Duration(milliseconds: 400),
       vsync: this,
     );
-    _digitOpacity = Tween(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _digitController, curve: Curves.easeOut),
-    );
-    _digitSlide = Tween(begin: const Offset(0, 0.3), end: Offset.zero).animate(
-      CurvedAnimation(parent: _digitController, curve: Curves.easeOut),
-    );
+    _digitOpacity = Tween(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _digitController, curve: Curves.easeOut));
+    _digitSlide = Tween(
+      begin: const Offset(0, 0.3),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _digitController, curve: Curves.easeOut));
 
     // Phase 3b: 训练完成文案
     _captionController = AnimationController(
@@ -101,9 +104,10 @@ class _CompletedMedalDisplayState extends State<CompletedMedalDisplay>
     _captionOpacity = Tween(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _captionController, curve: Curves.easeOut),
     );
-    _captionSlide = Tween(begin: const Offset(0, 0.3), end: Offset.zero).animate(
-      CurvedAnimation(parent: _captionController, curve: Curves.easeOut),
-    );
+    _captionSlide = Tween(begin: const Offset(0, 0.3), end: Offset.zero)
+        .animate(
+          CurvedAnimation(parent: _captionController, curve: Curves.easeOut),
+        );
 
     // Phase 4: 呼吸
     _breathController = AnimationController(
@@ -118,14 +122,14 @@ class _CompletedMedalDisplayState extends State<CompletedMedalDisplay>
   }
 
   Future<void> _runSequence() async {
-    await _shrinkController.forward();         // 环收缩
-    _popController.forward();                   // 奖牌弹出
+    await _shrinkController.forward(); // 环收缩
+    _popController.forward(); // 奖牌弹出
     await Future.delayed(const Duration(milliseconds: 250));
-    _digitController.forward();                 // 数字登场
+    _digitController.forward(); // 数字登场
     await Future.delayed(const Duration(milliseconds: 150));
-    _captionController.forward();               // 文案登场
+    _captionController.forward(); // 文案登场
     await Future.delayed(const Duration(milliseconds: 300));
-    _breathController.repeat(reverse: true);    // 呼吸
+    _breathController.repeat(reverse: true); // 呼吸
   }
 
   @override
@@ -147,8 +151,13 @@ class _CompletedMedalDisplayState extends State<CompletedMedalDisplay>
   /// 用 TextPainter 测量文字在某字号下的实际宽度，返回需要缩放到
   /// [maxWidth] 的缩放比（<=1.0）。这样不依赖 FittedBox（在 Column/Transition
   /// 嵌套里不可靠），直接算出合适 fontSize。
-  double _scaleFactorForText(String text, double fontSize, double maxWidth,
-      {FontWeight fontWeight = FontWeight.normal, String? fontFamily}) {
+  double _scaleFactorForText(
+    String text,
+    double fontSize,
+    double maxWidth, {
+    FontWeight fontWeight = FontWeight.normal,
+    String? fontFamily,
+  }) {
     final painter = TextPainter(
       text: TextSpan(
         text: text,
@@ -192,7 +201,8 @@ class _CompletedMedalDisplayState extends State<CompletedMedalDisplay>
     final double svgH = viewBoxH * scale; // ≈ size × 1.206
     // SVG 左上角位置（容器坐标系，可负 = 溢出 SizedBox）
     final double svgOffsetX = (size - svgW) / 2; // 圆盘水平居中 → SVG 也水平居中
-    final double svgOffsetY = size / 2 - svgH * diskCenterYFrac; // 圆盘中心钉到 size/2
+    final double svgOffsetY =
+        size / 2 - svgH * diskCenterYFrac; // 圆盘中心钉到 size/2
 
     return SizedBox(
       width: size,
@@ -228,10 +238,7 @@ class _CompletedMedalDisplayState extends State<CompletedMedalDisplay>
           // 圆盘中心已被精确钉到容器中心，所以 scale 用 center 对齐，
           // 缎带/底点会对称地向上下扩散，圆盘不动。
           AnimatedBuilder(
-            animation: Listenable.merge([
-              _popAnimation,
-              _breathAnimation,
-            ]),
+            animation: Listenable.merge([_popAnimation, _breathAnimation]),
             builder: (context, child) {
               // pop 完成前不启动呼吸（_breathAnimation 初始值 0.98 会缩太小）
               final breathScale = _popAnimation.value < 0.99
@@ -261,77 +268,86 @@ class _CompletedMedalDisplayState extends State<CompletedMedalDisplay>
                   // 用 TextPainter 手动算缩放比（FittedBox 在 Column+Transition 嵌套
                   // 里不可靠），直接设 fontSize，保证文字宽度 <= 圆盘内可用宽度。
                   // 用户要求：时间往下移，接近中心横线（分隔线）。
-                  Builder(builder: (context) {
-                    // 圆盘内可用宽度：文字总宽 ≤ 圆盘直径 × 0.50（半宽 ≤ 半径×0.5），
-                    // 给花环留出边缘空间（花环沿圆盘外缘分布）。
-                    // 之前 0.62 导致文字半宽 ≈ 圆盘半径，撞到边缘花环。
-                    final maxTextWidth = diskDiameter * 0.50;
-                    // 时间数字：理想字号
-                    final timeText = _formatTime(widget.sessionDuration);
-                    final timeIdealFontSize = diskDiameter * 0.22;
-                    final timeScale = _scaleFactorForText(
-                      timeText, timeIdealFontSize, maxTextWidth,
-                      fontWeight: FontWeight.w700, fontFamily: 'Rajdhani',
-                    );
-                    final timeFontSize = timeIdealFontSize * timeScale;
-                    // 训练完成文案：理想字号
-                    final captionText =
-                        AppLocalizations.of(context)!.widgetTrainingComplete;
-                    final captionIdealFontSize = diskDiameter * 0.085;
-                    final captionScale = _scaleFactorForText(
-                      captionText, captionIdealFontSize, maxTextWidth,
-                      fontWeight: FontWeight.w600,
-                    );
-                    final captionFontSize = captionIdealFontSize * captionScale;
-                    return Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          // 时长数字（黑色）— 紧贴分隔线上方
-                          SlideTransition(
-                            position: _digitSlide,
-                            child: FadeTransition(
-                              opacity: _digitOpacity,
-                              child: Text(
-                                timeText,
-                                style: TextStyle(
-                                  fontFamily: 'Rajdhani',
-                                  fontSize: timeFontSize,
-                                  fontWeight: FontWeight.w700,
-                                  color: _medalInkColor,
-                                  letterSpacing: -0.5,
-                                  height: 1.0,
+                  Builder(
+                    builder: (context) {
+                      // 圆盘内可用宽度：文字总宽 ≤ 圆盘直径 × 0.50（半宽 ≤ 半径×0.5），
+                      // 给花环留出边缘空间（花环沿圆盘外缘分布）。
+                      // 之前 0.62 导致文字半宽 ≈ 圆盘半径，撞到边缘花环。
+                      final maxTextWidth = diskDiameter * 0.50;
+                      // 时间数字：理想字号
+                      final timeText = _formatTime(widget.sessionDuration);
+                      final timeIdealFontSize = diskDiameter * 0.22;
+                      final timeScale = _scaleFactorForText(
+                        timeText,
+                        timeIdealFontSize,
+                        maxTextWidth,
+                        fontWeight: FontWeight.w700,
+                        fontFamily: 'Rajdhani',
+                      );
+                      final timeFontSize = timeIdealFontSize * timeScale;
+                      // 训练完成文案：理想字号
+                      final captionText = AppLocalizations.of(
+                        context,
+                      )!.widgetTrainingComplete;
+                      final captionIdealFontSize = diskDiameter * 0.085;
+                      final captionScale = _scaleFactorForText(
+                        captionText,
+                        captionIdealFontSize,
+                        maxTextWidth,
+                        fontWeight: FontWeight.w600,
+                      );
+                      final captionFontSize =
+                          captionIdealFontSize * captionScale;
+                      return Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // 时长数字（黑色）— 紧贴分隔线上方
+                            SlideTransition(
+                              position: _digitSlide,
+                              child: FadeTransition(
+                                opacity: _digitOpacity,
+                                child: Text(
+                                  timeText,
+                                  style: TextStyle(
+                                    fontFamily: 'Rajdhani',
+                                    fontSize: timeFontSize,
+                                    fontWeight: FontWeight.w700,
+                                    color: _medalInkColor,
+                                    letterSpacing: -0.5,
+                                    height: 1.0,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                          SizedBox(height: diskDiameter * 0.01),
-                          // 分隔线（中心横线 — 圆盘的视觉中心锚点）
-                          Container(
-                            width: diskDiameter * 0.22,
-                            height: 1.5,
-                            color: _medalInkColor.withValues(alpha: 0.3),
-                          ),
-                          SizedBox(height: diskDiameter * 0.01),
-                          // 训练完成文案（黑色，复用 l10n）
-                          SlideTransition(
-                            position: _captionSlide,
-                            child: FadeTransition(
-                              opacity: _captionOpacity,
-                              child: Text(
-                                captionText,
-                                style: TextStyle(
-                                  fontSize: captionFontSize,
-                                  fontWeight: FontWeight.w600,
-                                  color: _medalInkColor,
+                            SizedBox(height: diskDiameter * 0.01),
+                            // 分隔线（中心横线 — 圆盘的视觉中心锚点）
+                            Container(
+                              width: diskDiameter * 0.22,
+                              height: 1.5,
+                              color: _medalInkColor.withValues(alpha: 0.3),
+                            ),
+                            SizedBox(height: diskDiameter * 0.01),
+                            // 训练完成文案（黑色，复用 l10n）
+                            SlideTransition(
+                              position: _captionSlide,
+                              child: FadeTransition(
+                                opacity: _captionOpacity,
+                                child: Text(
+                                  captionText,
+                                  style: TextStyle(
+                                    fontSize: captionFontSize,
+                                    fontWeight: FontWeight.w600,
+                                    color: _medalInkColor,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
                 ],
               ),
             ),

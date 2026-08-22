@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../theme/theme_provider.dart';
 import '../utils/dimensions.dart';
+import '../theme/build_context_text_styles.dart';
 
 // ============================================================================
 // PRESSABLE MIXIN - 按压动画混入
@@ -243,7 +244,7 @@ class _PrimaryActionButtonState extends State<PrimaryActionButton>
               ],
               Text(
                 widget.label,
-                style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                style: context.titleLarge.copyWith(
                   color: theme.onAccentColor,
                   letterSpacing: 0.5,
                 ),
@@ -328,7 +329,7 @@ class FlatBadge extends StatelessWidget {
           ],
           Text(
             text,
-            style: Theme.of(context).textTheme.labelLarge!.copyWith(
+            style: context.labelLarge.copyWith(
               fontSize: 13,
               color: textColor ?? theme.onAccentColor,
             ),
@@ -375,9 +376,7 @@ class StatusBadge extends StatelessWidget {
           ],
           Text(
             text,
-            style: Theme.of(
-              context,
-            ).textTheme.labelLarge!.copyWith(fontSize: 13, color: color),
+            style: context.labelLarge.copyWith(fontSize: 13, color: color),
           ),
         ],
       ),
@@ -521,7 +520,7 @@ class _SecondaryButtonState extends State<_SecondaryButton>
               ],
               Text(
                 widget.label,
-                style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                style: context.titleLarge.copyWith(
                   fontSize: 15,
                   color: widget.color,
                 ),

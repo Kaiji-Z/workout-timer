@@ -171,7 +171,9 @@ class _FullscreenImageViewerState extends State<FullscreenImageViewer>
                             ),
                             SizedBox(height: 8),
                             Text(
-                              AppLocalizations.of(context)!.widgetImageLoadFailed,
+                              AppLocalizations.of(
+                                context,
+                              )!.widgetImageLoadFailed,
                               style: TextStyle(
                                 color: Colors.white54,
                                 fontSize: 14,

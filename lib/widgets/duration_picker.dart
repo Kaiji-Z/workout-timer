@@ -6,6 +6,7 @@ import '../theme/theme_provider.dart';
 import '../theme/app_theme.dart';
 import '../utils/dimensions.dart';
 import 'package:provider/provider.dart';
+import '../theme/build_context_text_styles.dart';
 
 /// iOS 26 风格时间选择器
 /// 分钟滚轮：0-5 分钟
@@ -209,7 +210,7 @@ class _DurationPickerState extends State<DurationPicker> {
             onPressed: () => Navigator.pop(context),
             child: Text(
               l10n.widgetCancel,
-              style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+              style: context.bodyLarge.copyWith(
                 fontSize: 17,
                 color: theme.primaryColor,
               ),
@@ -218,7 +219,7 @@ class _DurationPickerState extends State<DurationPicker> {
           // 标题
           Text(
             widget.title ?? l10n.widgetSetRestDuration,
-            style: Theme.of(context).textTheme.titleLarge!.copyWith(
+            style: context.titleLarge.copyWith(
               fontSize: 17,
               color: theme.textColor,
             ),
@@ -229,7 +230,7 @@ class _DurationPickerState extends State<DurationPicker> {
             onPressed: _onConfirm,
             child: Text(
               l10n.widgetConfirm,
-              style: Theme.of(context).textTheme.titleLarge!.copyWith(
+              style: context.titleLarge.copyWith(
                 fontSize: 17,
                 color: theme.primaryColor,
               ),
@@ -251,7 +252,7 @@ class _DurationPickerState extends State<DurationPicker> {
             padding: const EdgeInsets.symmetric(vertical: 12),
             child: Text(
               l10n.widgetSelectedDuration(_formatDuration(_totalSeconds, l10n)),
-              style: Theme.of(context).textTheme.titleLarge!.copyWith(
+              style: context.titleLarge.copyWith(
                 fontSize: 15,
                 fontWeight: FontWeight.w500,
                 color: theme.secondaryTextColor,
@@ -285,7 +286,7 @@ class _DurationPickerState extends State<DurationPicker> {
           child: Center(
             child: Text(
               l10n.widgetConfirmButton,
-              style: Theme.of(context).textTheme.titleLarge!.copyWith(
+              style: context.titleLarge.copyWith(
                 fontSize: 17,
                 color: theme.onAccentColor,
                 letterSpacing: -0.3,
@@ -336,7 +337,7 @@ class _DurationPickerState extends State<DurationPicker> {
             return Center(
               child: Text(
                 '$value$suffix',
-                style: Theme.of(context).textTheme.headlineLarge!.copyWith(
+                style: context.headlineLarge.copyWith(
                   fontSize: 22,
                   fontWeight: FontWeight.w500,
                   color: theme.textColor,

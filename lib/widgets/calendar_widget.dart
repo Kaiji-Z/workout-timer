@@ -7,6 +7,7 @@ import '../providers/plan_provider.dart';
 
 import '../theme/app_theme.dart';
 import '../utils/dimensions.dart';
+import '../theme/build_context_text_styles.dart';
 
 /// 日历组件 - Flat Vitality 设计
 ///
@@ -101,9 +102,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
         // 当前月份
         Text(
           monthYearText,
-          style: Theme.of(
-            context,
-          ).textTheme.headlineMedium!.copyWith(color: theme.textColor),
+          style: context.headlineMedium.copyWith(color: theme.textColor),
         ),
 
         // 下个月
@@ -137,7 +136,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
           child: Center(
             child: Text(
               day,
-              style: Theme.of(context).textTheme.labelLarge!.copyWith(
+              style: context.labelLarge.copyWith(
                 fontSize: 13,
                 color: theme.secondaryTextColor,
               ),
@@ -282,7 +281,7 @@ class _DateCell extends StatelessWidget {
               // 日期数字
               Text(
                 '$day',
-                style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                style: context.bodySmall.copyWith(
                   fontWeight: isSelected || isToday
                       ? FontWeight.w600
                       : FontWeight.w400,
@@ -379,9 +378,10 @@ class _CompactCalendarState extends State<CompactCalendar> {
                 constraints: const BoxConstraints(),
               ),
               Text(
-                DateFormat.yM(Localizations.localeOf(context).languageCode)
-                    .format(_currentMonth),
-                style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                DateFormat.yM(
+                  Localizations.localeOf(context).languageCode,
+                ).format(_currentMonth),
+                style: context.titleLarge.copyWith(
                   fontSize: 15,
                   color: theme.textColor,
                 ),
@@ -457,9 +457,7 @@ class _CompactCalendarState extends State<CompactCalendar> {
                   children: [
                     Text(
                       weekDayName,
-                      style: Theme.of(
-                        context,
-                      ).textTheme.bodySmall!.copyWith(fontSize: 11),
+                      style: context.bodySmall.copyWith(fontSize: 11),
                     ),
                     const SizedBox(height: 4),
                     Stack(
@@ -478,17 +476,16 @@ class _CompactCalendarState extends State<CompactCalendar> {
                           ),
                         Text(
                           '${date.day}',
-                          style: Theme.of(context).textTheme.bodyMedium!
-                              .copyWith(
-                                fontWeight: isSelected || isToday
-                                    ? FontWeight.w600
-                                    : FontWeight.w400,
-                                color: isSelected
-                                    ? theme.onAccentColor
-                                    : isToday
-                                    ? theme.accentColor
-                                    : theme.textColor,
-                              ),
+                          style: context.bodyMedium.copyWith(
+                            fontWeight: isSelected || isToday
+                                ? FontWeight.w600
+                                : FontWeight.w400,
+                            color: isSelected
+                                ? theme.onAccentColor
+                                : isToday
+                                ? theme.accentColor
+                                : theme.textColor,
+                          ),
                         ),
                         if (hasPlan)
                           Positioned(
@@ -612,9 +609,7 @@ class _WeekDatePickerState extends State<WeekDatePicker> {
                     children: [
                       Text(
                         weekDayName,
-                        style: Theme.of(
-                          context,
-                        ).textTheme.bodySmall!.copyWith(fontSize: 11),
+                        style: context.bodySmall.copyWith(fontSize: 11),
                       ),
                       const SizedBox(height: 4),
                       Stack(
@@ -639,16 +634,15 @@ class _WeekDatePickerState extends State<WeekDatePicker> {
                           ),
                           Text(
                             '${date.day}',
-                            style: Theme.of(context).textTheme.titleLarge!
-                                .copyWith(
-                                  fontSize: 15,
-                                  fontWeight: isSelected
-                                      ? FontWeight.w600
-                                      : FontWeight.w400,
-                                  color: isSelected
-                                      ? theme.onAccentColor
-                                      : theme.textColor,
-                                ),
+                            style: context.titleLarge.copyWith(
+                              fontSize: 15,
+                              fontWeight: isSelected
+                                  ? FontWeight.w600
+                                  : FontWeight.w400,
+                              color: isSelected
+                                  ? theme.onAccentColor
+                                  : theme.textColor,
+                            ),
                           ),
                         ],
                       ),

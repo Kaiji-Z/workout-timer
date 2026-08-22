@@ -11,6 +11,7 @@ import '../providers/plan_provider.dart';
 import '../theme/app_theme.dart';
 import '../utils/dimensions.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import '../theme/build_context_text_styles.dart';
 
 /// 动作选择器 - Flat Vitality 设计
 ///
@@ -114,9 +115,9 @@ class _ExerciseSelectorState extends State<ExerciseSelector> {
         },
         decoration: InputDecoration(
           hintText: l10n.widgetSearchExerciseHint,
-          hintStyle: Theme.of(
-            context,
-          ).textTheme.bodyLarge!.copyWith(color: theme.secondaryTextColor),
+          hintStyle: context.bodyLarge.copyWith(
+            color: theme.secondaryTextColor,
+          ),
           prefixIcon: Icon(Icons.search, color: theme.secondaryTextColor),
           suffixIcon: _searchQuery.isNotEmpty
               ? IconButton(
@@ -136,9 +137,7 @@ class _ExerciseSelectorState extends State<ExerciseSelector> {
             vertical: 14,
           ),
         ),
-        style: Theme.of(
-          context,
-        ).textTheme.bodyLarge!.copyWith(color: theme.textColor),
+        style: context.bodyLarge.copyWith(color: theme.textColor),
       ),
     );
   }
@@ -175,7 +174,7 @@ class _ExerciseSelectorState extends State<ExerciseSelector> {
                 ),
                 child: Text(
                   l10n.widgetAll,
-                  style: Theme.of(context).textTheme.labelLarge!.copyWith(
+                  style: context.labelLarge.copyWith(
                     fontWeight: _filterMuscle == null
                         ? FontWeight.w600
                         : FontWeight.w500,
@@ -214,7 +213,7 @@ class _ExerciseSelectorState extends State<ExerciseSelector> {
                   ),
                   child: Text(
                     muscle.displayName,
-                    style: Theme.of(context).textTheme.labelLarge!.copyWith(
+                    style: context.labelLarge.copyWith(
                       fontWeight: isSelected
                           ? FontWeight.w600
                           : FontWeight.w500,
@@ -271,9 +270,9 @@ class _ExerciseSelectorState extends State<ExerciseSelector> {
             const SizedBox(height: 16),
             Text(
               l10n.widgetNoExerciseFound,
-              style: Theme.of(
-                context,
-              ).textTheme.bodyLarge!.copyWith(color: theme.secondaryTextColor),
+              style: context.bodyLarge.copyWith(
+                color: theme.secondaryTextColor,
+              ),
             ),
           ],
         ),
@@ -317,7 +316,7 @@ class _ExerciseSelectorState extends State<ExerciseSelector> {
             children: [
               Text(
                 l10n.widgetSelectedCount(widget.selectedExercises.length),
-                style: Theme.of(context).textTheme.labelLarge!.copyWith(
+                style: context.labelLarge.copyWith(
                   fontWeight: FontWeight.w600,
                   color: theme.textColor,
                 ),
@@ -326,9 +325,7 @@ class _ExerciseSelectorState extends State<ExerciseSelector> {
                 onPressed: () => widget.onSelectionChanged([]),
                 child: Text(
                   l10n.widgetClearAll,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.labelLarge!.copyWith(color: theme.accentColor),
+                  style: context.labelLarge.copyWith(color: theme.accentColor),
                 ),
               ),
             ],
@@ -357,8 +354,10 @@ class _ExerciseSelectorState extends State<ExerciseSelector> {
                       children: [
                         Text(
                           planExercise.name,
-                          style: Theme.of(context).textTheme.bodyMedium!
-                              .copyWith(fontSize: 13, color: theme.textColor),
+                          style: context.bodyMedium.copyWith(
+                            fontSize: 13,
+                            color: theme.textColor,
+                          ),
                         ),
                         const SizedBox(width: 4),
                         Text(
@@ -515,7 +514,7 @@ class _ExerciseListItem extends StatelessWidget {
         ),
         title: Text(
           exercise.name,
-          style: Theme.of(context).textTheme.titleLarge!.copyWith(
+          style: context.titleLarge.copyWith(
             fontSize: 15,
             fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
             color: theme.textColor,
@@ -531,7 +530,7 @@ class _ExerciseListItem extends StatelessWidget {
               ),
               child: Text(
                 exercise.primaryMuscle.displayName,
-                style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                style: context.bodySmall.copyWith(
                   fontSize: 11,
                   color: theme.accentColor,
                 ),
@@ -677,16 +676,15 @@ class _ExerciseDetailSheetState extends State<ExerciseDetailSheet>
                       // 动作名称
                       Text(
                         widget.exercise.name,
-                        style: Theme.of(context).textTheme.headlineLarge!
-                            .copyWith(
-                              fontWeight: FontWeight.w700,
-                              color: theme.textColor,
-                            ),
+                        style: context.headlineLarge.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: theme.textColor,
+                        ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         widget.exercise.nameEn,
-                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        style: context.bodyMedium.copyWith(
                           color: theme.secondaryTextColor,
                         ),
                       ),
@@ -736,11 +734,10 @@ class _ExerciseDetailSheetState extends State<ExerciseDetailSheet>
                       if (widget.exercise.secondaryMuscles.isNotEmpty) ...[
                         Text(
                           l10n.widgetInvolvedMuscles,
-                          style: Theme.of(context).textTheme.labelLarge!
-                              .copyWith(
-                                fontWeight: FontWeight.w600,
-                                color: theme.textColor,
-                              ),
+                          style: context.labelLarge.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: theme.textColor,
+                          ),
                         ),
                         const SizedBox(height: 8),
                         Wrap(
@@ -765,11 +762,10 @@ class _ExerciseDetailSheetState extends State<ExerciseDetailSheet>
                               ),
                               child: Text(
                                 muscle.displayName,
-                                style: Theme.of(context).textTheme.bodyMedium!
-                                    .copyWith(
-                                      fontSize: 13,
-                                      color: theme.textColor,
-                                    ),
+                                style: context.bodyMedium.copyWith(
+                                  fontSize: 13,
+                                  color: theme.textColor,
+                                ),
                               ),
                             );
                           }).toList(),
@@ -803,8 +799,9 @@ class _ExerciseDetailSheetState extends State<ExerciseDetailSheet>
                               widget.isSelected
                                   ? l10n.widgetRemoveFromPlan
                                   : l10n.widgetAddToPlan,
-                              style: Theme.of(context).textTheme.titleLarge!
-                                  .copyWith(color: theme.onAccentColor),
+                              style: context.titleLarge.copyWith(
+                                color: theme.onAccentColor,
+                              ),
                             ),
                           ),
                         ),
@@ -930,9 +927,7 @@ class _ExerciseDetailSheetState extends State<ExerciseDetailSheet>
             const SizedBox(width: 8),
             Text(
               l10n.widgetExerciseInstructions,
-              style: Theme.of(
-                context,
-              ).textTheme.titleLarge!.copyWith(color: theme.textColor),
+              style: context.titleLarge.copyWith(color: theme.textColor),
             ),
           ],
         ),
@@ -956,7 +951,7 @@ class _ExerciseDetailSheetState extends State<ExerciseDetailSheet>
                   child: Center(
                     child: Text(
                       '${index + 1}',
-                      style: Theme.of(context).textTheme.labelLarge!.copyWith(
+                      style: context.labelLarge.copyWith(
                         fontWeight: FontWeight.w600,
                         color: theme.onAccentColor,
                       ),
@@ -976,7 +971,7 @@ class _ExerciseDetailSheetState extends State<ExerciseDetailSheet>
                     ),
                     child: Text(
                       instruction,
-                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      style: context.bodyMedium.copyWith(
                         height: 1.5,
                         color: theme.textColor,
                       ),
@@ -1006,7 +1001,7 @@ class _ExerciseDetailSheetState extends State<ExerciseDetailSheet>
         children: [
           Text(
             l10n.widgetRecommendedConfig,
-            style: Theme.of(context).textTheme.labelLarge!.copyWith(
+            style: context.labelLarge.copyWith(
               fontWeight: FontWeight.w600,
               color: theme.textColor,
             ),
@@ -1061,7 +1056,7 @@ class _ExerciseDetailSheetState extends State<ExerciseDetailSheet>
           const SizedBox(width: 6),
           Text(
             text,
-            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+            style: context.bodyMedium.copyWith(
               fontSize: 13,
               fontWeight: FontWeight.w500,
               color: theme.accentColor,
@@ -1082,16 +1077,8 @@ class _ExerciseDetailSheetState extends State<ExerciseDetailSheet>
       children: [
         Icon(icon, size: 20, color: theme.accentColor),
         const SizedBox(height: 4),
-        Text(
-          value,
-          style: Theme.of(
-            context,
-          ).textTheme.titleLarge!.copyWith(color: theme.textColor),
-        ),
-        Text(
-          label,
-          style: Theme.of(context).textTheme.bodySmall!.copyWith(fontSize: 11),
-        ),
+        Text(value, style: context.titleLarge.copyWith(color: theme.textColor)),
+        Text(label, style: context.bodySmall.copyWith(fontSize: 11)),
       ],
     );
   }
@@ -1235,13 +1222,14 @@ class _FullscreenImageGalleryState extends State<_FullscreenImageGallery>
                     Expanded(
                       child: Text(
                         widget.title,
-                        style: Theme.of(context).textTheme.headlineMedium!
-                            .copyWith(color: theme.onAccentColor),
+                        style: context.headlineMedium.copyWith(
+                          color: theme.onAccentColor,
+                        ),
                       ),
                     ),
                     Text(
                       '${_currentIndex + 1} / ${widget.images.length}',
-                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      style: context.bodyMedium.copyWith(
                         color: theme.onAccentColor.withValues(alpha: 0.7),
                       ),
                     ),

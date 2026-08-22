@@ -4,6 +4,7 @@ import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import '../utils/dimensions.dart';
 import 'glass_widgets.dart';
+import '../theme/build_context_text_styles.dart';
 
 /// AI 计划向导的通用 UI 组件（自 ai_plan_wizard_screen.dart 拆出）。
 ///
@@ -76,7 +77,7 @@ Widget _stepItem(
               ? Icon(Icons.check, color: theme.onAccentColor, size: 18)
               : Text(
                   '$number',
-                  style: Theme.of(context).textTheme.labelLarge!.copyWith(
+                  style: context.labelLarge.copyWith(
                     fontWeight: FontWeight.w600,
                     color: isActive
                         ? theme.onAccentColor
@@ -88,7 +89,7 @@ Widget _stepItem(
       const SizedBox(height: 4),
       Text(
         label,
-        style: Theme.of(context).textTheme.bodySmall!.copyWith(
+        style: context.bodySmall.copyWith(
           color: isActive ? theme.textColor : theme.secondaryTextColor,
         ),
       ),
@@ -122,9 +123,7 @@ Widget aiWizardMultiSelectQuestion(
     children: [
       Text(
         title,
-        style: Theme.of(
-          context,
-        ).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.w600),
+        style: context.labelLarge.copyWith(fontWeight: FontWeight.w600),
       ),
       const SizedBox(height: 8),
       Wrap(
@@ -165,7 +164,7 @@ Widget aiWizardMultiSelectQuestion(
                 ),
                 child: Text(
                   label,
-                  style: Theme.of(context).textTheme.labelLarge!.copyWith(
+                  style: context.labelLarge.copyWith(
                     fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                     color: isSelected ? theme.onAccentColor : theme.accentColor,
                   ),
@@ -195,16 +194,12 @@ Widget aiWizardStartWeekStep(
       children: [
         Text(
           l10n.aiStartWeekHeading,
-          style: Theme.of(
-            context,
-          ).textTheme.headlineLarge!.copyWith(fontWeight: FontWeight.w700),
+          style: context.headlineLarge.copyWith(fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 8),
         Text(
           l10n.aiStartWeekSubheading,
-          style: Theme.of(
-            context,
-          ).textTheme.bodyMedium!.copyWith(color: theme.secondaryTextColor),
+          style: context.bodyMedium.copyWith(color: theme.secondaryTextColor),
         ),
         const SizedBox(height: 24),
         aiWizardStartWeekOption(
@@ -285,7 +280,7 @@ Widget aiWizardStartWeekOption({
                 children: [
                   Text(
                     label,
-                    style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                    style: context.titleMedium.copyWith(
                       fontWeight: FontWeight.w600,
                       color: isSelected ? theme.accentColor : theme.textColor,
                     ),
@@ -293,7 +288,7 @@ Widget aiWizardStartWeekOption({
                   const SizedBox(height: 4),
                   Text(
                     description,
-                    style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                    style: context.bodySmall.copyWith(
                       color: theme.secondaryTextColor,
                     ),
                   ),
@@ -328,24 +323,18 @@ Widget aiWizardPromptStep(
       children: [
         Text(
           l10n.aiGeneratePromptHeading,
-          style: Theme.of(
-            context,
-          ).textTheme.headlineLarge!.copyWith(fontWeight: FontWeight.w700),
+          style: context.headlineLarge.copyWith(fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 8),
         Text(
           l10n.aiGeneratePromptSubheading,
-          style: Theme.of(
-            context,
-          ).textTheme.bodyMedium!.copyWith(color: theme.secondaryTextColor),
+          style: context.bodyMedium.copyWith(color: theme.secondaryTextColor),
         ),
         const SizedBox(height: 24),
 
         Text(
           l10n.aiStartDateLabel,
-          style: Theme.of(
-            context,
-          ).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.w600),
+          style: context.labelLarge.copyWith(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 8),
         Material(
@@ -399,7 +388,7 @@ Widget aiWizardPromptStep(
                       startDate.month,
                       startDate.day,
                     ),
-                    style: Theme.of(context).textTheme.bodyLarge!,
+                    style: context.bodyLarge,
                   ),
                   Icon(
                     Icons.calendar_today,
@@ -423,9 +412,7 @@ Widget aiWizardPromptStep(
         if (generatedPrompt != null) ...[
           Text(
             l10n.aiGeneratedPromptLabel,
-            style: Theme.of(
-              context,
-            ).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.w600),
+            style: context.labelLarge.copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 8),
           Container(
@@ -436,10 +423,7 @@ Widget aiWizardPromptStep(
               boxShadow: AppElevation.resting(theme.shadowColor),
             ),
             child: SingleChildScrollView(
-              child: Text(
-                generatedPrompt,
-                style: Theme.of(context).textTheme.bodyMedium!,
-              ),
+              child: Text(generatedPrompt, style: context.bodyMedium),
             ),
           ),
           const SizedBox(height: 16),
@@ -453,7 +437,7 @@ Widget aiWizardPromptStep(
 
           Text(
             l10n.aiCopyHint,
-            style: Theme.of(context).textTheme.bodySmall!,
+            style: context.bodySmall,
             textAlign: TextAlign.center,
           ),
         ],

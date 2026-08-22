@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
+import '../theme/build_context_text_styles.dart';
 
 /// Flat Vitality 风格多环计时器显示
 ///
@@ -125,10 +126,8 @@ class _AnimatedTimerDisplayState extends State<AnimatedTimerDisplay>
           // 无需 useBreath 分支 — 状态切换的平滑性由 controller 的 reverse 保证。
           AnimatedBuilder(
             animation: _idleBreath,
-            builder: (context, child) => Transform.scale(
-              scale: _idleBreath.value,
-              child: child,
-            ),
+            builder: (context, child) =>
+                Transform.scale(scale: _idleBreath.value, child: child),
             child: ringChild,
           ),
           _buildTimerCard(),
@@ -176,7 +175,7 @@ class _AnimatedTimerDisplayState extends State<AnimatedTimerDisplay>
             child: Text(
               timeText,
               key: ValueKey(timeText),
-              style: Theme.of(context).textTheme.displayLarge!.copyWith(
+              style: context.displayLarge.copyWith(
                 fontFamily: 'Rajdhani',
                 fontWeight: FontWeight.w700,
                 fontSize: widget.size * 0.18,
@@ -187,7 +186,7 @@ class _AnimatedTimerDisplayState extends State<AnimatedTimerDisplay>
           const SizedBox(height: 4),
           Text(
             widget.label,
-            style: Theme.of(context).textTheme.labelLarge!.copyWith(
+            style: context.labelLarge.copyWith(
               fontSize: widget.size * 0.045,
               color: widget.theme.secondaryTextColor,
               letterSpacing: 0.5,

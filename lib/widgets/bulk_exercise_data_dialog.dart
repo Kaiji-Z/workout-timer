@@ -8,6 +8,7 @@ import '../services/bodyweight_coefficient_service.dart';
 import '../theme/theme_provider.dart';
 import '../theme/app_theme.dart';
 import '../utils/dimensions.dart';
+import '../theme/build_context_text_styles.dart';
 
 /// 批量训练数据记录对话框 - Flat Vitality 设计风格
 ///
@@ -172,7 +173,7 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
             // 标题
             Text(
               AppLocalizations.of(context)!.recRecordData,
-              style: Theme.of(context).textTheme.headlineLarge!.copyWith(
+              style: context.headlineLarge.copyWith(
                 fontSize: 22,
                 color: theme.textColor,
               ),
@@ -181,9 +182,9 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
             // 副标题
             Text(
               AppLocalizations.of(context)!.recScrollHint,
-              style: Theme.of(
-                context,
-              ).textTheme.bodyMedium!.copyWith(color: theme.secondaryTextColor),
+              style: context.bodyMedium.copyWith(
+                color: theme.secondaryTextColor,
+              ),
             ),
             const SizedBox(height: 24),
 
@@ -219,7 +220,7 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
                   },
                   child: Text(
                     AppLocalizations.of(context)!.recSkip,
-                    style: Theme.of(context).textTheme.labelLarge!.copyWith(
+                    style: context.labelLarge.copyWith(
                       color: theme.secondaryTextColor,
                     ),
                   ),
@@ -244,7 +245,7 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
                     AppLocalizations.of(context)!.recSave,
                     // 必须显式设 color:深底按钮的 Text 若继承 titleLarge.color
                     // (textColor 黑),会渲染成黑字印在深靛蓝底上不可读。
-                    style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                    style: context.titleLarge.copyWith(
                       fontSize: 14,
                       color: theme.onAccentColor,
                     ),
@@ -282,7 +283,7 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
               alignment: Alignment.centerLeft,
               child: Text(
                 exercise.name,
-                style: Theme.of(context).textTheme.headlineLarge!.copyWith(
+                style: context.headlineLarge.copyWith(
                   fontSize: 16,
                   color: theme.textColor,
                 ),
@@ -355,7 +356,7 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
                   (coeff * 100).toStringAsFixed(0),
                   eqWeight.toStringAsFixed(1),
                 ),
-                style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                style: context.bodySmall.copyWith(
                   fontSize: 10,
                   color: theme.accentColor,
                 ),
@@ -373,7 +374,7 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
                   alignment: Alignment.centerLeft,
                   child: Text(
                     AppLocalizations.of(context)!.dialogSetTitle(setNumber),
-                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    style: context.bodyMedium.copyWith(
                       color: theme.secondaryTextColor,
                     ),
                   ),
@@ -397,9 +398,7 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
               // 乘号
               Text(
                 '×',
-                style: Theme.of(
-                  context,
-                ).textTheme.titleLarge!.copyWith(color: theme.textColor),
+                style: context.titleLarge.copyWith(color: theme.textColor),
               ),
 
               const SizedBox(width: 4),
@@ -414,7 +413,7 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
                     hintText: isBw
                         ? AppLocalizations.of(context)!.recAdded
                         : '0',
-                    hintStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    hintStyle: context.bodyMedium.copyWith(
                       color: theme.secondaryTextColor,
                     ),
                     border: OutlineInputBorder(
@@ -433,12 +432,11 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
                       ),
                     ),
                     suffixText: 'kg',
-                    suffixStyle: Theme.of(context).textTheme.bodySmall!
-                        .copyWith(color: theme.secondaryTextColor),
+                    suffixStyle: context.bodySmall.copyWith(
+                      color: theme.secondaryTextColor,
+                    ),
                   ),
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyMedium!.copyWith(color: theme.textColor),
+                  style: context.bodyMedium.copyWith(color: theme.textColor),
                   onChanged: (value) {
                     final weight = double.tryParse(value);
                     _updateWeight(exerciseId, setNumber, weight, exercise);
@@ -471,7 +469,7 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
           (index) => Center(
             child: Text(
               '${index + 1}',
-              style: Theme.of(context).textTheme.titleLarge!.copyWith(
+              style: context.titleLarge.copyWith(
                 fontSize: 14,
                 color: theme.textColor,
               ),

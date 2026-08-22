@@ -7,6 +7,7 @@ import '../models/weekly_plan_import.dart';
 import '../services/exercise_matcher_service.dart';
 import '../theme/app_theme.dart';
 import '../utils/dimensions.dart';
+import '../theme/build_context_text_styles.dart';
 
 /// AI 计划向导「导入预览」组件（自 ai_plan_wizard_screen.dart 拆出）。
 ///
@@ -58,9 +59,7 @@ Widget aiWizardMatchSummary(
         Expanded(
           child: Text(
             l10n.aiMatchSummary(matched, candidates, unmatched),
-            style: Theme.of(
-              context,
-            ).textTheme.bodyMedium!.copyWith(color: theme.textColor),
+            style: context.bodyMedium.copyWith(color: theme.textColor),
           ),
         ),
       ],
@@ -124,13 +123,13 @@ Widget aiWizardDayCard(
             children: [
               Text(
                 l10n.aiDayTitle(day.dayOfWeek, dayName),
-                style: Theme.of(context).textTheme.titleLarge!,
+                style: context.titleLarge,
               ),
               Text(
                 day.exercises.isEmpty
                     ? l10n.aiRestDay
                     : l10n.aiExerciseCountSuffix(day.exercises.length),
-                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                style: context.bodyMedium.copyWith(
                   color: theme.secondaryTextColor,
                 ),
               ),
@@ -140,7 +139,7 @@ Widget aiWizardDayCard(
             const SizedBox(height: 8),
             Text(
               l10n.aiTargetMusclesLabel(day.targetMuscles.join(', ')),
-              style: Theme.of(context).textTheme.bodySmall!,
+              style: context.bodySmall,
             ),
           ],
           const SizedBox(height: 12),
@@ -236,7 +235,7 @@ Widget _buildExerciseRow(
             const SizedBox(width: 4),
             Text(
               l10n.aiCandidatesBadge(matchResult.candidates.length),
-              style: Theme.of(context).textTheme.bodySmall!.copyWith(
+              style: context.bodySmall.copyWith(
                 fontSize: 11,
                 color: theme.warningColor,
                 fontWeight: FontWeight.w500,
@@ -264,13 +263,13 @@ Widget _buildExerciseRow(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(displayName, style: Theme.of(context).textTheme.bodyMedium!),
+              Text(displayName, style: context.bodyMedium),
               if (displayName != exercise.exerciseName)
                 Padding(
                   padding: const EdgeInsets.only(top: 2),
                   child: Text(
                     l10n.aiOriginalLabel(exercise.exerciseName),
-                    style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                    style: context.bodySmall.copyWith(
                       color: theme.secondaryTextColor,
                       fontSize: 11,
                     ),
@@ -309,9 +308,7 @@ Widget _buildExerciseRow(
               alignment: Alignment.center,
               child: Text(
                 '$currentSets',
-                style: Theme.of(
-                  context,
-                ).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.w600),
+                style: context.labelLarge.copyWith(fontWeight: FontWeight.w600),
               ),
             ),
             IconButton(
@@ -330,10 +327,7 @@ Widget _buildExerciseRow(
               },
             ),
             const SizedBox(width: 4),
-            Text(
-              l10n.aiSetsUnit,
-              style: Theme.of(context).textTheme.bodySmall!,
-            ),
+            Text(l10n.aiSetsUnit, style: context.bodySmall),
           ],
         ),
       ],
@@ -386,7 +380,7 @@ void aiWizardCandidateSheet(
                   const SizedBox(height: 16),
                   Text(
                     AppLocalizations.of(context)!.aiSelectMatchTitle,
-                    style: Theme.of(context).textTheme.headlineLarge!.copyWith(
+                    style: context.headlineLarge.copyWith(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
                     ),
@@ -397,7 +391,7 @@ void aiWizardCandidateSheet(
                       originalName,
                       matchResult.candidates.length,
                     ),
-                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    style: context.bodyMedium.copyWith(
                       color: theme.secondaryTextColor,
                     ),
                   ),
