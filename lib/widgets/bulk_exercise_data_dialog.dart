@@ -115,15 +115,16 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
     if (_exerciseData[exerciseId] != null &&
         index < _exerciseData[exerciseId]!.length) {
       double finalWeight = additionalWeight ?? 0.0;
+      final bodyWeight = _bodyWeight;
       // Check if it's bodyweight and calculate equivalent weight
       if (BodyweightCoefficientService.isBodyweightExercise(
             exercise.exercise,
           ) &&
-          _bodyWeight != null &&
-          _bodyWeight! > 0) {
+          bodyWeight != null &&
+          bodyWeight > 0) {
         finalWeight = BodyweightCoefficientService.calculateEquivalentWeight(
           exercise: exercise.exercise,
-          bodyWeight: _bodyWeight!,
+          bodyWeight: bodyWeight,
           additionalWeight: additionalWeight ?? 0.0,
         );
       }
@@ -328,7 +329,8 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
     final coeff = isBw
         ? BodyweightCoefficientService.getCoefficient(exercise.exercise)
         : 0.0;
-    final eqWeight = (isBw && _bodyWeight != null) ? _bodyWeight! * coeff : 0.0;
+    final bodyWeight = _bodyWeight;
+    final eqWeight = (isBw && bodyWeight != null) ? bodyWeight * coeff : 0.0;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -337,8 +339,8 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
         children: [
           // 自重动作参考信息（只在第一组显示）
           if (isBw &&
-              _bodyWeight != null &&
-              _bodyWeight! > 0 &&
+              bodyWeight != null &&
+              bodyWeight > 0 &&
               setNumber == 1) ...[
             Container(
               margin: const EdgeInsets.only(bottom: 6),
@@ -349,7 +351,7 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
               ),
               child: Text(
                 AppLocalizations.of(context)!.bodyweightReference(
-                  _bodyWeight!.toStringAsFixed(0),
+                  bodyWeight.toStringAsFixed(0),
                   (coeff * 100).toStringAsFixed(0),
                   eqWeight.toStringAsFixed(1),
                 ),

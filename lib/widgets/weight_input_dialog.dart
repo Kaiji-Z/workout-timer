@@ -74,6 +74,7 @@ class _WeightInputDialogState extends State<WeightInputDialog> {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().currentTheme;
+    final bodyWeight = _bodyWeight;
 
     return Dialog(
       backgroundColor: theme.surfaceColor,
@@ -104,7 +105,7 @@ class _WeightInputDialogState extends State<WeightInputDialog> {
             const SizedBox(height: 24),
 
             // 自重动作参考信息
-            if (_isBodyweight && _bodyWeight != null && _bodyWeight! > 0) ...[
+            if (_isBodyweight && bodyWeight != null && bodyWeight > 0) ...[
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 12,
@@ -125,9 +126,9 @@ class _WeightInputDialogState extends State<WeightInputDialog> {
                     Expanded(
                       child: Text(
                         AppLocalizations.of(context)!.bodyweightReference(
-                          _bodyWeight!.toStringAsFixed(0),
+                          bodyWeight.toStringAsFixed(0),
                           (_coefficient * 100).toStringAsFixed(0),
-                          (_bodyWeight! * _coefficient).toStringAsFixed(1),
+                          (bodyWeight * _coefficient).toStringAsFixed(1),
                         ),
                         style: Theme.of(context).textTheme.bodySmall!.copyWith(
                           color: theme.accentColor,
@@ -223,13 +224,12 @@ class _WeightInputDialogState extends State<WeightInputDialog> {
 
                     if (weight != null && reps != null) {
                       double finalWeight = weight;
-                      if (_isBodyweight &&
-                          _bodyWeight != null &&
-                          _bodyWeight! > 0) {
+                      final bodyWeight = _bodyWeight;
+                      if (_isBodyweight && bodyWeight != null && bodyWeight > 0) {
                         finalWeight =
                             BodyweightCoefficientService.calculateEquivalentWeight(
                               exercise: widget.exercise,
-                              bodyWeight: _bodyWeight!,
+                              bodyWeight: bodyWeight,
                               additionalWeight: weight,
                             );
                       }

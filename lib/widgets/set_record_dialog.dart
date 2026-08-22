@@ -104,6 +104,7 @@ class _SetRecordDialogState extends State<SetRecordDialog> {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().currentTheme;
+    final bodyWeight = _bodyWeight;
 
     return Dialog(
       backgroundColor: theme.surfaceColor,
@@ -179,7 +180,7 @@ class _SetRecordDialogState extends State<SetRecordDialog> {
             const SizedBox(height: 20),
 
             // 自重动作参考信息
-            if (_isBodyweight && _bodyWeight != null && _bodyWeight! > 0) ...[
+            if (_isBodyweight && bodyWeight != null && bodyWeight > 0) ...[
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 12,
@@ -200,9 +201,9 @@ class _SetRecordDialogState extends State<SetRecordDialog> {
                     Expanded(
                       child: Text(
                         AppLocalizations.of(context)!.bodyweightReference(
-                          _bodyWeight!.toStringAsFixed(0),
+                          bodyWeight.toStringAsFixed(0),
                           (_coefficient * 100).toStringAsFixed(0),
-                          (_bodyWeight! * _coefficient).toStringAsFixed(1),
+                          (bodyWeight * _coefficient).toStringAsFixed(1),
                         ),
                         style: Theme.of(context).textTheme.bodySmall!.copyWith(
                           color: theme.accentColor,
@@ -325,10 +326,11 @@ class _SetRecordDialogState extends State<SetRecordDialog> {
   void _save() {
     final additionalWeight = double.tryParse(_weightController.text) ?? 0.0;
     double weight;
-    if (_isBodyweight && _bodyWeight != null && _bodyWeight! > 0) {
+    final bodyWeight = _bodyWeight;
+    if (_isBodyweight && bodyWeight != null && bodyWeight > 0) {
       weight = BodyweightCoefficientService.calculateEquivalentWeight(
         exercise: widget.exercise,
-        bodyWeight: _bodyWeight!,
+        bodyWeight: bodyWeight,
         additionalWeight: additionalWeight,
       );
     } else {

@@ -89,8 +89,7 @@ class _FullscreenImageViewerState extends State<FullscreenImageViewer>
   static const _autoPlayDuration = Duration(seconds: 3);
   static const _fadeDuration = Duration(milliseconds: 500);
 
-  bool get _isCarouselMode =>
-      widget.images != null && widget.images!.length > 1;
+  bool get _isCarouselMode => (widget.images?.length ?? 0) > 1;
 
   @override
   void initState() {
@@ -110,9 +109,10 @@ class _FullscreenImageViewerState extends State<FullscreenImageViewer>
   void _startAutoPlay() {
     _autoPlayTimer?.cancel();
     _autoPlayTimer = Timer.periodic(_autoPlayDuration, (_) {
-      if (widget.images != null && widget.images!.isNotEmpty) {
+      final images = widget.images;
+      if (images != null && images.isNotEmpty) {
         setState(() {
-          _currentIndex = (_currentIndex + 1) % widget.images!.length;
+          _currentIndex = (_currentIndex + 1) % images.length;
         });
       }
     });
@@ -128,6 +128,7 @@ class _FullscreenImageViewerState extends State<FullscreenImageViewer>
 
   /// 单图模式
   Widget _buildSingleMode(BuildContext context) {
+    final title = widget.title;
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -184,7 +185,7 @@ class _FullscreenImageViewerState extends State<FullscreenImageViewer>
                 ),
               ),
               // 标题
-              if (widget.title != null)
+              if (title != null)
                 Positioned(
                   top: 0,
                   left: 0,
@@ -205,7 +206,7 @@ class _FullscreenImageViewerState extends State<FullscreenImageViewer>
                         ),
                       ),
                       child: Text(
-                        widget.title!,
+                        title,
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 18,
@@ -247,7 +248,10 @@ class _FullscreenImageViewerState extends State<FullscreenImageViewer>
 
   /// 多图轮播模式（自动播放，交叉渐隐）
   Widget _buildCarouselMode(BuildContext context) {
-    final images = widget.images!;
+    final images = widget.images;
+    if (images == null) {
+      return _buildSingleMode(context);
+    }
 
     return Material(
       color: Colors.transparent,

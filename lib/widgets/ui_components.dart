@@ -113,6 +113,7 @@ class EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().currentTheme;
+    final subtitle = this.subtitle;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(AppDimensions.spacingXxl),
@@ -134,7 +135,7 @@ class EmptyState extends StatelessWidget {
             if (subtitle != null) ...[
               const SizedBox(height: AppDimensions.spacingXs),
               Text(
-                subtitle!,
+                subtitle,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                   fontSize: 13,
