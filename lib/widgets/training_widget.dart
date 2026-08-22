@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
+import '../l10n/context_l10n.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../providers/training_provider.dart';
 import '../utils/dimensions.dart';
@@ -137,7 +138,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
           // Centered title
           Expanded(
             child: Text(
-              AppLocalizations.of(context)!.navTimer,
+              context.l10n.navTimer,
               style: context.headlineMedium.copyWith(
                 fontWeight: FontWeight.w700,
                 letterSpacing: -0.5, // Match other pages
@@ -147,7 +148,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
           ),
           // Plan icon button
           Tooltip(
-            message: AppLocalizations.of(context)!.trainingSelectPlan,
+            message: context.l10n.trainingSelectPlan,
             child: Material(
               color: Colors.transparent,
               child: InkWell(
@@ -191,11 +192,9 @@ class _TrainingWidgetState extends State<TrainingWidget>
     if (_isPlanMode && progressProvider.currentPlan != null) {
       final nextExercise = progressProvider.getNextExercise();
       if (nextExercise != null) {
-        nextHint = AppLocalizations.of(
-          context,
-        )!.trainingNextExercise(nextExercise.name);
+        nextHint = context.l10n.trainingNextExercise(nextExercise.name);
       } else {
-        nextHint = AppLocalizations.of(context)!.trainingNextDone;
+        nextHint = context.l10n.trainingNextDone;
       }
     }
 
@@ -248,7 +247,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
       return Center(
         child: AnimatedTimerDisplay(
           seconds: training.restRemaining,
-          label: AppLocalizations.of(context)!.trainingRestCountdown,
+          label: context.l10n.trainingRestCountdown,
           theme: theme,
           size: AppDimensions.timerSize(context),
           sessionDuration: training.sessionDuration,
@@ -264,7 +263,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
       return Center(
         child: AnimatedTimerDisplay(
           seconds: training.sessionDuration,
-          label: AppLocalizations.of(context)!.trainingExercising,
+          label: context.l10n.trainingExercising,
           theme: theme,
           size: AppDimensions.timerSize(context),
           sessionDuration: training.sessionDuration,
@@ -277,7 +276,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
     return Center(
       child: AnimatedTimerDisplay(
         seconds: training.restDuration,
-        label: AppLocalizations.of(context)!.trainingRestDuration,
+        label: context.l10n.trainingRestDuration,
         theme: theme,
         size: AppDimensions.timerSize(context),
         sessionDuration: 0,
@@ -300,49 +299,41 @@ class _TrainingWidgetState extends State<TrainingWidget>
       color = theme.progressRingColor;
       final exercise = progressProvider.currentExercise;
       if (_isPlanMode && exercise != null) {
-        text = AppLocalizations.of(context)!.trainingExerciseProgress(
+        text = context.l10n.trainingExerciseProgress(
           exercise.name,
           progressProvider.currentSetInExercise + 1,
         );
       } else {
-        text = AppLocalizations.of(
-          context,
-        )!.trainingSetExercising(training.currentSet);
+        text = context.l10n.trainingSetExercising(training.currentSet);
       }
       icon = Icons.fitness_center;
     } else if (training.isResting) {
       color = theme.progressRingColor;
       final exercise = progressProvider.currentExercise;
       if (_isPlanMode && exercise != null) {
-        text = AppLocalizations.of(context)!.trainingExerciseRest(
+        text = context.l10n.trainingExerciseRest(
           exercise.name,
           progressProvider.currentSetInExercise,
         );
       } else {
-        text = AppLocalizations.of(
-          context,
-        )!.trainingSetRest(training.currentSet);
+        text = context.l10n.trainingSetRest(training.currentSet);
       }
       icon = Icons.self_improvement;
     } else if (training.isCompleted) {
       color = theme.progressRingColor;
-      text = AppLocalizations.of(context)!.trainingCompleted;
+      text = context.l10n.trainingCompleted;
       icon = Icons.emoji_events;
     } else if (training.isExercisePaused) {
       color = theme.progressRingColor;
-      text = AppLocalizations.of(
-        context,
-      )!.trainingSetPaused(training.currentSet);
+      text = context.l10n.trainingSetPaused(training.currentSet);
       icon = Icons.pause_circle_outline;
     } else {
       color = theme.secondaryTextColor;
       final selectedPlan = _selectedPlan;
       if (_isPlanMode && selectedPlan != null) {
-        text = AppLocalizations.of(
-          context,
-        )!.trainingPlanReady(selectedPlan.name);
+        text = context.l10n.trainingPlanReady(selectedPlan.name);
       } else {
-        text = AppLocalizations.of(context)!.trainingReady;
+        text = context.l10n.trainingReady;
       }
       icon = Icons.play_circle_outline;
     }
@@ -355,15 +346,13 @@ class _TrainingWidgetState extends State<TrainingWidget>
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             StatusBadge(
-              text: AppLocalizations.of(context)!.trainingCompleted,
+              text: context.l10n.trainingCompleted,
               color: theme.progressRingColor,
               icon: Icons.emoji_events,
             ),
             const SizedBox(width: 10),
             StatusBadge(
-              text: AppLocalizations.of(
-                context,
-              )!.trainingSetCount(training.currentSet),
+              text: context.l10n.trainingSetCount(training.currentSet),
               color: theme.progressRingColor,
               icon: Icons.fitness_center,
             ),
@@ -415,7 +404,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
           ),
           const SizedBox(width: 16),
           PrimaryActionButton(
-            label: AppLocalizations.of(context)!.trainingStartExercise,
+            label: context.l10n.trainingStartExercise,
             icon: Icons.play_arrow_rounded,
             onPressed: () {
               training.startExercise();
@@ -467,7 +456,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
           ),
           const SizedBox(width: 16),
           PrimaryActionButton(
-            label: AppLocalizations.of(context)!.trainingRest,
+            label: context.l10n.trainingRest,
             icon: Icons.self_improvement,
             onPressed: () {
               if (_isPlanMode) {
@@ -544,7 +533,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
           ),
           const SizedBox(width: 16),
           PrimaryActionButton(
-            label: AppLocalizations.of(context)!.trainingContinue,
+            label: context.l10n.trainingContinue,
             icon: Icons.play_arrow,
             onPressed: training.resumeFromPause,
           ),
@@ -555,7 +544,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
     // 休息中：跳过休息(主按钮，居中)
     if (training.isResting) {
       return PrimaryActionButton(
-        label: AppLocalizations.of(context)!.trainingSkipRest,
+        label: context.l10n.trainingSkipRest,
         icon: Icons.skip_next,
         onPressed: training.skipRest,
       );
@@ -585,7 +574,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
           ),
           const SizedBox(width: 16),
           PrimaryActionButton(
-            label: AppLocalizations.of(context)!.trainingSave,
+            label: context.l10n.trainingSave,
             icon: Icons.save,
             onPressed: () =>
                 _saveWorkout(context, training, theme, progressProvider),
@@ -608,7 +597,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
     if (plans.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(AppLocalizations.of(context)!.trainingNoPlan),
+          content: Text(context.l10n.trainingNoPlan),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -644,7 +633,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  AppLocalizations.of(context)!.trainingSelectPlan,
+                  context.l10n.trainingSelectPlan,
                   style: context.headlineMedium,
                 ),
                 if (_isPlanMode)
@@ -654,7 +643,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
                       Navigator.pop(context);
                     },
                     child: Text(
-                      AppLocalizations.of(context)!.trainingCancelPlan,
+                      context.l10n.trainingCancelPlan,
                       style: TextStyle(color: theme.errorColor),
                     ),
                   ),
@@ -690,7 +679,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
                     title: Text(plan.name),
                     subtitle: Text(plan.targetMusclesText),
                     trailing: Text(
-                      AppLocalizations.of(context)!.trainingPlanSummary(
+                      context.l10n.trainingPlanSummary(
                         plan.exerciseCount,
                         plan.totalSets,
                       ),
@@ -857,9 +846,10 @@ class _TrainingWidgetState extends State<TrainingWidget>
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                AppLocalizations.of(
-                  context,
-                )!.trainingSavedDetail(record.totalSets, record.durationText),
+                context.l10n.trainingSavedDetail(
+                  record.totalSets,
+                  record.durationText,
+                ),
               ),
               backgroundColor: theme.progressRingColor,
               behavior: SnackBarBehavior.floating,
@@ -882,7 +872,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                AppLocalizations.of(context)!.trainingSavedCompleted(
+                context.l10n.trainingSavedCompleted(
                   data['totalSets'] as int,
                   training.sessionDurationFormatted,
                 ),
@@ -898,7 +888,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
       if (context.mounted) {
         // Translate common failure modes to user-facing copy; the raw
         // exception string stays in the dev log, not on the user's screen.
-        final l10n = AppLocalizations.of(context)!;
+        final l10n = context.l10n;
         final userMessage = _translateSaveError(e, l10n);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -922,7 +912,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
     TrainingProvider training,
     AppThemeData theme,
   ) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
     // 估算分钟数（预填值）
     final estimateMinutes = training.estimatedSessionDuration ~/ 60;
     final controller = TextEditingController(text: '$estimateMinutes');

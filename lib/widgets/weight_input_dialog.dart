@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../l10n/app_localizations.dart';
+import '../l10n/context_l10n.dart';
 import '../models/set_data.dart';
 import '../models/exercise.dart';
 import '../services/bodyweight_coefficient_service.dart';
@@ -92,7 +92,7 @@ class _WeightInputDialogState extends State<WeightInputDialog> {
             Row(
               children: [
                 Text(
-                  AppLocalizations.of(context)!.dialogSetTitleWithName(
+                  context.l10n.dialogSetTitleWithName(
                     widget.setNumber,
                     widget.exerciseName,
                   ),
@@ -126,7 +126,7 @@ class _WeightInputDialogState extends State<WeightInputDialog> {
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(
-                        AppLocalizations.of(context)!.bodyweightReference(
+                        context.l10n.bodyweightReference(
                           bodyWeight.toStringAsFixed(0),
                           (_coefficient * 100).toStringAsFixed(0),
                           (bodyWeight * _coefficient).toStringAsFixed(1),
@@ -149,8 +149,8 @@ class _WeightInputDialogState extends State<WeightInputDialog> {
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
                 labelText: _isBodyweight
-                    ? AppLocalizations.of(context)!.recAddedWeightKg
-                    : AppLocalizations.of(context)!.recWeightKg,
+                    ? context.l10n.recAddedWeightKg
+                    : context.l10n.recWeightKg,
                 labelStyle: context.bodyMedium.copyWith(
                   color: theme.secondaryTextColor,
                 ),
@@ -177,7 +177,7 @@ class _WeightInputDialogState extends State<WeightInputDialog> {
               focusNode: _repsFocus,
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
-                labelText: AppLocalizations.of(context)!.recReps,
+                labelText: context.l10n.recReps,
                 labelStyle: context.bodyMedium.copyWith(
                   color: theme.secondaryTextColor,
                 ),
@@ -205,7 +205,7 @@ class _WeightInputDialogState extends State<WeightInputDialog> {
                     Navigator.of(context).pop(null);
                   },
                   child: Text(
-                    AppLocalizations.of(context)!.recSkip,
+                    context.l10n.recSkip,
                     style: context.labelLarge.copyWith(
                       color: theme.secondaryTextColor,
                     ),
@@ -242,9 +242,7 @@ class _WeightInputDialogState extends State<WeightInputDialog> {
                       // 简单验证
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text(
-                            AppLocalizations.of(context)!.recInvalidInput,
-                          ),
+                          content: Text(context.l10n.recInvalidInput),
                           behavior: SnackBarBehavior.floating,
                         ),
                       );

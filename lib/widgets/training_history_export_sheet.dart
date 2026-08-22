@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../l10n/app_localizations.dart';
+import '../l10n/context_l10n.dart';
 import '../theme/app_theme.dart';
 import '../theme/theme_provider.dart';
 import '../utils/dimensions.dart';
@@ -69,7 +70,7 @@ class _ExportSheetState extends State<_ExportSheet> {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().currentTheme;
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
     final mediaQuery = MediaQuery.of(context);
 
     final hasRecords = widget.totalRecords > 0;

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
-import '../l10n/app_localizations.dart';
+import '../l10n/context_l10n.dart';
 import '../services/data_transfer_service.dart';
 import '../theme/app_theme.dart';
 import '../utils/dimensions.dart';
@@ -13,7 +13,7 @@ import '../theme/build_context_text_styles.dart';
 /// 全部为无状态顶层函数：状态经参数传入，颜色走 [AppThemeData]。
 
 void showPrivacyPolicyDialog(BuildContext context, AppThemeData theme) {
-  final l10n = AppLocalizations.of(context)!;
+  final l10n = context.l10n;
   showDialog(
     context: context,
     builder: (context) => AlertDialog(
@@ -135,7 +135,7 @@ Future<String?> showImportDialog(
   AppThemeData theme,
   List<BackupFileInfo> localBackups,
 ) async {
-  final l10n = AppLocalizations.of(context)!;
+  final l10n = context.l10n;
   return showDialog<String>(
     context: context,
     builder: (context) => AlertDialog(
@@ -331,7 +331,7 @@ String _formatBackupName(BuildContext context, String fileName, String locale) {
       final timePart = parts[1].replaceAll('-', ':'); // 12-30-45 -> 12:30:45
       final date = DateTime.parse('$datePart $timePart');
       final df = DateFormat.yMd(locale).add_Hm();
-      return '${AppLocalizations.of(context)!.settingsBackupPrefix} ${df.format(date)}';
+      return '${context.l10n.settingsBackupPrefix} ${df.format(date)}';
     }
   } catch (_) {}
   return fileName;

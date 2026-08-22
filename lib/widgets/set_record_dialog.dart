@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
-import '../l10n/app_localizations.dart';
 import '../models/set_data.dart';
 import '../models/exercise.dart';
 import '../services/bodyweight_coefficient_service.dart';
 import '../theme/theme_provider.dart';
 import '../utils/dimensions.dart';
 import '../theme/build_context_text_styles.dart';
+import '../l10n/context_l10n.dart';
 
 /// 单组训练数据记录悬浮对话框 - Flat Vitality 设计风格
 ///
@@ -129,7 +129,7 @@ class _SetRecordDialogState extends State<SetRecordDialog> {
             ),
             const SizedBox(height: 4),
             Text(
-              AppLocalizations.of(context)!.dialogSetTitle(widget.setNumber),
+              context.l10n.dialogSetTitle(widget.setNumber),
               style: context.bodyMedium.copyWith(
                 color: theme.secondaryTextColor,
               ),
@@ -138,7 +138,7 @@ class _SetRecordDialogState extends State<SetRecordDialog> {
 
             // 次数选择器
             Text(
-              AppLocalizations.of(context)!.recReps,
+              context.l10n.recReps,
               style: context.bodyMedium.copyWith(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -166,7 +166,7 @@ class _SetRecordDialogState extends State<SetRecordDialog> {
                   final reps = index + 1;
                   return Center(
                     child: Text(
-                      AppLocalizations.of(context)!.repsWithValue(reps),
+                      context.l10n.repsWithValue(reps),
                       style: context.headlineMedium.copyWith(
                         color: reps == _selectedReps
                             ? theme.textColor
@@ -200,7 +200,7 @@ class _SetRecordDialogState extends State<SetRecordDialog> {
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(
-                        AppLocalizations.of(context)!.bodyweightReference(
+                        context.l10n.bodyweightReference(
                           bodyWeight.toStringAsFixed(0),
                           (_coefficient * 100).toStringAsFixed(0),
                           (bodyWeight * _coefficient).toStringAsFixed(1),
@@ -219,8 +219,8 @@ class _SetRecordDialogState extends State<SetRecordDialog> {
             // 重量输入
             Text(
               _isBodyweight
-                  ? AppLocalizations.of(context)!.recAddedWeightKg
-                  : AppLocalizations.of(context)!.recWeightKg,
+                  ? context.l10n.recAddedWeightKg
+                  : context.l10n.recWeightKg,
               style: context.bodyMedium.copyWith(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -235,9 +235,7 @@ class _SetRecordDialogState extends State<SetRecordDialog> {
                 decimal: true,
               ),
               decoration: InputDecoration(
-                hintText: _isBodyweight
-                    ? AppLocalizations.of(context)!.recBodyweightOnly
-                    : '0',
+                hintText: _isBodyweight ? context.l10n.recBodyweightOnly : '0',
                 hintStyle: context.bodyLarge.copyWith(
                   color: theme.secondaryTextColor.withValues(alpha: 0.5),
                 ),
@@ -278,7 +276,7 @@ class _SetRecordDialogState extends State<SetRecordDialog> {
                       ),
                     ),
                     child: Text(
-                      AppLocalizations.of(context)!.recSkip,
+                      context.l10n.recSkip,
                       style: context.titleLarge.copyWith(
                         fontSize: 15,
                         color: theme.secondaryTextColor,
@@ -305,7 +303,7 @@ class _SetRecordDialogState extends State<SetRecordDialog> {
                       ),
                     ),
                     child: Text(
-                      AppLocalizations.of(context)!.recSave,
+                      context.l10n.recSave,
                       style: context.titleLarge.copyWith(
                         fontSize: 15,
                         color: theme.onAccentColor,
