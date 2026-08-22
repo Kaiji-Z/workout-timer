@@ -1,6 +1,6 @@
 # AGENTS.md - WorkoutTimer Flutter App
 
-**Updated:** 2026-07-27
+**Updated:** 2026-08-23
 **Branch:** master
 
 ## OVERVIEW
@@ -76,6 +76,7 @@ lib/
 ├── providers/                   # State providers (ChangeNotifier, MVVM)
 ├── core/                        # ServiceLocator (dependency injection)
 ├── l10n/                        # Generated AppLocalizations + arb files
+│   └── context_l10n.dart        # Hand-written BuildContext.l10n extension (ONLY l10n `!` site)
 │   ├── timer_provider.dart   # Timer countdown, sets counter
 │   ├── training_provider.dart # Training mode state machine
 │   ├── plan_provider.dart    # Workout plan CRUD
@@ -93,24 +94,34 @@ lib/
 │   └── weekly_plan_import.dart # JSON import for weekly plans
 ├── screens/                  # UI screens (full pages)
 │   ├── timer_screen.dart     # Timer wrapper
-│   ├── plan_screen.dart      # Workout plans + calendar
-│   ├── plan_form_screen.dart # Plan creation/editing (924 lines)
-│   ├── ai_plan_wizard_screen.dart # AI-powered plan generation
-│   ├── ai_analysis_screen.dart    # AI analysis dashboard (1163 lines)
-│   ├── exercise_selection_screen.dart # Exercise picker (811 lines)
+│   ├── plan_screen.dart      # Workout plans + calendar (detail sheet in widgets/plan_detail_sheet.dart)
+│   ├── plan_form_screen.dart # Plan creation/editing (888 lines; step indicator/set item in widgets/plan_form_components.dart)
+│   ├── ai_plan_wizard_screen.dart # AI-powered plan generation (1148 lines)
+│   ├── ai_analysis_screen.dart    # AI analysis dashboard (983 lines; shared chrome in widgets/ai_analysis_components.dart)
+│   ├── exercise_selection_screen.dart # Exercise picker (938 lines)
 │   ├── history_screen.dart   # Workout history list + training history export entry
-│   ├── record_detail_screen.dart   # Detailed record view (832 lines)
-│   ├── stats_screen.dart     # Statistics dashboard
-│   ├── user_preferences_screen.dart # Training preferences (531 lines)
-│   └── settings_screen.dart  # User preferences
+│   ├── record_detail_screen.dart   # Detailed record view (809 lines)
+│   ├── stats_screen.dart     # Statistics dashboard (989 lines; charts in widgets/stats_charts.dart)
+│   ├── user_preferences_screen.dart # Training preferences (575 lines)
+│   └── settings_screen.dart  # User preferences (1194 lines; dialogs/cards in widgets/settings_widgets.dart)
 ├── widgets/                  # Reusable UI components
 │   ├── training_widget.dart  # Main training UI
 │   ├── timer_widget.dart     # Timer display
 │   ├── animated_timer_widget.dart # Animated timer variant
 │   ├── calendar_widget.dart  # Month calendar (LayoutBuilder for exact height)
-│   ├── exercise_selector.dart     # Exercise selection with search/filter
+│   ├── exercise_selector.dart     # Exercise selection with search/filter (558 lines)
+│   ├── exercise_detail_sheet.dart # Exercise detail sheet + fullscreen image gallery
 │   ├── muscle_selector.dart       # Muscle group selection
 │   ├── plan_card.dart       # Plan card with swipe actions
+│   ├── plan_detail_sheet.dart # Plan detail bottom sheet
+│   ├── plan_form_components.dart # Plan form step indicator + exercise-set item
+│   ├── training_components.dart # Training compact progress + duration/save-error helpers
+│   ├── ai_wizard_components.dart # AI wizard step indicator, questions, prompt step
+│   ├── ai_wizard_preview.dart # AI wizard match summary, day cards, candidate sheet
+│   ├── ai_analysis_components.dart # AI analysis instructions box, headers, glass card, data row
+│   ├── stats_charts.dart    # Stats chart builders (7 charts + collapsible section)
+│   ├── stats_metric_sections.dart # Stats metric/volume/frequency section builders
+│   ├── settings_widgets.dart # Settings dialogs, section header, cards, switches
 │   ├── duration_picker.dart # Duration selection UI
 │   ├── weight_input_dialog.dart   # Weight input dialog
 │   ├── set_record_dialog.dart     # Set recording dialog
@@ -122,10 +133,11 @@ lib/
 │   ├── completed_medal_display.dart   # Completed workout medal
 │   ├── touch_target.dart    # Touch target size helpers (accessibility)
 │   ├── semantics_helpers.dart # Semantic labeling helpers
-│   └── volume_trend_charts.dart # Volume trend chart widgets
+│   ├── volume_trend_charts.dart # Volume trend chart widgets
 │   └── training_history_export_sheet.dart # Time-range picker for AI export
 ├── theme/                    # Flat Vitality theme (3 themes: amberGold, coralOrange, skyBlue)
 │   ├── app_theme.dart        # Theme data models
+│   ├── build_context_text_styles.dart # BuildContext text-style extension (ONLY textTheme `!` site)
 │   └── theme_provider.dart   # Theme state + persistence
 ├── services/                 # Database, notifications, repositories
 │   ├── database_helper.dart  # SQLite singleton, v5 schema, migrations
@@ -179,6 +191,25 @@ if (session != null) {
 
 // BAD - can crash at runtime
 await _repository.saveSession(session!);
+```
+
+### Extension Choke-Points (ratified conventions)
+Two hand-written extensions own ALL remaining force-unwraps in lib/. Call sites never write `!`:
+
+```dart
+// Text styles — lib/theme/build_context_text_styles.dart
+// (the ONLY file allowed `textTheme.xxx!`)
+Text('hi', style: context.bodyMedium.copyWith(...))
+
+// Localizations — lib/l10n/context_l10n.dart
+// (the ONLY file allowed `AppLocalizations.of(context)!`)
+Text(context.l10n.someKey)
+```
+
+Verify (both must return 0):
+```bash
+grep -rE 'textTheme\.[a-zA-Z]*!' lib --include='*.dart' | grep -v build_context_text_styles | wc -l
+grep -rE 'AppLocalizations\.of\(context\)!' lib --include='*.dart' | wc -l
 ```
 
 ### State Management
@@ -644,8 +675,8 @@ feat: everything
 ## KNOWN ISSUES
 
 - **Mixed comments**: Code uses both English and Chinese comments
-- **Large screen files**: `stats_screen.dart` (~2150 lines, aggregation logic extracted into StatsAggregatorService), `plan_form_screen.dart` (~1040 lines), `exercise_selection_screen.dart` (872 lines), `ai_analysis_screen.dart` (899 lines)
-- **Force-non-null (`!`)**: ~450 usages remain; convert to explicit null checks incrementally
+- **Large screen files**: `settings_screen.dart` (1194 lines), `ai_plan_wizard_screen.dart` (1148 lines), `stats_charts.dart` (1100 lines), `stats_screen.dart` (989 lines), `ai_analysis_screen.dart` (983 lines) — all screens/widgets now ≤1200; keep new files ≤1000
+- **Force-non-null (`!`)**: down to 14 total (2026-08-23) — 10 in `build_context_text_styles.dart` + 1 in `context_l10n.dart` (sanctioned choke-points, see CODE STYLE), plus 3 legacy sites (`Alignment.lerp` ×2 in animations, `session!` ×1 in training_history_export_service). Do not add new ones.
 
 > **i18n is complete.** All user-visible strings in screens, widgets, and the service layer flow through `AppLocalizations` (zh/en). The `test/i18n/no_hardcoded_chinese_test.dart` guard enforces this for `lib/screens/`, `lib/widgets/`, and `lib/main.dart` — regressions fail CI. Comments may stay Chinese.
 
