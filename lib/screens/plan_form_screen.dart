@@ -684,9 +684,10 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
             child: ReorderableListView.builder(
               buildDefaultDragHandles: false,
               itemCount: _selectedExercises.length,
-              onReorder: (oldIndex, newIndex) {
+              // onReorderItem 的 newIndex 已按移除项调整过（等价于旧
+              // onReorder 里手动的 if (newIndex > oldIndex) newIndex--）。
+              onReorderItem: (oldIndex, newIndex) {
                 setState(() {
-                  if (newIndex > oldIndex) newIndex--;
                   final item = _selectedExercises.removeAt(oldIndex);
                   _selectedExercises.insert(newIndex, item);
                 });
