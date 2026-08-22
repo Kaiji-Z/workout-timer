@@ -63,9 +63,8 @@ void main() async {
 
   // Keep the root locale (consumed by services without a BuildContext) in
   // sync with the user's language preference.
-  void syncRootLocale() =>
-      ServiceLocator.get<ValueNotifier<Locale>>().value =
-          localeProvider.effectiveLocale;
+  void syncRootLocale() => ServiceLocator.get<ValueNotifier<Locale>>().value =
+      localeProvider.effectiveLocale;
   syncRootLocale();
   localeProvider.addListener(syncRootLocale);
 

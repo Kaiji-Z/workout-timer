@@ -200,17 +200,19 @@ class ExerciseMatcherService {
       // Token coverage = (matched input tokens / total input tokens).
       // We require >= 50% coverage for auto-success.
       final inputTokens = _tokenize(inputName);
-      final ranked = result.map((r) {
-        final coverage =
-            _calculateTokenCoverage(inputTokens, r.item.nameEn);
-        return (result: r, coverage: coverage);
-      }).toList()
-        ..sort((a, b) {
-          // Sort by coverage DESC, then by fuzzy score ASC
-          final covCmp = b.coverage.compareTo(a.coverage);
-          if (covCmp != 0) return covCmp;
-          return a.result.score.compareTo(b.result.score);
-        });
+      final ranked =
+          result.map((r) {
+            final coverage = _calculateTokenCoverage(
+              inputTokens,
+              r.item.nameEn,
+            );
+            return (result: r, coverage: coverage);
+          }).toList()..sort((a, b) {
+            // Sort by coverage DESC, then by fuzzy score ASC
+            final covCmp = b.coverage.compareTo(a.coverage);
+            if (covCmp != 0) return covCmp;
+            return a.result.score.compareTo(b.result.score);
+          });
 
       final topCandidates = ranked.take(5).map((r) => r.result.item).toList();
       final best = ranked.first;
@@ -316,7 +318,10 @@ class ExerciseMatcherService {
 
   /// Calculate what fraction of [inputTokens] appear in the exercise name.
   /// Uses substring matching so "tricep" matches "triceps" and vice versa.
-  double _calculateTokenCoverage(List<String> inputTokens, String exerciseName) {
+  double _calculateTokenCoverage(
+    List<String> inputTokens,
+    String exerciseName,
+  ) {
     if (inputTokens.isEmpty) return 0.0;
 
     final nameLower = exerciseName.toLowerCase();

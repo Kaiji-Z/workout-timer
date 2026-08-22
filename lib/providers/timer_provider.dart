@@ -155,9 +155,7 @@ class TimerProvider extends ChangeNotifier {
       // Web fallback: recalculate from DateTime
       final countdownStartTime = _countdownStartTime;
       if (countdownStartTime != null) {
-        final elapsed = DateTime.now()
-            .difference(countdownStartTime)
-            .inSeconds;
+        final elapsed = DateTime.now().difference(countdownStartTime).inSeconds;
         _remainingSeconds = (_countdownDuration - elapsed).clamp(
           0,
           _countdownDuration,
@@ -220,9 +218,7 @@ class TimerProvider extends ChangeNotifier {
       // Web fallback: DateTime-based calculation
       final countdownStartTime = _countdownStartTime;
       if (countdownStartTime != null) {
-        final elapsed = DateTime.now()
-            .difference(countdownStartTime)
-            .inSeconds;
+        final elapsed = DateTime.now().difference(countdownStartTime).inSeconds;
         _remainingSeconds = (_countdownDuration - elapsed).clamp(
           0,
           _countdownDuration,

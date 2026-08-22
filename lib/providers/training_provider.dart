@@ -50,7 +50,8 @@ class TrainingProvider extends ChangeNotifier {
 
   /// 构造注入 NotificationService（测试可传 null 或 mock）
   TrainingProvider({NotificationService? notificationService})
-    : _notificationService = notificationService ??
+    : _notificationService =
+          notificationService ??
           (ServiceLocator.isRegistered<NotificationService>()
               ? ServiceLocator.get<NotificationService>()
               : null);
@@ -347,9 +348,7 @@ class TrainingProvider extends ChangeNotifier {
     // Calculate final duration using DateTime for accuracy (works after background)
     final sessionStartTime = _sessionStartTime;
     if (sessionStartTime != null) {
-      _sessionDuration = DateTime.now()
-          .difference(sessionStartTime)
-          .inSeconds;
+      _sessionDuration = DateTime.now().difference(sessionStartTime).inSeconds;
     }
     _sessionTimer?.cancel();
     _sessionTimer = null;
@@ -409,9 +408,7 @@ class TrainingProvider extends ChangeNotifier {
   void refreshDuration() {
     final sessionStartTime = _sessionStartTime;
     if (sessionStartTime != null && _pauseStartTime == null) {
-      _sessionDuration = DateTime.now()
-          .difference(sessionStartTime)
-          .inSeconds;
+      _sessionDuration = DateTime.now().difference(sessionStartTime).inSeconds;
     }
 
     // 修复休息倒计时：同步轮询 Kotlin 获取权威时间

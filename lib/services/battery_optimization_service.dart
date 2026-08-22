@@ -66,8 +66,9 @@ class BatteryOptimizationService {
   static Future<bool> isOemAutoStartAvailable() async {
     if (kIsWeb || !defaultTargetPlatform.isAndroid) return false;
     try {
-      final result =
-          await _channel.invokeMethod<bool>('isOemAutoStartAvailable');
+      final result = await _channel.invokeMethod<bool>(
+        'isOemAutoStartAvailable',
+      );
       return result ?? false;
     } on PlatformException catch (e) {
       debugPrint('Failed to check OEM auto-start availability: $e');
