@@ -28,18 +28,20 @@ class TrainingProgressProvider extends ChangeNotifier {
 
   /// 获取当前动作
   PlanExercise? get currentExercise {
-    if (_currentPlan == null || _currentPlan!.exercises.isEmpty) return null;
-    if (_currentExerciseIndex >= _currentPlan!.exercises.length) return null;
-    return _currentPlan!.exercises[_currentExerciseIndex];
+    final plan = _currentPlan;
+    if (plan == null || plan.exercises.isEmpty) return null;
+    if (_currentExerciseIndex >= plan.exercises.length) return null;
+    return plan.exercises[_currentExerciseIndex];
   }
 
   /// 获取下一个动作
   PlanExercise? getNextExercise() {
-    if (_currentPlan == null || _currentPlan!.exercises.isEmpty) return null;
-    if (_currentExerciseIndex >= _currentPlan!.exercises.length - 1) {
+    final plan = _currentPlan;
+    if (plan == null || plan.exercises.isEmpty) return null;
+    if (_currentExerciseIndex >= plan.exercises.length - 1) {
       return null;
     }
-    return _currentPlan!.exercises[_currentExerciseIndex + 1];
+    return plan.exercises[_currentExerciseIndex + 1];
   }
 
   /// 获取当前动作在当前练习中的组数
@@ -55,8 +57,9 @@ class TrainingProgressProvider extends ChangeNotifier {
 
   /// 获取总目标组数
   int get totalTargetSets {
-    if (_currentPlan == null) return 0;
-    return _currentPlan!.exercises.fold(0, (sum, e) => sum + e.effectiveSets);
+    final plan = _currentPlan;
+    if (plan == null) return 0;
+    return plan.exercises.fold(0, (sum, e) => sum + e.effectiveSets);
   }
 
   /// 获取进度百分比 (0.0 - 1.0)
@@ -75,8 +78,9 @@ class TrainingProgressProvider extends ChangeNotifier {
 
   /// 所有动作是否完成
   bool get isAllExercisesComplete {
-    if (_currentPlan == null || _currentPlan!.exercises.isEmpty) return false;
-    for (var exercise in _currentPlan!.exercises) {
+    final plan = _currentPlan;
+    if (plan == null || plan.exercises.isEmpty) return false;
+    for (var exercise in plan.exercises) {
       final completed = _completedSets[exercise.exerciseId] ?? 0;
       if (completed < exercise.effectiveSets) return false;
     }
@@ -159,7 +163,8 @@ class TrainingProgressProvider extends ChangeNotifier {
     // 检查是否完成当前动作的所有组，自动切换到下一个动作
     if (_currentSetInExercise >= exercise.effectiveSets) {
       // 当前动作完成，自动切换到下一个动作
-      if (_currentExerciseIndex < _currentPlan!.exercises.length - 1) {
+      final plan = _currentPlan;
+      if (plan != null && _currentExerciseIndex < plan.exercises.length - 1) {
         _currentExerciseIndex++;
         _currentSetInExercise = 0;
         // 初始化下一个动作的完成组数（如果尚未初始化）
@@ -202,13 +207,16 @@ class TrainingProgressProvider extends ChangeNotifier {
   /// 生成训练记录
   WorkoutRecord generateRecord() {
     final now = DateTime.now();
-    final durationSeconds = _startTime != null
-        ? now.difference(_startTime!).inSeconds
+    final startTime = _startTime;
+    final durationSeconds = startTime != null
+        ? now.difference(startTime).inSeconds
         : 0;
+
+    final plan = _currentPlan;
 
     // 构建记录中的动作列表
     final recordedExercises = <RecordedExercise>[];
-    for (var planExercise in _currentPlan!.exercises) {
+    for (var planExercise in plan?.exercises ?? const <PlanExercise>[]) {
       final completedSets = _completedSets[planExercise.exerciseId] ?? 0;
       if (completedSets > 0) {
         final setsData = _exerciseSetsData[planExercise.exerciseId];
@@ -231,10 +239,10 @@ class TrainingProgressProvider extends ChangeNotifier {
       id: _uuid.v4(),
       date: now,
       durationSeconds: durationSeconds,
-      trainedMuscles: _currentPlan!.targetMuscles,
+      trainedMuscles: plan?.targetMuscles ?? const [],
       exercises: recordedExercises,
-      planId: _currentPlan!.id,
-      planName: _currentPlan!.name,
+      planId: plan?.id,
+      planName: plan?.name,
       totalSets: totalCompletedSets,
       createdAt: now,
     );
@@ -242,8 +250,9 @@ class TrainingProgressProvider extends ChangeNotifier {
 
   /// 获取训练时长（秒）
   int get trainingDurationSeconds {
-    if (_startTime == null) return 0;
-    return DateTime.now().difference(_startTime!).inSeconds;
+    final startTime = _startTime;
+    if (startTime == null) return 0;
+    return DateTime.now().difference(startTime).inSeconds;
   }
 
   /// 获取格式化的训练时长

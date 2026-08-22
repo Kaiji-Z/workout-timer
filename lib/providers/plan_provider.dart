@@ -228,12 +228,13 @@ class PlanProvider extends ChangeNotifier {
             exerciseEntry.exerciseName,
           );
 
-          if (result.isSuccess && result.exercise != null) {
+          final resolvedExercise = result.exercise;
+          if (result.isSuccess && resolvedExercise != null) {
             // 匹配成功：创建带完整详情的PlanExercise
             matchedExercises.add(
               PlanExercise(
-                exerciseId: result.exercise!.id,
-                exercise: result.exercise,
+                exerciseId: resolvedExercise.id,
+                exercise: resolvedExercise,
                 targetSets: exerciseEntry.targetSets,
                 order: matchedExercises.length,
               ),
@@ -353,11 +354,12 @@ class PlanProvider extends ChangeNotifier {
             exerciseEntry.exerciseName,
           );
 
-          if (result.isSuccess && result.exercise != null) {
+          final resolvedExercise = result.exercise;
+          if (result.isSuccess && resolvedExercise != null) {
             matchedExercises.add(
               PlanExercise(
-                exerciseId: result.exercise!.id,
-                exercise: result.exercise,
+                exerciseId: resolvedExercise.id,
+                exercise: resolvedExercise,
                 targetSets: exerciseEntry.targetSets,
                 order: matchedExercises.length,
               ),

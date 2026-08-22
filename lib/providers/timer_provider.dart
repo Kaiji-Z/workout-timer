@@ -153,9 +153,10 @@ class TimerProvider extends ChangeNotifier {
           });
     } else {
       // Web fallback: recalculate from DateTime
-      if (_countdownStartTime != null) {
+      final countdownStartTime = _countdownStartTime;
+      if (countdownStartTime != null) {
         final elapsed = DateTime.now()
-            .difference(_countdownStartTime!)
+            .difference(countdownStartTime)
             .inSeconds;
         _remainingSeconds = (_countdownDuration - elapsed).clamp(
           0,
@@ -217,9 +218,10 @@ class TimerProvider extends ChangeNotifier {
       }
     } else {
       // Web fallback: DateTime-based calculation
-      if (_countdownStartTime != null) {
+      final countdownStartTime = _countdownStartTime;
+      if (countdownStartTime != null) {
         final elapsed = DateTime.now()
-            .difference(_countdownStartTime!)
+            .difference(countdownStartTime)
             .inSeconds;
         _remainingSeconds = (_countdownDuration - elapsed).clamp(
           0,

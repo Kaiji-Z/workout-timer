@@ -45,8 +45,9 @@ class LocaleProvider extends ChangeNotifier {
     try {
       final prefs = await SharedPreferences.getInstance();
       final stored = prefs.getString(_localeKey);
-      if (stored == 'system' || supportedCodes.contains(stored)) {
-        _localeCode = stored!;
+      if (stored != null &&
+          (stored == 'system' || supportedCodes.contains(stored))) {
+        _localeCode = stored;
       }
     } catch (e) {
       debugPrint('Error loading locale preference: $e');

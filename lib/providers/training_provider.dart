@@ -345,9 +345,10 @@ class TrainingProvider extends ChangeNotifier {
     // Stop session stopwatch
     _sessionStopwatch?.stop();
     // Calculate final duration using DateTime for accuracy (works after background)
-    if (_sessionStartTime != null) {
+    final sessionStartTime = _sessionStartTime;
+    if (sessionStartTime != null) {
       _sessionDuration = DateTime.now()
-          .difference(_sessionStartTime!)
+          .difference(sessionStartTime)
           .inSeconds;
     }
     _sessionTimer?.cancel();
@@ -406,9 +407,10 @@ class TrainingProvider extends ChangeNotifier {
 
   /// 刷新会话时长和休息倒计时（从后台恢复时调用）
   void refreshDuration() {
-    if (_sessionStartTime != null && _pauseStartTime == null) {
+    final sessionStartTime = _sessionStartTime;
+    if (sessionStartTime != null && _pauseStartTime == null) {
       _sessionDuration = DateTime.now()
-          .difference(_sessionStartTime!)
+          .difference(sessionStartTime)
           .inSeconds;
     }
 
@@ -509,8 +511,9 @@ class TrainingProvider extends ChangeNotifier {
 
   void _startExerciseTimer() {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (_stopwatch != null) {
-        _exerciseTime = _stopwatch!.elapsed.inSeconds;
+      final stopwatch = _stopwatch;
+      if (stopwatch != null) {
+        _exerciseTime = stopwatch.elapsed.inSeconds;
         _updateServiceNotification();
         notifyListeners();
       }
@@ -520,9 +523,10 @@ class TrainingProvider extends ChangeNotifier {
   void _startSessionTimer() {
     _sessionTimer = Timer.periodic(const Duration(milliseconds: 500), (timer) {
       // Calculate duration from DateTime for accuracy (works in background)
-      if (_sessionStartTime != null && _pauseStartTime == null) {
+      final sessionStartTime = _sessionStartTime;
+      if (sessionStartTime != null && _pauseStartTime == null) {
         _sessionDuration = DateTime.now()
-            .difference(_sessionStartTime!)
+            .difference(sessionStartTime)
             .inSeconds;
         _updateServiceNotification();
         notifyListeners();
@@ -554,8 +558,9 @@ class TrainingProvider extends ChangeNotifier {
         }
       } else {
         // Web fallback: use DateTime
-        if (_restStartTime != null) {
-          final elapsed = DateTime.now().difference(_restStartTime!).inSeconds;
+        final restStartTime = _restStartTime;
+        if (restStartTime != null) {
+          final elapsed = DateTime.now().difference(restStartTime).inSeconds;
           _restRemaining = (_restDuration - elapsed).clamp(0, _restDuration);
         }
       }
