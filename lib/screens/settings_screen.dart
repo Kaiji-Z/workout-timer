@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -10,6 +9,7 @@ import '../services/battery_optimization_service.dart';
 import '../services/workout_repository.dart';
 import '../services/notification_sound_service.dart';
 import '../services/data_transfer_service.dart';
+import '../widgets/settings_widgets.dart';
 import '../theme/theme_provider.dart';
 import '../theme/app_theme.dart';
 import '../l10n/app_localizations.dart';
@@ -309,20 +309,21 @@ class _SettingsScreenState extends State<SettingsScreen>
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Notification Settings
-            _buildSectionHeader(l10n.settingsNotificationSection, theme),
-            _buildSettingsCard(
+            buildSettingsSectionHeader(
+              context,
+              l10n.settingsNotificationSection,
+              theme,
+            ),
+            buildSettingsCard(
               theme: theme,
               child: Column(
                 children: [
-                  _buildSettingsSwitch(
-                    l10n.settingsEnableSound,
-                    _soundEnabled,
-                    (value) {
-                      setState(() => _soundEnabled = value);
-                      _saveSettings();
-                    },
-                    theme,
-                  ),
+                  buildSettingsSwitch(l10n.settingsEnableSound, _soundEnabled, (
+                    value,
+                  ) {
+                    setState(() => _soundEnabled = value);
+                    _saveSettings();
+                  }, theme),
                   if (_soundEnabled) ...[
                     Divider(
                       color: theme.surfaceColor.withValues(alpha: 0.1),
@@ -348,7 +349,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                     color: theme.surfaceColor.withValues(alpha: 0.1),
                     height: 1,
                   ),
-                  _buildSettingsSwitch(
+                  buildSettingsSwitch(
                     l10n.settingsEnableVibration,
                     _vibrationEnabled,
                     (value) {
@@ -361,7 +362,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                     color: theme.surfaceColor.withValues(alpha: 0.1),
                     height: 1,
                   ),
-                  _buildSettingsSwitch(
+                  buildSettingsSwitch(
                     l10n.settingsDetailedRecording,
                     _detailedRecordingEnabled,
                     (value) {
@@ -375,7 +376,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                     height: 1,
                   ),
                   // 空闲提醒（方案 A）：运动中长时间无操作时通知提醒
-                  _buildSettingsSwitch(
+                  buildSettingsSwitch(
                     l10n.settingsIdleReminder,
                     _idleReminderEnabled,
                     (value) {
@@ -409,8 +410,12 @@ class _SettingsScreenState extends State<SettingsScreen>
 
             // Background Running Settings (Android only)
             if (!kIsWeb && Platform.isAndroid) ...[
-              _buildSectionHeader(l10n.settingsBackgroundSection, theme),
-              _buildSettingsCard(
+              buildSettingsSectionHeader(
+                context,
+                l10n.settingsBackgroundSection,
+                theme,
+              ),
+              buildSettingsCard(
                 theme: theme,
                 child: Column(
                   children: [
@@ -483,13 +488,17 @@ class _SettingsScreenState extends State<SettingsScreen>
             ],
 
             // Appearance Settings
-            _buildSectionHeader(l10n.settingsAppearanceSection, theme),
-            _buildSettingsCard(
+            buildSettingsSectionHeader(
+              context,
+              l10n.settingsAppearanceSection,
+              theme,
+            ),
+            buildSettingsCard(
               theme: theme,
               child: Column(
                 children: [
                   Consumer<ThemeProvider>(
-                    builder: (context, tp, _) => _buildSettingsSwitch(
+                    builder: (context, tp, _) => buildSettingsSwitch(
                       l10n.settingsDarkMode,
                       tp.isDarkMode,
                       (value) => tp.setDarkMode(value),
@@ -518,8 +527,8 @@ class _SettingsScreenState extends State<SettingsScreen>
             const SizedBox(height: 24),
 
             // Language
-            _buildSectionHeader(l10n.settingsLanguage, theme),
-            _buildSettingsCard(
+            buildSettingsSectionHeader(context, l10n.settingsLanguage, theme),
+            buildSettingsCard(
               theme: theme,
               child: Column(
                 children: [
@@ -555,8 +564,12 @@ class _SettingsScreenState extends State<SettingsScreen>
             const SizedBox(height: 24),
 
             // Custom Message
-            _buildSectionHeader(l10n.settingsCustomMessageSection, theme),
-            _buildSettingsCard(
+            buildSettingsSectionHeader(
+              context,
+              l10n.settingsCustomMessageSection,
+              theme,
+            ),
+            buildSettingsCard(
               theme: theme,
               padding: const EdgeInsets.all(AppDimensions.screenPadding),
               child: TextField(
@@ -587,8 +600,12 @@ class _SettingsScreenState extends State<SettingsScreen>
             const SizedBox(height: 24),
 
             // Data Management
-            _buildSectionHeader(l10n.settingsDataSection, theme),
-            _buildSettingsCard(
+            buildSettingsSectionHeader(
+              context,
+              l10n.settingsDataSection,
+              theme,
+            ),
+            buildSettingsCard(
               theme: theme,
               child: Column(
                 children: [
@@ -635,8 +652,12 @@ class _SettingsScreenState extends State<SettingsScreen>
             const SizedBox(height: 24),
 
             // AI Preferences
-            _buildSectionHeader(l10n.settingsAiPreferencesSection, theme),
-            _buildSettingsCard(
+            buildSettingsSectionHeader(
+              context,
+              l10n.settingsAiPreferencesSection,
+              theme,
+            ),
+            buildSettingsCard(
               theme: theme,
               child: ListTile(
                 title: Text(
@@ -662,8 +683,12 @@ class _SettingsScreenState extends State<SettingsScreen>
             const SizedBox(height: 24),
 
             // About
-            _buildSectionHeader(l10n.settingsAboutSection, theme),
-            _buildSettingsCard(
+            buildSettingsSectionHeader(
+              context,
+              l10n.settingsAboutSection,
+              theme,
+            ),
+            buildSettingsCard(
               theme: theme,
               child: Column(
                 children: [
@@ -680,7 +705,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                       Icons.chevron_right,
                       color: theme.secondaryTextColor,
                     ),
-                    onTap: () => _showPrivacyPolicy(theme),
+                    onTap: () => showPrivacyPolicyDialog(context, theme),
                   ),
                   Divider(color: theme.dividerColor, height: 1),
                   ListTile(
@@ -746,127 +771,6 @@ class _SettingsScreenState extends State<SettingsScreen>
     );
   }
 
-  void _showPrivacyPolicy(AppThemeData theme) {
-    final l10n = AppLocalizations.of(context)!;
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: theme.surfaceColor.withValues(alpha: 0.98),
-        title: Text(
-          l10n.settingsPrivacyPolicy,
-          style: TextStyle(color: theme.textColor),
-        ),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l10n.settingsPrivacyHeadline,
-                  style: TextStyle(
-                    color: theme.accentColor,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  l10n.settingsPrivacyDataStorage,
-                  style: TextStyle(
-                    color: theme.textColor,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  l10n.settingsPrivacyDataStorageBody,
-                  style: TextStyle(
-                    color: theme.secondaryTextColor,
-                    fontSize: 13,
-                    height: 1.6,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  l10n.settingsPrivacyPermissions,
-                  style: TextStyle(
-                    color: theme.textColor,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '${l10n.settingsPrivacyPermNotifications}\n'
-                  '${l10n.settingsPrivacyPermVibration}\n'
-                  '${l10n.settingsPrivacyPermForegroundService}\n'
-                  '${l10n.settingsPrivacyPermNetwork}\n'
-                  '${l10n.settingsPrivacyPermBatteryExempt}',
-                  style: TextStyle(
-                    color: theme.secondaryTextColor,
-                    fontSize: 13,
-                    height: 1.6,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  l10n.settingsPrivacyThirdParty,
-                  style: TextStyle(
-                    color: theme.textColor,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  l10n.settingsPrivacyThirdPartyBody,
-                  style: TextStyle(
-                    color: theme.secondaryTextColor,
-                    fontSize: 13,
-                    height: 1.6,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  l10n.settingsPrivacyFullPolicy,
-                  style: TextStyle(
-                    color: theme.secondaryTextColor,
-                    fontSize: 13,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Clipboard.setData(
-                const ClipboardData(
-                  text: 'https://kaiji-z.github.io/workout-timer/',
-                ),
-              );
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(l10n.settingsPrivacyLinkCopied),
-                  duration: Duration(seconds: 2),
-                ),
-              );
-            },
-            child: Text(l10n.settingsCopyLink),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(l10n.settingsClose),
-          ),
-        ],
-      ),
-    );
-  }
-
   Future<void> _exportData(AppThemeData theme) async {
     final l10n = AppLocalizations.of(context)!;
     // 先显示确认对话框
@@ -910,7 +814,7 @@ class _SettingsScreenState extends State<SettingsScreen>
     try {
       await _dataTransferService.exportAndShare();
     } catch (e) {
-      debugPrint('导出失败: $e');
+      debugPrint('Export failed: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(l10n.settingsExportFailed('$e'))),
@@ -940,7 +844,7 @@ class _SettingsScreenState extends State<SettingsScreen>
     Navigator.pop(context); // 关闭加载提示
 
     // 显示导入选择对话框
-    final result = await _showImportDialog(context, theme, localBackups);
+    final result = await showImportDialog(context, theme, localBackups);
     if (result == null || result.isEmpty) return;
 
     if (!mounted) return;
@@ -1001,7 +905,7 @@ class _SettingsScreenState extends State<SettingsScreen>
         );
       }
     } catch (e) {
-      debugPrint('导入失败: $e');
+      debugPrint('Import failed: $e');
       if (mounted) {
         Navigator.pop(context); // 关闭加载提示
         ScaffoldMessenger.of(context).showSnackBar(
@@ -1009,119 +913,6 @@ class _SettingsScreenState extends State<SettingsScreen>
         );
       }
     }
-  }
-
-  /// 显示导入选择对话框
-  /// 返回选中的文件路径，或 "file_picker" 表示手动选择
-  Future<String?> _showImportDialog(
-    BuildContext context,
-    AppThemeData theme,
-    List<BackupFileInfo> localBackups,
-  ) async {
-    final l10n = AppLocalizations.of(context)!;
-    return showDialog<String>(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: theme.surfaceColor.withValues(alpha: 0.95),
-        title: Text(
-          l10n.settingsImportData,
-          style: TextStyle(color: theme.textColor),
-        ),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 本地发现的备份文件
-              if (localBackups.isNotEmpty) ...[
-                Text(
-                  l10n.settingsFoundLocalBackups,
-                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: theme.secondaryTextColor,
-                    letterSpacing: 1,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                ...localBackups.map(
-                  (backup) => ListTile(
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 8),
-                    title: Text(
-                      _formatBackupName(
-                        backup.fileName,
-                        Localizations.localeOf(context).languageCode,
-                      ),
-                      style: Theme.of(context).textTheme.bodyMedium!,
-                    ),
-                    subtitle: Text(
-                      '${backup.sizeText} · ${_formatDate(backup.modifiedTime, Localizations.localeOf(context).languageCode)}',
-                      style: Theme.of(context).textTheme.bodySmall!,
-                    ),
-                    trailing: Icon(
-                      Icons.restore,
-                      color: theme.accentColor,
-                      size: 20,
-                    ),
-                    onTap: () => Navigator.pop(context, backup.path),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Divider(color: theme.dividerColor, height: 1),
-                const SizedBox(height: 4),
-              ],
-              // 手动选择文件
-              ListTile(
-                contentPadding: const EdgeInsets.symmetric(horizontal: 8),
-                leading: Icon(Icons.folder_open, color: theme.accentColor),
-                title: Text(
-                  l10n.settingsSelectManually,
-                  style: TextStyle(color: theme.textColor),
-                ),
-                subtitle: Text(
-                  l10n.settingsSelectManuallySubtitle,
-                  style: Theme.of(context).textTheme.bodySmall!,
-                ),
-                onTap: () => Navigator.pop(context, 'file_picker'),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, null),
-            child: Text(l10n.settingsCancel),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// 格式化备份文件名为可读的日期
-  String _formatBackupName(String fileName, String locale) {
-    // workout_timer_backup_2026-06-04T12-30-45.json
-    try {
-      final dateStr = fileName
-          .replaceFirst('workout_timer_backup_', '')
-          .replaceFirst('.json', '');
-      // 2026-06-04T12-30-45 -> localized date time
-      final parts = dateStr.split('T');
-      if (parts.length == 2) {
-        final datePart = parts[0]; // 2026-06-04
-        final timePart = parts[1].replaceAll('-', ':'); // 12-30-45 -> 12:30:45
-        final date = DateTime.parse('$datePart $timePart');
-        final df = DateFormat.yMd(locale).add_Hm();
-        return '${AppLocalizations.of(context)!.settingsBackupPrefix} ${df.format(date)}';
-      }
-    } catch (_) {}
-    return fileName;
-  }
-
-  /// 格式化日期
-  String _formatDate(DateTime dt, String locale) {
-    final df = DateFormat.MMMd(locale).add_Hm();
-    return df.format(dt);
   }
 
   void _showSoundPicker(BuildContext context, AppThemeData theme) {
@@ -1169,49 +960,6 @@ class _SettingsScreenState extends State<SettingsScreen>
     );
   }
 
-  Widget _buildSectionHeader(String title, AppThemeData theme) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Text(
-        title,
-        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-          fontSize: 13,
-          fontWeight: FontWeight.w600,
-          color: theme.secondaryTextColor,
-          letterSpacing: 1,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSettingsCard({
-    required AppThemeData theme,
-    required Widget child,
-    EdgeInsetsGeometry? padding,
-  }) {
-    // Use Material (not Container+BoxDecoration) so descendant ListTile/
-    // RadioListTile/InkWell widgets paint their ink splash on a proper
-    // Material canvas. A plain Container with a background color sits
-    // between the ListTile and its Material ancestor, hiding the ripple
-    // and tripping Flutter's "ListTile background color or ink splashes
-    // may be invisible" assertion in tests.
-    return Material(
-      color: theme.surfaceColorRaised,
-      borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
-      shadowColor: theme.shadowColor,
-      elevation: 2,
-      child: Padding(
-        padding: padding ?? const EdgeInsets.symmetric(vertical: 4),
-        child: child,
-      ),
-    );
-  }
-
-  /// Builds the OEM-specific battery settings section (Chinese OEMs only).
-  ///
-  /// Shows manufacturer-specific step-by-step instructions and a button to
-  /// open the OEM settings page. Returns an empty list when [manufacturer]
-  /// is null (defensive guard — the build method already checks non-null).
   List<Widget> _buildOemSection(String? manufacturer, AppThemeData theme) {
     if (manufacturer == null) return const [];
     final l10n = AppLocalizations.of(context)!;
@@ -1219,8 +967,8 @@ class _SettingsScreenState extends State<SettingsScreen>
     final instruction = _oemInstruction(manufacturer, l10n);
 
     return [
-      _buildSectionHeader(l10n.oemSectionTitle, theme),
-      _buildSettingsCard(
+      buildSettingsSectionHeader(context, l10n.oemSectionTitle, theme),
+      buildSettingsCard(
         theme: theme,
         padding: const EdgeInsets.all(AppDimensions.screenPadding),
         child: Column(
@@ -1340,57 +1088,6 @@ class _SettingsScreenState extends State<SettingsScreen>
       ),
       const SizedBox(height: 24),
     ];
-  }
-
-  Widget _buildSettingsSwitch(
-    String title,
-    bool value,
-    ValueChanged<bool> onChanged,
-    AppThemeData theme, {
-    String? subtitle,
-  }) {
-    // 根据深色/浅色模式确定关闭态颜色
-    final bool isDark = theme.isDark;
-    final Color inactiveTrack = isDark
-        ? theme.surfaceColor.withValues(alpha: 0.4)
-        : theme.dividerColor;
-    final Color inactiveThumb = isDark
-        ? theme.surfaceColor.withValues(alpha: 0.9)
-        : theme.cardColor;
-    final Color inactiveOutline = isDark
-        ? theme.surfaceColor.withValues(alpha: 0.5)
-        : theme.dividerColor;
-
-    return SwitchListTile(
-      title: Text(title, style: TextStyle(color: theme.textColor)),
-      subtitle: subtitle != null
-          ? Text(subtitle, style: TextStyle(color: theme.secondaryTextColor))
-          : null,
-      value: value,
-      onChanged: onChanged,
-      activeThumbColor: theme.surfaceColor,
-      activeTrackColor: theme.accentColor,
-      inactiveThumbColor: inactiveThumb,
-      inactiveTrackColor: inactiveTrack,
-      thumbColor: WidgetStateProperty.resolveWith((states) {
-        if (states.contains(WidgetState.selected)) {
-          return theme.surfaceColor;
-        }
-        return inactiveThumb;
-      }),
-      trackColor: WidgetStateProperty.resolveWith((states) {
-        if (states.contains(WidgetState.selected)) {
-          return theme.accentColor;
-        }
-        return inactiveTrack;
-      }),
-      trackOutlineColor: WidgetStateProperty.resolveWith((states) {
-        if (states.contains(WidgetState.selected)) {
-          return theme.accentColor.withValues(alpha: 0.5);
-        }
-        return inactiveOutline;
-      }),
-    );
   }
 
   void _showThemeSelector(BuildContext context, ThemeProvider themeProvider) {
