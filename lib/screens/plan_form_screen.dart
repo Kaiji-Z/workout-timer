@@ -10,6 +10,7 @@ import '../models/workout_plan.dart';
 import '../models/muscle_group.dart';
 
 import '../widgets/muscle_selector.dart';
+import '../widgets/plan_form_components.dart';
 import '../theme/app_theme.dart';
 import 'exercise_selection_screen.dart';
 import '../theme/build_context_text_styles.dart';
@@ -96,7 +97,13 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
         body: Column(
           children: [
             // 步骤指示器
-            _buildStepIndicator(theme),
+            buildPlanFormStepIndicator(
+              context,
+              currentStep: _currentStep,
+              isEditMode: isEditMode,
+              onJumpToStep: _jumpToStep,
+              theme: theme,
+            ),
 
             // 内容
             Expanded(
@@ -115,89 +122,6 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
             _buildBottomButton(theme),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildStepIndicator(AppThemeData theme) {
-    final l10n = context.l10n;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-      child: Row(
-        children: [
-          _buildStepItem(1, l10n.pfStepSelectMuscle, _currentStep >= 0, theme),
-          _buildStepLine(_currentStep >= 1, theme),
-          _buildStepItem(
-            2,
-            l10n.pfStepSelectExercise,
-            _currentStep >= 1,
-            theme,
-          ),
-          _buildStepLine(_currentStep >= 2, theme),
-          _buildStepItem(3, l10n.pfStepConfirm, _currentStep >= 2, theme),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStepItem(
-    int number,
-    String label,
-    bool isActive,
-    AppThemeData theme,
-  ) {
-    // 步骤索引 = number - 1
-    final stepIndex = number - 1;
-    // 判断是否可点击：编辑模式全部可点击；创建模式只能回到已完成步骤
-    final canTap = isEditMode || stepIndex < _currentStep;
-
-    return GestureDetector(
-      onTap: canTap ? () => _jumpToStep(stepIndex) : null,
-      child: Column(
-        children: [
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: isActive
-                  ? theme.accentColor
-                  : theme.textColor.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Center(
-              child: isActive && _currentStep > number - 1
-                  ? Icon(Icons.check, color: theme.onAccentColor, size: 18)
-                  : Text(
-                      '$number',
-                      style: context.labelLarge.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: isActive
-                            ? theme.onAccentColor
-                            : theme.secondaryTextColor,
-                      ),
-                    ),
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: context.bodySmall.copyWith(
-              color: isActive ? theme.textColor : theme.secondaryTextColor,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStepLine(bool isActive, AppThemeData theme) {
-    return Expanded(
-      child: Container(
-        height: 2,
-        margin: const EdgeInsets.only(bottom: 20),
-        color: isActive
-            ? theme.accentColor
-            : theme.textColor.withValues(alpha: 0.1),
       ),
     );
   }
@@ -685,11 +609,16 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
               },
               itemBuilder: (context, index) {
                 final exercise = _selectedExercises[index];
-                return _buildExerciseSetItem(
-                  index,
-                  exercise,
-                  theme,
+                return buildPlanFormExerciseSetItem(
+                  context,
+                  index: index,
+                  planExercise: exercise,
+                  theme: theme,
                   key: ValueKey(exercise.exerciseId),
+                  onSetsChanged: (newSets) =>
+                      _updateExerciseSets(index, newSets),
+                  onRemove: () =>
+                      setState(() => _selectedExercises.removeAt(index)),
                 );
               },
             ),
@@ -709,150 +638,6 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
         ),
         Text(value, style: context.labelLarge),
       ],
-    );
-  }
-
-  Widget _buildExerciseSetItem(
-    int index,
-    PlanExercise planExercise,
-    AppThemeData theme, {
-    Key? key,
-  }) {
-    final l10n = context.l10n;
-    return Container(
-      key: key,
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: theme.surfaceColorRaised,
-        borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-        boxShadow: AppElevation.resting(theme.shadowColor),
-      ),
-      child: Row(
-        children: [
-          // 拖拽手柄
-          ReorderableDragStartListener(
-            index: index,
-            child: Padding(
-              padding: const EdgeInsets.only(right: 8),
-              child: Icon(
-                Icons.drag_indicator,
-                color: theme.secondaryTextColor,
-                size: 20,
-              ),
-            ),
-          ),
-          Container(
-            width: 28,
-            height: 28,
-            decoration: BoxDecoration(
-              color: theme.accentColor.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
-            ),
-            child: Center(
-              child: Text(
-                '${index + 1}',
-                style: context.bodySmall.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: theme.accentColor,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  planExercise.hasDetails
-                      ? planExercise.name
-                      : '${planExercise.name} ${l10n.pfNoDetailsSuffix}',
-                  style: context.labelLarge.copyWith(
-                    color: planExercise.hasDetails
-                        ? theme.textColor
-                        : theme.secondaryTextColor.withValues(alpha: 0.7),
-                    fontStyle: planExercise.hasDetails
-                        ? null
-                        : FontStyle.italic,
-                  ),
-                ),
-                Text(
-                  planExercise.exercise?.primaryMuscle.displayName ?? '',
-                  style: context.bodySmall,
-                ),
-              ],
-            ),
-          ),
-          // 组数调整
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              IconButton(
-                tooltip: l10n.pfDecreaseSets,
-                onPressed: planExercise.effectiveSets > 1
-                    ? () => _updateExerciseSets(
-                        index,
-                        planExercise.effectiveSets - 1,
-                      )
-                    : null,
-                icon: Icon(
-                  Icons.remove_circle_outline,
-                  color: planExercise.effectiveSets > 1
-                      ? theme.accentColor
-                      : theme.secondaryTextColor.withValues(alpha: 0.3),
-                ),
-                iconSize: 24,
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-              ),
-              Container(
-                width: 40,
-                alignment: Alignment.center,
-                child: Text(
-                  '${planExercise.effectiveSets}',
-                  style: context.headlineLarge.copyWith(fontSize: 18),
-                ),
-              ),
-              IconButton(
-                tooltip: l10n.pfIncreaseSets,
-                onPressed: planExercise.effectiveSets < 10
-                    ? () => _updateExerciseSets(
-                        index,
-                        planExercise.effectiveSets + 1,
-                      )
-                    : null,
-                icon: Icon(
-                  Icons.add_circle_outline,
-                  color: planExercise.effectiveSets < 10
-                      ? theme.accentColor
-                      : theme.secondaryTextColor.withValues(alpha: 0.3),
-                ),
-                iconSize: 24,
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-              ),
-              const SizedBox(width: 8),
-              // 删除动作按钮
-              IconButton(
-                tooltip: l10n.pfDeleteExercise,
-                onPressed: () {
-                  setState(() {
-                    _selectedExercises.removeAt(index);
-                  });
-                },
-                icon: Icon(
-                  Icons.delete_outline,
-                  size: 20,
-                  color: theme.errorColor,
-                ),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-              ),
-            ],
-          ),
-        ],
-      ),
     );
   }
 
