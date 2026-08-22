@@ -40,10 +40,12 @@ class SetData {
   /// - Only weight: "45.0kg"
   /// - Both: "12 × 45.0kg"
   String get displayText {
-    if (reps == null && weight == null) return 'Set $setNumber';
-    if (weight == null) return '$reps reps';
-    if (reps == null) return '${weight!.toStringAsFixed(1)}kg';
-    return '$reps × ${weight!.toStringAsFixed(1)}kg';
+    final w = weight;
+    final r = reps;
+    if (r == null && w == null) return 'Set $setNumber';
+    if (w == null) return '$r reps';
+    if (r == null) return '${w.toStringAsFixed(1)}kg';
+    return '$r × ${w.toStringAsFixed(1)}kg';
   }
 
   /// Calculates the volume (reps × weight) for this set.

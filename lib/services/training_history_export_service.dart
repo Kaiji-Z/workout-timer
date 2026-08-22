@@ -192,9 +192,15 @@ class TrainingHistoryExportService {
 
     for (final entry in normalized) {
       if (entry.type == _Type.detailed) {
-        buffer.writeln(_buildDetailedNarrative(l10n, entry.record!));
+        final record = entry.record;
+        if (record != null) {
+          buffer.writeln(_buildDetailedNarrative(l10n, record));
+        }
       } else {
-        buffer.writeln(_buildLegacyNarrative(l10n, entry.session!));
+        final session = entry.session;
+        if (session != null) {
+          buffer.writeln(_buildLegacyNarrative(l10n, session));
+        }
       }
       buffer.writeln();
     }
@@ -323,8 +329,8 @@ class TrainingHistoryExportService {
   }
 
   Map<String, dynamic> _entryToJson(_NormalizedEntry entry) {
-    if (entry.type == _Type.detailed) {
-      final record = entry.record!;
+    final record = entry.record;
+    if (entry.type == _Type.detailed && record != null) {
       return {
         'type': 'detailed',
         'id': record.id,
@@ -339,20 +345,21 @@ class TrainingHistoryExportService {
       };
     }
 
-    final session = entry.session!;
-    final date = _recordDate(session);
+    final session = entry.session;
+    final date = session != null ? _recordDate(session) : null;
     return {
       'type': 'legacy',
-      'id': session.id,
+      'id': session?.id ?? '',
       'date': date != null ? _dateOnly(date) : null,
       if (date != null) 'weekday': date.weekday,
-      'sets': session.totalSets,
-      'restTimeSeconds': (session.totalRestTimeMs / 1000).round(),
+      'sets': session?.totalSets ?? 0,
+      'restTimeSeconds': ((session?.totalRestTimeMs ?? 0) / 1000).round(),
     };
   }
 
   Map<String, dynamic> _exerciseToJson(RecordedExercise ex) {
     final exercise = ex.exercise;
+    final maxWeight = ex.maxWeight;
     return {
       'exerciseId': ex.exerciseId,
       if (exercise != null && exercise.name.isNotEmpty) 'name': exercise.name,
@@ -362,7 +369,7 @@ class TrainingHistoryExportService {
       if (exercise != null && exercise.equipment.isNotEmpty)
         'equipment': exercise.equipment,
       'completedSets': ex.completedSets,
-      if (ex.maxWeight != null && ex.maxWeight! > 0) 'maxWeight': ex.maxWeight,
+      if (maxWeight != null && maxWeight > 0) 'maxWeight': maxWeight,
       'sets': (ex.setsData ?? const <SetData>[]).map(_setDataToJson).toList(),
     };
   }
@@ -379,10 +386,15 @@ class TrainingHistoryExportService {
 
   int _sumSets(List<_NormalizedEntry> entries) {
     return entries.fold<int>(0, (sum, e) {
-      if (e.type == _Type.detailed) {
-        return sum + e.record!.totalSets;
+      final record = e.record;
+      if (e.type == _Type.detailed && record != null) {
+        return sum + record.totalSets;
       }
-      return sum + e.session!.totalSets;
+      final session = e.session;
+      if (session != null) {
+        return sum + session.totalSets;
+      }
+      return sum;
     });
   }
 
@@ -491,13 +503,15 @@ class _NormalizedEntry {
       );
 
   DateTime get date {
-    if (type == _Type.detailed) return record!.date;
+    final record = this.record;
+    if (record != null) return record.date;
     // Legacy session: parse createdAt (already validated in _recordDate).
     return DateTime.parse(session!.createdAt);
   }
 
   int get durationSeconds {
-    if (type == _Type.detailed) return record!.durationSeconds;
+    final record = this.record;
+    if (record != null) return record.durationSeconds;
     return 0;
   }
 }

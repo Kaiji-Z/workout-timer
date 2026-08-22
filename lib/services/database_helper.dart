@@ -35,9 +35,11 @@ class DatabaseHelper {
 
   static Database? _database;
   Future<Database> get database async {
-    if (_database != null) return _database!;
-    _database = await _initDatabase();
-    return _database!;
+    final existing = _database;
+    if (existing != null) return existing;
+    final database = await _initDatabase();
+    _database = database;
+    return database;
   }
 
   /// Clears the cached [Database] handle so the next [database] access opens a

@@ -128,8 +128,9 @@ class ExerciseMatcherService {
       }
 
       // Index by nameZh if available
-      if (exercise.nameZh != null && exercise.nameZh!.isNotEmpty) {
-        final normalizedZh = _normalize(exercise.nameZh!);
+      final nameZh = exercise.nameZh;
+      if (nameZh != null && nameZh.isNotEmpty) {
+        final normalizedZh = _normalize(nameZh);
         _nameZhMap[normalizedZh] = exercise;
       }
     }

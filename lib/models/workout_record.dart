@@ -28,10 +28,11 @@ class RecordedExercise {
 
   /// 格式化的重量文本
   String get weightText {
-    if (maxWeight == null || maxWeight == 0) {
+    final weight = maxWeight;
+    if (weight == null || weight == 0) {
       return '';
     }
-    return '${maxWeight!.toStringAsFixed(1)}kg';
+    return '${weight.toStringAsFixed(1)}kg';
   }
 
   /// 计算总训练容量
@@ -79,12 +80,13 @@ class RecordedExercise {
 
   /// 转换为JSON
   Map<String, dynamic> toJson() {
+    final data = setsData;
     return {
       'exerciseId': exerciseId,
       'completedSets': completedSets,
       'maxWeight': maxWeight,
-      'sets_data': setsData != null
-          ? jsonEncode(setsData!.map((s) => s.toMap()).toList())
+      'sets_data': data != null
+          ? jsonEncode(data.map((s) => s.toMap()).toList())
           : null,
     };
   }
@@ -112,13 +114,14 @@ class RecordedExercise {
 
   /// 转换为数据库Map（用于record_exercises表）
   Map<String, dynamic> toMap(String recordId) {
+    final data = setsData;
     return {
       'record_id': recordId,
       'exercise_id': exerciseId,
       'completed_sets': completedSets,
       'max_weight': maxWeight,
-      'per_set_data': setsData != null
-          ? jsonEncode(setsData!.map((s) => s.toMap()).toList())
+      'per_set_data': data != null
+          ? jsonEncode(data.map((s) => s.toMap()).toList())
           : null,
     };
   }
@@ -141,8 +144,10 @@ class RecordedExercise {
   }
 
   /// 检查是否需要迁移到每组格式
-  bool get needsMigration =>
-      (setsData == null || setsData!.isEmpty) && completedSets > 0;
+  bool get needsMigration {
+    final data = setsData;
+    return (data == null || data.isEmpty) && completedSets > 0;
+  }
 
   /// 将旧版记录迁移到每组格式
   RecordedExercise migrateToSetData() {
