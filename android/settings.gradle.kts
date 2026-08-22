@@ -24,7 +24,7 @@ pluginManagement {
 plugins {
     id("dev.flutter.flutter-plugin-loader") version "1.0.0"
     // AGP 8.6.0 - Flutter 推荐的最低版本
-    id("com.android.application") version "8.6.0" apply false
+    id("com.android.application") version "8.11.1" apply false
     // Kotlin 2.1.0 - Flutter 推荐的最低版本
     id("org.jetbrains.kotlin.android") version "2.1.0" apply false
 }
