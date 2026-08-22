@@ -12,7 +12,7 @@ import '../models/muscle_group.dart';
 import '../widgets/calendar_widget.dart';
 import '../widgets/plan_card.dart';
 import '../widgets/fullscreen_image_viewer.dart';
-import '../widgets/exercise_selector.dart';
+import '../widgets/exercise_detail_sheet.dart';
 import 'plan_form_screen.dart';
 import 'ai_plan_wizard_screen.dart';
 import '../theme/app_theme.dart';
