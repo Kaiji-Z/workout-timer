@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
+import '../l10n/context_l10n.dart';
 import '../models/exercise.dart';
 import '../models/muscle_group.dart';
 import '../models/workout_plan.dart';
@@ -161,7 +162,7 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
   }
 
   PreferredSizeWidget _buildAppBar(AppThemeData theme) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
     return AppBar(
       backgroundColor: Colors.transparent,
       elevation: 0,
@@ -417,7 +418,7 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
                 ),
                 const SizedBox(width: 4),
                 Text(
-                  AppLocalizations.of(context)!.exFavoritesChip,
+                  context.l10n.exFavoritesChip,
                   style: context.labelLarge.copyWith(
                     fontSize: 13,
                     fontWeight: _showFavoritesOnly
@@ -572,7 +573,7 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
                 child: hasSelection
                     ? _buildSelectedChipsPreview(theme)
                     : Text(
-                        AppLocalizations.of(context)!.exSelectHint,
+                        context.l10n.exSelectHint,
                         style: context.bodyMedium.copyWith(
                           color: theme.secondaryTextColor,
                         ),
@@ -600,7 +601,7 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
                   elevation: 0,
                 ),
                 child: Text(
-                  AppLocalizations.of(context)!.widgetConfirmButton,
+                  context.l10n.widgetConfirmButton,
                   // 必须显式设 color:深底按钮的 Text 若继承 titleLarge.color
                   // (textColor 黑),会渲染成黑字印在深靛蓝底上不可读。
                   style: context.titleLarge.copyWith(

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
+import '../l10n/context_l10n.dart';
 import '../theme/theme_provider.dart';
 import '../theme/app_theme.dart';
 import '../models/exercise.dart';
@@ -577,7 +578,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
 
   /// Parse JSON for import analysis tab - goes directly to preview
   void _parseJsonForImport() async {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
     if (_jsonController.text.isEmpty) {
       setState(() => _parseError = l10n.aiErrorEmptyJson);
       return;
@@ -707,7 +708,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
       await Clipboard.setData(ClipboardData(text: prompt));
       if (mounted) {
         final theme = context.read<ThemeProvider>().currentTheme;
-        final l10n = AppLocalizations.of(context)!;
+        final l10n = context.l10n;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(l10n.aiCopiedToast),
@@ -797,7 +798,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
   }
 
   void _parseJson() async {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
     if (_jsonController.text.isEmpty) {
       setState(() => _parseError = l10n.aiErrorEmptyJson);
       return;
@@ -946,7 +947,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
     if (parsedPlan == null) return;
 
     final theme = context.read<ThemeProvider>().currentTheme;
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
 
     final confirmed = await showDialog<bool>(
       context: context,

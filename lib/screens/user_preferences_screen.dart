@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
+import '../l10n/context_l10n.dart';
 import '../services/user_preferences_service.dart';
 import '../theme/theme_provider.dart';
 import '../theme/app_theme.dart';
@@ -137,7 +138,7 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
   Future<void> _savePreferences() async {
     await _preferencesService.savePreferences(_preferences);
     if (mounted) {
-      final l10n = AppLocalizations.of(context)!;
+      final l10n = context.l10n;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(l10n.prefSaved),
@@ -199,7 +200,7 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
   Widget build(BuildContext context) {
     final themeProvider = context.watch<ThemeProvider>();
     final theme = themeProvider.currentTheme;
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
 
     return Scaffold(
       backgroundColor: theme.primaryColor,

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
+import '../l10n/context_l10n.dart';
 import '../models/workout_record.dart';
 import '../models/muscle_group.dart';
 import '../services/stats_calculator_service.dart';
@@ -58,7 +59,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
   }
 
   Future<void> _loadUserPreferences() async {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
     try {
       final prefs = await UserPreferencesService().loadPreferences().timeout(
         const Duration(seconds: 2),
@@ -656,7 +657,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
   Widget build(BuildContext context) {
     final themeProvider = context.watch<ThemeProvider>();
     final theme = themeProvider.currentTheme;
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
     final isWeek = widget.periodType == 'week';
 
     return Scaffold(
@@ -733,7 +734,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
   }
 
   PreferredSizeWidget _buildAppBar(AppThemeData theme) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
     return AppBar(
       backgroundColor: Colors.transparent,
       elevation: 0,
@@ -759,7 +760,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
   }
 
   Widget _buildInstructionsBox(AppThemeData theme) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
     return Container(
       padding: const EdgeInsets.all(AppDimensions.screenPadding),
       decoration: BoxDecoration(
@@ -850,7 +851,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
   }
 
   Widget _buildBasicInfoSection(AppThemeData theme) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
     final totalVolume = _statsCalc.calculateTotalVolume(widget.records);
     final density = _statsCalc.calculateDensity(widget.records);
     final totalDurationMin =
@@ -895,7 +896,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
   }
 
   Widget _buildTrendSection(AppThemeData theme) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -912,7 +913,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
   }
 
   Widget _buildMuscleDistributionSection(AppThemeData theme) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -926,7 +927,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
   }
 
   Widget _buildSetsPerMuscleSection(AppThemeData theme) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -945,7 +946,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
   }
 
   Widget _buildEstimated1RMSection(AppThemeData theme) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -959,7 +960,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
   }
 
   Widget _build1RMProgressionSection(AppThemeData theme) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -973,7 +974,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
   }
 
   Widget _buildRecoverySection(AppThemeData theme) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1018,7 +1019,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
       ),
       child: SingleChildScrollView(
         child: Text(
-          _generatedPrompt ?? AppLocalizations.of(context)!.anGeneratingPrompt,
+          _generatedPrompt ?? context.l10n.anGeneratingPrompt,
           style: context.bodySmall.copyWith(
             color: theme.textColor,
             height: 1.5,
@@ -1029,7 +1030,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
   }
 
   Widget _buildCopyButton(AppThemeData theme) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
     return SizedBox(
       width: double.infinity,
       height: 56,

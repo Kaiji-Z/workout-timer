@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
+import '../l10n/context_l10n.dart';
 import '../theme/theme_provider.dart';
 import '../providers/record_provider.dart';
 import '../models/workout_record.dart';
@@ -645,7 +646,7 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
   }
 
   Future<void> _saveChanges() async {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
     final updatedRecord = widget.record.copyWith(exercises: _exercises);
 
     try {
@@ -680,7 +681,7 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
       return;
     }
 
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
     final shouldSave = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -709,7 +710,7 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
   }
 
   String _getExerciseDisplayName(int index, RecordedExercise exercise) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
     if (exercise.exercise != null) {
       return '${index + 1}-${exercise.name}/${_getMuscleGroupName(exercise)}';
     }
@@ -718,7 +719,7 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
   }
 
   String _getMuscleGroupName(RecordedExercise exercise) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
     final muscle = exercise.exercise?.primaryMuscle;
     return muscle?.displayName ?? l10n.recDetailUnspecifiedMuscle;
   }
@@ -756,7 +757,7 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
 
   void _confirmDelete() {
     final theme = context.read<ThemeProvider>().currentTheme;
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(

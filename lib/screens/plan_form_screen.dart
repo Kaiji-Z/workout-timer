@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
-import '../l10n/app_localizations.dart';
+import '../l10n/context_l10n.dart';
 import '../theme/theme_provider.dart';
 import '../utils/dimensions.dart';
 import '../providers/plan_provider.dart';
@@ -66,7 +66,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().currentTheme;
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
 
     return PopScope(
       canPop: false,
@@ -120,7 +120,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
   }
 
   Widget _buildStepIndicator(AppThemeData theme) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       child: Row(
@@ -204,7 +204,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
 
   // ==================== 第1步：选择部位 ====================
   Widget _buildStep1(AppThemeData theme) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -238,7 +238,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
   }
 
   Widget _buildQuickSelectButtons(AppThemeData theme) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -274,7 +274,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
 
   // ==================== 第2步：选择动作 ====================
   Widget _buildStep2(AppThemeData theme) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -310,7 +310,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
 
   /// 已选动作摘要卡片
   Widget _buildSelectedSummaryCard(AppThemeData theme) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
     return Container(
       padding: const EdgeInsets.all(AppDimensions.screenPadding),
       decoration: BoxDecoration(
@@ -451,16 +451,14 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
               const SizedBox(height: 8),
               Text(
                 _selectedExercises.isEmpty
-                    ? AppLocalizations.of(context)!.pfSelectExerciseHeading
-                    : AppLocalizations.of(context)!.pfContinueAdding,
+                    ? context.l10n.pfSelectExerciseHeading
+                    : context.l10n.pfContinueAdding,
                 style: context.titleLarge.copyWith(color: theme.accentColor),
               ),
               if (_selectedExercises.isNotEmpty) ...[
                 const SizedBox(height: 4),
                 Text(
-                  AppLocalizations.of(
-                    context,
-                  )!.pfSelectedCountLine(_selectedExercises.length),
+                  context.l10n.pfSelectedCountLine(_selectedExercises.length),
                   style: context.bodyMedium.copyWith(
                     fontSize: 13,
                     color: theme.secondaryTextColor,
@@ -502,7 +500,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
             }
           });
           if (mounted) {
-            final l10n = AppLocalizations.of(context)!;
+            final l10n = context.l10n;
             final muscleNames = muscles.map((m) => m.displayName).join(', ');
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -560,7 +558,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
 
   // ==================== 第3步：确认计划 ====================
   Widget _buildStep3(AppThemeData theme) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
     // 计算预估时长（假设每组动作1.5分钟，休息1分钟）
     final estimatedDuration =
         (_selectedExercises.fold(0, (sum, e) => sum + e.effectiveSets) * 2.5)
@@ -720,7 +718,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
     AppThemeData theme, {
     Key? key,
   }) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
     return Container(
       key: key,
       margin: const EdgeInsets.only(bottom: 8),
@@ -866,7 +864,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
   }
 
   Widget _buildBottomButton(AppThemeData theme) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
     String buttonText;
     bool isEnabled;
     VoidCallback? onPressed;
@@ -916,7 +914,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
                   ),
                 ),
                 child: Text(
-                  AppLocalizations.of(context)!.pfPreviousStep,
+                  context.l10n.pfPreviousStep,
                   style: context.titleLarge.copyWith(fontSize: 15),
                 ),
               ),
@@ -990,7 +988,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
   }
 
   Future<void> _savePlan() async {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
     var name = _nameController.text.trim();
     // 如果未输入名称，自动按训练部位命名
     if (name.isEmpty) {
@@ -1080,7 +1078,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
       return;
     }
     if (!mounted) return;
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
     final shouldDiscard = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(

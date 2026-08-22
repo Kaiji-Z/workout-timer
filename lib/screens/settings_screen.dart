@@ -13,6 +13,7 @@ import '../widgets/settings_widgets.dart';
 import '../theme/theme_provider.dart';
 import '../theme/app_theme.dart';
 import '../l10n/app_localizations.dart';
+import '../l10n/context_l10n.dart';
 import '../providers/locale_provider.dart';
 import '../utils/dimensions.dart';
 import '../animations/page_transitions.dart';
@@ -196,7 +197,7 @@ class _SettingsScreenState extends State<SettingsScreen>
     BuildContext context,
     AppThemeData theme,
   ) async {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
     const options = [5, 10, 15, 30, 60];
     final selected = await showDialog<int>(
       context: context,
@@ -240,7 +241,7 @@ class _SettingsScreenState extends State<SettingsScreen>
   }
 
   Future<void> _clearHistory(AppThemeData theme) async {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -281,7 +282,7 @@ class _SettingsScreenState extends State<SettingsScreen>
   Widget build(BuildContext context) {
     final themeProvider = context.watch<ThemeProvider>();
     final theme = themeProvider.currentTheme;
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -754,9 +755,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                       );
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text(
-                            AppLocalizations.of(context)!.settingsEmailCopied,
-                          ),
+                          content: Text(context.l10n.settingsEmailCopied),
                           duration: const Duration(seconds: 2),
                         ),
                       );
@@ -773,7 +772,7 @@ class _SettingsScreenState extends State<SettingsScreen>
   }
 
   Future<void> _exportData(AppThemeData theme) async {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
     // 先显示确认对话框
     final confirmed = await showDialog<bool>(
       context: context,
@@ -829,7 +828,7 @@ class _SettingsScreenState extends State<SettingsScreen>
   }
 
   Future<void> _importData(AppThemeData theme) async {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
     // 先显示加载提示，扫描本地备份文件
     if (!mounted) return;
     showDialog(
@@ -917,7 +916,7 @@ class _SettingsScreenState extends State<SettingsScreen>
   }
 
   void _showSoundPicker(BuildContext context, AppThemeData theme) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
     final sounds = _soundService.getAvailableSounds();
     showDialog(
       context: context,
@@ -963,7 +962,7 @@ class _SettingsScreenState extends State<SettingsScreen>
 
   List<Widget> _buildOemSection(String? manufacturer, AppThemeData theme) {
     if (manufacturer == null) return const [];
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
     final displayName = _oemDisplayName(manufacturer, l10n);
     final instruction = _oemInstruction(manufacturer, l10n);
 
@@ -1092,7 +1091,7 @@ class _SettingsScreenState extends State<SettingsScreen>
   }
 
   void _showThemeSelector(BuildContext context, ThemeProvider themeProvider) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../l10n/app_localizations.dart';
+import '../l10n/context_l10n.dart';
 import '../theme/theme_provider.dart';
 import '../utils/dimensions.dart';
 import '../providers/plan_provider.dart';
@@ -329,7 +330,7 @@ class _PlanScreenState extends State<PlanScreen> {
   void _showAddPlanToDateSheet(PlanProvider planProvider) {
     final allPlans = planProvider.plans;
     final theme = context.read<ThemeProvider>().currentTheme;
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
 
     if (allPlans.isEmpty) {
       _navigateToCreatePlan();
@@ -444,7 +445,7 @@ class _PlanScreenState extends State<PlanScreen> {
 
   void _showPlanLibraryModal(PlanProvider planProvider) {
     final theme = context.read<ThemeProvider>().currentTheme;
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
 
     showModalBottomSheet(
       context: context,
@@ -668,7 +669,7 @@ class _PlanScreenState extends State<PlanScreen> {
 
   void _addPlanToDate(PlanProvider planProvider, WorkoutPlan plan) async {
     final theme = context.read<ThemeProvider>().currentTheme;
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
     try {
       await planProvider.assignPlanToDate(plan.id, _selectedDate);
       if (mounted) {
@@ -700,7 +701,7 @@ class _PlanScreenState extends State<PlanScreen> {
 
   void _confirmDeletePlan(PlanProvider planProvider, WorkoutPlan plan) {
     final theme = context.read<ThemeProvider>().currentTheme;
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(

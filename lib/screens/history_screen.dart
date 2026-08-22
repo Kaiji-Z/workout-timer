@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../l10n/app_localizations.dart';
+import '../l10n/context_l10n.dart';
 import '../main.dart';
 import '../models/workout_session.dart';
 import '../models/workout_record.dart';
@@ -95,7 +96,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   Future<void> _pickCustomRangeAndExport(List<dynamic> allRecords) async {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
     final now = DateTime.now();
 
     final picked = await showDateRangePicker(
@@ -118,7 +119,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     DateTime to,
     List<dynamic> allRecords,
   ) async {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
     final theme = context.read<ThemeProvider>().currentTheme;
 
     // Show progress indicator (export may take a moment for large histories).

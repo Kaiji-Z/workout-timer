@@ -4,6 +4,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'l10n/app_localizations.dart';
+import 'l10n/context_l10n.dart';
 import 'core/service_locator.dart';
 import 'screens/timer_screen.dart';
 import 'screens/settings_screen.dart';
@@ -238,7 +239,7 @@ class _MainNavigationState extends State<MainNavigation> {
   @override
   Widget build(BuildContext context) {
     final appTheme = context.watch<ThemeProvider>().currentTheme;
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
 
     return Scaffold(
       // 使用半透明背景
@@ -408,7 +409,7 @@ class _MainNavigationState extends State<MainNavigation> {
   Widget _buildCenterTimerButton(AppThemeData appTheme) {
     final activeColor = appTheme.accentColor;
     final isSelected = _currentIndex == 2;
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
 
     return Semantics(
       label: l10n.navTimer,
