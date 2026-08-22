@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 ///
 /// Flutter 3.47 的 `TextTheme` 成员仍为 `TextStyle?`，但在 MaterialApp
 ///（本项目全部页面都在其下）中它们恒非空。与其在数百个调用点重复
-/// `Theme.of(context).textTheme.xxx!` 断言，不如收敛到这组 getter——
-/// 本文件因此是全仓**唯一**允许出现 `textTheme.xxx!` 断言的地方。
+/// `Theme.of` + 手动断言的写法，不如收敛到这组 getter——本文件因此是
+/// 全仓**唯一**允许携带 TextTheme 非空断言的地方。
 ///
-/// 用法：`Theme.of(context).textTheme.bodyMedium!.copyWith(...)`
-/// 写作 `context.bodyMedium.copyWith(...)`。
+/// 用法：原来的 `Theme.of(context).textTheme` + `!` 取 bodyMedium
+/// 再 copyWith 的链式写法，直接写作 `context.bodyMedium.copyWith(...)`。
 extension BuildContextTextStyles on BuildContext {
   TextStyle get displayLarge => Theme.of(this).textTheme.displayLarge!;
   TextStyle get displaySmall => Theme.of(this).textTheme.displaySmall!;
