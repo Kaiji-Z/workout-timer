@@ -244,7 +244,10 @@ class _SettingsScreenState extends State<SettingsScreen>
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: theme.surfaceColor.withValues(alpha: 0.95),
-        title: Text(l10n.settingsClearHistoryConfirmTitle, style: TextStyle(color: theme.textColor)),
+        title: Text(
+          l10n.settingsClearHistoryConfirmTitle,
+          style: TextStyle(color: theme.textColor),
+        ),
         content: Text(
           l10n.settingsClearHistoryConfirmBody,
           style: TextStyle(color: theme.textColor),
@@ -292,402 +295,453 @@ class _SettingsScreenState extends State<SettingsScreen>
           ),
         ),
       ),
-      body: ListView(
+      // SingleChildScrollView + Column（非惰性）而非 ListView：设置页区块数量
+      // 有限，一次性构建开销可忽略；换成惰性列表会把首屏外的区块（如语言区）
+      // 推出构建范围，widget 测试里 find.text/ensureVisible 就找不到了。
+      body: SingleChildScrollView(
         padding: EdgeInsets.only(
           left: 16,
           right: 16,
           top: 16,
           bottom: MediaQuery.of(context).padding.bottom + 86,
         ),
-        children: [
-          // Notification Settings
-          _buildSectionHeader(l10n.settingsNotificationSection, theme),
-          _buildSettingsCard(
-            theme: theme,
-            child: Column(
-              children: [
-                _buildSettingsSwitch(l10n.settingsEnableSound, _soundEnabled, (value) {
-                  setState(() => _soundEnabled = value);
-                  _saveSettings();
-                }, theme),
-                if (_soundEnabled) ...[
-                  Divider(
-                    color: theme.surfaceColor.withValues(alpha: 0.1),
-                    height: 1,
-                  ),
-                  ListTile(
-                    title: Text(
-                      l10n.settingsNotificationRingtone,
-                      style: TextStyle(color: theme.textColor),
-                    ),
-                    subtitle: Text(
-                      _soundService.getSoundDisplayName(_selectedSound),
-                      style: TextStyle(color: theme.secondaryTextColor),
-                    ),
-                    trailing: Icon(
-                      Icons.chevron_right,
-                      color: theme.secondaryTextColor,
-                    ),
-                    onTap: () => _showSoundPicker(context, theme),
-                  ),
-                ],
-                Divider(
-                  color: theme.surfaceColor.withValues(alpha: 0.1),
-                  height: 1,
-                ),
-                _buildSettingsSwitch(l10n.settingsEnableVibration, _vibrationEnabled, (value) {
-                  setState(() => _vibrationEnabled = value);
-                  _saveSettings();
-                }, theme),
-                Divider(
-                  color: theme.surfaceColor.withValues(alpha: 0.1),
-                  height: 1,
-                ),
-                _buildSettingsSwitch(l10n.settingsDetailedRecording, _detailedRecordingEnabled, (
-                  value,
-                ) {
-                  setState(() => _detailedRecordingEnabled = value);
-                  _saveSettings();
-                }, theme),
-                Divider(
-                  color: theme.surfaceColor.withValues(alpha: 0.1),
-                  height: 1,
-                ),
-                // 空闲提醒（方案 A）：运动中长时间无操作时通知提醒
-                _buildSettingsSwitch(l10n.settingsIdleReminder, _idleReminderEnabled, (
-                  value,
-                ) {
-                  setState(() => _idleReminderEnabled = value);
-                  _saveSettings();
-                }, theme, subtitle: l10n.settingsIdleReminderDesc),
-                if (_idleReminderEnabled) ...[
-                  Divider(
-                    color: theme.surfaceColor.withValues(alpha: 0.1),
-                    height: 1,
-                  ),
-                  ListTile(
-                    title: Text(
-                      l10n.settingsIdleReminderAfter,
-                      style: TextStyle(color: theme.textColor),
-                    ),
-                    trailing: Text(
-                      l10n.settingsMinutes(_idleReminderMinutes),
-                      style: TextStyle(color: theme.accentColor),
-                    ),
-                    onTap: () => _showIdleReminderPicker(context, theme),
-                  ),
-                ],
-              ],
-            ),
-          ),
-          const SizedBox(height: 24),
-
-          // Background Running Settings (Android only)
-          if (!kIsWeb && Platform.isAndroid) ...[
-            _buildSectionHeader(l10n.settingsBackgroundSection, theme),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Notification Settings
+            _buildSectionHeader(l10n.settingsNotificationSection, theme),
             _buildSettingsCard(
               theme: theme,
               child: Column(
                 children: [
-                  ListTile(
-                    title: Text(
-                      l10n.settingsAllowBackground,
-                      style: TextStyle(color: theme.textColor),
-                    ),
-                    subtitle: Text(
-                      _isBatteryOptimizationIgnored
-                          ? l10n.settingsBackgroundAllowed
-                          : l10n.settingsBackgroundNotAllowed,
-                      style: TextStyle(
-                        color: _isBatteryOptimizationIgnored
-                            ? theme.secondaryTextColor
-                            : theme.errorColor,
-                      ),
-                    ),
-                    trailing: Icon(
-                      _isBatteryOptimizationIgnored
-                          ? Icons.check_circle
-                          : Icons.warning_amber_rounded,
-                      color: _isBatteryOptimizationIgnored
-                          ? theme.successColor
-                          : theme.warningColor,
-                    ),
-                    onTap: () async {
-                      if (!_isBatteryOptimizationIgnored) {
-                        await BatteryOptimizationService.requestIgnoreBatteryOptimizations();
-                      }
+                  _buildSettingsSwitch(
+                    l10n.settingsEnableSound,
+                    _soundEnabled,
+                    (value) {
+                      setState(() => _soundEnabled = value);
+                      _saveSettings();
                     },
+                    theme,
                   ),
-                  if (!_isBatteryOptimizationIgnored) ...[
+                  if (_soundEnabled) ...[
                     Divider(
                       color: theme.surfaceColor.withValues(alpha: 0.1),
                       height: 1,
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
+                    ListTile(
+                      title: Text(
+                        l10n.settingsNotificationRingtone,
+                        style: TextStyle(color: theme.textColor),
                       ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.info_outline,
-                            size: 16,
-                            color: theme.warningColor,
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              l10n.settingsBackgroundHint,
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: theme.secondaryTextColor,
-                              ),
-                            ),
-                          ),
-                        ],
+                      subtitle: Text(
+                        _soundService.getSoundDisplayName(_selectedSound),
+                        style: TextStyle(color: theme.secondaryTextColor),
                       ),
+                      trailing: Icon(
+                        Icons.chevron_right,
+                        color: theme.secondaryTextColor,
+                      ),
+                      onTap: () => _showSoundPicker(context, theme),
+                    ),
+                  ],
+                  Divider(
+                    color: theme.surfaceColor.withValues(alpha: 0.1),
+                    height: 1,
+                  ),
+                  _buildSettingsSwitch(
+                    l10n.settingsEnableVibration,
+                    _vibrationEnabled,
+                    (value) {
+                      setState(() => _vibrationEnabled = value);
+                      _saveSettings();
+                    },
+                    theme,
+                  ),
+                  Divider(
+                    color: theme.surfaceColor.withValues(alpha: 0.1),
+                    height: 1,
+                  ),
+                  _buildSettingsSwitch(
+                    l10n.settingsDetailedRecording,
+                    _detailedRecordingEnabled,
+                    (value) {
+                      setState(() => _detailedRecordingEnabled = value);
+                      _saveSettings();
+                    },
+                    theme,
+                  ),
+                  Divider(
+                    color: theme.surfaceColor.withValues(alpha: 0.1),
+                    height: 1,
+                  ),
+                  // 空闲提醒（方案 A）：运动中长时间无操作时通知提醒
+                  _buildSettingsSwitch(
+                    l10n.settingsIdleReminder,
+                    _idleReminderEnabled,
+                    (value) {
+                      setState(() => _idleReminderEnabled = value);
+                      _saveSettings();
+                    },
+                    theme,
+                    subtitle: l10n.settingsIdleReminderDesc,
+                  ),
+                  if (_idleReminderEnabled) ...[
+                    Divider(
+                      color: theme.surfaceColor.withValues(alpha: 0.1),
+                      height: 1,
+                    ),
+                    ListTile(
+                      title: Text(
+                        l10n.settingsIdleReminderAfter,
+                        style: TextStyle(color: theme.textColor),
+                      ),
+                      trailing: Text(
+                        l10n.settingsMinutes(_idleReminderMinutes),
+                        style: TextStyle(color: theme.accentColor),
+                      ),
+                      onTap: () => _showIdleReminderPicker(context, theme),
                     ),
                   ],
                 ],
               ),
             ),
             const SizedBox(height: 24),
-            if (_oemManufacturer != null && _oemAutoStartAvailable)
-              ..._buildOemSection(_oemManufacturer, theme),
-          ],
 
-          // Appearance Settings
-          _buildSectionHeader(l10n.settingsAppearanceSection, theme),
-          _buildSettingsCard(
-            theme: theme,
-            child: Column(
-              children: [
-                Consumer<ThemeProvider>(
-                  builder: (context, tp, _) => _buildSettingsSwitch(
-                    l10n.settingsDarkMode,
-                    tp.isDarkMode,
-                    (value) => tp.setDarkMode(value),
-                    theme,
-                  ),
+            // Background Running Settings (Android only)
+            if (!kIsWeb && Platform.isAndroid) ...[
+              _buildSectionHeader(l10n.settingsBackgroundSection, theme),
+              _buildSettingsCard(
+                theme: theme,
+                child: Column(
+                  children: [
+                    ListTile(
+                      title: Text(
+                        l10n.settingsAllowBackground,
+                        style: TextStyle(color: theme.textColor),
+                      ),
+                      subtitle: Text(
+                        _isBatteryOptimizationIgnored
+                            ? l10n.settingsBackgroundAllowed
+                            : l10n.settingsBackgroundNotAllowed,
+                        style: TextStyle(
+                          color: _isBatteryOptimizationIgnored
+                              ? theme.secondaryTextColor
+                              : theme.errorColor,
+                        ),
+                      ),
+                      trailing: Icon(
+                        _isBatteryOptimizationIgnored
+                            ? Icons.check_circle
+                            : Icons.warning_amber_rounded,
+                        color: _isBatteryOptimizationIgnored
+                            ? theme.successColor
+                            : theme.warningColor,
+                      ),
+                      onTap: () async {
+                        if (!_isBatteryOptimizationIgnored) {
+                          await BatteryOptimizationService.requestIgnoreBatteryOptimizations();
+                        }
+                      },
+                    ),
+                    if (!_isBatteryOptimizationIgnored) ...[
+                      Divider(
+                        color: theme.surfaceColor.withValues(alpha: 0.1),
+                        height: 1,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.info_outline,
+                              size: 16,
+                              color: theme.warningColor,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                l10n.settingsBackgroundHint,
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: theme.secondaryTextColor,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
-                Divider(color: theme.dividerColor, height: 1),
-                ListTile(
-                  title: Text(l10n.settingsTheme, style: TextStyle(color: theme.textColor)),
-                  subtitle: Text(
-                    theme.nameZh,
-                    style: TextStyle(color: theme.secondaryTextColor),
-                  ),
-                  trailing: Icon(
-                    Icons.chevron_right,
-                    color: theme.secondaryTextColor,
-                  ),
-                  onTap: () => _showThemeSelector(context, themeProvider),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 24),
+              ),
+              const SizedBox(height: 24),
+              if (_oemManufacturer != null && _oemAutoStartAvailable)
+                ..._buildOemSection(_oemManufacturer, theme),
+            ],
 
-          // Language
-          _buildSectionHeader(l10n.settingsLanguage, theme),
-          _buildSettingsCard(
-            theme: theme,
-            child: Column(
-              children: [
-                Consumer<LocaleProvider>(
-                  builder: (context, lp, _) => RadioGroup<String>(
-                    groupValue: lp.localeCode,
-                    onChanged: (v) {
-                      if (v != null) {
-                        context.read<LocaleProvider>().setLocaleCode(v);
-                      }
-                    },
-                    child: Column(
-                      children: [
-                        RadioListTile<String>(
-                          value: 'system',
-                          title: Text(l10n.settingsLanguageSystem),
-                        ),
-                        RadioListTile<String>(
-                          value: 'zh',
-                          title: Text(l10n.settingsLanguageZh),
-                        ),
-                        RadioListTile<String>(
-                          value: 'en',
-                          title: Text(l10n.settingsLanguageEn),
-                        ),
-                      ],
+            // Appearance Settings
+            _buildSectionHeader(l10n.settingsAppearanceSection, theme),
+            _buildSettingsCard(
+              theme: theme,
+              child: Column(
+                children: [
+                  Consumer<ThemeProvider>(
+                    builder: (context, tp, _) => _buildSettingsSwitch(
+                      l10n.settingsDarkMode,
+                      tp.isDarkMode,
+                      (value) => tp.setDarkMode(value),
+                      theme,
                     ),
                   ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 24),
-
-          // Custom Message
-          _buildSectionHeader(l10n.settingsCustomMessageSection, theme),
-          _buildSettingsCard(
-            theme: theme,
-            padding: const EdgeInsets.all(AppDimensions.screenPadding),
-            child: TextField(
-              controller: _messageController,
-              style: TextStyle(color: theme.textColor),
-              onChanged: (value) => _customMessage = value,
-              onSubmitted: (_) => _saveSettings(),
-              decoration: InputDecoration(
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
-                  borderSide: BorderSide(color: theme.borderColor),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
-                  borderSide: BorderSide(color: theme.borderColor),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
-                  borderSide: BorderSide(color: theme.primaryColor),
-                ),
-                hintText: l10n.settingsCustomMessageHint,
-                hintStyle: TextStyle(color: theme.secondaryTextColor),
-                filled: true,
-                fillColor: theme.surfaceColor.withValues(alpha: 0.3),
+                  Divider(color: theme.dividerColor, height: 1),
+                  ListTile(
+                    title: Text(
+                      l10n.settingsTheme,
+                      style: TextStyle(color: theme.textColor),
+                    ),
+                    subtitle: Text(
+                      theme.nameZh,
+                      style: TextStyle(color: theme.secondaryTextColor),
+                    ),
+                    trailing: Icon(
+                      Icons.chevron_right,
+                      color: theme.secondaryTextColor,
+                    ),
+                    onTap: () => _showThemeSelector(context, themeProvider),
+                  ),
+                ],
               ),
             ),
-          ),
-          const SizedBox(height: 24),
+            const SizedBox(height: 24),
 
-          // Data Management
-          _buildSectionHeader(l10n.settingsDataSection, theme),
-          _buildSettingsCard(
-            theme: theme,
-            child: Column(
-              children: [
-                ListTile(
-                  leading: Icon(Icons.upload_file, color: theme.accentColor),
-                  title: Text(l10n.settingsExportData, style: TextStyle(color: theme.textColor)),
-                  subtitle: Text(
-                    l10n.settingsExportSubtitle,
-                    style: Theme.of(context).textTheme.bodySmall!,
-                  ),
-                  onTap: () => _exportData(theme),
-                ),
-                Divider(color: theme.dividerColor, height: 1),
-                ListTile(
-                  leading: Icon(Icons.download, color: theme.accentColor),
-                  title: Text(l10n.settingsImportData, style: TextStyle(color: theme.textColor)),
-                  subtitle: Text(
-                    l10n.settingsImportSubtitle,
-                    style: Theme.of(context).textTheme.bodySmall!,
-                  ),
-                  onTap: () => _importData(theme),
-                ),
-                Divider(color: theme.dividerColor, height: 1),
-                ListTile(
-                  title: Text(
-                    l10n.settingsClearHistory,
-                    style: TextStyle(color: theme.accentColor),
-                  ),
-                  trailing: Icon(
-                    Icons.delete_outline,
-                    color: theme.accentColor,
-                  ),
-                  onTap: () => _clearHistory(theme),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 24),
-
-          // AI Preferences
-          _buildSectionHeader(l10n.settingsAiPreferencesSection, theme),
-          _buildSettingsCard(
-            theme: theme,
-            child: ListTile(
-              title: Text(l10n.settingsTrainingPreferences, style: TextStyle(color: theme.textColor)),
-              subtitle: Text(
-                l10n.settingsTrainingPreferencesSubtitle,
-                style: Theme.of(context).textTheme.bodySmall!,
-              ),
-              trailing: Icon(
-                Icons.chevron_right,
-                color: theme.secondaryTextColor,
-              ),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  FadeUpPageRoute(page: const UserPreferencesScreen()),
-                );
-              },
-            ),
-          ),
-          const SizedBox(height: 24),
-
-          // About
-          _buildSectionHeader(l10n.settingsAboutSection, theme),
-          _buildSettingsCard(
-            theme: theme,
-            child: Column(
-              children: [
-                ListTile(
-                  title: Text(l10n.settingsPrivacyPolicy, style: TextStyle(color: theme.textColor)),
-                  subtitle: Text(
-                    l10n.settingsPrivacyPolicySubtitle,
-                    style: Theme.of(context).textTheme.bodySmall!,
-                  ),
-                  trailing: Icon(
-                    Icons.chevron_right,
-                    color: theme.secondaryTextColor,
-                  ),
-                  onTap: () => _showPrivacyPolicy(theme),
-                ),
-                Divider(color: theme.dividerColor, height: 1),
-                ListTile(
-                  title: Text(l10n.settingsVersion, style: TextStyle(color: theme.textColor)),
-                  trailing: Text(
-                    // Dynamic, read from pubspec at runtime (see _loadSettings).
-                    _appVersion.isEmpty ? l10n.settingsVersionLoading : _appVersion,
-                    style: TextStyle(color: theme.secondaryTextColor),
-                  ),
-                ),
-                Divider(color: theme.dividerColor, height: 1),
-                ListTile(
-                  title: Text(l10n.settingsDeveloper, style: TextStyle(color: theme.textColor)),
-                  subtitle: Text(
-                    l10n.settingsDeveloperName,
-                    style: Theme.of(context).textTheme.bodySmall!,
-                  ),
-                ),
-                Divider(color: theme.dividerColor, height: 1),
-                ListTile(
-                  title: Text(l10n.settingsContactEmail, style: TextStyle(color: theme.textColor)),
-                  subtitle: Text(
-                    'lookatmedia@163.com',
-                    style: Theme.of(context).textTheme.bodySmall!,
-                  ),
-                  trailing: Icon(
-                    Icons.content_copy,
-                    color: theme.secondaryTextColor,
-                    size: 20,
-                  ),
-                  onTap: () {
-                    Clipboard.setData(
-                      const ClipboardData(text: 'lookatmedia@163.com'),
-                    );
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(AppLocalizations.of(context)!.settingsEmailCopied),
-                        duration: const Duration(seconds: 2),
+            // Language
+            _buildSectionHeader(l10n.settingsLanguage, theme),
+            _buildSettingsCard(
+              theme: theme,
+              child: Column(
+                children: [
+                  Consumer<LocaleProvider>(
+                    builder: (context, lp, _) => RadioGroup<String>(
+                      groupValue: lp.localeCode,
+                      onChanged: (v) {
+                        if (v != null) {
+                          context.read<LocaleProvider>().setLocaleCode(v);
+                        }
+                      },
+                      child: Column(
+                        children: [
+                          RadioListTile<String>(
+                            value: 'system',
+                            title: Text(l10n.settingsLanguageSystem),
+                          ),
+                          RadioListTile<String>(
+                            value: 'zh',
+                            title: Text(l10n.settingsLanguageZh),
+                          ),
+                          RadioListTile<String>(
+                            value: 'en',
+                            title: Text(l10n.settingsLanguageEn),
+                          ),
+                        ],
                       ),
-                    );
-                  },
-                ),
-              ],
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: 32),
-        ],
+            const SizedBox(height: 24),
+
+            // Custom Message
+            _buildSectionHeader(l10n.settingsCustomMessageSection, theme),
+            _buildSettingsCard(
+              theme: theme,
+              padding: const EdgeInsets.all(AppDimensions.screenPadding),
+              child: TextField(
+                controller: _messageController,
+                style: TextStyle(color: theme.textColor),
+                onChanged: (value) => _customMessage = value,
+                onSubmitted: (_) => _saveSettings(),
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
+                    borderSide: BorderSide(color: theme.borderColor),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
+                    borderSide: BorderSide(color: theme.borderColor),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
+                    borderSide: BorderSide(color: theme.primaryColor),
+                  ),
+                  hintText: l10n.settingsCustomMessageHint,
+                  hintStyle: TextStyle(color: theme.secondaryTextColor),
+                  filled: true,
+                  fillColor: theme.surfaceColor.withValues(alpha: 0.3),
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // Data Management
+            _buildSectionHeader(l10n.settingsDataSection, theme),
+            _buildSettingsCard(
+              theme: theme,
+              child: Column(
+                children: [
+                  ListTile(
+                    leading: Icon(Icons.upload_file, color: theme.accentColor),
+                    title: Text(
+                      l10n.settingsExportData,
+                      style: TextStyle(color: theme.textColor),
+                    ),
+                    subtitle: Text(
+                      l10n.settingsExportSubtitle,
+                      style: Theme.of(context).textTheme.bodySmall!,
+                    ),
+                    onTap: () => _exportData(theme),
+                  ),
+                  Divider(color: theme.dividerColor, height: 1),
+                  ListTile(
+                    leading: Icon(Icons.download, color: theme.accentColor),
+                    title: Text(
+                      l10n.settingsImportData,
+                      style: TextStyle(color: theme.textColor),
+                    ),
+                    subtitle: Text(
+                      l10n.settingsImportSubtitle,
+                      style: Theme.of(context).textTheme.bodySmall!,
+                    ),
+                    onTap: () => _importData(theme),
+                  ),
+                  Divider(color: theme.dividerColor, height: 1),
+                  ListTile(
+                    title: Text(
+                      l10n.settingsClearHistory,
+                      style: TextStyle(color: theme.accentColor),
+                    ),
+                    trailing: Icon(
+                      Icons.delete_outline,
+                      color: theme.accentColor,
+                    ),
+                    onTap: () => _clearHistory(theme),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // AI Preferences
+            _buildSectionHeader(l10n.settingsAiPreferencesSection, theme),
+            _buildSettingsCard(
+              theme: theme,
+              child: ListTile(
+                title: Text(
+                  l10n.settingsTrainingPreferences,
+                  style: TextStyle(color: theme.textColor),
+                ),
+                subtitle: Text(
+                  l10n.settingsTrainingPreferencesSubtitle,
+                  style: Theme.of(context).textTheme.bodySmall!,
+                ),
+                trailing: Icon(
+                  Icons.chevron_right,
+                  color: theme.secondaryTextColor,
+                ),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    FadeUpPageRoute(page: const UserPreferencesScreen()),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // About
+            _buildSectionHeader(l10n.settingsAboutSection, theme),
+            _buildSettingsCard(
+              theme: theme,
+              child: Column(
+                children: [
+                  ListTile(
+                    title: Text(
+                      l10n.settingsPrivacyPolicy,
+                      style: TextStyle(color: theme.textColor),
+                    ),
+                    subtitle: Text(
+                      l10n.settingsPrivacyPolicySubtitle,
+                      style: Theme.of(context).textTheme.bodySmall!,
+                    ),
+                    trailing: Icon(
+                      Icons.chevron_right,
+                      color: theme.secondaryTextColor,
+                    ),
+                    onTap: () => _showPrivacyPolicy(theme),
+                  ),
+                  Divider(color: theme.dividerColor, height: 1),
+                  ListTile(
+                    title: Text(
+                      l10n.settingsVersion,
+                      style: TextStyle(color: theme.textColor),
+                    ),
+                    trailing: Text(
+                      // Dynamic, read from pubspec at runtime (see _loadSettings).
+                      _appVersion.isEmpty
+                          ? l10n.settingsVersionLoading
+                          : _appVersion,
+                      style: TextStyle(color: theme.secondaryTextColor),
+                    ),
+                  ),
+                  Divider(color: theme.dividerColor, height: 1),
+                  ListTile(
+                    title: Text(
+                      l10n.settingsDeveloper,
+                      style: TextStyle(color: theme.textColor),
+                    ),
+                    subtitle: Text(
+                      l10n.settingsDeveloperName,
+                      style: Theme.of(context).textTheme.bodySmall!,
+                    ),
+                  ),
+                  Divider(color: theme.dividerColor, height: 1),
+                  ListTile(
+                    title: Text(
+                      l10n.settingsContactEmail,
+                      style: TextStyle(color: theme.textColor),
+                    ),
+                    subtitle: Text(
+                      'lookatmedia@163.com',
+                      style: Theme.of(context).textTheme.bodySmall!,
+                    ),
+                    trailing: Icon(
+                      Icons.content_copy,
+                      color: theme.secondaryTextColor,
+                      size: 20,
+                    ),
+                    onTap: () {
+                      Clipboard.setData(
+                        const ClipboardData(text: 'lookatmedia@163.com'),
+                      );
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            AppLocalizations.of(context)!.settingsEmailCopied,
+                          ),
+                          duration: const Duration(seconds: 2),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 32),
+          ],
+        ),
       ),
     );
   }
@@ -698,7 +752,10 @@ class _SettingsScreenState extends State<SettingsScreen>
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: theme.surfaceColor.withValues(alpha: 0.98),
-        title: Text(l10n.settingsPrivacyPolicy, style: TextStyle(color: theme.textColor)),
+        title: Text(
+          l10n.settingsPrivacyPolicy,
+          style: TextStyle(color: theme.textColor),
+        ),
         content: SizedBox(
           width: double.maxFinite,
           child: SingleChildScrollView(
@@ -817,7 +874,10 @@ class _SettingsScreenState extends State<SettingsScreen>
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: theme.surfaceColor.withValues(alpha: 0.95),
-        title: Text(l10n.settingsExportData, style: TextStyle(color: theme.textColor)),
+        title: Text(
+          l10n.settingsExportData,
+          style: TextStyle(color: theme.textColor),
+        ),
         content: Text(
           l10n.settingsExportConfirmBody,
           style: TextStyle(color: theme.textColor),
@@ -852,9 +912,9 @@ class _SettingsScreenState extends State<SettingsScreen>
     } catch (e) {
       debugPrint('导出失败: $e');
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(l10n.settingsExportFailed('$e'))));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.settingsExportFailed('$e'))),
+        );
       }
     } finally {
       if (mounted) {
@@ -889,7 +949,10 @@ class _SettingsScreenState extends State<SettingsScreen>
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: theme.surfaceColor.withValues(alpha: 0.95),
-        title: Text(l10n.settingsImportConfirmTitle, style: TextStyle(color: theme.textColor)),
+        title: Text(
+          l10n.settingsImportConfirmTitle,
+          style: TextStyle(color: theme.textColor),
+        ),
         content: Text(
           l10n.settingsImportConfirmBody(result),
           style: TextStyle(color: theme.textColor),
@@ -933,17 +996,17 @@ class _SettingsScreenState extends State<SettingsScreen>
       Navigator.pop(context); // 关闭加载提示
 
       if (count > 0) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(l10n.settingsImportSuccess(count))));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.settingsImportSuccess(count))),
+        );
       }
     } catch (e) {
       debugPrint('导入失败: $e');
       if (mounted) {
         Navigator.pop(context); // 关闭加载提示
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(l10n.settingsImportFailed('$e'))));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.settingsImportFailed('$e'))),
+        );
       }
     }
   }
@@ -960,7 +1023,10 @@ class _SettingsScreenState extends State<SettingsScreen>
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: theme.surfaceColor.withValues(alpha: 0.95),
-        title: Text(l10n.settingsImportData, style: TextStyle(color: theme.textColor)),
+        title: Text(
+          l10n.settingsImportData,
+          style: TextStyle(color: theme.textColor),
+        ),
         content: SizedBox(
           width: double.maxFinite,
           child: Column(
@@ -1009,7 +1075,10 @@ class _SettingsScreenState extends State<SettingsScreen>
               ListTile(
                 contentPadding: const EdgeInsets.symmetric(horizontal: 8),
                 leading: Icon(Icons.folder_open, color: theme.accentColor),
-                title: Text(l10n.settingsSelectManually, style: TextStyle(color: theme.textColor)),
+                title: Text(
+                  l10n.settingsSelectManually,
+                  style: TextStyle(color: theme.textColor),
+                ),
                 subtitle: Text(
                   l10n.settingsSelectManuallySubtitle,
                   style: Theme.of(context).textTheme.bodySmall!,
@@ -1295,10 +1364,7 @@ class _SettingsScreenState extends State<SettingsScreen>
     return SwitchListTile(
       title: Text(title, style: TextStyle(color: theme.textColor)),
       subtitle: subtitle != null
-          ? Text(
-              subtitle,
-              style: TextStyle(color: theme.secondaryTextColor),
-            )
+          ? Text(subtitle, style: TextStyle(color: theme.secondaryTextColor))
           : null,
       value: value,
       onChanged: onChanged,
