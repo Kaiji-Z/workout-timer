@@ -7,7 +7,6 @@ import '../l10n/app_localizations.dart';
 import '../theme/theme_provider.dart';
 import '../theme/app_theme.dart';
 import '../models/exercise.dart';
-import '../models/muscle_group.dart';
 import '../models/user_profile.dart';
 import '../models/weekly_plan_import.dart';
 import '../services/ai_prompt_service.dart';
@@ -16,6 +15,8 @@ import '../services/exercise_service.dart';
 import '../services/user_preferences_service.dart';
 import '../providers/plan_provider.dart';
 import '../utils/dimensions.dart';
+import '../widgets/ai_wizard_components.dart';
+import '../widgets/ai_wizard_preview.dart';
 import '../widgets/glass_widgets.dart';
 
 /// Tries to extract a valid workout plan JSON from arbitrary text.
@@ -84,8 +85,7 @@ Map<String, dynamic>? _extractJsonFromText(String text) {
           final candidate = text.substring(startIndex, i + 1);
           try {
             final result = jsonDecode(candidate);
-            if (result is Map<String, dynamic> &&
-                result.containsKey('days')) {
+            if (result is Map<String, dynamic> && result.containsKey('days')) {
               return result;
             }
           } catch (_) {}
@@ -164,8 +164,11 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
   static DateTime _thisWeeksMonday() {
     final now = DateTime.now();
     final daysSinceMonday = (now.weekday - DateTime.monday + 7) % 7;
-    return DateTime(now.year, now.month, now.day)
-        .subtract(Duration(days: daysSinceMonday));
+    return DateTime(
+      now.year,
+      now.month,
+      now.day,
+    ).subtract(Duration(days: daysSinceMonday));
   }
 
   @override
@@ -242,7 +245,12 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
       ),
       body: Column(
         children: [
-          _buildStepIndicator(theme),
+          aiWizardStepIndicator(
+            context,
+            currentStep: _currentStep,
+            isImportTab: _activeTab == 1,
+            theme: theme,
+          ),
           Expanded(
             child: PageView(
               controller: _pageController,
@@ -251,13 +259,28 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
                   ? [
                       // Import analysis flow: 3 pages
                       _buildStep1(theme), // Contains the tab with import form
-                      _buildStep5(theme), // Start-week selection
+                      aiWizardStartWeekStep(
+                        context,
+                        startFromThisWeek: _startFromThisWeek,
+                        onSelectionChanged: (v) =>
+                            setState(() => _startFromThisWeek = v),
+                        theme: theme,
+                      ), // Start-week selection
                       _buildStep4(theme), // Preview + import
                     ]
                   : [
                       // New plan flow: 4 pages (existing)
                       _buildStep1(theme), // Contains the tab with new plan form
-                      _buildStep2(theme),
+                      aiWizardPromptStep(
+                        context,
+                        startDate: _startDate,
+                        generatedPrompt: _generatedPrompt,
+                        onGeneratePrompt: _generatePrompt,
+                        onCopyToClipboard: _copyToClipboard,
+                        onStartDateChanged: (date) =>
+                            setState(() => _startDate = date),
+                        theme: theme,
+                      ),
                       _buildStep3(theme),
                       _buildStep4(theme),
                     ],
@@ -265,89 +288,6 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
           ),
           _buildBottomButton(theme),
         ],
-      ),
-    );
-  }
-
-  Widget _buildStepIndicator(AppThemeData theme) {
-    final l10n = AppLocalizations.of(context)!;
-    final isImport = _activeTab == 1;
-    final stepLabels = isImport
-        ? [
-            l10n.aiStepImportAnalysis,
-            l10n.aiStepStartWeek,
-            l10n.aiStepPreviewImport,
-          ]
-        : [
-            l10n.aiStepProfile,
-            l10n.aiStepGeneratePrompt,
-            l10n.aiStepPasteJson,
-            l10n.aiStepPreviewImport,
-          ];
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-      child: Row(
-        children: [
-          for (int i = 0; i < stepLabels.length; i++) ...[
-            if (i > 0) _buildStepLine(_currentStep >= i, theme),
-            _buildStepItem(i + 1, stepLabels[i], _currentStep >= i, theme),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStepItem(
-    int number,
-    String label,
-    bool isActive,
-    AppThemeData theme,
-  ) {
-    return Column(
-      children: [
-        Container(
-          width: 32,
-          height: 32,
-          decoration: BoxDecoration(
-            color: isActive
-                ? theme.accentColor
-                : theme.textColor.withValues(alpha: 0.1),
-            shape: BoxShape.circle,
-          ),
-          child: Center(
-            child: isActive && _currentStep > number - 1
-                ? Icon(Icons.check, color: theme.onAccentColor, size: 18)
-                : Text(
-                    '$number',
-                    style: Theme.of(context).textTheme.labelLarge!.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: isActive
-                          ? theme.onAccentColor
-                          : theme.secondaryTextColor,
-                    ),
-                  ),
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: Theme.of(context).textTheme.bodySmall!.copyWith(
-            color: isActive ? theme.textColor : theme.secondaryTextColor,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildStepLine(bool isActive, AppThemeData theme) {
-    return Expanded(
-      child: Container(
-        height: 2,
-        margin: const EdgeInsets.only(bottom: 20),
-        color: isActive
-            ? theme.accentColor
-            : theme.textColor.withValues(alpha: 0.1),
       ),
     );
   }
@@ -511,10 +451,11 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
           ),
           const SizedBox(height: 16),
 
-          _buildMultiSelectQuestion(
-            l10n.prefFocusAreaSection,
-            _focusAreas,
-            {
+          aiWizardMultiSelectQuestion(
+            context,
+            title: l10n.prefFocusAreaSection,
+            selectedValues: _focusAreas,
+            options: {
               l10n.prefFocusAreaChest: 'chest',
               l10n.prefFocusAreaBack: 'back',
               l10n.prefFocusAreaShoulders: 'shoulders',
@@ -522,8 +463,8 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
               l10n.prefFocusAreaLegs: 'legs',
               l10n.prefFocusAreaCore: 'core',
             },
-            (value) => setState(() => _focusAreas = value),
-            theme,
+            onChanged: (value) => setState(() => _focusAreas = value),
+            theme: theme,
           ),
         ],
       ),
@@ -750,222 +691,6 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
     );
   }
 
-  Widget _buildMultiSelectQuestion(
-    String title,
-    List<String> selectedValues,
-    Map<String, String> options,
-    ValueChanged<List<String>> onChanged,
-    AppThemeData theme,
-  ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: Theme.of(
-            context,
-          ).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.w600),
-        ),
-        const SizedBox(height: 8),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: options.entries.map((entry) {
-            final label = entry.key;
-            final code = entry.value;
-            final isSelected = selectedValues.contains(code);
-            return Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: () {
-                  final newValues = List<String>.from(selectedValues);
-                  if (isSelected) {
-                    newValues.remove(code);
-                  } else {
-                    newValues.add(code);
-                  }
-                  onChanged(newValues);
-                },
-                borderRadius: BorderRadius.circular(AppDimensions.radiusChip),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 10,
-                  ),
-                  decoration: BoxDecoration(
-                    color: isSelected
-                        ? theme.accentColor
-                        : theme.accentColor.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(
-                      AppDimensions.radiusChip,
-                    ),
-                    border: Border.all(
-                      color: isSelected
-                          ? theme.accentColor
-                          : theme.accentColor.withValues(alpha: 0.3),
-                    ),
-                  ),
-                  child: Text(
-                    label,
-                    style: Theme.of(context).textTheme.labelLarge!.copyWith(
-                      fontWeight: isSelected
-                          ? FontWeight.w600
-                          : FontWeight.w500,
-                      color: isSelected
-                          ? theme.onAccentColor
-                          : theme.accentColor,
-                    ),
-                  ),
-                ),
-              ),
-            );
-          }).toList(),
-        ),
-      ],
-    );
-  }
-
-  // ==================== 第2步：日期 + 生成提示词 ====================
-  Widget _buildStep2(AppThemeData theme) {
-    final l10n = AppLocalizations.of(context)!;
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            l10n.aiGeneratePromptHeading,
-            style: Theme.of(
-              context,
-            ).textTheme.headlineLarge!.copyWith(fontWeight: FontWeight.w700),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            l10n.aiGeneratePromptSubheading,
-            style: Theme.of(
-              context,
-            ).textTheme.bodyMedium!.copyWith(color: theme.secondaryTextColor),
-          ),
-          const SizedBox(height: 24),
-
-          Text(
-            l10n.aiStartDateLabel,
-            style: Theme.of(
-              context,
-            ).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: 8),
-          Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: () async {
-                final date = await showDatePicker(
-                  context: context,
-                  initialDate: _startDate,
-                  firstDate: DateTime.now(),
-                  lastDate: DateTime.now().add(const Duration(days: 365)),
-                  builder: (context, child) {
-                    return Theme(
-                      data: ThemeData(
-                        useMaterial3: true,
-                        colorScheme: ColorScheme.light(
-                          primary: theme.accentColor,
-                          onPrimary: theme.onAccentColor,
-                          secondary: theme.accentColor,
-                          surface: theme.surfaceColor,
-                          onSurface: theme.textColor,
-                          error: theme.errorColor,
-                          onError: theme.onAccentColor,
-                        ),
-                      ),
-                      child: child!,
-                    );
-                  },
-                );
-                if (date != null) {
-                  setState(() => _startDate = date);
-                }
-              },
-              borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 14,
-                ),
-                decoration: BoxDecoration(
-                  color: theme.surfaceColorRaised,
-                  borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-                  boxShadow: AppElevation.resting(theme.shadowColor),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      l10n.aiDateDisplay(
-                          _startDate.year, _startDate.month, _startDate.day),
-                      style: Theme.of(context).textTheme.bodyLarge!,
-                    ),
-                    Icon(
-                      Icons.calendar_today,
-                      color: theme.accentColor,
-                      size: 20,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 24),
-
-          PrimaryActionButton(
-            label: l10n.aiGeneratePromptButton,
-            onPressed: _generatePrompt,
-            height: 56,
-          ),
-          const SizedBox(height: 24),
-
-          if (_generatedPrompt != null) ...[
-            Text(
-              l10n.aiGeneratedPromptLabel,
-              style: Theme.of(
-                context,
-              ).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 8),
-            Container(
-              padding: const EdgeInsets.all(AppDimensions.screenPadding),
-              decoration: BoxDecoration(
-                color: theme.surfaceColorRaised,
-                borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-                boxShadow: AppElevation.resting(theme.shadowColor),
-              ),
-              child: SingleChildScrollView(
-                child: Text(
-                  _generatedPrompt!,
-                  style: Theme.of(context).textTheme.bodyMedium!,
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            PrimaryActionButton(
-              label: l10n.aiCopyToClipboard,
-              onPressed: _copyToClipboard,
-              height: 56,
-            ),
-            const SizedBox(height: 16),
-
-            Text(
-              l10n.aiCopyHint,
-              style: Theme.of(context).textTheme.bodySmall!,
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
   void _generatePrompt() {
     final aiPromptService = AIPromptService();
     final userProfile = UserProfile(
@@ -1124,133 +849,6 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
     }
   }
 
-  // ==================== 第5步：选择起始周（导入流程专用） ====================
-  Widget _buildStep5(AppThemeData theme) {
-    final l10n = AppLocalizations.of(context)!;
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            l10n.aiStartWeekHeading,
-            style: Theme.of(context)
-                .textTheme
-                .headlineLarge!
-                .copyWith(fontWeight: FontWeight.w700),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            l10n.aiStartWeekSubheading,
-            style: Theme.of(context)
-                .textTheme
-                .bodyMedium!
-                .copyWith(color: theme.secondaryTextColor),
-          ),
-          const SizedBox(height: 24),
-          _buildStartWeekOption(
-            label: l10n.aiStartWeekThisWeek,
-            description: l10n.aiStartWeekThisWeekDesc,
-            icon: Icons.calendar_view_week,
-            isSelected: _startFromThisWeek == true,
-            onTap: () => setState(() => _startFromThisWeek = true),
-            theme: theme,
-          ),
-          const SizedBox(height: 12),
-          _buildStartWeekOption(
-            label: l10n.aiStartWeekNextWeek,
-            description: l10n.aiStartWeekNextWeekDesc,
-            icon: Icons.event_available,
-            isSelected: _startFromThisWeek == false,
-            onTap: () => setState(() => _startFromThisWeek = false),
-            theme: theme,
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// A single selectable card for the start-week step.
-  Widget _buildStartWeekOption({
-    required String label,
-    required String description,
-    required IconData icon,
-    required bool isSelected,
-    required VoidCallback onTap,
-    required AppThemeData theme,
-  }) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-          child: Container(
-            padding: const EdgeInsets.all(AppDimensions.screenPadding),
-          decoration: BoxDecoration(
-            color: isSelected
-                ? theme.accentColor.withValues(alpha: 0.15)
-                : theme.surfaceColorRaised,
-            borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-            border: Border.all(
-              color: isSelected
-                  ? theme.accentColor
-                  : theme.accentColor.withValues(alpha: 0.3),
-              width: isSelected ? 2 : 1,
-            ),
-            boxShadow: AppElevation.resting(theme.shadowColor),
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: isSelected
-                      ? theme.accentColor
-                      : theme.accentColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
-                ),
-                child: Icon(
-                  icon,
-                  color: isSelected
-                      ? theme.onAccentColor
-                      : theme.accentColor,
-                  size: 22,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      label,
-                      style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: isSelected
-                            ? theme.accentColor
-                            : theme.textColor,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      description,
-                      style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                        color: theme.secondaryTextColor,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              if (isSelected)
-                Icon(Icons.check_circle, color: theme.accentColor, size: 24),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   // ==================== 第4步：预览 + 导入 ====================
   Widget _buildStep4(AppThemeData theme) {
     final l10n = AppLocalizations.of(context)!;
@@ -1297,11 +895,39 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
 
                 // Match summary header
                 if (!_isMatching && _matchResults.isNotEmpty) ...[
-                  _buildMatchSummary(theme),
+                  aiWizardMatchSummary(
+                    context,
+                    parsedPlan: _parsedPlan!,
+                    matchResults: _matchResults,
+                    manualSelections: _manualSelections,
+                    theme: theme,
+                  ),
                   const SizedBox(height: 16),
                 ],
 
-                ..._parsedPlan!.days.map((day) => _buildDayCard(day, theme)),
+                ..._parsedPlan!.days.map(
+                  (day) => aiWizardDayCard(
+                    context,
+                    day: day,
+                    editableSets: _editableSets,
+                    matchResults: _matchResults,
+                    manualSelections: _manualSelections,
+                    isMatching: _isMatching,
+                    setState: setState,
+                    onShowCandidates:
+                        (key, originalName, result, candidateTheme) =>
+                            aiWizardCandidateSheet(
+                              context,
+                              matchKey: key,
+                              originalName: originalName,
+                              matchResult: result,
+                              manualSelections: _manualSelections,
+                              setState: setState,
+                              theme: candidateTheme,
+                            ),
+                    theme: theme,
+                  ),
+                ),
               ],
             ),
           ),
@@ -1316,442 +942,6 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
           ),
         ),
       ],
-    );
-  }
-
-  /// Build match summary banner showing matched/candidate/unmatched counts.
-  Widget _buildMatchSummary(AppThemeData theme) {
-    final l10n = AppLocalizations.of(context)!;
-    int matched = 0;
-    int candidates = 0;
-    int unmatched = 0;
-
-    for (final day in _parsedPlan!.days) {
-      for (final exercise in day.exercises) {
-        final key = 'day${day.dayOfWeek}-${exercise.exerciseName}';
-        final hasManual = _manualSelections.containsKey(key);
-        final result = _matchResults[key];
-
-        if (hasManual || (result?.isSuccess ?? false)) {
-          matched++;
-        } else if (result != null && result.candidates.isNotEmpty) {
-          candidates++;
-        } else {
-          unmatched++;
-        }
-      }
-    }
-
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: theme.accentColor.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-        border: Border.all(
-          color: theme.accentColor.withValues(alpha: 0.2),
-        ),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.info_outline, color: theme.accentColor, size: 20),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              l10n.aiMatchSummary(matched, candidates, unmatched),
-              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                color: theme.textColor,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Locale-aware weekday name (1=Mon..7=Sun).
-  String _dayName(int dayOfWeek, AppLocalizations l10n) {
-    switch (dayOfWeek) {
-      case 1:
-        return l10n.aiDayNameMon;
-      case 2:
-        return l10n.aiDayNameTue;
-      case 3:
-        return l10n.aiDayNameWed;
-      case 4:
-        return l10n.aiDayNameThu;
-      case 5:
-        return l10n.aiDayNameFri;
-      case 6:
-        return l10n.aiDayNameSat;
-      case 7:
-        return l10n.aiDayNameSun;
-      default:
-        return '';
-    }
-  }
-
-  Widget _buildDayCard(DailyPlanImport day, AppThemeData theme) {
-    final l10n = AppLocalizations.of(context)!;
-    final dayName = _dayName(day.dayOfWeek, l10n);
-
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      color: theme.surfaceColor,
-      child: Padding(
-        padding: const EdgeInsets.all(AppDimensions.screenPadding),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  l10n.aiDayTitle(day.dayOfWeek, dayName),
-                  style: Theme.of(context).textTheme.titleLarge!,
-                ),
-                Text(
-                  day.exercises.isEmpty
-                      ? l10n.aiRestDay
-                      : l10n.aiExerciseCountSuffix(day.exercises.length),
-                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                    color: theme.secondaryTextColor,
-                  ),
-                ),
-              ],
-            ),
-            if (day.targetMuscles.isNotEmpty) ...[
-              const SizedBox(height: 8),
-              Text(
-                l10n.aiTargetMusclesLabel(day.targetMuscles.join(', ')),
-                style: Theme.of(context).textTheme.bodySmall!,
-              ),
-            ],
-            const SizedBox(height: 12),
-            ...day.exercises.map(
-              (exercise) => _buildExerciseRow(exercise, day.dayOfWeek, theme),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildExerciseRow(
-    ExerciseEntryImport exercise,
-    int dayOfWeek,
-    AppThemeData theme,
-  ) {
-    final l10n = AppLocalizations.of(context)!;
-    final exerciseKey = 'day$dayOfWeek-${exercise.exerciseName}';
-    final currentSets = _editableSets[exerciseKey] ?? exercise.targetSets;
-
-    // --- Match status ---
-    final matchResult = _matchResults[exerciseKey];
-    final hasManualSelection = _manualSelections.containsKey(exerciseKey);
-    final isMatched =
-        hasManualSelection || (matchResult?.isSuccess ?? false);
-
-    // Display name: manual selection > auto-match > original
-    final displayName = hasManualSelection
-        ? _manualSelections[exerciseKey]!.name
-        : (matchResult?.isSuccess == true && matchResult?.exercise != null
-              ? matchResult!.exercise!.name
-              : exercise.exerciseName);
-
-    // Build status badge widget
-    Widget? statusBadge;
-    if (_isMatching) {
-      statusBadge = SizedBox(
-        width: 16,
-        height: 16,
-        child: CircularProgressIndicator(
-          strokeWidth: 2,
-          color: theme.accentColor,
-        ),
-      );
-    } else if (isMatched) {
-      statusBadge = Icon(
-        Icons.check_circle,
-        color: theme.successColor,
-        size: 20,
-      );
-    } else if (matchResult != null && matchResult.candidates.isNotEmpty) {
-      statusBadge = GestureDetector(
-        onTap: () => _showCandidateSelection(
-          exerciseKey,
-          exercise.exerciseName,
-          matchResult,
-          theme,
-        ),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          decoration: BoxDecoration(
-            color: theme.warningColor.withValues(alpha: 0.15),
-            borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
-            border: Border.all(
-              color: theme.warningColor.withValues(alpha: 0.4),
-            ),
-          ),
-              child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.help_outline, size: 14, color: theme.warningColor),
-              const SizedBox(width: 4),
-              Text(
-                l10n.aiCandidatesBadge(matchResult.candidates.length),
-                style: Theme.of(
-                  context,
-                ).textTheme.bodySmall!.copyWith(
-                  fontSize: 11,
-                  color: theme.warningColor,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    } else {
-      statusBadge = Icon(
-        Icons.help_outline,
-        color: theme.secondaryTextColor,
-        size: 20,
-      );
-    }
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            flex: 3,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  displayName,
-                  style: Theme.of(context).textTheme.bodyMedium!,
-                ),
-                if (displayName != exercise.exerciseName)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 2),
-                    child: Text(
-                      l10n.aiOriginalLabel(exercise.exerciseName),
-                      style: Theme.of(
-                        context,
-                      ).textTheme.bodySmall!.copyWith(
-                        color: theme.secondaryTextColor,
-                        fontSize: 11,
-                      ),
-                    ),
-                  ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 4),
-                  child: statusBadge,
-                ),
-              ],
-            ),
-          ),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              IconButton(
-                tooltip: l10n.aiDecreaseSets,
-                icon: Icon(
-                  Icons.remove_circle_outline,
-                  color: theme.accentColor,
-                  size: 20,
-                ),
-                constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-                padding: EdgeInsets.zero,
-                onPressed: () {
-                  setState(() {
-                    final newSets = currentSets - 1;
-                    if (newSets >= 1) {
-                      _editableSets[exerciseKey] = newSets;
-                    }
-                  });
-                },
-              ),
-              Container(
-                width: 32,
-                alignment: Alignment.center,
-                child: Text(
-                  '$currentSets',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.w600),
-                ),
-              ),
-              IconButton(
-                tooltip: l10n.aiIncreaseSets,
-                icon: Icon(
-                  Icons.add_circle_outline,
-                  color: theme.accentColor,
-                  size: 20,
-                ),
-                constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-                padding: EdgeInsets.zero,
-                onPressed: () {
-                  setState(() {
-                    _editableSets[exerciseKey] = currentSets + 1;
-                  });
-                },
-              ),
-              const SizedBox(width: 4),
-              Text(l10n.aiSetsUnit, style: Theme.of(context).textTheme.bodySmall!),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Show bottom sheet for user to select a matching exercise from candidates.
-  void _showCandidateSelection(
-    String matchKey,
-    String originalName,
-    MatchResult matchResult,
-    AppThemeData theme,
-  ) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: theme.surfaceColor,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(AppDimensions.radiusSheet),
-        ),
-      ),
-      builder: (sheetContext) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Header
-              Padding(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Center(
-                      child: Container(
-                        width: 40,
-                        height: 4,
-                        decoration: BoxDecoration(
-                          color: theme.dividerColor,
-                          borderRadius: BorderRadius.circular(
-                            AppDimensions.radiusXxs,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      AppLocalizations.of(context)!.aiSelectMatchTitle,
-                      style: Theme.of(
-                        context,
-                      ).textTheme.headlineLarge!.copyWith(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      AppLocalizations.of(context)!.aiSelectMatchSubtitle(
-                          originalName, matchResult.candidates.length),
-                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        color: theme.secondaryTextColor,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const Divider(height: 1),
-              // Candidate list
-              Flexible(
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: matchResult.candidates.length,
-                  itemBuilder: (context, index) {
-                    final candidate = matchResult.candidates[index];
-                    final isSelected =
-                        _manualSelections[matchKey]?.id == candidate.id;
-                    final l10n = AppLocalizations.of(context)!;
-
-                    return ListTile(
-                      leading: Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: isSelected
-                              ? theme.accentColor
-                              : theme.accentColor.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(
-                            AppDimensions.radiusMd,
-                          ),
-                        ),
-                        child: Icon(
-                          isSelected
-                              ? Icons.check
-                              : Icons.fitness_center,
-                          color: isSelected
-                              ? theme.onAccentColor
-                              : theme.accentColor,
-                          size: 20,
-                        ),
-                      ),
-                      title: Text(candidate.name),
-                      subtitle: Text(
-                        '${candidate.primaryMuscle.displayName}'
-                        ' · ${candidate.equipmentDisplayName(l10n)}',
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                      trailing: isSelected
-                          ? Icon(
-                              Icons.check_circle,
-                              color: theme.accentColor,
-                            )
-                          : null,
-                      onTap: () {
-                        setState(() {
-                          _manualSelections[matchKey] = candidate;
-                        });
-                        Navigator.pop(context);
-                      },
-                    );
-                  },
-                ),
-              ),
-              // Keep as unmatched option
-              const Divider(height: 1),
-              Padding(
-                padding: const EdgeInsets.all(AppDimensions.screenPadding),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: TextButton.icon(
-                    onPressed: () {
-                      setState(() {
-                        _manualSelections.remove(matchKey);
-                      });
-                      Navigator.pop(context);
-                    },
-                    icon: Icon(
-                      Icons.close,
-                      color: theme.secondaryTextColor,
-                    ),
-                    label: Text(
-                      AppLocalizations.of(context)!.aiKeepUnmatched,
-                      style: TextStyle(color: theme.secondaryTextColor),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
     );
   }
 
