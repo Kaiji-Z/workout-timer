@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../l10n/app_localizations.dart';
 import '../l10n/context_l10n.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../providers/training_provider.dart';
@@ -18,10 +17,10 @@ import 'duration_picker.dart';
 import 'glass_widgets.dart';
 import 'animated_timer_widget.dart';
 import 'completed_medal_display.dart';
-import 'plan_card.dart';
 import 'bulk_exercise_data_dialog.dart';
 import 'set_record_dialog.dart';
 import '../theme/build_context_text_styles.dart';
+import 'training_components.dart';
 
 /// 训练主界面 - 极简设计
 ///
@@ -101,7 +100,12 @@ class _TrainingWidgetState extends State<TrainingWidget>
 
               // 极简进度行（计划模式下显示）
               if (_isPlanMode && _selectedPlan != null)
-                _buildCompactProgress(progressProvider, theme),
+                buildTrainingCompactProgress(
+                  context,
+                  progressProvider: progressProvider,
+                  theme: theme,
+                  isPlanMode: _isPlanMode,
+                ),
 
               // 计时器 - 占用剩余空间
               Expanded(
@@ -180,44 +184,6 @@ class _TrainingWidgetState extends State<TrainingWidget>
   }
 
   /// 极简进度行
-  Widget _buildCompactProgress(
-    TrainingProgressProvider progressProvider,
-    AppThemeData theme,
-  ) {
-    final currentExercise = progressProvider.currentExercise;
-    if (currentExercise == null) return const SizedBox.shrink();
-
-    // 计算下一个动作提示
-    String? nextHint;
-    if (_isPlanMode && progressProvider.currentPlan != null) {
-      final nextExercise = progressProvider.getNextExercise();
-      if (nextExercise != null) {
-        nextHint = context.l10n.trainingNextExercise(nextExercise.name);
-      } else {
-        nextHint = context.l10n.trainingNextDone;
-      }
-    }
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Column(
-        children: [
-          PlanProgressCompact(
-            exerciseName: currentExercise.name,
-            currentSet: progressProvider.currentSetInExercise + 1,
-            totalSets: currentExercise.effectiveSets,
-            totalProgress: progressProvider.progressPercentage,
-          ),
-          if (nextHint != null)
-            Padding(
-              padding: const EdgeInsets.only(top: 4),
-              child: Text(nextHint, style: context.bodySmall),
-            ),
-        ],
-      ),
-    );
-  }
-
   /// 主内容区域 - 计时器
   Widget _buildMainContent(
     TrainingProvider training,
@@ -889,7 +855,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
         // Translate common failure modes to user-facing copy; the raw
         // exception string stays in the dev log, not on the user's screen.
         final l10n = context.l10n;
-        final userMessage = _translateSaveError(e, l10n);
+        final userMessage = translateTrainingSaveError(e, l10n);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(userMessage),
@@ -932,7 +898,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
           children: [
             Text(
               l10n.trainingDurationCorrectionMessage(
-                _formatHoursMinutes(training.sessionDuration),
+                formatTrainingHoursMinutes(training.sessionDuration),
                 training.currentSet,
               ),
               style: TextStyle(color: theme.textColor.withValues(alpha: 0.8)),
@@ -983,34 +949,4 @@ class _TrainingWidgetState extends State<TrainingWidget>
   }
 
   /// 把秒数格式化为 "X 小时 Y 分" 或 "Y 分钟"（修正对话框用）
-  String _formatHoursMinutes(int totalSeconds) {
-    final minutes = totalSeconds ~/ 60;
-    if (minutes >= 60) {
-      final hours = minutes ~/ 60;
-      final mins = minutes % 60;
-      return mins > 0 ? '$hours h $mins min' : '$hours h';
-    }
-    return '$minutes min';
-  }
-
-  /// Map a save-workout exception to a short user-facing message.
-  ///
-  /// The raw exception + stack trace are logged via [debugPrint] by the
-  /// caller; this method only decides what the user sees. Unknown failures
-  /// fall back to a generic retry prompt instead of leaking `error.toString()`.
-  String _translateSaveError(Object e, AppLocalizations l10n) {
-    final raw = e.toString().toLowerCase();
-    if (raw.contains('database') ||
-        raw.contains('sqlite') ||
-        raw.contains('sqflite')) {
-      return l10n.trainingSaveFailedDb;
-    }
-    if (raw.contains('filesystem') ||
-        raw.contains('no space') ||
-        raw.contains('disk') ||
-        raw.contains('storage')) {
-      return l10n.trainingSaveFailedStorage;
-    }
-    return l10n.trainingSaveFailedGeneric;
-  }
 }
