@@ -4,6 +4,10 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 
+/// 奖牌金盘上的文字/分隔线颜色。奖牌是固定金色资产，刻意不随主题明暗
+/// 切换——深色模式下 theme.textColor 会变浅色，在金底上不可读。
+const Color _medalInkColor = Color(0xFF000000);
+
 /// 训练完成奖牌显示组件
 ///
 /// 基于 assets/images/medal.svg（用户提供的 Adobe Illustrator 月桂花环素材）。
@@ -294,7 +298,7 @@ class _CompletedMedalDisplayState extends State<CompletedMedalDisplay>
                                   fontFamily: 'Rajdhani',
                                   fontSize: timeFontSize,
                                   fontWeight: FontWeight.w700,
-                                  color: Colors.black,
+                                  color: _medalInkColor,
                                   letterSpacing: -0.5,
                                   height: 1.0,
                                 ),
@@ -306,7 +310,7 @@ class _CompletedMedalDisplayState extends State<CompletedMedalDisplay>
                           Container(
                             width: diskDiameter * 0.22,
                             height: 1.5,
-                            color: Colors.black.withValues(alpha: 0.3),
+                            color: _medalInkColor.withValues(alpha: 0.3),
                           ),
                           SizedBox(height: diskDiameter * 0.01),
                           // 训练完成文案（黑色，复用 l10n）
@@ -319,7 +323,7 @@ class _CompletedMedalDisplayState extends State<CompletedMedalDisplay>
                                 style: TextStyle(
                                   fontSize: captionFontSize,
                                   fontWeight: FontWeight.w600,
-                                  color: Colors.black,
+                                  color: _medalInkColor,
                                 ),
                               ),
                             ),
