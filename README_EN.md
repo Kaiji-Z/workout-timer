@@ -19,11 +19,10 @@ Free · Open Source · No Ads · No Sign-up · No Cloud
 
 ---
 
-<div align="center">
-
-<img src="docs/screenshots/demo-timer.gif" width="270" alt="30-second rest countdown demo (3x speed)">
-
-</div>
+| ⏱️ Timer | 📚 Exercise Library | 🎨 Themes |
+|:---:|:---:|:---:|
+| <img src="docs/screenshots/demo-timer.gif" width="240" alt="30-second rest countdown demo (3x speed)"> | <img src="docs/screenshots/demo-exercises.gif" width="240" alt="Exercise library browsing demo (2x speed)"> | <img src="docs/screenshots/demo-themes.gif" width="240" alt="Theme switching demo (2x speed)"> |
+| 30s rest countdown | Browse 870+ exercises | Three themes, one tap |
 
 ## What is this?
 

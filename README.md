@@ -19,11 +19,10 @@
 
 ---
 
-<div align="center">
-
-<img src="docs/screenshots/demo-timer.gif" width="270" alt="30 秒组间休息倒计时演示（3 倍速）">
-
-</div>
+| ⏱️ 计时器 | 📚 动作库 | 🎨 主题切换 |
+|:---:|:---:|:---:|
+| <img src="docs/screenshots/demo-timer.gif" width="240" alt="30 秒组间休息倒计时演示（3 倍速）"> | <img src="docs/screenshots/demo-exercises.gif" width="240" alt="动作库浏览演示（2 倍速）"> | <img src="docs/screenshots/demo-themes.gif" width="240" alt="三主题切换演示（2 倍速）"> |
+| 30 秒组间休息 | 870+ 动作浏览 | 三主题随心换 |
 
 ## 这是什么？
 
