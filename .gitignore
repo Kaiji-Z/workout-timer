@@ -86,3 +86,7 @@ nul
 
 # Impeccable design critique snapshots (local review history)
 .impeccable/
+
+# Local-only promotion working files (launch post drafts, raw demo video)
+/docs/promotion/*.mp4
+/docs/promotion/*-post.md
