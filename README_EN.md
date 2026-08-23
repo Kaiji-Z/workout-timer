@@ -19,6 +19,12 @@ Free · Open Source · No Ads · No Sign-up · No Cloud
 
 ---
 
+<div align="center">
+
+<img src="docs/screenshots/demo-timer.gif" width="270" alt="30-second rest countdown demo (3x speed)">
+
+</div>
+
 ## What is this?
 
 A fitness app that does **one thing** well: manage your rest between sets.

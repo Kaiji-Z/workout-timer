@@ -19,6 +19,12 @@
 
 ---
 
+<div align="center">
+
+<img src="docs/screenshots/demo-timer.gif" width="270" alt="30 秒组间休息倒计时演示（3 倍速）">
+
+</div>
+
 ## 这是什么？
 
 一个**只做一件事**的健身 App：帮你管好组间休息。
