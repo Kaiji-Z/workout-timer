@@ -531,7 +531,7 @@ Web uses in-memory SQLite database; native uses persistent storage.
 
 | Remote | URL | 角色 |
 |--------|-----|------|
-| `origin` | `github.com/Kaiji-Z/workout-timer` | **主仓库**,跑 CI,默认 push/pull 目标 |
+| `origin` | `git@github.com:Kaiji-Z/workout-timer.git` | **主仓库**,跑 CI,默认 push/pull 目标。SSH 通道:`~/.ssh/config` 把 github.com 重定向到 ssh.github.com:443,deploy key `workouttimer_push` 认证,直连不依赖代理(2026-08-26 起) |
 | `gitee` | `gitee.com/kaiji1126/workout-timer` | 国内镜像副仓,需显式推送 |
 
 ### 推送命令
