@@ -90,3 +90,7 @@ nul
 # Local-only promotion working files (launch post drafts, raw demo video)
 /docs/promotion/*.mp4
 /docs/promotion/*-post.md
+
+# Local-only Xiaohongshu assets (personal training-data screenshots) and CDP browser tools
+/docs/promotion/xhs/
+/docs/promotion/xhs-tools/
