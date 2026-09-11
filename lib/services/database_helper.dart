@@ -66,7 +66,11 @@ class DatabaseHelper {
       // use an in-memory database so the singleton works without a real
       // file system.
       sqfliteFfiInit();
-      databaseFactory = databaseFactoryFfi;
+      // The no-isolate factory keeps futures on the current event loop, which
+      // lets widget tests driven by a fake-async zone see them complete.
+      databaseFactory = _useInMemoryForTesting
+          ? databaseFactoryFfiNoIsolate
+          : databaseFactoryFfi;
       return await databaseFactory.openDatabase(
         inMemoryDatabasePath,
         options: OpenDatabaseOptions(
