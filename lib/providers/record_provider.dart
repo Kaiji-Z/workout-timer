@@ -23,6 +23,7 @@ class RecordProvider extends ChangeNotifier {
   List<WorkoutRecord> _records = [];
   bool _isLoading = false;
   String? _error;
+  Future<void>? _activeLoad;
 
   // Getters
   List<WorkoutRecord> get records => _records;
@@ -31,7 +32,18 @@ class RecordProvider extends ChangeNotifier {
   int get recordCount => _records.length;
 
   /// 加载所有记录
-  Future<void> loadRecords({int? limit}) async {
+  ///
+  /// 并发调用共享同一次仓库读取（启动加载、统计页与历史页可能同时触发），
+  /// 全部读取同一份 SQLite 数据，去重即可避免重复的逐条查询。
+  Future<void> loadRecords({int? limit}) {
+    final inFlight = _activeLoad;
+    if (inFlight != null) return inFlight;
+    final load = _loadRecords(limit: limit);
+    _activeLoad = load;
+    return load.whenComplete(() => _activeLoad = null);
+  }
+
+  Future<void> _loadRecords({int? limit}) async {
     _isLoading = true;
     _error = null;
     notifyListeners();

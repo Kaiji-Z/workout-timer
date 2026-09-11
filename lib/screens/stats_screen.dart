@@ -58,10 +58,9 @@ class _StatsScreenState extends State<StatsScreen>
     try {
       _cachedAllRecords = null;
       final recordProvider = context.read<RecordProvider>();
-      // 确保记录已加载（首次进入时可能还未加载）
-      if (recordProvider.recordCount == 0) {
-        await recordProvider.loadRecords();
-      }
+      // 每次进入统计页都从仓库重载：内存列表可能与 DB 脱节（如启动加载
+      // 失败后恢复），只信内存会让新记录要先进一次历史页才可见。
+      await recordProvider.loadRecords();
       final sessions = await _repository.getAllSessions();
       if (!mounted) return;
 
