@@ -976,21 +976,27 @@ class StatsCollapsibleSection extends StatelessWidget {
       ),
       child: Theme(
         data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-        child: ExpansionTile(
-          tilePadding: const EdgeInsets.symmetric(horizontal: 16),
-          childrenPadding: const EdgeInsets.only(
-            left: 16,
-            right: 16,
-            bottom: 8,
-          ),
-          title: Text(
-            title,
-            style: context.titleLarge.copyWith(
-              fontSize: 15,
-              color: theme.textColor,
+        // Own Material layer so the tile's ink and background paint here
+        // instead of on the decorated ancestor (silences the ListTile
+        // invisible-background assertion).
+        child: Material(
+          type: MaterialType.transparency,
+          child: ExpansionTile(
+            tilePadding: const EdgeInsets.symmetric(horizontal: 16),
+            childrenPadding: const EdgeInsets.only(
+              left: 16,
+              right: 16,
+              bottom: 8,
             ),
+            title: Text(
+              title,
+              style: context.titleLarge.copyWith(
+                fontSize: 15,
+                color: theme.textColor,
+              ),
+            ),
+            children: children,
           ),
-          children: children,
         ),
       ),
     );
