@@ -689,13 +689,23 @@ git tag vX.Y.Z
 # 3. 双远端推送（master + tag）
 git push origin master && git push origin vX.Y.Z
 git push gitee master && git push gitee vX.Y.Z
-#    push 会触发 GitHub CI（android-build.yml 跑 test + debug 构建）
+#    push 会触发两个 GitHub workflow：
+#    - android-build.yml：test + debug 构建验证
+#    - release.yml：校验 tag=pubspec → test → 构建 release APK →
+#      自动创建 GitHub Release 并附 APK（发布页面由 workflow 负责，
+#      不要手动 gh release create）
 
-# 4. 出 release APK（--no-tree-shake-icons 必带，否则图标花屏）
+# 4.（可选）本地急用装手机时才自己出包；正常发版以 workflow 产物为准
 flutter build apk --release --no-tree-shake-icons
-#    产物: build/app/outputs/flutter-apk/app-release.apk
 adb install -r build/app/outputs/flutter-apk/app-release.apk  # 永远 -r 覆盖，禁止先卸载
 ```
+
+### Release 自动化（release.yml）
+
+- 触发：推送 `v*` tag；或手动补发已存在的 tag：`gh workflow run Release -f tag=vX.Y.Z`
+- 内置校验：tag 与 pubspec 不一致、或 version 带 `+buildNumber` 后缀都会直接失败
+- Release 说明由 GitHub 自动生成（What's Changed + 完整变更链接）；需要精修中文说明时：`gh release edit vX.Y.Z --notes-file <file>`
+- 产物：Release 页附件 `app-release.apk`
 
 ### 红线
 
