@@ -654,6 +654,57 @@ feat: everything
 
 ---
 
+## 发版规则（RELEASE）
+
+**版本号唯一来源：`pubspec.yaml` 的 `version:`。** tag（`v<version>`）只是它的镜像，二者不一致 = 发版失败，先修一致再推。
+历史遗留的 `v2.0.0`–`v4.0.1` tag（2026-02 前后）已废弃：不删除、不作为基线、永不引用。当前版本线从 `1.3.0`（2026-09-15）重新起算。
+
+### 版本格式
+
+- 三段式 `X.Y.Z`，**不带 `+buildNumber` 后缀**（2026-09-15 定）。无后缀时 Flutter 派生的 versionCode 恒为 1：`adb install -r` 覆盖安装不受影响；不上商店渠道，versionCode 不作升级排序用。
+- 禁止手动改 Android gradle 里的 versionCode/versionName——一律由 pubspec 派生。
+- SQLite schema 版本（`database_helper.dart` 的 `_databaseVersion`）独立演进，与应用版本号无关，不要联动。
+
+### 何时 bump
+
+| 本次变更内容 | bump | 例 |
+|---------|------|-----|
+| 只有 fix | patch：Z+1 | 1.3.0 → 1.3.1 |
+| 含 feat | minor：Y+1，Z 归零 | 1.3.1 → 1.4.0 |
+| 破坏性变更（数据迁移不兼容、最低系统/SDK 提升） | major：X+1 | 1.4.0 → 2.0.0 |
+| 只有 docs/chore/test/refactor | **不发版**，版本号不动 | — |
+
+### 发版步骤（顺序执行，不跳步）
+
+```bash
+# 0. 前置：master 干净、全量测试与静态分析全绿
+flutter test && flutter analyze
+
+# 1. bump pubspec version，单独一个 commit：
+#    chore: bump version to X.Y.Z
+
+# 2. 打 tag，指向发版时的 master tip（即 bump commit 或其后的 docs commit）
+git tag vX.Y.Z
+
+# 3. 双远端推送（master + tag）
+git push origin master && git push origin vX.Y.Z
+git push gitee master && git push gitee vX.Y.Z
+#    push 会触发 GitHub CI（android-build.yml 跑 test + debug 构建）
+
+# 4. 出 release APK（--no-tree-shake-icons 必带，否则图标花屏）
+flutter build apk --release --no-tree-shake-icons
+#    产物: build/app/outputs/flutter-apk/app-release.apk
+adb install -r build/app/outputs/flutter-apk/app-release.apk  # 永远 -r 覆盖，禁止先卸载
+```
+
+### 红线
+
+- **已推送的 tag 永不移动。** 唯一例外：tag 刚推、确认无人拉取时，amend 后 `git push --force-with-lease` + `git push --force origin vX.Y.Z` 补救；除此之外一律改用下一个版本号。
+- 一个版本号只发一次。发错了就 bump 到下一个号重发，不回收。
+- 发版窗口内不打开发分支的 tag；tag 只打在 master。
+
+---
+
 ## ANTI-PATTERNS (AVOID)
 
 | Pattern | Issue | Instead |
