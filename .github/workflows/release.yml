@@ -1,0 +1,90 @@
+name: Release
+
+# 发版流程（AGENTS.md「发版规则」）：bump pubspec → 打 tag → 推 tag，
+# 本 workflow 自动完成：校验 tag 与 pubspec 一致 → 单元测试 → 构建
+# release APK → 发布 GitHub Release 并附上 APK。
+# 已存在的 tag 需要补发时：gh workflow run Release -f tag=vX.Y.Z
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to build and release (e.g. v1.3.0)'
+        required: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Build & Publish Release
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Resolve tag
+        id: tag
+        run: |
+          TAG="${{ github.event.inputs.tag || github.ref_name }}"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "Releasing $TAG"
+
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ steps.tag.outputs.tag }}
+
+      - name: Verify tag matches pubspec version
+        # AGENTS.md 发版规则：tag(vX.Y.Z) = pubspec(version: X.Y.Z)，
+        # 不一致 = 发版失败；同时强制三段式、不带 +buildNumber 后缀。
+        run: |
+          TAG="${{ steps.tag.outputs.tag }}"
+          PUBSPEC="$(grep -E '^version: [0-9]+\.[0-9]+\.[0-9]+$' pubspec.yaml | awk '{print $2}')"
+          if [ "v$PUBSPEC" != "$TAG" ]; then
+            echo "::error::tag $TAG != pubspec version '$PUBSPEC' — tag 与 pubspec 不一致（见 AGENTS.md 发版规则）"
+            exit 1
+          fi
+
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Strip China mirrors from Gradle (CI-only)
+        # 阿里云/腾讯镜像只对中国本地有用，GitHub runner 在美国会拉不到
+        # Kotlin 2.1.0 等插件。仅删 CI 工作副本，git 仓库文件不变。
+        run: |
+          for f in android/settings.gradle.kts android/build.gradle.kts; do
+            sed -i -E '/maven.aliyun.com|mirrors.tencent.com/d' "$f"
+          done
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Run unit tests
+        run: flutter test
+
+      - name: Build release APK
+        # --no-tree-shake-icons 必带，否则 Material Icons 花屏
+        run: flutter build apk --release --no-tree-shake-icons
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.tag }}
+          name: 撸铁计时器 ${{ steps.tag.outputs.tag }}
+          files: build/app/outputs/flutter-apk/app-release.apk
+          generate_release_notes: true
