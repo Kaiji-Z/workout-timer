@@ -2343,4 +2343,123 @@ class AppLocalizationsEn extends AppLocalizations {
   String settingsMinutes(int minutes) {
     return '$minutes min';
   }
+
+  @override
+  String get statsTodayTitle => 'Today';
+
+  @override
+  String get statsLoadRatioLabel => 'Load ratio';
+
+  @override
+  String get statsLoadRatioHint => '7-day volume ÷ 28-day baseline';
+
+  @override
+  String get statsLoadRatioLow => 'Low · reduced load or returning';
+
+  @override
+  String get statsLoadRatioNormal => 'Normal range';
+
+  @override
+  String get statsLoadRatioHigh => 'High · sustained spike';
+
+  @override
+  String get statsLoadRatioNoData => 'Not enough baseline beyond this week yet';
+
+  @override
+  String get statsLoadRatioDisclaimer =>
+      'Guardrail reference, not injury prediction';
+
+  @override
+  String get statsChipToday => 'Today';
+
+  @override
+  String statsChipDaysAgo(int days) {
+    return '${days}d ago';
+  }
+
+  @override
+  String get statsChipNever => 'No data';
+
+  @override
+  String statsMuscleChip(String muscle, String when) {
+    return '$muscle · $when';
+  }
+
+  @override
+  String get statsDoseTitle => 'Dose · rolling 7 days';
+
+  @override
+  String get statsDoseVolumeLabel => '7-day volume';
+
+  @override
+  String statsDoseMevLine(int mev) {
+    return 'MEV $mev';
+  }
+
+  @override
+  String statsDoseMrvLine(int mrv) {
+    return 'MRV $mrv';
+  }
+
+  @override
+  String get statsDoseBelow => 'Below';
+
+  @override
+  String get statsDoseIn => 'In range';
+
+  @override
+  String get statsDoseAbove => 'Above';
+
+  @override
+  String get statsDoseDisclaimer =>
+      'MEV/MRV are practice-informed reference lines, not medical standards';
+
+  @override
+  String get statsProgressAll => 'All';
+
+  @override
+  String get statsProgress90d => '90 days';
+
+  @override
+  String get statsProgressTrendTitle => 'Rolling volume · 6 weeks';
+
+  @override
+  String get statsTrendRising => 'Rising — plan a deload';
+
+  @override
+  String get statsTrendFalling => 'Falling';
+
+  @override
+  String get statsTrendFlat => 'Steady';
+
+  @override
+  String get statsLatestPr => 'Latest PR';
+
+  @override
+  String statsPrLine(String name, String weight, int reps) {
+    return '$name: ${weight}kg × $reps';
+  }
+
+  @override
+  String get statsProgressEmpty =>
+      'No exercises with per-set data yet (needs weight × reps per set)';
+
+  @override
+  String get statsHabitTitle => 'Consistency';
+
+  @override
+  String statsHabitStreak(int weeks) {
+    return '$weeks-week streak';
+  }
+
+  @override
+  String get statsHabitNoStreak => 'No qualifying week yet';
+
+  @override
+  String statsHabitThisWeek(int count, int target) {
+    return 'This week $count/$target';
+  }
+
+  @override
+  String get statsHabitHeatmapTitle => 'Year in training';
 }

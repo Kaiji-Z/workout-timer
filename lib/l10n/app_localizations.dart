@@ -4084,6 +4084,210 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'{minutes} 分钟'**
   String settingsMinutes(int minutes);
+
+  /// No description provided for @statsTodayTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'今日状态'**
+  String get statsTodayTitle;
+
+  /// No description provided for @statsLoadRatioLabel.
+  ///
+  /// In zh, this message translates to:
+  /// **'负荷比值'**
+  String get statsLoadRatioLabel;
+
+  /// No description provided for @statsLoadRatioHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'近7天容量 ÷ 28天基线'**
+  String get statsLoadRatioHint;
+
+  /// No description provided for @statsLoadRatioLow.
+  ///
+  /// In zh, this message translates to:
+  /// **'偏低 · 掉量或假期回归'**
+  String get statsLoadRatioLow;
+
+  /// No description provided for @statsLoadRatioNormal.
+  ///
+  /// In zh, this message translates to:
+  /// **'正常区间'**
+  String get statsLoadRatioNormal;
+
+  /// No description provided for @statsLoadRatioHigh.
+  ///
+  /// In zh, this message translates to:
+  /// **'偏高 · 连续冲量'**
+  String get statsLoadRatioHigh;
+
+  /// No description provided for @statsLoadRatioNoData.
+  ///
+  /// In zh, this message translates to:
+  /// **'基线不足，需要急性期之外的记录'**
+  String get statsLoadRatioNoData;
+
+  /// No description provided for @statsLoadRatioDisclaimer.
+  ///
+  /// In zh, this message translates to:
+  /// **'护栏参考，非伤病预测'**
+  String get statsLoadRatioDisclaimer;
+
+  /// No description provided for @statsChipToday.
+  ///
+  /// In zh, this message translates to:
+  /// **'今天'**
+  String get statsChipToday;
+
+  /// No description provided for @statsChipDaysAgo.
+  ///
+  /// In zh, this message translates to:
+  /// **'{days}天前'**
+  String statsChipDaysAgo(int days);
+
+  /// No description provided for @statsChipNever.
+  ///
+  /// In zh, this message translates to:
+  /// **'无数据'**
+  String get statsChipNever;
+
+  /// No description provided for @statsMuscleChip.
+  ///
+  /// In zh, this message translates to:
+  /// **'{muscle} · {when}'**
+  String statsMuscleChip(String muscle, String when);
+
+  /// No description provided for @statsDoseTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'剂量 · 滚动7天'**
+  String get statsDoseTitle;
+
+  /// No description provided for @statsDoseVolumeLabel.
+  ///
+  /// In zh, this message translates to:
+  /// **'近7天容量'**
+  String get statsDoseVolumeLabel;
+
+  /// No description provided for @statsDoseMevLine.
+  ///
+  /// In zh, this message translates to:
+  /// **'MEV {mev}'**
+  String statsDoseMevLine(int mev);
+
+  /// No description provided for @statsDoseMrvLine.
+  ///
+  /// In zh, this message translates to:
+  /// **'MRV {mrv}'**
+  String statsDoseMrvLine(int mrv);
+
+  /// No description provided for @statsDoseBelow.
+  ///
+  /// In zh, this message translates to:
+  /// **'不足'**
+  String get statsDoseBelow;
+
+  /// No description provided for @statsDoseIn.
+  ///
+  /// In zh, this message translates to:
+  /// **'带内'**
+  String get statsDoseIn;
+
+  /// No description provided for @statsDoseAbove.
+  ///
+  /// In zh, this message translates to:
+  /// **'过量'**
+  String get statsDoseAbove;
+
+  /// No description provided for @statsDoseDisclaimer.
+  ///
+  /// In zh, this message translates to:
+  /// **'MEV/MRV 为实践参考线，非医学标准'**
+  String get statsDoseDisclaimer;
+
+  /// No description provided for @statsProgressAll.
+  ///
+  /// In zh, this message translates to:
+  /// **'全部'**
+  String get statsProgressAll;
+
+  /// No description provided for @statsProgress90d.
+  ///
+  /// In zh, this message translates to:
+  /// **'近90天'**
+  String get statsProgress90d;
+
+  /// No description provided for @statsProgressTrendTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'近6周滚动容量'**
+  String get statsProgressTrendTitle;
+
+  /// No description provided for @statsTrendRising.
+  ///
+  /// In zh, this message translates to:
+  /// **'递进中，注意安排减载'**
+  String get statsTrendRising;
+
+  /// No description provided for @statsTrendFalling.
+  ///
+  /// In zh, this message translates to:
+  /// **'回落中'**
+  String get statsTrendFalling;
+
+  /// No description provided for @statsTrendFlat.
+  ///
+  /// In zh, this message translates to:
+  /// **'平稳'**
+  String get statsTrendFlat;
+
+  /// No description provided for @statsLatestPr.
+  ///
+  /// In zh, this message translates to:
+  /// **'最近PR'**
+  String get statsLatestPr;
+
+  /// No description provided for @statsPrLine.
+  ///
+  /// In zh, this message translates to:
+  /// **'{name}：{weight}kg × {reps}'**
+  String statsPrLine(String name, String weight, int reps);
+
+  /// No description provided for @statsProgressEmpty.
+  ///
+  /// In zh, this message translates to:
+  /// **'暂无带组数据的动作（需要每组重量×次数）'**
+  String get statsProgressEmpty;
+
+  /// No description provided for @statsHabitTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'习惯'**
+  String get statsHabitTitle;
+
+  /// No description provided for @statsHabitStreak.
+  ///
+  /// In zh, this message translates to:
+  /// **'连续 {weeks} 周达标'**
+  String statsHabitStreak(int weeks);
+
+  /// No description provided for @statsHabitNoStreak.
+  ///
+  /// In zh, this message translates to:
+  /// **'还没有完整达标周'**
+  String get statsHabitNoStreak;
+
+  /// No description provided for @statsHabitThisWeek.
+  ///
+  /// In zh, this message translates to:
+  /// **'本周 {count}/{target} 次'**
+  String statsHabitThisWeek(int count, int target);
+
+  /// No description provided for @statsHabitHeatmapTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'全年训练'**
+  String get statsHabitHeatmapTitle;
 }
 
 class _AppLocalizationsDelegate

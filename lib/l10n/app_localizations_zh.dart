@@ -2284,4 +2284,120 @@ class AppLocalizationsZh extends AppLocalizations {
   String settingsMinutes(int minutes) {
     return '$minutes 分钟';
   }
+
+  @override
+  String get statsTodayTitle => '今日状态';
+
+  @override
+  String get statsLoadRatioLabel => '负荷比值';
+
+  @override
+  String get statsLoadRatioHint => '近7天容量 ÷ 28天基线';
+
+  @override
+  String get statsLoadRatioLow => '偏低 · 掉量或假期回归';
+
+  @override
+  String get statsLoadRatioNormal => '正常区间';
+
+  @override
+  String get statsLoadRatioHigh => '偏高 · 连续冲量';
+
+  @override
+  String get statsLoadRatioNoData => '基线不足，需要急性期之外的记录';
+
+  @override
+  String get statsLoadRatioDisclaimer => '护栏参考，非伤病预测';
+
+  @override
+  String get statsChipToday => '今天';
+
+  @override
+  String statsChipDaysAgo(int days) {
+    return '$days天前';
+  }
+
+  @override
+  String get statsChipNever => '无数据';
+
+  @override
+  String statsMuscleChip(String muscle, String when) {
+    return '$muscle · $when';
+  }
+
+  @override
+  String get statsDoseTitle => '剂量 · 滚动7天';
+
+  @override
+  String get statsDoseVolumeLabel => '近7天容量';
+
+  @override
+  String statsDoseMevLine(int mev) {
+    return 'MEV $mev';
+  }
+
+  @override
+  String statsDoseMrvLine(int mrv) {
+    return 'MRV $mrv';
+  }
+
+  @override
+  String get statsDoseBelow => '不足';
+
+  @override
+  String get statsDoseIn => '带内';
+
+  @override
+  String get statsDoseAbove => '过量';
+
+  @override
+  String get statsDoseDisclaimer => 'MEV/MRV 为实践参考线，非医学标准';
+
+  @override
+  String get statsProgressAll => '全部';
+
+  @override
+  String get statsProgress90d => '近90天';
+
+  @override
+  String get statsProgressTrendTitle => '近6周滚动容量';
+
+  @override
+  String get statsTrendRising => '递进中，注意安排减载';
+
+  @override
+  String get statsTrendFalling => '回落中';
+
+  @override
+  String get statsTrendFlat => '平稳';
+
+  @override
+  String get statsLatestPr => '最近PR';
+
+  @override
+  String statsPrLine(String name, String weight, int reps) {
+    return '$name：${weight}kg × $reps';
+  }
+
+  @override
+  String get statsProgressEmpty => '暂无带组数据的动作（需要每组重量×次数）';
+
+  @override
+  String get statsHabitTitle => '习惯';
+
+  @override
+  String statsHabitStreak(int weeks) {
+    return '连续 $weeks 周达标';
+  }
+
+  @override
+  String get statsHabitNoStreak => '还没有完整达标周';
+
+  @override
+  String statsHabitThisWeek(int count, int target) {
+    return '本周 $count/$target 次';
+  }
+
+  @override
+  String get statsHabitHeatmapTitle => '全年训练';
 }
