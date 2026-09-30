@@ -47,7 +47,8 @@ void main() {
       expect(find.text('Chest · Today'), findsOneWidget);
       expect(find.text('Back · 3d ago'), findsOneWidget);
       expect(find.text('Legs · 10d ago'), findsOneWidget);
-      expect(find.text('No data'), findsNWidgets(3));
+      // 未练过的三个肌群 chip 显示无数据
+      expect(find.textContaining('No data'), findsNWidgets(3));
       // 护栏免责声明必须在场（ACWR 只作参考）
       expect(find.text('Guardrail reference, not injury prediction'),
           findsOneWidget);

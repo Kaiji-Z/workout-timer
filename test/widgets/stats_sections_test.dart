@@ -136,7 +136,7 @@ void main() {
       await tester.pumpWidget(
         wrap(
           StatsHabitSection(
-            dailyVolume: const {
+            dailyVolume: {
               DateTime(2026, 1, 15): 1500,
               DateTime(2026, 9, 28): 1000,
               DateTime(2026, 9, 29): 2000,
@@ -160,7 +160,7 @@ void main() {
       await tester.pumpWidget(
         wrap(
           StatsHabitSection(
-            dailyVolume: const {},
+            dailyVolume: {},
             streakWeeks: 0,
             sessionsThisWeek: 0,
             weeklyTarget: 3,
