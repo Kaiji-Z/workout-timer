@@ -1078,10 +1078,15 @@ void main() {
     });
 
     group('acuteChronicRatio', () {
-      test('null when chronic window has no volume', () {
+      test('null when no history beyond the acute window', () {
+        // 只有急性期内的记录（今天），28 天基线里没有急性期之外的
+        // 历史 → 比值恒为"自己比自己"，无意义
         final records = [
           _rec('a', today, exercises: [
             _ex('bench', PrimaryMuscleGroup.chest),
+          ]),
+          _rec('b', DateTime(2026, 9, 27), exercises: [
+            _ex('squat', PrimaryMuscleGroup.legs),
           ]),
         ];
         final ratio = service.acuteChronicRatio(records, asOf: today);
@@ -1089,12 +1094,12 @@ void main() {
       });
 
       test('ratio = volume(7d) / (volume(28d)/4)', () {
-        // 28 天里 9/24 和今天各 1000，急性期(9/24-9/30)只含今天
+        // 急性期(9/24-9/30)只含今天；9/20 在慢性期但不在急性期
         final records = [
           _rec('acute', today, exercises: [
             _ex('bench', PrimaryMuscleGroup.chest),
           ]),
-          _rec('chronic', DateTime(2026, 9, 24), exercises: [
+          _rec('chronic', DateTime(2026, 9, 20), exercises: [
             _ex('squat', PrimaryMuscleGroup.legs),
           ]),
           _rec('old', DateTime(2026, 9, 2), exercises: [
