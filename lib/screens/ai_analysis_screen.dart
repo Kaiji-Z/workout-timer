@@ -70,12 +70,14 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
   }
 
   Future<void> _loadUserPreferences() async {
-    final l10n = context.l10n;
     try {
       final prefs = await UserPreferencesService().loadPreferences().timeout(
         const Duration(seconds: 2),
       );
       if (!mounted) return;
+      // l10n 必须在 initState 完成后才能取（inherited 依赖），
+      // 因此放到 await 之后而非方法开头。
+      final l10n = context.l10n;
       setState(() {
         _selectedGoal = prefs.goal;
         _selectedExperience = prefs.experience;
@@ -88,6 +90,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
     } catch (e) {
       debugPrint('Error loading user preferences: $e');
       if (!mounted) return;
+      final l10n = context.l10n;
       setState(() {
         _generatedPrompt = _generatePrompt(l10n);
       });
