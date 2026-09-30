@@ -1,23 +1,72 @@
+/// 导入校验警告类型（AI 返回的 JSON 不合规时收集，向导预览展示）
+enum PlanImportWarningType { outOfRangeDay, duplicateDay }
+
+/// 单条导入警告
+class PlanImportWarning {
+  final PlanImportWarningType type;
+
+  /// 越界的原始 dayOfWeek 值，或重复的 dayOfWeek
+  final int day;
+
+  const PlanImportWarning(this.type, this.day);
+
+  @override
+  String toString() => 'PlanImportWarning(${type.name}, day:$day)';
+}
+
 /// Import model for weekly workout plans from JSON
 class WeeklyPlanImport {
   final String name;
   final List<DailyPlanImport> days;
 
-  const WeeklyPlanImport({required this.name, required this.days});
+  /// 解析期收集的合规警告（越界天被丢弃、重复天被保留但标记）。
+  /// 空列表 = AI 输出完全合规。
+  final List<PlanImportWarning> warnings;
+
+  const WeeklyPlanImport({
+    required this.name,
+    required this.days,
+    this.warnings = const [],
+  });
 
   /// Parse from JSON with graceful handling of missing fields
   factory WeeklyPlanImport.fromJson(Map<String, dynamic> json) {
     // Parse days array
     List<DailyPlanImport> days = [];
+    final warnings = <PlanImportWarning>[];
     if (json['days'] != null && json['days'] is List) {
       final daysList = json['days'] as List<dynamic>;
-      days = daysList
-          .whereType<Map<String, dynamic>>()
-          .map((d) => DailyPlanImport.fromJson(d))
-          .toList();
+      final seenDays = <int>{};
+      for (final d in daysList) {
+        if (d is! Map<String, dynamic>) continue;
+
+        // 越界天丢弃并计数——绝不静默 clamp。AI 把"月计划"输出成
+        // dayOfWeek 8-28 时，clamp 会把它们全部塌缩到周日，一天堆 N 个
+        // 计划（.goal/SPEC.md §3.4 导入防御）。
+        final raw = d['dayOfWeek'];
+        if (raw is int && (raw < 1 || raw > 7)) {
+          warnings.add(
+            PlanImportWarning(PlanImportWarningType.outOfRangeDay, raw),
+          );
+          continue;
+        }
+
+        final day = DailyPlanImport.fromJson(d);
+        if (seenDays.contains(day.dayOfWeek)) {
+          warnings.add(
+            PlanImportWarning(PlanImportWarningType.duplicateDay, day.dayOfWeek),
+          );
+        }
+        seenDays.add(day.dayOfWeek);
+        days.add(day);
+      }
     }
 
-    return WeeklyPlanImport(name: json['name'] as String? ?? '', days: days);
+    return WeeklyPlanImport(
+      name: json['name'] as String? ?? '',
+      days: days,
+      warnings: warnings,
+    );
   }
 
   /// Convert to JSON
