@@ -50,6 +50,50 @@ void main() {
     });
   });
 
+  group('WeeklyPlanImport import warnings (P3 导入防御)', () {
+    test('drops out-of-range days with a warning instead of clamping', () {
+      // AI 把"月计划"输出成 dayOfWeek 8-28 时，旧逻辑静默 clamp 到 7，
+      // 全部塌缩到周日；新逻辑丢弃并警告
+      const jsonString = '{"name":"P","days":['
+          '{"dayOfWeek":1,"exercises":[{"exerciseName":"A","targetSets":3}]},'
+          '{"dayOfWeek":8,"exercises":[{"exerciseName":"B","targetSets":3}]},'
+          '{"dayOfWeek":0,"exercises":[{"exerciseName":"C","targetSets":3}]}]}';
+      final json = jsonDecode(jsonString) as Map<String, dynamic>;
+      final plan = WeeklyPlanImport.fromJson(json);
+
+      expect(plan.days.length, equals(1));
+      expect(plan.days[0].dayOfWeek, equals(1));
+      expect(
+        plan.warnings.where((w) => w.type == PlanImportWarningType.outOfRangeDay).map((w) => w.day),
+        unorderedEquals([8, 0]),
+      );
+    });
+
+    test('keeps duplicate days but flags them', () {
+      const jsonString = '{"name":"P","days":['
+          '{"dayOfWeek":3,"exercises":[{"exerciseName":"A","targetSets":3}]},'
+          '{"dayOfWeek":3,"exercises":[{"exerciseName":"B","targetSets":3}]}]}';
+      final json = jsonDecode(jsonString) as Map<String, dynamic>;
+      final plan = WeeklyPlanImport.fromJson(json);
+
+      expect(plan.days.length, equals(2));
+      expect(
+        plan.warnings.where((w) => w.type == PlanImportWarningType.duplicateDay).map((w) => w.day),
+        equals([3]),
+      );
+    });
+
+    test('valid plan produces no warnings', () {
+      const jsonString = '{"name":"P","days":['
+          '{"dayOfWeek":1,"exercises":[{"exerciseName":"A","targetSets":3}]},'
+          '{"dayOfWeek":5,"exercises":[{"exerciseName":"B","targetSets":3}]}]}';
+      final json = jsonDecode(jsonString) as Map<String, dynamic>;
+      final plan = WeeklyPlanImport.fromJson(json);
+
+      expect(plan.warnings, isEmpty);
+    });
+  });
+
   group('DailyPlanImport', () {
     test('handles invalid dayOfWeek values below range (clamp to 1)', () {
       const jsonString =
