@@ -39,8 +39,7 @@
   "trainingCancelPlan": "Cancel Plan",
   "trainingPlanSummary": "{exerciseCount} exercises · {totalSets} sets",
   "trainingSavedDetail": "Saved: {sets} sets, {duration} total",
-  "trainingSavedCompleted": "Saved: {sets} sets complete, {duration} total"
-,
+  "trainingSavedCompleted": "Saved: {sets} sets complete, {duration} total",
   "notifNextSet": "Get ready for the next set!",
   "notifRestDone": "Rest time over!",
   "soundDefault": "Default",
@@ -59,15 +58,13 @@
   "recScrollHint": "Scroll to select reps, enter weight",
   "recAdded": "Added",
   "calPrevMonth": "Previous month",
-  "calNextMonth": "Next month"
-,
+  "calNextMonth": "Next month",
   "oemSectionTitle": "OEM Background Manager",
   "oemCardTitle": "{name} Power Manager",
   "oemExplanation": "Your {name} phone has its own power management that may override the standard battery whitelist. Tap below and allow this app to run in the background.",
   "oemFlowHint": "Tip: complete 'Allow background activity' (the standard whitelist) above first, then do the OEM-specific setting below — both are needed for reliable background timing.",
   "oemGoButton": "Open {name} Settings",
   "oemDefaultInstruction": "Allow this app to auto-start and run in the background in system settings",
-
   "unitMinutes": "{m} min",
   "unitMinutesSeconds": "{m}m {s}s",
   "unitSeconds": "{s}s",
@@ -86,13 +83,11 @@
   "equipmentEzBarbell": "EZ Barbell",
   "equipmentSmithMachine": "Smith Machine",
   "errorGeneric": "Operation failed, please retry",
-
   "dataTransferShareText": "Workout Timer data backup",
   "dataTransferWebUnsupported": "File import is not supported on Web",
   "dataTransferInvalidFormat": "Invalid backup file format",
   "aiPromptOutputInstructions": "Please structure your reply in the following two parts:\n\n**Part 1: Plan Design Rationale**\n\nExplain in detail why you designed the plan this way, including:\n- The reasoning behind the split you chose (e.g. push/pull/legs, upper/lower, full body, etc., considering my training frequency of {frequency} days/week)\n- The exercise selection logic for each training day (why these exercises were chosen, and the compound/isolation pairing principles)\n- The volume allocation rationale (weekly sets per muscle group, and how they match my goal of {goal})\n- How the plan fits my experience level {experience} and equipment access {equipment}\n\n**Part 2: Workout Plan JSON**\n\nAfter your analysis, provide the structured workout plan in a ```json code block:",
   "aiPromptClosing": "Based on the above information (training frequency of {frequency} days/week), first explain your design rationale, then generate the workout plan.",
-
   "dialogSetTitle": "Set {set}",
   "dialogSetTitleWithName": "Set {set} - {name}",
   "repsWithValue": "{reps} reps",
@@ -108,7 +103,6 @@
   "calDayToday": "today",
   "calDaySelected": "selected",
   "calDaySemantics": "{date}, {plan}{today}{selected}",
-
   "widgetSearchExercise": "Search exercises",
   "widgetClearSearch": "Clear search",
   "widgetAll": "All",
@@ -152,7 +146,6 @@
   "widgetRecommendedSetsValue": "{n} sets",
   "widgetRepsRangeLabel": "Reps",
   "widgetRestLabel": "Rest",
-
   "settingsTitle": "Settings",
   "settingsAppearanceSection": "Appearance",
   "settingsDarkMode": "Dark Mode",
@@ -488,11 +481,7 @@
   "anDensityValue": "{value} sets/min",
   "anAvgPerSession": "Avg per session",
   "anAvgPerSessionValue": "{volume} kg / {minutes} min",
-  "anTrendWeek": "Trend (vs last week)",
-  "anTrendMonth": "Trend (vs last month)",
   "anMuscleDistribution": "Muscle volume distribution",
-  "anSetsPerMuscleWeek": "Sets per muscle (MEV ref: 10 sets/week)",
-  "anSetsPerMuscleMonth": "Sets per muscle (MEV ref: 40 sets/month)",
   "anEstimated1rm": "Estimated 1RM (Mayhew)",
   "an1rmProgression": "Estimated 1RM progression",
   "anRecovery": "Recovery status",
@@ -504,8 +493,6 @@
   "anNoProgressData": "- Each exercise was trained only once this period; cannot compute progression",
   "anNoRecoveryData": "- No recovery data",
   "anNoMuscleRecoveryData": "- No muscle recovery data",
-  "anMevWeekLabel": "Weekly MEV ref: {count} sets",
-  "anMevMonthLabel": "Monthly MEV ref: {count} sets",
   "anStatusSufficient": "✅ Sufficient",
   "anStatusLow": "⚠️ Low",
   "anStatusInsufficient": "🔴 Insufficient",
@@ -513,25 +500,19 @@
   "anRecoveryTrainable": "✅ Ready to train",
   "anRecoveryRestMore": "⚠️ Rest {days} more day(s)",
   "anRecoveryJustTrained": "🔴 Trained today",
-  "anPeriodWeek": "This week",
-  "anPeriodMonth": "This month",
-  "anWeek": "week",
-  "anMonth": "month",
   "anGoalMuscleBuilding": "Muscle building",
   "anGoalFatLoss": "Fat loss",
   "anGoalStrength": "Strength",
   "anGoalEndurance": "Endurance",
   "anDateRange": "{startMonth}/{startDay} - {endMonth}/{endDay}",
-  "anPromptOpening": "You are a professional fitness coach. Based on my training data report, design my training plan for the next cycle.",
-  "anPromptWeekNote": "Weekly data is limited; focus on recovery status and next week's muscle rotation.",
-  "anPromptMonthNote": "Monthly data is rich; focus on progressive overload trends and balanced muscle volume allocation.",
+  "anPromptOpening": "You are a professional fitness coach. Please analyze my training status based on my training data report.",
   "anPromptReportHeader": "## Workout Data Report",
   "anPromptBasicInfoHeader": "### Basic Info",
   "anPromptPeriod": "- Period: {period} ({range})",
   "anPromptSessions": "- Sessions: {sessions} / {days} days",
   "anPromptTotalVolume": "- Total volume: {volume} kg (sets×reps×weight)",
   "anPromptDensity": "- Density: {value} sets/min",
-  "anPromptTrendHeader": "### Trend (vs last {period})",
+  "anPromptTrendHeader": "### Trends (vs previous equal-length window)",
   "anPromptMuscleDistHeader": "### Muscle Volume Distribution",
   "anPromptSetsPerMuscleHeader": "### Sets Per Muscle Group",
   "anPrompt1rmHeader": "### Estimated 1RM (best this period, TOP 10)",
@@ -624,8 +605,6 @@
   "statsExerciseCount": "{count}×",
   "statsRecoveryDays": "{muscle} {days}d",
   "statsRecordsCount": "{count} records",
-  "settingsEmailCopied": "Email copied",
-
   "historyExportAction": "Export Archive",
   "exportHistorySheetTitle": "Export Training History",
   "exportHistorySheetDescription": "Pick a time range to export your training records for AI agent analysis.",
@@ -642,7 +621,6 @@
   "exportHistoryFailed": "Export failed: {error}",
   "exportHistoryCustomRangeTitle": "Select date range",
   "exportHistoryLoading": "Generating training archive…",
-
   "exportMarkdownH1": "Training History Archive",
   "exportMarkdownProfile": "Profile",
   "exportMarkdownRecords": "Training Sessions",
@@ -665,11 +643,26 @@
   "notifIdleReminderTitle": "Workout still in progress",
   "@notifIdleReminderTitle": {},
   "notifIdleReminderBody": "You've been exercising for over {minutes} min without a rest. If you're done, come back and stop the timer.",
-  "@notifIdleReminderBody": {"placeholders": {"minutes": {"type": "int"}}},
+  "@notifIdleReminderBody": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
   "trainingDurationCorrectionTitle": "Session duration may be too long",
   "@trainingDurationCorrectionTitle": {},
   "trainingDurationCorrectionMessage": "This session recorded {duration} ({sets} sets). If the timer kept running after you finished, correct it to the actual duration (minutes):",
-  "@trainingDurationCorrectionMessage": {"placeholders": {"duration": {"type": "String"}, "sets": {"type": "int"}}},
+  "@trainingDurationCorrectionMessage": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      },
+      "sets": {
+        "type": "int"
+      }
+    }
+  },
   "trainingDurationCorrectionKeep": "Keep original",
   "@trainingDurationCorrectionKeep": {},
   "trainingDurationCorrectionApply": "Correct and save",
@@ -681,8 +674,13 @@
   "settingsIdleReminderAfter": "Remind after",
   "@settingsIdleReminderAfter": {},
   "settingsMinutes": "{minutes} min",
-  "@settingsMinutes": {"placeholders": {"minutes": {"type": "int"}}},
-
+  "@settingsMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
   "statsTodayTitle": "Today",
   "@statsTodayTitle": {},
   "statsLoadRatioLabel": "Load ratio",
@@ -702,20 +700,46 @@
   "statsChipToday": "Today",
   "@statsChipToday": {},
   "statsChipDaysAgo": "{days}d ago",
-  "@statsChipDaysAgo": {"placeholders": {"days": {"type": "int"}}},
+  "@statsChipDaysAgo": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
   "statsChipNever": "No data",
   "@statsChipNever": {},
   "statsMuscleChip": "{muscle} · {when}",
-  "@statsMuscleChip": {"placeholders": {"muscle": {"type": "String"}, "when": {"type": "String"}}},
-
+  "@statsMuscleChip": {
+    "placeholders": {
+      "muscle": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
   "statsDoseTitle": "Dose · rolling 7 days",
   "@statsDoseTitle": {},
   "statsDoseVolumeLabel": "7-day volume",
   "@statsDoseVolumeLabel": {},
   "statsDoseMevLine": "MEV {mev}",
-  "@statsDoseMevLine": {"placeholders": {"mev": {"type": "int"}}},
+  "@statsDoseMevLine": {
+    "placeholders": {
+      "mev": {
+        "type": "int"
+      }
+    }
+  },
   "statsDoseMrvLine": "MRV {mrv}",
-  "@statsDoseMrvLine": {"placeholders": {"mrv": {"type": "int"}}},
+  "@statsDoseMrvLine": {
+    "placeholders": {
+      "mrv": {
+        "type": "int"
+      }
+    }
+  },
   "statsDoseBelow": "Below",
   "@statsDoseBelow": {},
   "statsDoseIn": "In range",
@@ -724,7 +748,6 @@
   "@statsDoseAbove": {},
   "statsDoseDisclaimer": "MEV/MRV are practice-informed reference lines, not medical standards",
   "@statsDoseDisclaimer": {},
-
   "statsProgressAll": "All",
   "@statsProgressAll": {},
   "statsProgress90d": "90 days",
@@ -740,18 +763,124 @@
   "statsLatestPr": "Latest PR",
   "@statsLatestPr": {},
   "statsPrLine": "{name}: {weight}kg × {reps}",
-  "@statsPrLine": {"placeholders": {"name": {"type": "String"}, "weight": {"type": "String"}, "reps": {"type": "int"}}},
+  "@statsPrLine": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "weight": {
+        "type": "String"
+      },
+      "reps": {
+        "type": "int"
+      }
+    }
+  },
   "statsProgressEmpty": "No exercises with per-set data yet (needs weight × reps per set)",
   "@statsProgressEmpty": {},
-
   "statsHabitTitle": "Consistency",
   "@statsHabitTitle": {},
   "statsHabitStreak": "{weeks}-week streak",
-  "@statsHabitStreak": {"placeholders": {"weeks": {"type": "int"}}},
+  "@statsHabitStreak": {
+    "placeholders": {
+      "weeks": {
+        "type": "int"
+      }
+    }
+  },
   "statsHabitNoStreak": "No qualifying week yet",
   "@statsHabitNoStreak": {},
   "statsHabitThisWeek": "This week {count}/{target}",
-  "@statsHabitThisWeek": {"placeholders": {"count": {"type": "int"}, "target": {"type": "int"}}},
+  "@statsHabitThisWeek": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "target": {
+        "type": "int"
+      }
+    }
+  },
   "statsHabitHeatmapTitle": "Year in training",
-  "@statsHabitHeatmapTitle": {}
+  "@statsHabitHeatmapTitle": {},
+  "anRangeDays": "Last {days} days",
+  "@anRangeDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "anTrendRolling": "Trends (last {days} days)",
+  "@anTrendRolling": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "anSetsPerMuscleRolling": "Sets per muscle (last {days} days)",
+  "@anSetsPerMuscleRolling": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "anMevRangeLabel": "MEV reference: ≈{mev} sets for this range",
+  "@anMevRangeLabel": {
+    "placeholders": {
+      "mev": {
+        "type": "int"
+      }
+    }
+  },
+  "anPromptRollingNote": "This window has enough data; focus on progressive-overload trends and balanced per-muscle volume.",
+  "@anPromptRollingNote": {},
+  "anPromptRollingNoteSparse": "This window has little data; focus on recovery status and muscle rotation.",
+  "@anPromptRollingNoteSparse": {},
+  "anPromptLoadRatio": "- Acute:chronic load ratio (7d ÷ 28d baseline): {ratio} (guardrail reference, not injury prediction)",
+  "@anPromptLoadRatio": {
+    "placeholders": {
+      "ratio": {
+        "type": "String"
+      }
+    }
+  },
+  "anPromptLoadRatioNoData": "- Acute:chronic load ratio: not enough baseline yet",
+  "@anPromptLoadRatioNoData": {},
+  "anOutputModeLabel": "Output",
+  "@anOutputModeLabel": {},
+  "anOutputModeReview": "Review only",
+  "@anOutputModeReview": {},
+  "anOutputModeReviewPlan": "Review + next-week plan",
+  "@anOutputModeReviewPlan": {},
+  "anPromptOutputReviewPart1": "**Part 1: Data interpretation & next-phase advice**",
+  "@anPromptOutputReviewPart1": {},
+  "anPromptOutputReviewDetail": "Include:\n- Data interpretation (volume / frequency / muscle balance / recovery)\n- Problem list (imbalance, under-recovery, plateau signals)\n- 2-3 actionable adjustments for the next phase (incl. deload timing)",
+  "@anPromptOutputReviewDetail": {},
+  "anPromptClosingReview": "Interpret the data first, then give next-phase adjustments.",
+  "@anPromptClosingReview": {},
+  "anPromptJsonHardRules": "JSON hard constraints: at most 7 items in `days`; `dayOfWeek` must be an integer 1-7; never output multi-week or monthly structures.",
+  "@anPromptJsonHardRules": {},
+  "anRangeCustom": "Custom",
+  "@anRangeCustom": {},
+  "statsAiReviewSubtitle": "Pick a rolling review window anchored on today",
+  "@statsAiReviewSubtitle": {},
+  "aiImportWarnOutOfRange": "{count} out-of-range days dropped (e.g. dayOfWeek > 7) — the AI may have emitted a multi-week plan, please double-check",
+  "@aiImportWarnOutOfRange": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "aiImportWarnDuplicate": "Duplicate training days ({days}) — multiple plans will land on the same date",
+  "@aiImportWarnDuplicate": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  }
 }

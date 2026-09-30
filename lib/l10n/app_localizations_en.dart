@@ -1672,19 +1672,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get anTrendWeek => 'Trend (vs last week)';
-
-  @override
-  String get anTrendMonth => 'Trend (vs last month)';
-
-  @override
   String get anMuscleDistribution => 'Muscle volume distribution';
-
-  @override
-  String get anSetsPerMuscleWeek => 'Sets per muscle (MEV ref: 10 sets/week)';
-
-  @override
-  String get anSetsPerMuscleMonth => 'Sets per muscle (MEV ref: 40 sets/month)';
 
   @override
   String get anEstimated1rm => 'Estimated 1RM (Mayhew)';
@@ -1722,16 +1710,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get anNoMuscleRecoveryData => '- No muscle recovery data';
 
   @override
-  String anMevWeekLabel(int count) {
-    return 'Weekly MEV ref: $count sets';
-  }
-
-  @override
-  String anMevMonthLabel(int count) {
-    return 'Monthly MEV ref: $count sets';
-  }
-
-  @override
   String get anStatusSufficient => '✅ Sufficient';
 
   @override
@@ -1755,18 +1733,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get anRecoveryJustTrained => '🔴 Trained today';
 
   @override
-  String get anPeriodWeek => 'This week';
-
-  @override
-  String get anPeriodMonth => 'This month';
-
-  @override
-  String get anWeek => 'week';
-
-  @override
-  String get anMonth => 'month';
-
-  @override
   String get anGoalMuscleBuilding => 'Muscle building';
 
   @override
@@ -1785,15 +1751,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get anPromptOpening =>
-      'You are a professional fitness coach. Based on my training data report, design my training plan for the next cycle.';
-
-  @override
-  String get anPromptWeekNote =>
-      'Weekly data is limited; focus on recovery status and next week\'s muscle rotation.';
-
-  @override
-  String get anPromptMonthNote =>
-      'Monthly data is rich; focus on progressive overload trends and balanced muscle volume allocation.';
+      'You are a professional fitness coach. Please analyze my training status based on my training data report.';
 
   @override
   String get anPromptReportHeader => '## Workout Data Report';
@@ -1822,9 +1780,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String anPromptTrendHeader(String period) {
-    return '### Trend (vs last $period)';
-  }
+  String get anPromptTrendHeader =>
+      '### Trends (vs previous equal-length window)';
 
   @override
   String get anPromptMuscleDistHeader => '### Muscle Volume Distribution';
@@ -2462,4 +2419,83 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get statsHabitHeatmapTitle => 'Year in training';
+
+  @override
+  String anRangeDays(int days) {
+    return 'Last $days days';
+  }
+
+  @override
+  String anTrendRolling(int days) {
+    return 'Trends (last $days days)';
+  }
+
+  @override
+  String anSetsPerMuscleRolling(int days) {
+    return 'Sets per muscle (last $days days)';
+  }
+
+  @override
+  String anMevRangeLabel(int mev) {
+    return 'MEV reference: ≈$mev sets for this range';
+  }
+
+  @override
+  String get anPromptRollingNote =>
+      'This window has enough data; focus on progressive-overload trends and balanced per-muscle volume.';
+
+  @override
+  String get anPromptRollingNoteSparse =>
+      'This window has little data; focus on recovery status and muscle rotation.';
+
+  @override
+  String anPromptLoadRatio(String ratio) {
+    return '- Acute:chronic load ratio (7d ÷ 28d baseline): $ratio (guardrail reference, not injury prediction)';
+  }
+
+  @override
+  String get anPromptLoadRatioNoData =>
+      '- Acute:chronic load ratio: not enough baseline yet';
+
+  @override
+  String get anOutputModeLabel => 'Output';
+
+  @override
+  String get anOutputModeReview => 'Review only';
+
+  @override
+  String get anOutputModeReviewPlan => 'Review + next-week plan';
+
+  @override
+  String get anPromptOutputReviewPart1 =>
+      '**Part 1: Data interpretation & next-phase advice**';
+
+  @override
+  String get anPromptOutputReviewDetail =>
+      'Include:\n- Data interpretation (volume / frequency / muscle balance / recovery)\n- Problem list (imbalance, under-recovery, plateau signals)\n- 2-3 actionable adjustments for the next phase (incl. deload timing)';
+
+  @override
+  String get anPromptClosingReview =>
+      'Interpret the data first, then give next-phase adjustments.';
+
+  @override
+  String get anPromptJsonHardRules =>
+      'JSON hard constraints: at most 7 items in `days`; `dayOfWeek` must be an integer 1-7; never output multi-week or monthly structures.';
+
+  @override
+  String get anRangeCustom => 'Custom';
+
+  @override
+  String get statsAiReviewSubtitle =>
+      'Pick a rolling review window anchored on today';
+
+  @override
+  String aiImportWarnOutOfRange(int count) {
+    return '$count out-of-range days dropped (e.g. dayOfWeek > 7) — the AI may have emitted a multi-week plan, please double-check';
+  }
+
+  @override
+  String aiImportWarnDuplicate(String days) {
+    return 'Duplicate training days ($days) — multiple plans will land on the same date';
+  }
 }

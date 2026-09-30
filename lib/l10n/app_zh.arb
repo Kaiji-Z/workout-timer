@@ -14,11 +14,12 @@
   "@navSettings": {},
   "navTimer": "训练计时器",
   "@navTimer": {},
-
   "timerSecondsRemaining": "剩余 {seconds} 秒",
   "@timerSecondsRemaining": {
     "placeholders": {
-      "seconds": { "type": "int" }
+      "seconds": {
+        "type": "int"
+      }
     }
   },
   "timerInProgress": "进行中",
@@ -38,14 +39,17 @@
   "timerSecondsLabel": "{seconds}秒",
   "@timerSecondsLabel": {
     "placeholders": {
-      "seconds": { "type": "int" }
+      "seconds": {
+        "type": "int"
+      }
     }
   },
-
   "trainingNextExercise": "下一个：{name}",
   "@trainingNextExercise": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "trainingNextDone": "下一个：训练完成",
@@ -59,27 +63,39 @@
   "trainingExerciseProgress": "{name} · 第{set}组 · 运动",
   "@trainingExerciseProgress": {
     "placeholders": {
-      "name": { "type": "String" },
-      "set": { "type": "int" }
+      "name": {
+        "type": "String"
+      },
+      "set": {
+        "type": "int"
+      }
     }
   },
   "trainingSetExercising": "第 {set} 组 · 运动中",
   "@trainingSetExercising": {
     "placeholders": {
-      "set": { "type": "int" }
+      "set": {
+        "type": "int"
+      }
     }
   },
   "trainingExerciseRest": "{name} · 已完成{set}组 · 休息中",
   "@trainingExerciseRest": {
     "placeholders": {
-      "name": { "type": "String" },
-      "set": { "type": "int" }
+      "name": {
+        "type": "String"
+      },
+      "set": {
+        "type": "int"
+      }
     }
   },
   "trainingSetRest": "第 {set} 组 · 休息中",
   "@trainingSetRest": {
     "placeholders": {
-      "set": { "type": "int" }
+      "set": {
+        "type": "int"
+      }
     }
   },
   "trainingCompleted": "训练完成",
@@ -87,13 +103,17 @@
   "trainingSetPaused": "第 {set} 组 · 已暂停",
   "@trainingSetPaused": {
     "placeholders": {
-      "set": { "type": "int" }
+      "set": {
+        "type": "int"
+      }
     }
   },
   "trainingPlanReady": "{name} · 准备开始",
   "@trainingPlanReady": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "trainingReady": "准备开始",
@@ -101,7 +121,9 @@
   "trainingSetCount": "{set} 组",
   "@trainingSetCount": {
     "placeholders": {
-      "set": { "type": "int" }
+      "set": {
+        "type": "int"
+      }
     }
   },
   "trainingStartExercise": "开始运动",
@@ -123,25 +145,36 @@
   "trainingPlanSummary": "{exerciseCount}动作 · {totalSets}组",
   "@trainingPlanSummary": {
     "placeholders": {
-      "exerciseCount": { "type": "int" },
-      "totalSets": { "type": "int" }
+      "exerciseCount": {
+        "type": "int"
+      },
+      "totalSets": {
+        "type": "int"
+      }
     }
   },
   "trainingSavedDetail": "训练已保存：{sets}组，总时长 {duration}",
   "@trainingSavedDetail": {
     "placeholders": {
-      "sets": { "type": "int" },
-      "duration": { "type": "String" }
+      "sets": {
+        "type": "int"
+      },
+      "duration": {
+        "type": "String"
+      }
     }
   },
   "trainingSavedCompleted": "训练已保存：完成{sets}组，总时长 {duration}",
   "@trainingSavedCompleted": {
     "placeholders": {
-      "sets": { "type": "int" },
-      "duration": { "type": "String" }
+      "sets": {
+        "type": "int"
+      },
+      "duration": {
+        "type": "String"
+      }
     }
-  }
-,
+  },
   "notifNextSet": "准备开始下一组！",
   "@notifNextSet": {},
   "notifRestDone": "休息结束！",
@@ -179,29 +212,75 @@
   "calPrevMonth": "上个月",
   "@calPrevMonth": {},
   "calNextMonth": "下个月",
-  "@calNextMonth": {}
-,
+  "@calNextMonth": {},
   "oemSectionTitle": "厂商后台管理",
   "@oemSectionTitle": {},
   "oemCardTitle": "{name}手机省电管理",
-  "@oemCardTitle": { "placeholders": { "name": { "type": "String" } } },
+  "@oemCardTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "oemExplanation": "您的{name}手机有独立的省电管理，标准电池优化白名单可能不够。请点击下方按钮，在打开的设置页面中允许本应用自启动/后台运行。",
-  "@oemExplanation": { "placeholders": { "name": { "type": "String" } } },
+  "@oemExplanation": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "oemFlowHint": "提示：请先完成上方「允许后台活动」（标准白名单），再进行下方的厂商专属设置，两者配合才能确保后台计时正常。",
   "@oemFlowHint": {},
   "oemGoButton": "前往{name}设置",
-  "@oemGoButton": { "placeholders": { "name": { "type": "String" } } },
+  "@oemGoButton": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "oemDefaultInstruction": "请在系统设置中允许本应用自启动和后台运行",
   "@oemDefaultInstruction": {},
-
   "unitMinutes": "{m}分钟",
-  "@unitMinutes": { "placeholders": { "m": { "type": "int" } } },
+  "@unitMinutes": {
+    "placeholders": {
+      "m": {
+        "type": "int"
+      }
+    }
+  },
   "unitMinutesSeconds": "{m}分{s}秒",
-  "@unitMinutesSeconds": { "placeholders": { "m": { "type": "int" }, "s": { "type": "int" } } },
+  "@unitMinutesSeconds": {
+    "placeholders": {
+      "m": {
+        "type": "int"
+      },
+      "s": {
+        "type": "int"
+      }
+    }
+  },
   "unitSeconds": "{s}秒",
-  "@unitSeconds": { "placeholders": { "s": { "type": "int" } } },
+  "@unitSeconds": {
+    "placeholders": {
+      "s": {
+        "type": "int"
+      }
+    }
+  },
   "unitRepsRange": "{min}-{max}次",
-  "@unitRepsRange": { "placeholders": { "min": { "type": "int" }, "max": { "type": "int" } } },
+  "@unitRepsRange": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
   "levelBeginner": "初级",
   "@levelBeginner": {},
   "levelIntermediate": "中级",
@@ -230,7 +309,6 @@
   "@equipmentSmithMachine": {},
   "errorGeneric": "操作失败，请重试",
   "@errorGeneric": {},
-
   "dataTransferShareText": "撸铁计时器数据备份",
   "@dataTransferShareText": {
     "description": "分享备份文件时的文本"
@@ -247,30 +325,78 @@
   "@aiPromptOutputInstructions": {
     "description": "AI 提示词中的输出格式说明（第一部分设计思路 + 第二部分 JSON）",
     "placeholders": {
-      "frequency": { "type": "int" },
-      "goal": { "type": "String" },
-      "experience": { "type": "String" },
-      "equipment": { "type": "String" }
+      "frequency": {
+        "type": "int"
+      },
+      "goal": {
+        "type": "String"
+      },
+      "experience": {
+        "type": "String"
+      },
+      "equipment": {
+        "type": "String"
+      }
     }
   },
   "aiPromptClosing": "请根据以上信息（训练频率 {frequency} 天/周），先解释你的设计思路，然后生成训练计划。",
   "@aiPromptClosing": {
     "description": "AI 提示词的结尾指令",
     "placeholders": {
-      "frequency": { "type": "int" }
+      "frequency": {
+        "type": "int"
+      }
     }
   },
-
   "dialogSetTitle": "第{set}组",
-  "@dialogSetTitle": { "placeholders": { "set": { "type": "int" } } },
+  "@dialogSetTitle": {
+    "placeholders": {
+      "set": {
+        "type": "int"
+      }
+    }
+  },
   "dialogSetTitleWithName": "第{set}组 - {name}",
-  "@dialogSetTitleWithName": { "placeholders": { "set": { "type": "int" }, "name": { "type": "String" } } },
+  "@dialogSetTitleWithName": {
+    "placeholders": {
+      "set": {
+        "type": "int"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "repsWithValue": "{reps} 次",
-  "@repsWithValue": { "placeholders": { "reps": { "type": "int" } } },
+  "@repsWithValue": {
+    "placeholders": {
+      "reps": {
+        "type": "int"
+      }
+    }
+  },
   "bodyweightReference": "体重 {bw}kg × {pct}% = {result}kg",
-  "@bodyweightReference": { "placeholders": { "bw": { "type": "String" }, "pct": { "type": "String" }, "result": { "type": "String" } } },
+  "@bodyweightReference": {
+    "placeholders": {
+      "bw": {
+        "type": "String"
+      },
+      "pct": {
+        "type": "String"
+      },
+      "result": {
+        "type": "String"
+      }
+    }
+  },
   "trainingSaveFailed": "保存失败: {error}",
-  "@trainingSaveFailed": { "placeholders": { "error": { "type": "String" } } },
+  "@trainingSaveFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
   "trainingSaveFailedDb": "数据库错误，请重启应用后重试",
   "@trainingSaveFailedDb": {},
   "trainingSaveFailedStorage": "存储空间不足，请清理后重试",
@@ -284,8 +410,22 @@
   "calDaySelected": "已选中",
   "@calDaySelected": {},
   "calDaySemantics": "{date}，{plan}{today}{selected}",
-  "@calDaySemantics": { "placeholders": { "date": { "type": "String" }, "plan": { "type": "String" }, "today": { "type": "String" }, "selected": { "type": "String" } } },
-
+  "@calDaySemantics": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "plan": {
+        "type": "String"
+      },
+      "today": {
+        "type": "String"
+      },
+      "selected": {
+        "type": "String"
+      }
+    }
+  },
   "widgetSearchExercise": "搜索动作",
   "@widgetSearchExercise": {},
   "widgetClearSearch": "清除搜索",
@@ -295,25 +435,94 @@
   "widgetNoExerciseFound": "没有找到动作",
   "@widgetNoExerciseFound": {},
   "widgetSelectedCount": "已选 {count} 个动作",
-  "@widgetSelectedCount": { "placeholders": { "count": { "type": "int" } } },
+  "@widgetSelectedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "widgetClearAll": "清空",
   "@widgetClearAll": {},
   "widgetSetsSuffix": "{n}组",
-  "@widgetSetsSuffix": { "placeholders": { "n": { "type": "int" } } },
+  "@widgetSetsSuffix": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "widgetPlanExercisesCount": "{n} 个动作",
-  "@widgetPlanExercisesCount": { "placeholders": { "n": { "type": "int" } } },
+  "@widgetPlanExercisesCount": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "widgetPlanSetsCount": "{n} 组",
-  "@widgetPlanSetsCount": { "placeholders": { "n": { "type": "int" } } },
+  "@widgetPlanSetsCount": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "widgetPlanDuration": "~{n} 分钟",
-  "@widgetPlanDuration": { "placeholders": { "n": { "type": "int" } } },
+  "@widgetPlanDuration": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "widgetPlanSummaryShort": "{exerciseCount}动作 · {totalSets}组",
-  "@widgetPlanSummaryShort": { "placeholders": { "exerciseCount": { "type": "int" }, "totalSets": { "type": "int" } } },
+  "@widgetPlanSummaryShort": {
+    "placeholders": {
+      "exerciseCount": {
+        "type": "int"
+      },
+      "totalSets": {
+        "type": "int"
+      }
+    }
+  },
   "widgetCurrentExercise": "当前：{name} 第{set}/{total}组",
-  "@widgetCurrentExercise": { "placeholders": { "name": { "type": "String" }, "set": { "type": "int" }, "total": { "type": "int" } } },
+  "@widgetCurrentExercise": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "set": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "widgetExerciseProgressHeader": "{plan} · {exercise} 第{set}组",
-  "@widgetExerciseProgressHeader": { "placeholders": { "plan": { "type": "String" }, "exercise": { "type": "String" }, "set": { "type": "int" } } },
+  "@widgetExerciseProgressHeader": {
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      },
+      "exercise": {
+        "type": "String"
+      },
+      "set": {
+        "type": "int"
+      }
+    }
+  },
   "widgetNoDetail": "{name} (无详情)",
-  "@widgetNoDetail": { "placeholders": { "name": { "type": "String" } } },
+  "@widgetNoDetail": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "widgetSwitchNextExercise": "切换下一动作",
   "@widgetSwitchNextExercise": {},
   "widgetEmptyPlanTitle": "还没有计划",
@@ -321,7 +530,19 @@
   "widgetEmptyPlanSubtitle": "点击创建你的第一个训练计划",
   "@widgetEmptyPlanSubtitle": {},
   "widgetProgressSummary": "{name} · {current}/{total}组",
-  "@widgetProgressSummary": { "placeholders": { "name": { "type": "String" }, "current": { "type": "int" }, "total": { "type": "int" } } },
+  "@widgetProgressSummary": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "widgetSelectMuscleTitle": "选择训练部位",
   "@widgetSelectMuscleTitle": {},
   "widgetNoDailyData": "暂无每日训练量数据",
@@ -347,7 +568,13 @@
   "widgetConfirm": "确定",
   "@widgetConfirm": {},
   "widgetSelectedDuration": "已选择: {duration}",
-  "@widgetSelectedDuration": { "placeholders": { "duration": { "type": "String" } } },
+  "@widgetSelectedDuration": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
   "widgetConfirmButton": "确认",
   "@widgetConfirmButton": {},
   "widgetSearchExerciseHint": "搜索动作...",
@@ -359,7 +586,16 @@
   "widgetAddToPlan": "添加到计划",
   "@widgetAddToPlan": {},
   "widgetImageStepIndicator": "第 {current} 步 / 共 {total} 步",
-  "@widgetImageStepIndicator": { "placeholders": { "current": { "type": "int" }, "total": { "type": "int" } } },
+  "@widgetImageStepIndicator": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "widgetExerciseInstructions": "动作指导",
   "@widgetExerciseInstructions": {},
   "widgetRecommendedConfig": "推荐配置",
@@ -367,12 +603,17 @@
   "widgetRecommendedSets": "推荐组数",
   "@widgetRecommendedSets": {},
   "widgetRecommendedSetsValue": "{n} 组",
-  "@widgetRecommendedSetsValue": { "placeholders": { "n": { "type": "int" } } },
+  "@widgetRecommendedSetsValue": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "widgetRepsRangeLabel": "次数范围",
   "@widgetRepsRangeLabel": {},
   "widgetRestLabel": "组间休息",
   "@widgetRestLabel": {},
-
   "settingsTitle": "设置",
   "@settingsTitle": {},
   "settingsAppearanceSection": "外观设置",
@@ -440,17 +681,41 @@
   "settingsExportConfirmBody": "将导出全部训练记录、计划、练习等数据。\n\n文件会保存到手机 Downloads 目录，同时弹出分享面板。",
   "@settingsExportConfirmBody": {},
   "settingsExportFailed": "导出失败: {error}",
-  "@settingsExportFailed": { "placeholders": { "error": { "type": "String" } } },
+  "@settingsExportFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
   "settingsImportConfirmTitle": "确认导入",
   "@settingsImportConfirmTitle": {},
   "settingsImportConfirmBody": "⚠️ 导入将覆盖现有全部数据！\n\n将恢复来自：\n{source}",
-  "@settingsImportConfirmBody": { "placeholders": { "source": { "type": "String" } } },
+  "@settingsImportConfirmBody": {
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  },
   "settingsConfirmImport": "确认导入",
   "@settingsConfirmImport": {},
   "settingsImportSuccess": "导入成功，共恢复 {count} 条记录",
-  "@settingsImportSuccess": { "placeholders": { "count": { "type": "int" } } },
+  "@settingsImportSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "settingsImportFailed": "导入失败: {error}",
-  "@settingsImportFailed": { "placeholders": { "error": { "type": "String" } } },
+  "@settingsImportFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
   "settingsFoundLocalBackups": "发现本地备份",
   "@settingsFoundLocalBackups": {},
   "settingsSelectManually": "手动选择文件",
@@ -594,7 +859,9 @@
   "prefFrequencyDays": "{count}天",
   "@prefFrequencyDays": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "prefFocusAreaSection": "重点部位",
@@ -632,13 +899,17 @@
   "historySetsSuffix": "{count}组",
   "@historySetsSuffix": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "historyExercisesSuffix": "{count}动作",
   "@historyExercisesSuffix": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "recDetailTitle": "训练详情",
@@ -666,7 +937,9 @@
   "recDetailSaveFailed": "保存失败: {error}",
   "@recDetailSaveFailed": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "recDetailUnsavedTitle": "保存更改？",
@@ -690,7 +963,9 @@
   "recDetailDeleteFailed": "删除失败: {error}",
   "@recDetailDeleteFailed": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "recDetailDeleteAction": "删除",
@@ -704,7 +979,9 @@
   "plansForDate": "{date} 的计划",
   "@plansForDate": {
     "placeholders": {
-      "date": { "type": "String" }
+      "date": {
+        "type": "String"
+      }
     }
   },
   "planAddButton": "+ 添加",
@@ -714,9 +991,15 @@
   "planRemoveFromDateConfirm": "确定要从 {month}月{day}日 移除「{name}」吗？",
   "@planRemoveFromDateConfirm": {
     "placeholders": {
-      "month": { "type": "int" },
-      "day": { "type": "int" },
-      "name": { "type": "String" }
+      "month": {
+        "type": "int"
+      },
+      "day": {
+        "type": "int"
+      },
+      "name": {
+        "type": "String"
+      }
     }
   },
   "planRemoveAction": "移除",
@@ -724,9 +1007,15 @@
   "planRemovedToast": "已从{month}月{day}日移除「{name}」",
   "@planRemovedToast": {
     "placeholders": {
-      "month": { "type": "int" },
-      "day": { "type": "int" },
-      "name": { "type": "String" }
+      "month": {
+        "type": "int"
+      },
+      "day": {
+        "type": "int"
+      },
+      "name": {
+        "type": "String"
+      }
     }
   },
   "planLibraryButton": "📚 我的计划库",
@@ -736,8 +1025,12 @@
   "planSelectToAddTitle": "选择计划添加到 {month}月{day}日",
   "@planSelectToAddTitle": {
     "placeholders": {
-      "month": { "type": "int" },
-      "day": { "type": "int" }
+      "month": {
+        "type": "int"
+      },
+      "day": {
+        "type": "int"
+      }
     }
   },
   "planCreateNew": "创建新计划",
@@ -751,15 +1044,23 @@
   "planAddedToDateToast": "已将「{name}」添加到 {month}月{day}日",
   "@planAddedToDateToast": {
     "placeholders": {
-      "month": { "type": "int" },
-      "day": { "type": "int" },
-      "name": { "type": "String" }
+      "month": {
+        "type": "int"
+      },
+      "day": {
+        "type": "int"
+      },
+      "name": {
+        "type": "String"
+      }
     }
   },
   "planAddFailed": "添加失败: {error}",
   "@planAddFailed": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "planDeleteTitle": "删除计划",
@@ -767,25 +1068,33 @@
   "planDeleteConfirm": "确定要删除「{name}」吗？此操作无法撤销。",
   "@planDeleteConfirm": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "planDeletedToast": "已删除「{name}」",
   "@planDeletedToast": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "planDeleteFailed": "删除失败: {error}",
   "@planDeleteFailed": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "planDetailTargetMuscles": "目标部位：{muscles}",
   "@planDetailTargetMuscles": {
     "placeholders": {
-      "muscles": { "type": "String" }
+      "muscles": {
+        "type": "String"
+      }
     }
   },
   "planDetailExerciseCountUnit": "个动作",
@@ -801,7 +1110,9 @@
   "planDetailEffectiveSets": "{count}组",
   "@planDetailEffectiveSets": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "planDetailAddToCalendar": "添加到日历",
@@ -851,7 +1162,9 @@
   "aiDurationMinutes": "{count}分钟",
   "@aiDurationMinutes": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "aiImportHeading": "导入AI分析计划",
@@ -873,7 +1186,9 @@
   "aiErrorParseFailed": "JSON解析失败: {error}",
   "@aiErrorParseFailed": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "aiGeneratePromptHeading": "生成AI提示词",
@@ -885,9 +1200,15 @@
   "aiDateDisplay": "{year}年{month}月{day}日",
   "@aiDateDisplay": {
     "placeholders": {
-      "year": { "type": "int" },
-      "month": { "type": "int" },
-      "day": { "type": "int" }
+      "year": {
+        "type": "int"
+      },
+      "month": {
+        "type": "int"
+      },
+      "day": {
+        "type": "int"
+      }
     }
   },
   "aiGeneratePromptButton": "生成提示词",
@@ -923,7 +1244,9 @@
   "aiPlanNameLabel": "计划名称: {name}",
   "@aiPlanNameLabel": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "aiImporting": "导入中...",
@@ -933,9 +1256,15 @@
   "aiMatchSummary": "匹配：{matched}个 ✅ | 待选：{candidates}个 ⚠️ | 未匹配：{unmatched}个",
   "@aiMatchSummary": {
     "placeholders": {
-      "matched": { "type": "int" },
-      "candidates": { "type": "int" },
-      "unmatched": { "type": "int" }
+      "matched": {
+        "type": "int"
+      },
+      "candidates": {
+        "type": "int"
+      },
+      "unmatched": {
+        "type": "int"
+      }
     }
   },
   "aiDayNameMon": "周一",
@@ -955,8 +1284,12 @@
   "aiDayTitle": "第{n}天 - {name}",
   "@aiDayTitle": {
     "placeholders": {
-      "n": { "type": "int" },
-      "name": { "type": "String" }
+      "n": {
+        "type": "int"
+      },
+      "name": {
+        "type": "String"
+      }
     }
   },
   "aiRestDay": "休息日",
@@ -964,25 +1297,33 @@
   "aiExerciseCountSuffix": "{count}个动作",
   "@aiExerciseCountSuffix": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "aiTargetMusclesLabel": "目标肌群: {muscles}",
   "@aiTargetMusclesLabel": {
     "placeholders": {
-      "muscles": { "type": "String" }
+      "muscles": {
+        "type": "String"
+      }
     }
   },
   "aiCandidatesBadge": "{count}个候选",
   "@aiCandidatesBadge": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "aiOriginalLabel": "原: {name}",
   "@aiOriginalLabel": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "aiDecreaseSets": "减少",
@@ -996,8 +1337,12 @@
   "aiSelectMatchSubtitle": "AI生成的\"{name}\"有{count}个候选",
   "@aiSelectMatchSubtitle": {
     "placeholders": {
-      "name": { "type": "String" },
-      "count": { "type": "int" }
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
     }
   },
   "aiKeepUnmatched": "保持为\"无详情\"",
@@ -1011,7 +1356,9 @@
   "aiImportFailedToast": "导入失败: {error}",
   "@aiImportFailedToast": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "aiNextPreviewImport": "下一步：预览导入",
@@ -1051,13 +1398,17 @@
   "pfQuickRemovedToast": "已移除：{muscles}",
   "@pfQuickRemovedToast": {
     "placeholders": {
-      "muscles": { "type": "String" }
+      "muscles": {
+        "type": "String"
+      }
     }
   },
   "pfQuickAddedToast": "已添加：{muscles}",
   "@pfQuickAddedToast": {
     "placeholders": {
-      "muscles": { "type": "String" }
+      "muscles": {
+        "type": "String"
+      }
     }
   },
   "pfSelectExerciseHeading": "选择训练动作",
@@ -1065,7 +1416,9 @@
   "pfSelectedMusclesLine": "已选部位：{muscles}",
   "@pfSelectedMusclesLine": {
     "placeholders": {
-      "muscles": { "type": "String" }
+      "muscles": {
+        "type": "String"
+      }
     }
   },
   "pfNotSelected": "未选择",
@@ -1081,7 +1434,9 @@
   "pfSetsSuffix": "({count}组)",
   "@pfSetsSuffix": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "pfContinueAdding": "继续添加动作",
@@ -1089,7 +1444,9 @@
   "pfSelectedCountLine": "已选 {count} 个动作",
   "@pfSelectedCountLine": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "pfConfirmHeading": "确认计划",
@@ -1107,7 +1464,9 @@
   "pfExerciseCountValue": "{count} 个",
   "@pfExerciseCountValue": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "pfSummaryTotalSets": "总组数",
@@ -1115,7 +1474,9 @@
   "pfTotalSetsValue": "{count} 组",
   "@pfTotalSetsValue": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "pfSummaryDuration": "预估时长",
@@ -1123,7 +1484,9 @@
   "pfDurationValue": "~{count} 分钟",
   "@pfDurationValue": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "pfDurationFootnote": "※ 预估时长 = 总组数 × 2.5分钟（含休息）",
@@ -1149,7 +1512,9 @@
   "pfSaveFailed": "保存失败: {error}",
   "@pfSaveFailed": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "pfDiscardTitle": "放弃编辑？",
@@ -1193,8 +1558,12 @@
   "anSessionsAndDays": "{sessions} 次 / {days} 天",
   "@anSessionsAndDays": {
     "placeholders": {
-      "sessions": { "type": "int" },
-      "days": { "type": "int" }
+      "sessions": {
+        "type": "int"
+      },
+      "days": {
+        "type": "int"
+      }
     }
   },
   "anSessionCount": "训练次数",
@@ -1206,7 +1575,9 @@
   "anDensityValue": "{value} 组/分钟",
   "@anDensityValue": {
     "placeholders": {
-      "value": { "type": "String" }
+      "value": {
+        "type": "String"
+      }
     }
   },
   "anAvgPerSession": "平均每次",
@@ -1214,20 +1585,16 @@
   "anAvgPerSessionValue": "{volume} kg / {minutes} 分钟",
   "@anAvgPerSessionValue": {
     "placeholders": {
-      "volume": { "type": "String" },
-      "minutes": { "type": "int" }
+      "volume": {
+        "type": "String"
+      },
+      "minutes": {
+        "type": "int"
+      }
     }
   },
-  "anTrendWeek": "趋势变化 (vs 上周)",
-  "@anTrendWeek": {},
-  "anTrendMonth": "趋势变化 (vs 上月)",
-  "@anTrendMonth": {},
   "anMuscleDistribution": "肌肉容量分布",
   "@anMuscleDistribution": {},
-  "anSetsPerMuscleWeek": "每肌群组数 (MEV参考: 10组/周)",
-  "@anSetsPerMuscleWeek": {},
-  "anSetsPerMuscleMonth": "每肌群组数 (MEV参考: 40组/月)",
-  "@anSetsPerMuscleMonth": {},
   "anEstimated1rm": "估算1RM (Mayhew公式)",
   "@anEstimated1rm": {},
   "an1rmProgression": "估算1RM进步趋势",
@@ -1250,18 +1617,6 @@
   "@anNoRecoveryData": {},
   "anNoMuscleRecoveryData": "- 暂无肌肉恢复数据",
   "@anNoMuscleRecoveryData": {},
-  "anMevWeekLabel": "周MEV参考: {count} 组",
-  "@anMevWeekLabel": {
-    "placeholders": {
-      "count": { "type": "int" }
-    }
-  },
-  "anMevMonthLabel": "月MEV参考: {count} 组",
-  "@anMevMonthLabel": {
-    "placeholders": {
-      "count": { "type": "int" }
-    }
-  },
   "anStatusSufficient": "✅ 充足",
   "@anStatusSufficient": {},
   "anStatusLow": "⚠️ 偏低",
@@ -1275,19 +1630,13 @@
   "anRecoveryRestMore": "⚠️ 建议再休息{days}天",
   "@anRecoveryRestMore": {
     "placeholders": {
-      "days": { "type": "int" }
+      "days": {
+        "type": "int"
+      }
     }
   },
   "anRecoveryJustTrained": "🔴 今日刚训练",
   "@anRecoveryJustTrained": {},
-  "anPeriodWeek": "本周",
-  "@anPeriodWeek": {},
-  "anPeriodMonth": "本月",
-  "@anPeriodMonth": {},
-  "anWeek": "周",
-  "@anWeek": {},
-  "anMonth": "月",
-  "@anMonth": {},
   "anGoalMuscleBuilding": "增肌",
   "@anGoalMuscleBuilding": {},
   "anGoalFatLoss": "减脂",
@@ -1299,18 +1648,22 @@
   "anDateRange": "{startMonth}月{startDay}日 - {endMonth}月{endDay}日",
   "@anDateRange": {
     "placeholders": {
-      "startMonth": { "type": "int" },
-      "startDay": { "type": "int" },
-      "endMonth": { "type": "int" },
-      "endDay": { "type": "int" }
+      "startMonth": {
+        "type": "int"
+      },
+      "startDay": {
+        "type": "int"
+      },
+      "endMonth": {
+        "type": "int"
+      },
+      "endDay": {
+        "type": "int"
+      }
     }
   },
-  "anPromptOpening": "你是一位专业的健身教练。根据我的训练数据报告，为我制定下个周期的训练计划。",
+  "anPromptOpening": "你是一位专业的健身教练。请根据我的训练数据报告，分析我的训练状态。",
   "@anPromptOpening": {},
-  "anPromptWeekNote": "本周数据量较少，重点关注恢复状态和下周的肌群轮换安排。",
-  "@anPromptWeekNote": {},
-  "anPromptMonthNote": "本月数据较充分，重点关注渐进超负荷趋势和肌群容量分配是否均衡。",
-  "@anPromptMonthNote": {},
   "anPromptReportHeader": "## 训练数据报告",
   "@anPromptReportHeader": {},
   "anPromptBasicInfoHeader": "### 基本信息",
@@ -1318,35 +1671,43 @@
   "anPromptPeriod": "- 分析周期: {period} ({range})",
   "@anPromptPeriod": {
     "placeholders": {
-      "period": { "type": "String" },
-      "range": { "type": "String" }
+      "period": {
+        "type": "String"
+      },
+      "range": {
+        "type": "String"
+      }
     }
   },
   "anPromptSessions": "- 训练次数: {sessions} 次 / {days} 天",
   "@anPromptSessions": {
     "placeholders": {
-      "sessions": { "type": "int" },
-      "days": { "type": "int" }
+      "sessions": {
+        "type": "int"
+      },
+      "days": {
+        "type": "int"
+      }
     }
   },
   "anPromptTotalVolume": "- 总训练量: {volume} kg (组×次×重量)",
   "@anPromptTotalVolume": {
     "placeholders": {
-      "volume": { "type": "String" }
+      "volume": {
+        "type": "String"
+      }
     }
   },
   "anPromptDensity": "- 训练密度: {value} 组/分钟",
   "@anPromptDensity": {
     "placeholders": {
-      "value": { "type": "String" }
+      "value": {
+        "type": "String"
+      }
     }
   },
-  "anPromptTrendHeader": "### 趋势变化（vs 上{period}）",
-  "@anPromptTrendHeader": {
-    "placeholders": {
-      "period": { "type": "String" }
-    }
-  },
+  "anPromptTrendHeader": "### 趋势变化（vs 上一个同长窗口）",
+  "@anPromptTrendHeader": {},
   "anPromptMuscleDistHeader": "### 肌肉容量分布",
   "@anPromptMuscleDistHeader": {},
   "anPromptSetsPerMuscleHeader": "### 每肌群组数",
@@ -1362,31 +1723,41 @@
   "anPromptGoal": "- 训练目标: {goal}",
   "@anPromptGoal": {
     "placeholders": {
-      "goal": { "type": "String" }
+      "goal": {
+        "type": "String"
+      }
     }
   },
   "anPromptExperience": "- 经验水平: {experience}",
   "@anPromptExperience": {
     "placeholders": {
-      "experience": { "type": "String" }
+      "experience": {
+        "type": "String"
+      }
     }
   },
   "anPromptFrequency": "- 每周频率: {frequency} 天",
   "@anPromptFrequency": {
     "placeholders": {
-      "frequency": { "type": "int" }
+      "frequency": {
+        "type": "int"
+      }
     }
   },
   "anPromptEquipment": "- 可用设备: {equipment}",
   "@anPromptEquipment": {
     "placeholders": {
-      "equipment": { "type": "String" }
+      "equipment": {
+        "type": "String"
+      }
     }
   },
   "anPromptFocusAreas": "- 重点加强: {areas}",
   "@anPromptFocusAreas": {
     "placeholders": {
-      "areas": { "type": "String" }
+      "areas": {
+        "type": "String"
+      }
     }
   },
   "anPromptOutputHeader": "## 输出格式",
@@ -1400,7 +1771,9 @@
   "anPromptOutputSplit": "- 分化方式的选择理由（结合我每周 {days} 天的训练频率）",
   "@anPromptOutputSplit": {
     "placeholders": {
-      "days": { "type": "int" }
+      "days": {
+        "type": "int"
+      }
     }
   },
   "anPromptOutputComparison": "- 与本周期数据的对比分析（哪些肌群训练不足需要加强，哪些已经过度需要恢复）",
@@ -1424,85 +1797,153 @@
   "anPromptVolumeTrendWithChange": "  - 总训练量: {volume} ({sign}{change}% {arrow})",
   "@anPromptVolumeTrendWithChange": {
     "placeholders": {
-      "volume": { "type": "String" },
-      "sign": { "type": "String" },
-      "change": { "type": "int" },
-      "arrow": { "type": "String" }
+      "volume": {
+        "type": "String"
+      },
+      "sign": {
+        "type": "String"
+      },
+      "change": {
+        "type": "int"
+      },
+      "arrow": {
+        "type": "String"
+      }
     }
   },
   "anPromptVolumeTrendNew": "  - 总训练量: {volume} (新周期)",
   "@anPromptVolumeTrendNew": {
     "placeholders": {
-      "volume": { "type": "String" }
+      "volume": {
+        "type": "String"
+      }
     }
   },
   "anPromptFreqTrend": "  - 训练频率: {days} 天 ({diff}{arrow})",
   "@anPromptFreqTrend": {
     "placeholders": {
-      "days": { "type": "int" },
-      "diff": { "type": "int" },
-      "arrow": { "type": "String" }
+      "days": {
+        "type": "int"
+      },
+      "diff": {
+        "type": "int"
+      },
+      "arrow": {
+        "type": "String"
+      }
     }
   },
   "anPromptMuscleTrend": "  - {muscle}: {sign}{change}% {arrow}",
   "@anPromptMuscleTrend": {
     "placeholders": {
-      "muscle": { "type": "String" },
-      "sign": { "type": "String" },
-      "change": { "type": "int" },
-      "arrow": { "type": "String" }
+      "muscle": {
+        "type": "String"
+      },
+      "sign": {
+        "type": "String"
+      },
+      "change": {
+        "type": "int"
+      },
+      "arrow": {
+        "type": "String"
+      }
     }
   },
   "anPromptMuscleDistLine": "  {index}. {muscle}: {volume} kg ({pct}%)",
   "@anPromptMuscleDistLine": {
     "placeholders": {
-      "index": { "type": "int" },
-      "muscle": { "type": "String" },
-      "volume": { "type": "String" },
-      "pct": { "type": "String" }
+      "index": {
+        "type": "int"
+      },
+      "muscle": {
+        "type": "String"
+      },
+      "volume": {
+        "type": "String"
+      },
+      "pct": {
+        "type": "String"
+      }
     }
   },
   "anPromptSetsLine": "  - {muscle}: {sets} 组 {status}",
   "@anPromptSetsLine": {
     "placeholders": {
-      "muscle": { "type": "String" },
-      "sets": { "type": "int" },
-      "status": { "type": "String" }
+      "muscle": {
+        "type": "String"
+      },
+      "sets": {
+        "type": "int"
+      },
+      "status": {
+        "type": "String"
+      }
     }
   },
   "anPrompt1rmLine": "  - {name}: ~{e1rm} kg (基于 {weight}kg×{reps})",
   "@anPrompt1rmLine": {
     "placeholders": {
-      "name": { "type": "String" },
-      "e1rm": { "type": "String" },
-      "weight": { "type": "String" },
-      "reps": { "type": "int" }
+      "name": {
+        "type": "String"
+      },
+      "e1rm": {
+        "type": "String"
+      },
+      "weight": {
+        "type": "String"
+      },
+      "reps": {
+        "type": "int"
+      }
     }
   },
   "anPrompt1rmProgressLine": "  - {name}: {from} → {to} kg ({sign}{change}% {arrow}{weeks})",
   "@anPrompt1rmProgressLine": {
     "placeholders": {
-      "name": { "type": "String" },
-      "from": { "type": "String" },
-      "to": { "type": "String" },
-      "sign": { "type": "String" },
-      "change": { "type": "String" },
-      "arrow": { "type": "String" },
-      "weeks": { "type": "String" }
+      "name": {
+        "type": "String"
+      },
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      },
+      "sign": {
+        "type": "String"
+      },
+      "change": {
+        "type": "String"
+      },
+      "arrow": {
+        "type": "String"
+      },
+      "weeks": {
+        "type": "String"
+      }
     }
   },
   "anPrompt1rmWeeksSuffix": " / {weeks}周",
   "@anPrompt1rmWeeksSuffix": {
     "placeholders": {
-      "weeks": { "type": "String" }
+      "weeks": {
+        "type": "String"
+      }
     }
   },
   "anPromptRecoveryLine": "  - {muscle}: 已休息{days}天 {status}",
   "@anPromptRecoveryLine": {
     "placeholders": {
-      "muscle": { "type": "String" },
-      "days": { "type": "int" },
-      "status": { "type": "String" }
+      "muscle": {
+        "type": "String"
+      },
+      "days": {
+        "type": "int"
+      },
+      "status": {
+        "type": "String"
+      }
     }
   },
   "statsAiAnalysis": "AI 分析",
@@ -1516,7 +1957,9 @@
   "statsOverviewMonth": "概览 ({month}月)",
   "@statsOverviewMonth": {
     "placeholders": {
-      "month": { "type": "int" }
+      "month": {
+        "type": "int"
+      }
     }
   },
   "statsDailyDurationTitle": "每日训练时长",
@@ -1544,8 +1987,12 @@
   "statsVolumeChangeVsPrev": "{sign}{percent}% vs 上期",
   "@statsVolumeChangeVsPrev": {
     "placeholders": {
-      "sign": { "type": "String" },
-      "percent": { "type": "int" }
+      "sign": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "int"
+      }
     }
   },
   "statsTotalSets": "总组数",
@@ -1571,16 +2018,26 @@
   "statsYearLabel": "{year}年",
   "@statsYearLabel": {
     "placeholders": {
-      "year": { "type": "int" }
+      "year": {
+        "type": "int"
+      }
     }
   },
   "statsWeekRange": "{sm}月{sd}日 - {em}月{ed}日",
   "@statsWeekRange": {
     "placeholders": {
-      "sm": { "type": "int" },
-      "sd": { "type": "int" },
-      "em": { "type": "int" },
-      "ed": { "type": "int" }
+      "sm": {
+        "type": "int"
+      },
+      "sd": {
+        "type": "int"
+      },
+      "em": {
+        "type": "int"
+      },
+      "ed": {
+        "type": "int"
+      }
     }
   },
   "statsNoData": "暂无训练数据",
@@ -1596,7 +2053,9 @@
   "statsOtherPercent": "其他 {value}%",
   "@statsOtherPercent": {
     "placeholders": {
-      "value": { "type": "String" }
+      "value": {
+        "type": "String"
+      }
     }
   },
   "statsNoRecoveryData": "暂无恢复数据",
@@ -1608,14 +2067,20 @@
   "statsSetsPerMinute": "{value} 组/分钟",
   "@statsSetsPerMinute": {
     "placeholders": {
-      "value": { "type": "String" }
+      "value": {
+        "type": "String"
+      }
     }
   },
   "statsSetsOverMinutes": "{sets}组 / {minutes}分钟",
   "@statsSetsOverMinutes": {
     "placeholders": {
-      "sets": { "type": "int" },
-      "minutes": { "type": "String" }
+      "sets": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "String"
+      }
     }
   },
   "statsNo1rmData": "暂无1RM数据",
@@ -1645,37 +2110,46 @@
   "statsMonthLabel": "{n}月",
   "@statsMonthLabel": {
     "placeholders": {
-      "n": { "type": "int" }
+      "n": {
+        "type": "int"
+      }
     }
   },
   "statsSetsCount": "{count} 组",
   "@statsSetsCount": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "statsExerciseCount": "{count}次",
   "@statsExerciseCount": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "statsRecoveryDays": "{muscle} {days}天",
   "@statsRecoveryDays": {
     "placeholders": {
-      "muscle": { "type": "String" },
-      "days": { "type": "int" }
+      "muscle": {
+        "type": "String"
+      },
+      "days": {
+        "type": "int"
+      }
     }
   },
   "statsRecordsCount": "{count}次记录",
   "@statsRecordsCount": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
-  "settingsEmailCopied": "邮箱已复制",
-  "@settingsEmailCopied": {},
-
   "historyExportAction": "导出档案",
   "@historyExportAction": {},
   "exportHistorySheetTitle": "导出训练历史",
@@ -1697,14 +2171,20 @@
   "exportHistoryRangeFromTo": "{from} 至 {to}",
   "@exportHistoryRangeFromTo": {
     "placeholders": {
-      "from": { "type": "String" },
-      "to": { "type": "String" }
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
     }
   },
   "exportHistoryButtonLabel": "导出 {count} 条训练记录",
   "@exportHistoryButtonLabel": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "exportHistoryNoRecords": "该范围内无训练记录",
@@ -1714,14 +2194,15 @@
   "exportHistoryFailed": "导出失败：{error}",
   "@exportHistoryFailed": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "exportHistoryCustomRangeTitle": "选择日期范围",
   "@exportHistoryCustomRangeTitle": {},
   "exportHistoryLoading": "正在生成训练档案…",
   "@exportHistoryLoading": {},
-
   "exportMarkdownH1": "训练档案 / Training History Archive",
   "@exportMarkdownH1": {},
   "exportMarkdownProfile": "用户档案 / Profile",
@@ -1739,7 +2220,9 @@
   "exportMarkdownSet": "第 {n} 组",
   "@exportMarkdownSet": {
     "placeholders": {
-      "n": { "type": "int" }
+      "n": {
+        "type": "int"
+      }
     }
   },
   "exportMarkdownVolumeNote": "训练量",
@@ -1767,11 +2250,26 @@
   "notifIdleReminderTitle": "训练还在进行中",
   "@notifIdleReminderTitle": {},
   "notifIdleReminderBody": "已经运动超过{minutes}分钟没有休息了。如果训练已结束，请回到应用停止计时。",
-  "@notifIdleReminderBody": {"placeholders": {"minutes": {"type": "int"}}},
+  "@notifIdleReminderBody": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
   "trainingDurationCorrectionTitle": "训练时长可能过长",
   "@trainingDurationCorrectionTitle": {},
   "trainingDurationCorrectionMessage": "本次训练计时 {duration}（共 {sets} 组）。如果计时包含了忘记停止的时间，请修正为实际时长（分钟）：",
-  "@trainingDurationCorrectionMessage": {"placeholders": {"duration": {"type": "String"}, "sets": {"type": "int"}}},
+  "@trainingDurationCorrectionMessage": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      },
+      "sets": {
+        "type": "int"
+      }
+    }
+  },
   "trainingDurationCorrectionKeep": "保持原时长",
   "@trainingDurationCorrectionKeep": {},
   "trainingDurationCorrectionApply": "修正并保存",
@@ -1783,8 +2281,13 @@
   "settingsIdleReminderAfter": "提醒阈值",
   "@settingsIdleReminderAfter": {},
   "settingsMinutes": "{minutes} 分钟",
-  "@settingsMinutes": {"placeholders": {"minutes": {"type": "int"}}},
-
+  "@settingsMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
   "statsTodayTitle": "今日状态",
   "@statsTodayTitle": {},
   "statsLoadRatioLabel": "负荷比值",
@@ -1804,20 +2307,46 @@
   "statsChipToday": "今天",
   "@statsChipToday": {},
   "statsChipDaysAgo": "{days}天前",
-  "@statsChipDaysAgo": {"placeholders": {"days": {"type": "int"}}},
+  "@statsChipDaysAgo": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
   "statsChipNever": "无数据",
   "@statsChipNever": {},
   "statsMuscleChip": "{muscle} · {when}",
-  "@statsMuscleChip": {"placeholders": {"muscle": {"type": "String"}, "when": {"type": "String"}}},
-
+  "@statsMuscleChip": {
+    "placeholders": {
+      "muscle": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
   "statsDoseTitle": "剂量 · 滚动7天",
   "@statsDoseTitle": {},
   "statsDoseVolumeLabel": "近7天容量",
   "@statsDoseVolumeLabel": {},
   "statsDoseMevLine": "MEV {mev}",
-  "@statsDoseMevLine": {"placeholders": {"mev": {"type": "int"}}},
+  "@statsDoseMevLine": {
+    "placeholders": {
+      "mev": {
+        "type": "int"
+      }
+    }
+  },
   "statsDoseMrvLine": "MRV {mrv}",
-  "@statsDoseMrvLine": {"placeholders": {"mrv": {"type": "int"}}},
+  "@statsDoseMrvLine": {
+    "placeholders": {
+      "mrv": {
+        "type": "int"
+      }
+    }
+  },
   "statsDoseBelow": "不足",
   "@statsDoseBelow": {},
   "statsDoseIn": "带内",
@@ -1826,7 +2355,6 @@
   "@statsDoseAbove": {},
   "statsDoseDisclaimer": "MEV/MRV 为实践参考线，非医学标准",
   "@statsDoseDisclaimer": {},
-
   "statsProgressAll": "全部",
   "@statsProgressAll": {},
   "statsProgress90d": "近90天",
@@ -1842,18 +2370,124 @@
   "statsLatestPr": "最近PR",
   "@statsLatestPr": {},
   "statsPrLine": "{name}：{weight}kg × {reps}",
-  "@statsPrLine": {"placeholders": {"name": {"type": "String"}, "weight": {"type": "String"}, "reps": {"type": "int"}}},
+  "@statsPrLine": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "weight": {
+        "type": "String"
+      },
+      "reps": {
+        "type": "int"
+      }
+    }
+  },
   "statsProgressEmpty": "暂无带组数据的动作（需要每组重量×次数）",
   "@statsProgressEmpty": {},
-
   "statsHabitTitle": "习惯",
   "@statsHabitTitle": {},
   "statsHabitStreak": "连续 {weeks} 周达标",
-  "@statsHabitStreak": {"placeholders": {"weeks": {"type": "int"}}},
+  "@statsHabitStreak": {
+    "placeholders": {
+      "weeks": {
+        "type": "int"
+      }
+    }
+  },
   "statsHabitNoStreak": "还没有完整达标周",
   "@statsHabitNoStreak": {},
   "statsHabitThisWeek": "本周 {count}/{target} 次",
-  "@statsHabitThisWeek": {"placeholders": {"count": {"type": "int"}, "target": {"type": "int"}}},
+  "@statsHabitThisWeek": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "target": {
+        "type": "int"
+      }
+    }
+  },
   "statsHabitHeatmapTitle": "全年训练",
-  "@statsHabitHeatmapTitle": {}
+  "@statsHabitHeatmapTitle": {},
+  "anRangeDays": "最近 {days} 天",
+  "@anRangeDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "anTrendRolling": "趋势变化（近 {days} 天）",
+  "@anTrendRolling": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "anSetsPerMuscleRolling": "每肌群组数（近 {days} 天）",
+  "@anSetsPerMuscleRolling": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "anMevRangeLabel": "MEV 参考：本周期折合 {mev} 组",
+  "@anMevRangeLabel": {
+    "placeholders": {
+      "mev": {
+        "type": "int"
+      }
+    }
+  },
+  "anPromptRollingNote": "本周期数据较充分，重点关注渐进超负荷趋势和肌群容量分配是否均衡。",
+  "@anPromptRollingNote": {},
+  "anPromptRollingNoteSparse": "本周期数据量较少，重点关注恢复状态和肌群轮换安排。",
+  "@anPromptRollingNoteSparse": {},
+  "anPromptLoadRatio": "- 急慢性负荷比(近7天÷28天基线): {ratio}（护栏参考，非伤病预测）",
+  "@anPromptLoadRatio": {
+    "placeholders": {
+      "ratio": {
+        "type": "String"
+      }
+    }
+  },
+  "anPromptLoadRatioNoData": "- 急慢性负荷比: 基线不足（急性期之外无记录）",
+  "@anPromptLoadRatioNoData": {},
+  "anOutputModeLabel": "输出内容",
+  "@anOutputModeLabel": {},
+  "anOutputModeReview": "纯复盘",
+  "@anOutputModeReview": {},
+  "anOutputModeReviewPlan": "复盘 + 下周计划",
+  "@anOutputModeReviewPlan": {},
+  "anPromptOutputReviewPart1": "**第一部分：数据解读与下阶段建议**",
+  "@anPromptOutputReviewPart1": {},
+  "anPromptOutputReviewDetail": "请包含：\n- 数据解读（容量 / 频率 / 肌群均衡 / 恢复状态）\n- 问题清单（失衡、恢复不足、平台期信号）\n- 下阶段 2-3 条可执行调整（含减载时机建议）",
+  "@anPromptOutputReviewDetail": {},
+  "anPromptClosingReview": "请先解读数据，再给出下阶段调整建议。",
+  "@anPromptClosingReview": {},
+  "anPromptJsonHardRules": "JSON 硬性约束：`days` 数组最多 7 项；`dayOfWeek` 只能是 1-7 的整数；禁止输出多周/多月结构。",
+  "@anPromptJsonHardRules": {},
+  "anRangeCustom": "自定义",
+  "@anRangeCustom": {},
+  "statsAiReviewSubtitle": "选择滚动复盘范围（锚定今天），生成提示词交给 AI",
+  "@statsAiReviewSubtitle": {},
+  "aiImportWarnOutOfRange": "AI 返回 {count} 个越界日期（如 dayOfWeek > 7），已丢弃——AI 可能输出了多周结构，请核对",
+  "@aiImportWarnOutOfRange": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "aiImportWarnDuplicate": "存在重复的训练日（{days}）——同一天会导入多个计划",
+  "@aiImportWarnDuplicate": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  }
 }

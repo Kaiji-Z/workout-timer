@@ -1629,19 +1629,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get anTrendWeek => '趋势变化 (vs 上周)';
-
-  @override
-  String get anTrendMonth => '趋势变化 (vs 上月)';
-
-  @override
   String get anMuscleDistribution => '肌肉容量分布';
-
-  @override
-  String get anSetsPerMuscleWeek => '每肌群组数 (MEV参考: 10组/周)';
-
-  @override
-  String get anSetsPerMuscleMonth => '每肌群组数 (MEV参考: 40组/月)';
 
   @override
   String get anEstimated1rm => '估算1RM (Mayhew公式)';
@@ -1677,16 +1665,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get anNoMuscleRecoveryData => '- 暂无肌肉恢复数据';
 
   @override
-  String anMevWeekLabel(int count) {
-    return '周MEV参考: $count 组';
-  }
-
-  @override
-  String anMevMonthLabel(int count) {
-    return '月MEV参考: $count 组';
-  }
-
-  @override
   String get anStatusSufficient => '✅ 充足';
 
   @override
@@ -1710,18 +1688,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get anRecoveryJustTrained => '🔴 今日刚训练';
 
   @override
-  String get anPeriodWeek => '本周';
-
-  @override
-  String get anPeriodMonth => '本月';
-
-  @override
-  String get anWeek => '周';
-
-  @override
-  String get anMonth => '月';
-
-  @override
   String get anGoalMuscleBuilding => '增肌';
 
   @override
@@ -1739,13 +1705,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get anPromptOpening => '你是一位专业的健身教练。根据我的训练数据报告，为我制定下个周期的训练计划。';
-
-  @override
-  String get anPromptWeekNote => '本周数据量较少，重点关注恢复状态和下周的肌群轮换安排。';
-
-  @override
-  String get anPromptMonthNote => '本月数据较充分，重点关注渐进超负荷趋势和肌群容量分配是否均衡。';
+  String get anPromptOpening => '你是一位专业的健身教练。请根据我的训练数据报告，分析我的训练状态。';
 
   @override
   String get anPromptReportHeader => '## 训练数据报告';
@@ -1774,9 +1734,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String anPromptTrendHeader(String period) {
-    return '### 趋势变化（vs 上$period）';
-  }
+  String get anPromptTrendHeader => '### 趋势变化（vs 上一个同长窗口）';
 
   @override
   String get anPromptMuscleDistHeader => '### 肌肉容量分布';
@@ -2400,4 +2358,77 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get statsHabitHeatmapTitle => '全年训练';
+
+  @override
+  String anRangeDays(int days) {
+    return '最近 $days 天';
+  }
+
+  @override
+  String anTrendRolling(int days) {
+    return '趋势变化（近 $days 天）';
+  }
+
+  @override
+  String anSetsPerMuscleRolling(int days) {
+    return '每肌群组数（近 $days 天）';
+  }
+
+  @override
+  String anMevRangeLabel(int mev) {
+    return 'MEV 参考：本周期折合 $mev 组';
+  }
+
+  @override
+  String get anPromptRollingNote => '本周期数据较充分，重点关注渐进超负荷趋势和肌群容量分配是否均衡。';
+
+  @override
+  String get anPromptRollingNoteSparse => '本周期数据量较少，重点关注恢复状态和肌群轮换安排。';
+
+  @override
+  String anPromptLoadRatio(String ratio) {
+    return '- 急慢性负荷比(近7天÷28天基线): $ratio（护栏参考，非伤病预测）';
+  }
+
+  @override
+  String get anPromptLoadRatioNoData => '- 急慢性负荷比: 基线不足（急性期之外无记录）';
+
+  @override
+  String get anOutputModeLabel => '输出内容';
+
+  @override
+  String get anOutputModeReview => '纯复盘';
+
+  @override
+  String get anOutputModeReviewPlan => '复盘 + 下周计划';
+
+  @override
+  String get anPromptOutputReviewPart1 => '**第一部分：数据解读与下阶段建议**';
+
+  @override
+  String get anPromptOutputReviewDetail =>
+      '请包含：\n- 数据解读（容量 / 频率 / 肌群均衡 / 恢复状态）\n- 问题清单（失衡、恢复不足、平台期信号）\n- 下阶段 2-3 条可执行调整（含减载时机建议）';
+
+  @override
+  String get anPromptClosingReview => '请先解读数据，再给出下阶段调整建议。';
+
+  @override
+  String get anPromptJsonHardRules =>
+      'JSON 硬性约束：`days` 数组最多 7 项；`dayOfWeek` 只能是 1-7 的整数；禁止输出多周/多月结构。';
+
+  @override
+  String get anRangeCustom => '自定义';
+
+  @override
+  String get statsAiReviewSubtitle => '选择滚动复盘范围（锚定今天），生成提示词交给 AI';
+
+  @override
+  String aiImportWarnOutOfRange(int count) {
+    return 'AI 返回 $count 个越界日期（如 dayOfWeek > 7），已丢弃——AI 可能输出了多周结构，请核对';
+  }
+
+  @override
+  String aiImportWarnDuplicate(String days) {
+    return '存在重复的训练日（$days）——同一天会导入多个计划';
+  }
 }

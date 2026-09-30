@@ -2976,35 +2976,11 @@ abstract class AppLocalizations {
   /// **'{volume} kg / {minutes} 分钟'**
   String anAvgPerSessionValue(String volume, int minutes);
 
-  /// No description provided for @anTrendWeek.
-  ///
-  /// In zh, this message translates to:
-  /// **'趋势变化 (vs 上周)'**
-  String get anTrendWeek;
-
-  /// No description provided for @anTrendMonth.
-  ///
-  /// In zh, this message translates to:
-  /// **'趋势变化 (vs 上月)'**
-  String get anTrendMonth;
-
   /// No description provided for @anMuscleDistribution.
   ///
   /// In zh, this message translates to:
   /// **'肌肉容量分布'**
   String get anMuscleDistribution;
-
-  /// No description provided for @anSetsPerMuscleWeek.
-  ///
-  /// In zh, this message translates to:
-  /// **'每肌群组数 (MEV参考: 10组/周)'**
-  String get anSetsPerMuscleWeek;
-
-  /// No description provided for @anSetsPerMuscleMonth.
-  ///
-  /// In zh, this message translates to:
-  /// **'每肌群组数 (MEV参考: 40组/月)'**
-  String get anSetsPerMuscleMonth;
 
   /// No description provided for @anEstimated1rm.
   ///
@@ -3072,18 +3048,6 @@ abstract class AppLocalizations {
   /// **'- 暂无肌肉恢复数据'**
   String get anNoMuscleRecoveryData;
 
-  /// No description provided for @anMevWeekLabel.
-  ///
-  /// In zh, this message translates to:
-  /// **'周MEV参考: {count} 组'**
-  String anMevWeekLabel(int count);
-
-  /// No description provided for @anMevMonthLabel.
-  ///
-  /// In zh, this message translates to:
-  /// **'月MEV参考: {count} 组'**
-  String anMevMonthLabel(int count);
-
   /// No description provided for @anStatusSufficient.
   ///
   /// In zh, this message translates to:
@@ -3126,30 +3090,6 @@ abstract class AppLocalizations {
   /// **'🔴 今日刚训练'**
   String get anRecoveryJustTrained;
 
-  /// No description provided for @anPeriodWeek.
-  ///
-  /// In zh, this message translates to:
-  /// **'本周'**
-  String get anPeriodWeek;
-
-  /// No description provided for @anPeriodMonth.
-  ///
-  /// In zh, this message translates to:
-  /// **'本月'**
-  String get anPeriodMonth;
-
-  /// No description provided for @anWeek.
-  ///
-  /// In zh, this message translates to:
-  /// **'周'**
-  String get anWeek;
-
-  /// No description provided for @anMonth.
-  ///
-  /// In zh, this message translates to:
-  /// **'月'**
-  String get anMonth;
-
   /// No description provided for @anGoalMuscleBuilding.
   ///
   /// In zh, this message translates to:
@@ -3183,20 +3123,8 @@ abstract class AppLocalizations {
   /// No description provided for @anPromptOpening.
   ///
   /// In zh, this message translates to:
-  /// **'你是一位专业的健身教练。根据我的训练数据报告，为我制定下个周期的训练计划。'**
+  /// **'你是一位专业的健身教练。请根据我的训练数据报告，分析我的训练状态。'**
   String get anPromptOpening;
-
-  /// No description provided for @anPromptWeekNote.
-  ///
-  /// In zh, this message translates to:
-  /// **'本周数据量较少，重点关注恢复状态和下周的肌群轮换安排。'**
-  String get anPromptWeekNote;
-
-  /// No description provided for @anPromptMonthNote.
-  ///
-  /// In zh, this message translates to:
-  /// **'本月数据较充分，重点关注渐进超负荷趋势和肌群容量分配是否均衡。'**
-  String get anPromptMonthNote;
 
   /// No description provided for @anPromptReportHeader.
   ///
@@ -3237,8 +3165,8 @@ abstract class AppLocalizations {
   /// No description provided for @anPromptTrendHeader.
   ///
   /// In zh, this message translates to:
-  /// **'### 趋势变化（vs 上{period}）'**
-  String anPromptTrendHeader(String period);
+  /// **'### 趋势变化（vs 上一个同长窗口）'**
+  String get anPromptTrendHeader;
 
   /// No description provided for @anPromptMuscleDistHeader.
   ///
@@ -4288,6 +4216,120 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'全年训练'**
   String get statsHabitHeatmapTitle;
+
+  /// No description provided for @anRangeDays.
+  ///
+  /// In zh, this message translates to:
+  /// **'最近 {days} 天'**
+  String anRangeDays(int days);
+
+  /// No description provided for @anTrendRolling.
+  ///
+  /// In zh, this message translates to:
+  /// **'趋势变化（近 {days} 天）'**
+  String anTrendRolling(int days);
+
+  /// No description provided for @anSetsPerMuscleRolling.
+  ///
+  /// In zh, this message translates to:
+  /// **'每肌群组数（近 {days} 天）'**
+  String anSetsPerMuscleRolling(int days);
+
+  /// No description provided for @anMevRangeLabel.
+  ///
+  /// In zh, this message translates to:
+  /// **'MEV 参考：本周期折合 {mev} 组'**
+  String anMevRangeLabel(int mev);
+
+  /// No description provided for @anPromptRollingNote.
+  ///
+  /// In zh, this message translates to:
+  /// **'本周期数据较充分，重点关注渐进超负荷趋势和肌群容量分配是否均衡。'**
+  String get anPromptRollingNote;
+
+  /// No description provided for @anPromptRollingNoteSparse.
+  ///
+  /// In zh, this message translates to:
+  /// **'本周期数据量较少，重点关注恢复状态和肌群轮换安排。'**
+  String get anPromptRollingNoteSparse;
+
+  /// No description provided for @anPromptLoadRatio.
+  ///
+  /// In zh, this message translates to:
+  /// **'- 急慢性负荷比(近7天÷28天基线): {ratio}（护栏参考，非伤病预测）'**
+  String anPromptLoadRatio(String ratio);
+
+  /// No description provided for @anPromptLoadRatioNoData.
+  ///
+  /// In zh, this message translates to:
+  /// **'- 急慢性负荷比: 基线不足（急性期之外无记录）'**
+  String get anPromptLoadRatioNoData;
+
+  /// No description provided for @anOutputModeLabel.
+  ///
+  /// In zh, this message translates to:
+  /// **'输出内容'**
+  String get anOutputModeLabel;
+
+  /// No description provided for @anOutputModeReview.
+  ///
+  /// In zh, this message translates to:
+  /// **'纯复盘'**
+  String get anOutputModeReview;
+
+  /// No description provided for @anOutputModeReviewPlan.
+  ///
+  /// In zh, this message translates to:
+  /// **'复盘 + 下周计划'**
+  String get anOutputModeReviewPlan;
+
+  /// No description provided for @anPromptOutputReviewPart1.
+  ///
+  /// In zh, this message translates to:
+  /// **'**第一部分：数据解读与下阶段建议**'**
+  String get anPromptOutputReviewPart1;
+
+  /// No description provided for @anPromptOutputReviewDetail.
+  ///
+  /// In zh, this message translates to:
+  /// **'请包含：\n- 数据解读（容量 / 频率 / 肌群均衡 / 恢复状态）\n- 问题清单（失衡、恢复不足、平台期信号）\n- 下阶段 2-3 条可执行调整（含减载时机建议）'**
+  String get anPromptOutputReviewDetail;
+
+  /// No description provided for @anPromptClosingReview.
+  ///
+  /// In zh, this message translates to:
+  /// **'请先解读数据，再给出下阶段调整建议。'**
+  String get anPromptClosingReview;
+
+  /// No description provided for @anPromptJsonHardRules.
+  ///
+  /// In zh, this message translates to:
+  /// **'JSON 硬性约束：`days` 数组最多 7 项；`dayOfWeek` 只能是 1-7 的整数；禁止输出多周/多月结构。'**
+  String get anPromptJsonHardRules;
+
+  /// No description provided for @anRangeCustom.
+  ///
+  /// In zh, this message translates to:
+  /// **'自定义'**
+  String get anRangeCustom;
+
+  /// No description provided for @statsAiReviewSubtitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'选择滚动复盘范围（锚定今天），生成提示词交给 AI'**
+  String get statsAiReviewSubtitle;
+
+  /// No description provided for @aiImportWarnOutOfRange.
+  ///
+  /// In zh, this message translates to:
+  /// **'AI 返回 {count} 个越界日期（如 dayOfWeek > 7），已丢弃——AI 可能输出了多周结构，请核对'**
+  String aiImportWarnOutOfRange(int count);
+
+  /// No description provided for @aiImportWarnDuplicate.
+  ///
+  /// In zh, this message translates to:
+  /// **'存在重复的训练日（{days}）——同一天会导入多个计划'**
+  String aiImportWarnDuplicate(String days);
 }
 
 class _AppLocalizationsDelegate
