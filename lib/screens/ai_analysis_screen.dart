@@ -16,8 +16,10 @@ import '../widgets/ai_analysis_components.dart';
 
 /// Full-screen page for AI training analysis.
 /// Generates a rich prompt from workout data and lets users copy it to external AI tools.
+///
+/// 复盘范围是滚动窗口（.goal/SPEC.md §3.4）：[startDate]..[endDate] 由
+/// 调用方计算（默认锚定今天），不再有周/月日历桶的概念。
 class AIAnalysisScreen extends StatefulWidget {
-  final String periodType; // 'week' or 'month'
   final DateTime startDate;
   final DateTime endDate;
   final List<WorkoutRecord> records; // current period
@@ -27,7 +29,6 @@ class AIAnalysisScreen extends StatefulWidget {
 
   const AIAnalysisScreen({
     super.key,
-    required this.periodType,
     required this.startDate,
     required this.endDate,
     required this.records,
@@ -43,7 +44,17 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
   String? _generatedPrompt;
   bool _isPromptCopied = false;
 
+  /// 输出模式：纯复盘 / 复盘+下周计划（默认后者，SPEC §3.4）
+  bool _includeNextPlan = true;
+
   final StatsCalculatorService _statsCalc = StatsCalculatorService();
+
+  /// 复盘窗口天数（含首尾）
+  int get _rangeDays =>
+      widget.endDate.difference(widget.startDate).inDays + 1;
+
+  /// 窗口是否长到让 1RM 进步趋势有意义（≥3 周）
+  bool get _showProgression => _rangeDays >= 21;
 
   // User preferences loaded asynchronously
   String _selectedGoal = 'muscle_building';
@@ -262,21 +273,18 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
     );
     if (setsPerMuscle.isEmpty) return l10n.anNoSetsData;
 
-    final isWeek = widget.periodType == 'week';
-    // MEV reference: 10 sets/week (Schoenfeld 2017)
-    const weeklyMev = 10;
-    final mevLabel = isWeek
-        ? l10n.anMevWeekLabel(weeklyMev)
-        : l10n.anMevMonthLabel(weeklyMev * 4);
+    // MEV 按滚动窗口长度折算：10 组/周 × rangeDays/7
+    final mevForRange =
+        (StatsCalculatorService.weeklyMevSets * _rangeDays / 7).round();
 
     final sorted = setsPerMuscle.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
 
     final buffer = StringBuffer();
-    buffer.writeln('  ($mevLabel)');
+    buffer.writeln('  (${l10n.anMevRangeLabel(mevForRange)})');
     for (final entry in sorted) {
       final sets = entry.value;
-      final ratio = isWeek ? sets / weeklyMev : sets / (weeklyMev * 4);
+      final ratio = mevForRange > 0 ? sets / mevForRange : 0.0;
       String status;
       if (ratio >= 1.0) {
         status = l10n.anStatusSufficient;
@@ -450,9 +458,8 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
   // ==================== Prompt Generation ====================
 
   String _generatePrompt(AppLocalizations l10n) {
-    final isWeek = widget.periodType == 'week';
-    final periodLabel = isWeek ? l10n.anPeriodWeek : l10n.anPeriodMonth;
-    final periodWord = isWeek ? l10n.anWeek : l10n.anMonth;
+    final rangeDays = _rangeDays;
+    final periodLabel = l10n.anRangeDays(rangeDays);
     final dateRange = l10n.anDateRange(
       widget.startDate.month,
       widget.startDate.day,
@@ -530,12 +537,12 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
 
     final buffer = StringBuffer();
 
-    // Opening — period-adaptive
+    // Opening — 按窗口数据量自适应的滚动提示
     buffer.writeln(l10n.anPromptOpening);
-    if (isWeek) {
-      buffer.writeln(l10n.anPromptWeekNote);
+    if (sessionCount >= 3) {
+      buffer.writeln(l10n.anPromptRollingNote);
     } else {
-      buffer.writeln(l10n.anPromptMonthNote);
+      buffer.writeln(l10n.anPromptRollingNoteSparse);
     }
     buffer.writeln();
 
@@ -549,10 +556,21 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
     buffer.writeln(l10n.anPromptSessions(sessionCount, workoutDays));
     buffer.writeln(l10n.anPromptTotalVolume(fmtVol(totalVolume)));
     buffer.writeln(l10n.anPromptDensity(density.toStringAsFixed(1)));
+
+    // 急慢性负荷比（护栏参考）——窗口锚定 endDate
+    final loadRatio = _statsCalc.acuteChronicRatio(
+      widget.allRecords.isNotEmpty ? widget.allRecords : widget.records,
+      asOf: widget.endDate,
+    );
+    buffer.writeln(
+      loadRatio == null
+          ? l10n.anPromptLoadRatioNoData
+          : l10n.anPromptLoadRatio(loadRatio.toStringAsFixed(2)),
+    );
     buffer.writeln();
 
     // Trend changes
-    buffer.writeln(l10n.anPromptTrendHeader(periodWord));
+    buffer.writeln(l10n.anPromptTrendHeader);
     buffer.writeln(_formatVolumeTrend(l10n));
     buffer.writeln();
 
@@ -571,8 +589,8 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
     buffer.writeln(_formatEstimated1RM(l10n));
     buffer.writeln();
 
-    // 1RM progression — MONTH ONLY
-    if (!isWeek) {
+    // 1RM progression — 仅窗口 ≥3 周时有意义
+    if (_showProgression) {
       buffer.writeln(l10n.anPrompt1rmProgressionHeader);
       buffer.writeln(_format1RMProgression(l10n));
       buffer.writeln();
@@ -600,10 +618,22 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
     }
     buffer.writeln();
 
-    // Output format
+    // Output format — 两种模式（SPEC §3.4 输出开关）
     buffer.writeln(l10n.anPromptOutputHeader);
     buffer.writeln(l10n.anPromptOutputIntro);
     buffer.writeln();
+
+    if (!_includeNextPlan) {
+      // 纯复盘：只出数据解读与下阶段建议，无 JSON
+      buffer.writeln(l10n.anPromptOutputReviewPart1);
+      buffer.writeln();
+      buffer.writeln(l10n.anPromptOutputReviewDetail);
+      buffer.writeln();
+      buffer.writeln(l10n.anPromptClosingReview);
+      return buffer.toString();
+    }
+
+    // 复盘 + 下周计划
     buffer.writeln(l10n.anPromptOutputPart1);
     buffer.writeln();
     buffer.writeln(l10n.anPromptOutputPart1Detail);
@@ -615,6 +645,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
     buffer.writeln(l10n.anPromptOutputPart2);
     buffer.writeln();
     buffer.writeln(l10n.anPromptOutputJson);
+    buffer.writeln(l10n.anPromptJsonHardRules);
     buffer.writeln('```json');
     buffer.writeln('{');
     buffer.writeln('  "name": "...",');
@@ -658,7 +689,6 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
     final themeProvider = context.watch<ThemeProvider>();
     final theme = themeProvider.currentTheme;
     final l10n = context.l10n;
-    final isWeek = widget.periodType == 'week';
 
     return Scaffold(
       backgroundColor: theme.primaryColor,
@@ -711,8 +741,8 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
             ),
             const SizedBox(height: 12),
 
-            // f) 1RM Progression — MONTH ONLY
-            if (!isWeek) ...[
+            // f) 1RM Progression — 仅窗口 ≥3 周
+            if (_showProgression) ...[
               buildAnalysisGlassCard(
                 theme: theme,
                 child: _build1RMProgressionSection(theme),
@@ -731,6 +761,8 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
 
             // Section 3: Generated Prompt
             buildAnalysisSectionHeader(context, l10n.anPromptHeading, theme),
+            const SizedBox(height: 12),
+            _buildOutputModeToggle(theme),
             const SizedBox(height: 12),
             _buildPromptContainer(theme),
             const SizedBox(height: 16),
@@ -828,7 +860,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
       children: [
         buildAnalysisSubsectionHeader(
           context,
-          widget.periodType == 'week' ? l10n.anTrendWeek : l10n.anTrendMonth,
+          l10n.anTrendRolling(_rangeDays),
           theme,
         ),
         Text(
@@ -864,9 +896,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
       children: [
         buildAnalysisSubsectionHeader(
           context,
-          widget.periodType == 'week'
-              ? l10n.anSetsPerMuscleWeek
-              : l10n.anSetsPerMuscleMonth,
+          l10n.anSetsPerMuscleRolling(_rangeDays),
           theme,
         ),
         Text(
@@ -917,6 +947,65 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
         ),
       ],
     );
+  }
+
+  /// 输出模式切换：纯复盘 / 复盘+下周计划（SPEC §3.4）。
+  ///
+  /// 切换即时重新生成提示词（若已生成）。
+  Widget _buildOutputModeToggle(AppThemeData theme) {
+    final l10n = context.l10n;
+    Widget chip(String label, bool selected, VoidCallback onTap) {
+      return GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            // The 15% Tint Rule — 选中态实底 accent，未选中 15% tint
+            color: selected
+                ? theme.accentColor
+                : theme.accentColor.withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(AppDimensions.radiusChip),
+          ),
+          child: Text(
+            label,
+            style: context.bodySmall.copyWith(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: selected ? theme.onAccentColor : theme.accentColor,
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Wrap(
+      crossAxisAlignment: WrapCrossAlignment.center,
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        Text(
+          l10n.anOutputModeLabel,
+          style: context.bodySmall.copyWith(color: theme.secondaryTextColor),
+        ),
+        chip(l10n.anOutputModeReviewPlan, _includeNextPlan, () {
+          _setOutputMode(true);
+        }),
+        chip(l10n.anOutputModeReview, !_includeNextPlan, () {
+          _setOutputMode(false);
+        }),
+      ],
+    );
+  }
+
+  void _setOutputMode(bool includePlan) {
+    if (_includeNextPlan == includePlan) return;
+    final l10n = context.l10n;
+    setState(() {
+      _includeNextPlan = includePlan;
+      if (_generatedPrompt != null) {
+        _generatedPrompt = _generatePrompt(l10n);
+      }
+    });
   }
 
   Widget _buildPromptContainer(AppThemeData theme) {

@@ -115,7 +115,7 @@ class _StatsScreenState extends State<StatsScreen> {
         ),
         actions: [
           TextButton.icon(
-            onPressed: () => _navigateToAIAnalysis(),
+            onPressed: () => _openAiReview(30),
             icon: Icon(Icons.psychology, size: 20, color: theme.accentColor),
             label: Text(
               l10n.statsAiAnalysis,
@@ -255,7 +255,145 @@ class _StatsScreenState extends State<StatsScreen> {
         ),
         const SizedBox(height: 12),
         buildDensityMetric(context, rolling28, theme),
+        const SizedBox(height: 20),
+        _buildAiReviewEntry(theme),
       ],
+    );
+  }
+
+  // ==================== AI 复盘入口（滚动范围） ====================
+
+  Widget _buildAiReviewEntry(AppThemeData theme) {
+    final l10n = context.l10n;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(AppDimensions.screenPadding),
+      decoration: BoxDecoration(
+        color: theme.surfaceColorRaised,
+        borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
+        boxShadow: AppElevation.raised(theme.shadowColor),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.psychology, size: 16, color: theme.accentColor),
+              const SizedBox(width: 6),
+              Text(
+                l10n.statsAiAnalysis,
+                style: context.bodyMedium.copyWith(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: theme.secondaryTextColor,
+                  letterSpacing: 1,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            l10n.statsAiReviewSubtitle,
+            style: context.bodySmall.copyWith(
+              color: theme.secondaryTextColor,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _rangeChip(theme, l10n.anRangeDays(7), () => _openAiReview(7)),
+              _rangeChip(theme, l10n.anRangeDays(30), () => _openAiReview(30)),
+              _rangeChip(theme, l10n.anRangeDays(90), () => _openAiReview(90)),
+              _rangeChip(theme, l10n.anRangeCustom, _openAiReviewCustom),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _rangeChip(AppThemeData theme, String label, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          // The 15% Tint Rule
+          color: theme.accentColor.withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(AppDimensions.radiusChip),
+          border: Border.all(
+            color: theme.accentColor.withValues(alpha: 0.3),
+          ),
+        ),
+        child: Text(
+          label,
+          style: context.bodySmall.copyWith(
+            fontWeight: FontWeight.w600,
+            color: theme.accentColor,
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// 打开滚动复盘：窗口 [今天-(N-1), 今天]，对照窗口为紧邻的前 N 天。
+  void _openAiReview(int rangeDays) {
+    final now = DateTime.now();
+    final end = DateTime(now.year, now.month, now.day);
+    _pushAiReview(start: end.subtract(Duration(days: rangeDays - 1)), end: end);
+  }
+
+  /// 自定义复盘：依次选起止日期（滚动语义，不允许选到未来）。
+  Future<void> _openAiReviewCustom() async {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+
+    final start = await showDatePicker(
+      context: context,
+      initialDate: today.subtract(const Duration(days: 29)),
+      firstDate: DateTime(2020),
+      lastDate: today,
+    );
+    if (start == null || !mounted) return;
+
+    final end = await showDatePicker(
+      context: context,
+      initialDate: today,
+      firstDate: start,
+      lastDate: today,
+    );
+    if (end == null || !mounted) return;
+
+    _pushAiReview(start: start, end: DateTime(end.year, end.month, end.day));
+  }
+
+  void _pushAiReview({required DateTime start, required DateTime end}) {
+    final rangeDays = end.difference(start).inDays + 1;
+    final records = _statsCalc.filterRollingWindow(
+      _newRecords,
+      asOf: end,
+      windowDays: rangeDays,
+    );
+    final prevEnd = start.subtract(const Duration(days: 1));
+    final previousRecords = _statsCalc.filterRollingWindow(
+      _newRecords,
+      asOf: prevEnd,
+      windowDays: rangeDays,
+    );
+
+    Navigator.push(
+      context,
+      FadeUpPageRoute(
+        page: AIAnalysisScreen(
+          startDate: start,
+          endDate: end,
+          records: records,
+          previousRecords: previousRecords,
+          allRecords: _newRecords,
+        ),
+      ),
     );
   }
 
@@ -286,39 +424,6 @@ class _StatsScreenState extends State<StatsScreen> {
           ),
         ),
       ],
-    );
-  }
-
-  // ==================== AI 复盘入口 ====================
-
-  /// 导航到 AI 复盘页。
-  ///
-  /// P3 将改为滚动范围选择（最近 7/30/90 天/自定义）；当前过渡期
-  /// 先沿用"本周"范围保证入口可用。
-  void _navigateToAIAnalysis() {
-    final now = DateTime.now();
-    final weekStart = _aggregator.getStartOfWeek(now);
-    final records = _aggregator
-        .filterByWeek(_getAllRecords(), weekStart)
-        .whereType<WorkoutRecord>()
-        .toList();
-    final previousRecords = _aggregator
-        .filterByWeek(_getAllRecords(), weekStart.subtract(const Duration(days: 7)))
-        .whereType<WorkoutRecord>()
-        .toList();
-
-    Navigator.push(
-      context,
-      FadeUpPageRoute(
-        page: AIAnalysisScreen(
-          periodType: 'week',
-          startDate: weekStart,
-          endDate: weekStart.add(const Duration(days: 7)),
-          records: records,
-          previousRecords: previousRecords,
-          allRecords: _newRecords,
-        ),
-      ),
     );
   }
 }
