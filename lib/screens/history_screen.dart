@@ -9,6 +9,7 @@ import '../main.dart';
 import '../models/workout_session.dart';
 import '../models/workout_record.dart';
 import '../services/data_transfer_service.dart';
+import '../services/exercise_history_service.dart';
 import '../services/training_history_export_service.dart';
 import '../services/user_preferences_service.dart';
 import '../services/workout_repository.dart';
@@ -32,6 +33,27 @@ class HistoryScreen extends StatefulWidget {
 
 class _HistoryScreenState extends State<HistoryScreen> {
   final WorkoutRepository _repository = WorkoutRepository();
+
+  // 动作史检索模式（"上次这个动作练了多少"）
+  bool _searchMode = false;
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+
+  // 年份筛选（null = 全部）；月份分组始终生效
+  int? _yearFilter;
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  /// 记录的展示日期（旧会话用 createdAt，新记录用 date）
+  DateTime _recordDate(dynamic record) {
+    if (record is WorkoutSession) return DateTime.parse(record.createdAt);
+    if (record is WorkoutRecord) return record.date;
+    return DateTime.now();
+  }
 
   Future<List<dynamic>> _loadAllRecords() async {
     // 加载旧记录
@@ -218,6 +240,15 @@ class _HistoryScreenState extends State<HistoryScreen> {
           ),
         ),
         actions: [
+          IconButton(
+            tooltip: l10n.historySearchTooltip,
+            onPressed: () => setState(() => _searchMode = !_searchMode),
+            icon: Icon(
+              _searchMode ? Icons.search_off : Icons.search,
+              size: 22,
+              color: theme.accentColor,
+            ),
+          ),
           TextButton.icon(
             onPressed: () => _exportTrainingHistory(),
             icon: Icon(Icons.ios_share, size: 18, color: theme.accentColor),
@@ -227,6 +258,55 @@ class _HistoryScreenState extends State<HistoryScreen> {
             ),
           ),
         ],
+        // 动作史搜索框（仅搜索模式显示）
+        bottom: _searchMode
+            ? PreferredSize(
+                preferredSize: const Size.fromHeight(60),
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: TextField(
+                    controller: _searchController,
+                    autofocus: true,
+                    onChanged: (v) => setState(() => _searchQuery = v),
+                    style: context.bodyMedium.copyWith(color: theme.textColor),
+                    decoration: InputDecoration(
+                      hintText: l10n.historySearchHint,
+                      hintStyle: context.bodyMedium.copyWith(
+                        color: theme.secondaryTextColor,
+                      ),
+                      prefixIcon: Icon(
+                        Icons.search,
+                        size: 20,
+                        color: theme.secondaryTextColor,
+                      ),
+                      suffixIcon: _searchQuery.isEmpty
+                          ? null
+                          : IconButton(
+                              icon: Icon(
+                                Icons.close,
+                                size: 18,
+                                color: theme.secondaryTextColor,
+                              ),
+                              onPressed: () {
+                                _searchController.clear();
+                                setState(() => _searchQuery = '');
+                              },
+                            ),
+                      filled: true,
+                      fillColor: theme.textColor.withValues(alpha: 0.05),
+                      contentPadding: EdgeInsets.zero,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(
+                          AppDimensions.radiusXl,
+                        ),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                  ),
+                ),
+              )
+            : null,
       ),
       body: FutureBuilder<List<dynamic>>(
         future: _loadAllRecords(),
@@ -305,38 +385,196 @@ class _HistoryScreenState extends State<HistoryScreen> {
             );
           } else {
             final records = snapshot.data ?? <dynamic>[];
-            return ListView.builder(
-              padding: EdgeInsets.only(
-                left: 16,
-                right: 16,
-                top: 16,
-                bottom: MediaQuery.of(context).padding.bottom + 86,
-              ),
-              itemCount: records.length,
-              itemBuilder: (context, index) {
-                final record = records[index];
-                return ListAnimation(
-                  index: index,
-                  child: record is WorkoutRecord
-                      ? _RecordCard(
-                          record: record,
-                          formatDate: _formatDate,
-                          onDelete: () => _deleteRecord(record.id),
-                          onTap: () => _navigateToDetail(record),
-                          theme: theme,
-                        )
-                      : _SessionCard(
-                          session: record as WorkoutSession,
-                          formatDate: _formatDate,
-                          onDelete: () => _deleteSession(record.id),
-                          theme: theme,
-                        ),
-                );
-              },
-            );
+            return _buildRecordList(l10n, theme, records);
           }
         },
       ),
+    );
+  }
+
+  /// 记录列表：搜索模式 → 动作史检索结果；否则 → 年份筛选 + 月份分组。
+  Widget _buildRecordList(
+    AppLocalizations l10n,
+    AppThemeData theme,
+    List<dynamic> records,
+  ) {
+    if (_searchMode && _searchQuery.trim().isNotEmpty) {
+      final entries = searchExerciseHistory(
+        records.whereType<WorkoutRecord>().toList(),
+        _searchQuery,
+      );
+      if (entries.isEmpty) {
+        return Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Text(
+              l10n.historySearchNoResults,
+              style: context.bodyMedium.copyWith(
+                color: theme.secondaryTextColor,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        );
+      }
+      return ListView.builder(
+        padding: EdgeInsets.only(
+          left: 16,
+          right: 16,
+          top: 16,
+          bottom: MediaQuery.of(context).padding.bottom + 86,
+        ),
+        itemCount: entries.length,
+        itemBuilder: (context, index) => ListAnimation(
+          index: index,
+          child: _SearchResultRow(
+            entry: entries[index],
+            theme: theme,
+            onTap: () => _navigateToDetail(entries[index].record),
+          ),
+        ),
+      );
+    }
+
+    final filtered = _yearFilter == null
+        ? records
+        : records
+              .where((r) => _recordDate(r).year == _yearFilter)
+              .toList();
+
+    return Column(
+      children: [
+        _buildYearChips(l10n, theme, records),
+        Expanded(
+          child: filtered.isEmpty
+              ? Center(
+                  child: Text(
+                    l10n.historyEmpty,
+                    style: context.bodyMedium.copyWith(
+                      color: theme.secondaryTextColor,
+                    ),
+                  ),
+                )
+              : _buildGroupedList(l10n, theme, filtered),
+        ),
+      ],
+    );
+  }
+
+  /// 年份 chips（只有一年时不渲染，避免空转占位）
+  Widget _buildYearChips(
+    AppLocalizations l10n,
+    AppThemeData theme,
+    List<dynamic> records,
+  ) {
+    final years = records.map(_recordDate).map((d) => d.year).toSet().toList()
+      ..sort((a, b) => b.compareTo(a));
+    if (years.length < 2) return const SizedBox.shrink();
+
+    Widget chip(String label, bool selected, VoidCallback onTap) {
+      return GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          decoration: BoxDecoration(
+            // The 15% Tint Rule — 选中态实底 accent
+            color: selected
+                ? theme.accentColor
+                : theme.accentColor.withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(AppDimensions.radiusChip),
+          ),
+          child: Text(
+            label,
+            style: context.bodySmall.copyWith(
+              fontWeight: FontWeight.w600,
+              color: selected ? theme.onAccentColor : theme.accentColor,
+              fontFeatures: const [FontFeature.tabularFigures()],
+            ),
+          ),
+        ),
+      );
+    }
+
+    return SizedBox(
+      height: 48,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        children: [
+          chip(l10n.historyYearAll, _yearFilter == null, () {
+            setState(() => _yearFilter = null);
+          }),
+          const SizedBox(width: 8),
+          for (final year in years) ...[
+            chip('$year', _yearFilter == year, () {
+              setState(() => _yearFilter = year);
+            }),
+            const SizedBox(width: 8),
+          ],
+        ],
+      ),
+    );
+  }
+
+  /// 月份分组列表（档案按日历组织——历史是"生活问题"，
+  /// 与统计页的分析轴刻意区分，见 .goal/SPEC.md 组织原则）
+  Widget _buildGroupedList(
+    AppLocalizations l10n,
+    AppThemeData theme,
+    List<dynamic> filtered,
+  ) {
+    final groups = <_MonthGroup>[];
+    for (final record in filtered) {
+      final date = _recordDate(record);
+      final last = groups.isEmpty ? null : groups.last;
+      if (last != null && last.year == date.year && last.month == date.month) {
+        last.records.add(record);
+      } else {
+        groups.add(_MonthGroup(date.year, date.month)..records.add(record));
+      }
+    }
+
+    final rows = <Widget>[];
+    var animIndex = 0;
+    for (final group in groups) {
+      rows.add(
+        _MonthHeader(
+          label: l10n.historyMonthHeader(group.year, group.month),
+          countLabel: l10n.historyMonthCount(group.records.length),
+          theme: theme,
+        ),
+      );
+      for (final record in group.records) {
+        rows.add(
+          ListAnimation(
+            index: animIndex++,
+            child: record is WorkoutRecord
+                ? _RecordCard(
+                    record: record,
+                    formatDate: _formatDate,
+                    onDelete: () => _deleteRecord(record.id),
+                    onTap: () => _navigateToDetail(record),
+                    theme: theme,
+                  )
+                : _SessionCard(
+                    session: record as WorkoutSession,
+                    formatDate: _formatDate,
+                    onDelete: () => _deleteSession(record.id),
+                    theme: theme,
+                  ),
+          ),
+        );
+      }
+    }
+
+    return ListView(
+      padding: EdgeInsets.only(
+        left: 16,
+        right: 16,
+        top: 8,
+        bottom: MediaQuery.of(context).padding.bottom + 86,
+      ),
+      children: rows,
     );
   }
 
@@ -349,6 +587,132 @@ class _HistoryScreenState extends State<HistoryScreen> {
     if (mounted) {
       setState(() {});
     }
+  }
+}
+
+/// 月份分组（可变列表在分组构建期聚合）
+class _MonthGroup {
+  final int year;
+  final int month;
+  final List<dynamic> records = [];
+
+  _MonthGroup(this.year, this.month);
+}
+
+/// 月份分组头："{year}年{month}月 · N 次训练"
+class _MonthHeader extends StatelessWidget {
+  final String label;
+  final String countLabel;
+  final AppThemeData theme;
+
+  const _MonthHeader({
+    required this.label,
+    required this.countLabel,
+    required this.theme,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 16, bottom: 8),
+      child: Row(
+        children: [
+          Text(
+            label,
+            style: context.bodyMedium.copyWith(
+              fontWeight: FontWeight.w600,
+              color: theme.secondaryTextColor,
+              letterSpacing: 1,
+              fontFeatures: const [FontFeature.tabularFigures()],
+            ),
+          ),
+          const Spacer(),
+          Text(
+            countLabel,
+            style: context.bodySmall.copyWith(
+              color: theme.secondaryTextColor.withValues(alpha: 0.7),
+              fontFeatures: const [FontFeature.tabularFigures()],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 动作史检索结果行：动作名 + 当次最佳组(按估算1RM) + 日期。
+///
+/// 回答"上次这个动作我练了多少"——点击进入当次训练详情。
+class _SearchResultRow extends StatelessWidget {
+  final ExerciseHistoryEntry entry;
+  final VoidCallback onTap;
+  final AppThemeData theme;
+
+  const _SearchResultRow({
+    required this.entry,
+    required this.onTap,
+    required this.theme,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final weight = entry.bestWeight;
+    final reps = entry.bestReps ?? 0;
+    final e1RM = entry.bestE1RM;
+    final bestLine = weight != null && e1RM != null
+        ? '${l10n.historySearchBestSet(weight.toStringAsFixed(1), reps)}  ·  '
+            '${l10n.historySearch1rm(e1RM.toStringAsFixed(1))}'
+        : l10n.historySearchNoSetData;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: theme.surfaceColorRaised,
+          borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+          boxShadow: AppElevation.raised(theme.shadowColor),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    entry.exerciseName,
+                    style: context.titleMedium.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: theme.textColor,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    bestLine,
+                    style: context.bodySmall.copyWith(
+                      color: theme.accentColor,
+                      fontFeatures: const [FontFeature.tabularFigures()],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              DateFormat('yyyy-MM-dd').format(entry.record.date),
+              style: context.bodySmall.copyWith(
+                color: theme.secondaryTextColor,
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
