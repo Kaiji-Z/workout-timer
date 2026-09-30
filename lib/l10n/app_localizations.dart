@@ -4330,6 +4330,60 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'存在重复的训练日（{days}）——同一天会导入多个计划'**
   String aiImportWarnDuplicate(String days);
+
+  /// No description provided for @historySearchTooltip.
+  ///
+  /// In zh, this message translates to:
+  /// **'搜索动作'**
+  String get historySearchTooltip;
+
+  /// No description provided for @historySearchHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'搜索动作名（卧推 / bench）'**
+  String get historySearchHint;
+
+  /// No description provided for @historySearchNoResults.
+  ///
+  /// In zh, this message translates to:
+  /// **'没有找到练过该动作的训练'**
+  String get historySearchNoResults;
+
+  /// No description provided for @historySearchBestSet.
+  ///
+  /// In zh, this message translates to:
+  /// **'最佳 {weight}kg × {reps}'**
+  String historySearchBestSet(String weight, int reps);
+
+  /// No description provided for @historySearch1rm.
+  ///
+  /// In zh, this message translates to:
+  /// **'1RM {value}'**
+  String historySearch1rm(String value);
+
+  /// No description provided for @historySearchNoSetData.
+  ///
+  /// In zh, this message translates to:
+  /// **'无每组数据'**
+  String get historySearchNoSetData;
+
+  /// No description provided for @historyYearAll.
+  ///
+  /// In zh, this message translates to:
+  /// **'全部'**
+  String get historyYearAll;
+
+  /// No description provided for @historyMonthHeader.
+  ///
+  /// In zh, this message translates to:
+  /// **'{year}年{month}月'**
+  String historyMonthHeader(int year, int month);
+
+  /// No description provided for @historyMonthCount.
+  ///
+  /// In zh, this message translates to:
+  /// **'{count} 次训练'**
+  String historyMonthCount(int count);
 }
 
 class _AppLocalizationsDelegate

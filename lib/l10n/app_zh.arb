@@ -2489,5 +2489,53 @@
         "type": "String"
       }
     }
+  },
+  "historySearchTooltip": "搜索动作",
+  "@historySearchTooltip": {},
+  "historySearchHint": "搜索动作名（卧推 / bench）",
+  "@historySearchHint": {},
+  "historySearchNoResults": "没有找到练过该动作的训练",
+  "@historySearchNoResults": {},
+  "historySearchBestSet": "最佳 {weight}kg × {reps}",
+  "@historySearchBestSet": {
+    "placeholders": {
+      "weight": {
+        "type": "String"
+      },
+      "reps": {
+        "type": "int"
+      }
+    }
+  },
+  "historySearch1rm": "1RM {value}",
+  "@historySearch1rm": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "historySearchNoSetData": "无每组数据",
+  "@historySearchNoSetData": {},
+  "historyYearAll": "全部",
+  "@historyYearAll": {},
+  "historyMonthHeader": "{year}年{month}月",
+  "@historyMonthHeader": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      },
+      "month": {
+        "type": "int"
+      }
+    }
+  },
+  "historyMonthCount": "{count} 次训练",
+  "@historyMonthCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }

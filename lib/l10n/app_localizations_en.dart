@@ -2498,4 +2498,39 @@ class AppLocalizationsEn extends AppLocalizations {
   String aiImportWarnDuplicate(String days) {
     return 'Duplicate training days ($days) — multiple plans will land on the same date';
   }
+
+  @override
+  String get historySearchTooltip => 'Search exercises';
+
+  @override
+  String get historySearchHint => 'Search exercise (bench…)';
+
+  @override
+  String get historySearchNoResults => 'No workouts found for this exercise';
+
+  @override
+  String historySearchBestSet(String weight, int reps) {
+    return 'Best ${weight}kg × $reps';
+  }
+
+  @override
+  String historySearch1rm(String value) {
+    return '1RM $value';
+  }
+
+  @override
+  String get historySearchNoSetData => 'No per-set data';
+
+  @override
+  String get historyYearAll => 'All';
+
+  @override
+  String historyMonthHeader(int year, int month) {
+    return '$month/$year';
+  }
+
+  @override
+  String historyMonthCount(int count) {
+    return '$count workouts';
+  }
 }

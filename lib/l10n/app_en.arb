@@ -882,5 +882,53 @@
         "type": "String"
       }
     }
+  },
+  "historySearchTooltip": "Search exercises",
+  "@historySearchTooltip": {},
+  "historySearchHint": "Search exercise (bench…)",
+  "@historySearchHint": {},
+  "historySearchNoResults": "No workouts found for this exercise",
+  "@historySearchNoResults": {},
+  "historySearchBestSet": "Best {weight}kg × {reps}",
+  "@historySearchBestSet": {
+    "placeholders": {
+      "weight": {
+        "type": "String"
+      },
+      "reps": {
+        "type": "int"
+      }
+    }
+  },
+  "historySearch1rm": "1RM {value}",
+  "@historySearch1rm": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "historySearchNoSetData": "No per-set data",
+  "@historySearchNoSetData": {},
+  "historyYearAll": "All",
+  "@historyYearAll": {},
+  "historyMonthHeader": "{month}/{year}",
+  "@historyMonthHeader": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      },
+      "month": {
+        "type": "int"
+      }
+    }
+  },
+  "historyMonthCount": "{count} workouts",
+  "@historyMonthCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }

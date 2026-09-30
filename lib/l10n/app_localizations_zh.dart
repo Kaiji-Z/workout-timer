@@ -2431,4 +2431,39 @@ class AppLocalizationsZh extends AppLocalizations {
   String aiImportWarnDuplicate(String days) {
     return '存在重复的训练日（$days）——同一天会导入多个计划';
   }
+
+  @override
+  String get historySearchTooltip => '搜索动作';
+
+  @override
+  String get historySearchHint => '搜索动作名（卧推 / bench）';
+
+  @override
+  String get historySearchNoResults => '没有找到练过该动作的训练';
+
+  @override
+  String historySearchBestSet(String weight, int reps) {
+    return '最佳 ${weight}kg × $reps';
+  }
+
+  @override
+  String historySearch1rm(String value) {
+    return '1RM $value';
+  }
+
+  @override
+  String get historySearchNoSetData => '无每组数据';
+
+  @override
+  String get historyYearAll => '全部';
+
+  @override
+  String historyMonthHeader(int year, int month) {
+    return '$year年$month月';
+  }
+
+  @override
+  String historyMonthCount(int count) {
+    return '$count 次训练';
+  }
 }
