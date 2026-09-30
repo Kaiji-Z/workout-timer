@@ -8,6 +8,7 @@ import 'package:workout_timer/l10n/app_localizations.dart';
 import 'package:workout_timer/models/set_data.dart';
 import 'package:workout_timer/models/workout_record.dart';
 import 'package:workout_timer/providers/record_provider.dart';
+import 'package:workout_timer/screens/ai_analysis_screen.dart';
 import 'package:workout_timer/screens/stats_screen.dart';
 import 'package:workout_timer/services/database_helper.dart';
 import 'package:workout_timer/services/error_reporter_service.dart';
@@ -141,5 +142,48 @@ void main() {
     await tester.pump(const Duration(seconds: 2));
 
     expect(find.text('550 kg'), findsOneWidget);
+  });
+
+  testWidgets('a rolling range chip pushes the AI analysis screen', (
+    tester,
+  ) async {
+    final repo = FakeRecordRepository();
+    final provider = RecordProvider(
+      repository: repo,
+      errorReporter: ErrorReporter(),
+    );
+    repo.dbRecords.add(recordOf('a', 30.0));
+    await tester.runAsync(() => provider.loadRecords());
+    await warmDatabase(tester);
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider.value(value: ThemeProvider()),
+          ChangeNotifierProvider.value(value: provider),
+        ],
+        child: MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: StatsScreen(),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 2));
+
+    // The stats body is a lazy ListView — the AI entry sits at the very
+    // bottom and is not built until scrolled into the viewport.
+    await tester.scrollUntilVisible(
+      find.text('Last 7 days'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pump(const Duration(milliseconds: 200));
+    await tester.tap(find.text('Last 7 days'));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 2));
+
+    expect(find.byType(AIAnalysisScreen), findsOneWidget);
   });
 }
