@@ -299,14 +299,16 @@ class _YearHeatmapPainter extends CustomPainter {
       final col = slot ~/ 7;
       final row = slot % 7;
 
+      // 有键 = 当天练过（含旧版无容量会话），最低热度也点亮
       final volume = yearData[DateTime(date.year, date.month, date.day)];
-      final intensity = maxVolume > 0 && volume != null
+      final trained = volume != null;
+      final intensity = trained && maxVolume > 0
           ? (volume / maxVolume).clamp(0.0, 1.0)
           : 0.0;
 
-      final paint = volume != null && volume > 0
+      final paint = trained
           ? (Paint()
-              ..color = heatBlue.withValues(alpha: 0.2 + intensity * 0.6))
+              ..color = heatBlue.withValues(alpha: 0.2 + intensity * 0.55))
           : emptyPaint;
 
       final rect = Rect.fromLTWH(

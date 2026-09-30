@@ -954,7 +954,7 @@ void main() {
   group('rolling window metrics', () {
     final today = DateTime(2026, 9, 30); // 周三
 
-    WorkoutRecord _rec(
+    WorkoutRecord recOf(
       String id,
       DateTime date, {
       List<RecordedExercise> exercises = const [],
@@ -971,7 +971,7 @@ void main() {
       );
     }
 
-    RecordedExercise _ex(
+    RecordedExercise exOf(
       String id,
       PrimaryMuscleGroup muscle, {
       int sets = 1,
@@ -997,10 +997,10 @@ void main() {
     group('filterRollingWindow', () {
       test('window [asOf-(N-1), asOf] inclusive of both ends', () {
         final records = [
-          _rec('a', today),                       // +0d  in
-          _rec('b', DateTime(2026, 9, 24, 8)),    // -6d  in
-          _rec('c', DateTime(2026, 9, 23, 8)),    // -7d  out
-          _rec('d', DateTime(2026, 10, 1, 8)),    // +1d  out (future)
+          recOf('a', today),                       // +0d  in
+          recOf('b', DateTime(2026, 9, 24, 8)),    // -6d  in
+          recOf('c', DateTime(2026, 9, 23, 8)),    // -7d  out
+          recOf('d', DateTime(2026, 10, 1, 8)),    // +1d  out (future)
         ];
         final filtered = service.filterRollingWindow(
           records,
@@ -1014,16 +1014,16 @@ void main() {
     group('rollingVolume', () {
       test('sums volume of records inside 7d window only', () {
         final records = [
-          _rec('in1', today, exercises: [_ex('bench', PrimaryMuscleGroup.chest)]),
-          _rec(
+          recOf('in1', today, exercises: [exOf('bench', PrimaryMuscleGroup.chest)]),
+          recOf(
             'in2',
             DateTime(2026, 9, 24),
-            exercises: [_ex('squat', PrimaryMuscleGroup.legs)],
+            exercises: [exOf('squat', PrimaryMuscleGroup.legs)],
           ),
-          _rec(
+          recOf(
             'out',
             DateTime(2026, 9, 22),
-            exercises: [_ex('row', PrimaryMuscleGroup.back)],
+            exercises: [exOf('row', PrimaryMuscleGroup.back)],
           ),
         ];
         final volume = service.rollingVolume(
@@ -1039,14 +1039,14 @@ void main() {
     group('daysSinceLastTrained', () {
       test('per-muscle recency with time-of-day ignored', () {
         final records = [
-          _rec('a', DateTime(2026, 9, 30, 20), exercises: [
-            _ex('bench', PrimaryMuscleGroup.chest),
+          recOf('a', DateTime(2026, 9, 30, 20), exercises: [
+            exOf('bench', PrimaryMuscleGroup.chest),
           ]),
-          _rec('b', DateTime(2026, 9, 29, 7), exercises: [
-            _ex('row', PrimaryMuscleGroup.back),
+          recOf('b', DateTime(2026, 9, 29, 7), exercises: [
+            exOf('row', PrimaryMuscleGroup.back),
           ]),
-          _rec('c', DateTime(2026, 9, 20), exercises: [
-            _ex('squat', PrimaryMuscleGroup.legs),
+          recOf('c', DateTime(2026, 9, 20), exercises: [
+            exOf('squat', PrimaryMuscleGroup.legs),
           ]),
         ];
         final recency = service.daysSinceLastTrained(records, today: today);
@@ -1059,7 +1059,7 @@ void main() {
 
       test('falls back to record.trainedMuscles when no exercise detail', () {
         final records = [
-          _rec('a', DateTime(2026, 9, 28), muscles: [PrimaryMuscleGroup.core]),
+          recOf('a', DateTime(2026, 9, 28), muscles: [PrimaryMuscleGroup.core]),
         ];
         final recency = service.daysSinceLastTrained(records, today: today);
         expect(recency[PrimaryMuscleGroup.core], 2);
@@ -1082,11 +1082,11 @@ void main() {
         // 只有急性期内的记录（今天），28 天基线里没有急性期之外的
         // 历史 → 比值恒为"自己比自己"，无意义
         final records = [
-          _rec('a', today, exercises: [
-            _ex('bench', PrimaryMuscleGroup.chest),
+          recOf('a', today, exercises: [
+            exOf('bench', PrimaryMuscleGroup.chest),
           ]),
-          _rec('b', DateTime(2026, 9, 27), exercises: [
-            _ex('squat', PrimaryMuscleGroup.legs),
+          recOf('b', DateTime(2026, 9, 27), exercises: [
+            exOf('squat', PrimaryMuscleGroup.legs),
           ]),
         ];
         final ratio = service.acuteChronicRatio(records, asOf: today);
@@ -1096,14 +1096,14 @@ void main() {
       test('ratio = volume(7d) / (volume(28d)/4)', () {
         // 急性期(9/24-9/30)只含今天；9/20 在慢性期但不在急性期
         final records = [
-          _rec('acute', today, exercises: [
-            _ex('bench', PrimaryMuscleGroup.chest),
+          recOf('acute', today, exercises: [
+            exOf('bench', PrimaryMuscleGroup.chest),
           ]),
-          _rec('chronic', DateTime(2026, 9, 20), exercises: [
-            _ex('squat', PrimaryMuscleGroup.legs),
+          recOf('chronic', DateTime(2026, 9, 20), exercises: [
+            exOf('squat', PrimaryMuscleGroup.legs),
           ]),
-          _rec('old', DateTime(2026, 9, 2), exercises: [
-            _ex('row', PrimaryMuscleGroup.back),
+          recOf('old', DateTime(2026, 9, 2), exercises: [
+            exOf('row', PrimaryMuscleGroup.back),
           ]),
         ];
         final ratio = service.acuteChronicRatio(records, asOf: today);
@@ -1134,15 +1134,15 @@ void main() {
 
       test('0 sets is belowMev, 15 in range, 25 above Mrv', () {
         final records = [
-          _rec('a', today, exercises: [
-            _ex(
+          recOf('a', today, exercises: [
+            exOf(
               'bench',
               PrimaryMuscleGroup.chest,
               sets: 15,
               weight: 0,
               reps: 0, // 容量无关，只看组数
             ),
-            _ex(
+            exOf(
               'curl',
               PrimaryMuscleGroup.arms,
               sets: 25,
@@ -1162,17 +1162,17 @@ void main() {
     group('weeklyRollingVolumeTrend', () {
       test('builds N 7-day windows ending at asOf, oldest first', () {
         final records = [
-          _rec('newest', DateTime(2026, 9, 29), exercises: [
-            _ex('bench', PrimaryMuscleGroup.chest),
+          recOf('newest', DateTime(2026, 9, 29), exercises: [
+            exOf('bench', PrimaryMuscleGroup.chest),
           ]),
-          _rec('middle', DateTime(2026, 9, 20), exercises: [
-            _ex('squat', PrimaryMuscleGroup.legs),
+          recOf('middle', DateTime(2026, 9, 20), exercises: [
+            exOf('squat', PrimaryMuscleGroup.legs),
           ]),
-          _rec('oldest', DateTime(2026, 9, 10), exercises: [
-            _ex('row', PrimaryMuscleGroup.back),
+          recOf('oldest', DateTime(2026, 9, 10), exercises: [
+            exOf('row', PrimaryMuscleGroup.back),
           ]),
-          _rec('excluded', DateTime(2026, 9, 9), exercises: [
-            _ex('pull', PrimaryMuscleGroup.back),
+          recOf('excluded', DateTime(2026, 9, 9), exercises: [
+            exOf('pull', PrimaryMuscleGroup.back),
           ]),
         ];
         final trend = service.weeklyRollingVolumeTrend(

@@ -388,7 +388,9 @@ class _StatsProgressSectionState extends State<StatsProgressSection> {
                             color: const Color(0xFF0072B2).withValues(
                               alpha: 0.75,
                             ),
-                            borderRadius: BorderRadius.circular(2),
+                            borderRadius: BorderRadius.circular(
+                              AppDimensions.radiusSm,
+                            ),
                           ),
                         ),
                       ),

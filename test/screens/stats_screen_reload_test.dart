@@ -68,13 +68,6 @@ void main() {
     ),
   );
 
-  /// The hero volume lives inside the collapsed "Overview" ExpansionTile.
-  Future<void> expandOverview(WidgetTester tester) async {
-    await tester.tap(find.text('Overview'));
-    await tester.pump();
-    await tester.pump(const Duration(seconds: 2));
-  }
-
   /// Pre-opens the in-memory app database inside the real event loop so
   /// StatsScreen's repository calls hit a cached handle and complete within
   /// the fake-async test zone (fresh ffi futures would never resolve there).
@@ -128,7 +121,8 @@ void main() {
       errorReporter: ErrorReporter(),
     );
 
-    // Record A was loaded at startup (hero volume shows 300.0 kg).
+    // Record A was loaded at startup. Its 7-day rolling volume
+    // (1 set × 10 reps × 30 kg) shows as "300 kg" in the dose summary.
     repo.dbRecords.add(recordOf('a', 30.0));
     await tester.runAsync(() => provider.loadRecords());
     await warmDatabase(tester);
@@ -136,18 +130,16 @@ void main() {
     await tester.pumpWidget(app(provider, const Key('stats-1')));
     await tester.pump();
     await tester.pump(const Duration(seconds: 2));
-    await expandOverview(tester);
-    expect(find.textContaining('300.0'), findsWidgets);
+    expect(find.text('300 kg'), findsOneWidget);
 
     // Record B reaches the database without going through the provider
     // (e.g. recovered after a failed startup load). Re-entering the stats
-    // tab must pick it up: combined hero volume becomes 550.0 kg.
+    // tab must pick it up: combined 7-day volume becomes 550 kg.
     repo.dbRecords.add(recordOf('b', 25.0));
     await tester.pumpWidget(app(provider, const Key('stats-2')));
     await tester.pump();
     await tester.pump(const Duration(seconds: 2));
-    await expandOverview(tester);
 
-    expect(find.textContaining('550.0'), findsWidgets);
+    expect(find.text('550 kg'), findsOneWidget);
   });
 }
