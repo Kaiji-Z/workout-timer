@@ -946,6 +946,308 @@ void main() {
       );
     });
   });
+
+  // ==================== 滚动窗口指标（问题驱动统计页 P1/P2） ====================
+  // 设计依据 .goal/SPEC.md §3.2：身体的问题用滚动窗口（锚定 asOf 当天），
+  // 习惯的问题用日历周。所有方法显式接收 asOf/today，服务内部不取当前时间。
+
+  group('rolling window metrics', () {
+    final today = DateTime(2026, 9, 30); // 周三
+
+    WorkoutRecord _rec(
+      String id,
+      DateTime date, {
+      List<RecordedExercise> exercises = const [],
+      List<PrimaryMuscleGroup> muscles = const [],
+    }) {
+      return WorkoutRecord(
+        id: id,
+        date: date,
+        durationSeconds: 1800,
+        trainedMuscles: muscles,
+        exercises: exercises,
+        totalSets: 0,
+        createdAt: date,
+      );
+    }
+
+    RecordedExercise _ex(
+      String id,
+      PrimaryMuscleGroup muscle, {
+      int sets = 1,
+      double weight = 100,
+      int reps = 10,
+    }) {
+      return RecordedExercise(
+        exerciseId: id,
+        exercise: _createExercise(id: id, name: id, muscle: muscle),
+        completedSets: sets,
+        setsData: List.generate(
+          sets,
+          (i) => SetData(setNumber: i + 1, reps: reps, weight: weight),
+        ),
+      );
+    }
+
+    test('volume landmark constants match SPEC defaults', () {
+      expect(StatsCalculatorService.weeklyMevSets, 10);
+      expect(StatsCalculatorService.weeklyMrvSets, 20);
+    });
+
+    group('filterRollingWindow', () {
+      test('window [asOf-(N-1), asOf] inclusive of both ends', () {
+        final records = [
+          _rec('a', today),                       // +0d  in
+          _rec('b', DateTime(2026, 9, 24, 8)),    // -6d  in
+          _rec('c', DateTime(2026, 9, 23, 8)),    // -7d  out
+          _rec('d', DateTime(2026, 10, 1, 8)),    // +1d  out (future)
+        ];
+        final filtered = service.filterRollingWindow(
+          records,
+          asOf: today,
+          windowDays: 7,
+        );
+        expect(filtered.map((r) => r.id), unorderedEquals(['a', 'b']));
+      });
+    });
+
+    group('rollingVolume', () {
+      test('sums volume of records inside 7d window only', () {
+        final records = [
+          _rec('in1', today, exercises: [_ex('bench', PrimaryMuscleGroup.chest)]),
+          _rec(
+            'in2',
+            DateTime(2026, 9, 24),
+            exercises: [_ex('squat', PrimaryMuscleGroup.legs)],
+          ),
+          _rec(
+            'out',
+            DateTime(2026, 9, 22),
+            exercises: [_ex('row', PrimaryMuscleGroup.back)],
+          ),
+        ];
+        final volume = service.rollingVolume(
+          records,
+          asOf: today,
+          windowDays: 7,
+        );
+        // 2 × (1 set × 10 reps × 100kg)
+        expect(volume, closeTo(2000.0, 0.01));
+      });
+    });
+
+    group('daysSinceLastTrained', () {
+      test('per-muscle recency with time-of-day ignored', () {
+        final records = [
+          _rec('a', DateTime(2026, 9, 30, 20), exercises: [
+            _ex('bench', PrimaryMuscleGroup.chest),
+          ]),
+          _rec('b', DateTime(2026, 9, 29, 7), exercises: [
+            _ex('row', PrimaryMuscleGroup.back),
+          ]),
+          _rec('c', DateTime(2026, 9, 20), exercises: [
+            _ex('squat', PrimaryMuscleGroup.legs),
+          ]),
+        ];
+        final recency = service.daysSinceLastTrained(records, today: today);
+        expect(recency[PrimaryMuscleGroup.chest], 0);
+        expect(recency[PrimaryMuscleGroup.back], 1);
+        expect(recency[PrimaryMuscleGroup.legs], 10);
+        // 从未练过的肌群不出现在结果里（UI 视为 noData）
+        expect(recency.containsKey(PrimaryMuscleGroup.shoulders), isFalse);
+      });
+
+      test('falls back to record.trainedMuscles when no exercise detail', () {
+        final records = [
+          _rec('a', DateTime(2026, 9, 28), muscles: [PrimaryMuscleGroup.core]),
+        ];
+        final recency = service.daysSinceLastTrained(records, today: today);
+        expect(recency[PrimaryMuscleGroup.core], 2);
+      });
+    });
+
+    group('recoveryLevel', () {
+      test('classifies boundaries: 48h recovering, 2-7 recovered, >7 stale', () {
+        expect(service.recoveryLevel(null), RecoveryLevel.noData);
+        expect(service.recoveryLevel(0), RecoveryLevel.recovering);
+        expect(service.recoveryLevel(1), RecoveryLevel.recovering);
+        expect(service.recoveryLevel(2), RecoveryLevel.recovered);
+        expect(service.recoveryLevel(7), RecoveryLevel.recovered);
+        expect(service.recoveryLevel(8), RecoveryLevel.stale);
+      });
+    });
+
+    group('acuteChronicRatio', () {
+      test('null when chronic window has no volume', () {
+        final records = [
+          _rec('a', today, exercises: [
+            _ex('bench', PrimaryMuscleGroup.chest),
+          ]),
+        ];
+        final ratio = service.acuteChronicRatio(records, asOf: today);
+        expect(ratio, isNull);
+      });
+
+      test('ratio = volume(7d) / (volume(28d)/4)', () {
+        // 28 天里 9/24 和今天各 1000，急性期(9/24-9/30)只含今天
+        final records = [
+          _rec('acute', today, exercises: [
+            _ex('bench', PrimaryMuscleGroup.chest),
+          ]),
+          _rec('chronic', DateTime(2026, 9, 24), exercises: [
+            _ex('squat', PrimaryMuscleGroup.legs),
+          ]),
+          _rec('old', DateTime(2026, 9, 2), exercises: [
+            _ex('row', PrimaryMuscleGroup.back),
+          ]),
+        ];
+        final ratio = service.acuteChronicRatio(records, asOf: today);
+        // 1000 / ((1000+1000)/4) = 2.0
+        expect(ratio, closeTo(2.0, 0.001));
+      });
+    });
+
+    group('loadRatioBand', () {
+      test('0.8 and 1.3 are inside the normal band', () {
+        expect(service.loadRatioBand(null), LoadRatioBand.noData);
+        expect(service.loadRatioBand(0.79), LoadRatioBand.low);
+        expect(service.loadRatioBand(0.8), LoadRatioBand.normal);
+        expect(service.loadRatioBand(1.3), LoadRatioBand.normal);
+        expect(service.loadRatioBand(1.31), LoadRatioBand.high);
+      });
+    });
+
+    group('doseStatusPerMuscle', () {
+      test('all six muscles noData when window has no records', () {
+        final status = service.doseStatusPerMuscle(
+          [],
+          asOf: today,
+        );
+        expect(status.length, PrimaryMuscleGroup.values.length);
+        expect(status.values.every((s) => s == DoseStatus.noData), isTrue);
+      });
+
+      test('0 sets is belowMev, 15 in range, 25 above Mrv', () {
+        final records = [
+          _rec('a', today, exercises: [
+            _ex(
+              'bench',
+              PrimaryMuscleGroup.chest,
+              sets: 15,
+              weight: 0,
+              reps: 0, // 容量无关，只看组数
+            ),
+            _ex(
+              'curl',
+              PrimaryMuscleGroup.arms,
+              sets: 25,
+              weight: 0,
+              reps: 0,
+            ),
+          ]),
+        ];
+        final status = service.doseStatusPerMuscle(records, asOf: today);
+        expect(status[PrimaryMuscleGroup.chest], DoseStatus.inRange);
+        expect(status[PrimaryMuscleGroup.arms], DoseStatus.aboveMrv);
+        // 窗口内有记录但某肌群 0 组 → belowMev（完全没练）
+        expect(status[PrimaryMuscleGroup.legs], DoseStatus.belowMev);
+      });
+    });
+
+    group('weeklyRollingVolumeTrend', () {
+      test('builds N 7-day windows ending at asOf, oldest first', () {
+        final records = [
+          _rec('newest', DateTime(2026, 9, 29), exercises: [
+            _ex('bench', PrimaryMuscleGroup.chest),
+          ]),
+          _rec('middle', DateTime(2026, 9, 20), exercises: [
+            _ex('squat', PrimaryMuscleGroup.legs),
+          ]),
+          _rec('oldest', DateTime(2026, 9, 10), exercises: [
+            _ex('row', PrimaryMuscleGroup.back),
+          ]),
+          _rec('excluded', DateTime(2026, 9, 9), exercises: [
+            _ex('pull', PrimaryMuscleGroup.back),
+          ]),
+        ];
+        final trend = service.weeklyRollingVolumeTrend(
+          records,
+          asOf: today,
+          weeks: 3,
+        );
+        expect(trend.length, 3);
+        // 窗口末日：9/16、9/23、9/30
+        expect(trend[0].windowEnd, DateTime(2026, 9, 16));
+        expect(trend[1].windowEnd, DateTime(2026, 9, 23));
+        expect(trend[2].windowEnd, DateTime(2026, 9, 30));
+        expect(trend[0].volume, closeTo(1000.0, 0.01)); // oldest
+        expect(trend[1].volume, closeTo(1000.0, 0.01)); // middle
+        expect(trend[2].volume, closeTo(1000.0, 0.01)); // newest; excluded 不进任何窗口
+      });
+    });
+
+    group('linearSlope', () {
+      test('null for fewer than 2 points', () {
+        expect(service.linearSlope(const [1.0]), isNull);
+        expect(service.linearSlope(const []), isNull);
+      });
+
+      test('positive and negative slopes', () {
+        expect(service.linearSlope(const [1, 2, 3]), closeTo(1.0, 0.001));
+        expect(service.linearSlope(const [3, 2, 1]), closeTo(-1.0, 0.001));
+      });
+    });
+
+    group('habit helpers', () {
+      test('sessionsThisWeek counts Monday..today', () {
+        // 2026-09-30 是周三，本周一为 9/28
+        final dates = [
+          DateTime(2026, 9, 28),
+          DateTime(2026, 9, 30, 21),
+          DateTime(2026, 9, 27), // 上周日，不计
+        ];
+        expect(service.sessionsThisWeek(dates, today: today), 2);
+      });
+
+      test('consecutiveQualifyingWeeks skips unmet current week, breaks at gap',
+          () {
+        // 本周(9/28-)2次未达标→跳过；9/21-27 3次✓；9/14-20 3次✓；9/7-13 2次✗断
+        final dates = [
+          DateTime(2026, 9, 28),
+          DateTime(2026, 9, 29),
+          DateTime(2026, 9, 21),
+          DateTime(2026, 9, 23),
+          DateTime(2026, 9, 25),
+          DateTime(2026, 9, 15),
+          DateTime(2026, 9, 17),
+          DateTime(2026, 9, 19),
+          DateTime(2026, 9, 8),
+          DateTime(2026, 9, 9),
+        ];
+        expect(
+          service.consecutiveQualifyingWeeks(dates, today: today,
+              weeklyTarget: 3),
+          2,
+        );
+      });
+
+      test('consecutiveQualifyingWeeks includes met current week', () {
+        final dates = [
+          DateTime(2026, 9, 28),
+          DateTime(2026, 9, 29),
+          DateTime(2026, 9, 30),
+          DateTime(2026, 9, 21),
+          DateTime(2026, 9, 22),
+          DateTime(2026, 9, 24),
+        ];
+        expect(
+          service.consecutiveQualifyingWeeks(dates, today: today,
+              weeklyTarget: 3),
+          2,
+        );
+      });
+    });
+  });
 }
 
 // Helper functions to create test fixtures
