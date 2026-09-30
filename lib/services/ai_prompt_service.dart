@@ -78,6 +78,7 @@ ${l10n.aiPromptOutputInstructions(profile.weeklyFrequency, formattedGoal, format
 4. 4-6 exercises per session (based on ${profile.sessionDuration} minutes)
 5. Compound first, isolation last
 6. Include rest days based on ${profile.weeklyFrequency} frequency
+7. HARD CONSTRAINTS: output exactly ONE week — at most 7 items in `days`; `dayOfWeek` must be an integer 1-7; never output multi-week or monthly structures
 
 ${l10n.aiPromptClosing(profile.weeklyFrequency)}''';
   }

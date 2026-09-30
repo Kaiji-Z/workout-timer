@@ -183,7 +183,8 @@ void main() {
         expect(plan.days.isEmpty, isTrue);
       });
 
-      test('clamps invalid dayOfWeek values', () {
+      test('drops invalid dayOfWeek values with warnings (no silent clamp)',
+          () {
         const jsonString = '''
         {
           "name": "Test",
@@ -197,8 +198,15 @@ void main() {
 
         final plan = WeeklyPlanImport.fromJson(jsonMap);
 
-        expect(plan.days[0].dayOfWeek, 1); // Clamped from 0 to 1
-        expect(plan.days[1].dayOfWeek, 7); // Clamped from 10 to 7
+        // 旧逻辑静默 clamp（0→1, 10→7）会把 AI 误输出的多周结构
+        // 塌缩到同一天；新逻辑丢弃并警告（.goal/SPEC.md §3.4）
+        expect(plan.days.isEmpty, isTrue);
+        expect(
+          plan.warnings
+              .where((w) => w.type == PlanImportWarningType.outOfRangeDay)
+              .map((w) => w.day),
+          unorderedEquals([0, 10]),
+        );
       });
 
       test('defaults targetSets to 3 when not provided', () {

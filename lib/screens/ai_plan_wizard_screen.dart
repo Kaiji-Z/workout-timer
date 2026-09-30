@@ -845,6 +845,61 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
   }
 
   // ==================== 第4步：预览 + 导入 ====================
+
+  /// 导入合规警示条（.goal/SPEC.md §3.4 导入防御）：
+  /// 越界天在解析时已丢弃，这里告知用户丢了多少、为什么。
+  Widget _buildImportWarnings(
+    AppThemeData theme,
+    List<PlanImportWarning> warnings,
+  ) {
+    final l10n = context.l10n;
+    final outOfRangeCount = warnings
+        .where((w) => w.type == PlanImportWarningType.outOfRangeDay)
+        .length;
+    final duplicateDays = warnings
+        .where((w) => w.type == PlanImportWarningType.duplicateDay)
+        .map((w) => w.day)
+        .toSet()
+        .toList()
+      ..sort();
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        // The 15% Tint Rule — 警示语义用 error 色
+        color: theme.errorColor.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+        border: Border.all(color: theme.errorColor.withValues(alpha: 0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.warning_amber_rounded, size: 16, color: theme.errorColor),
+          const SizedBox(height: 6),
+          if (outOfRangeCount > 0)
+            Text(
+              l10n.aiImportWarnOutOfRange(outOfRangeCount),
+              style: context.bodySmall.copyWith(
+                color: theme.textColor,
+                height: 1.4,
+              ),
+            ),
+          if (duplicateDays.isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Text(
+              l10n.aiImportWarnDuplicate(duplicateDays.join(', ')),
+              style: context.bodySmall.copyWith(
+                color: theme.textColor,
+                height: 1.4,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
   Widget _buildStep4(AppThemeData theme) {
     final l10n = AppLocalizations.of(context);
     if (l10n == null) return const SizedBox.shrink();
@@ -888,6 +943,12 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
                     color: theme.secondaryTextColor,
                   ),
                 ),
+
+                // 导入合规警示（越界天已丢弃 / 重复天将同日多计划）
+                if (parsedPlan.warnings.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  _buildImportWarnings(theme, parsedPlan.warnings),
+                ],
                 const SizedBox(height: 16),
 
                 // Match summary header
