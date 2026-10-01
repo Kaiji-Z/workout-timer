@@ -2,8 +2,8 @@
 // 从 conventional commits 生成中文 Release 说明。
 //
 // 用法: node scripts/generate_release_notes.mjs <tag>
-//   <tag> 是本次发布的 tag（如 v1.4.0）。上一个 tag 自动从 git tag 列表
-//   推断（-v:refname 排序后取它的下一个）；首个 tag 则收录其全部历史。
+//   <tag> 是本次发布的 tag（如 v1.4.0）。上一个 tag 取该提交的最近
+//   祖先 tag（git describe --tags，排序法兜底）；首个 tag 则收录全部历史。
 //
 // 输出到 stdout，供 release.yml 的 body_path 使用，也可配合
 //   gh release edit <tag> --notes-file <file>
@@ -30,13 +30,26 @@ const git = (args) =>
     maxBuffer: 16 * 1024 * 1024,
   }).trim();
 
+// 上一个 tag = 本次发布提交的最近祖先 tag（语义正确，免疫仓库里的
+// 历史遗留 tag：v1.0.x 旧线与废弃的 v2–v4 线都还在 tag 列表里，纯
+// 版本排序法会碰巧对但经不起命名碰撞）。describe 必须带 --tags——
+// 当前发布线的 tag 是轻量 tag，不带时只搜附注 tag 会被 274 个提交
+// 之外的 v1.1.0 坑。describe 不可用时退回版本排序。
 function previousTag(current) {
-  const tags = git(['tag', '--sort=-v:refname'])
-    .split('\n')
-    .map((t) => t.trim())
-    .filter(Boolean);
-  const i = tags.indexOf(current);
-  return i >= 0 ? (tags[i + 1] ?? null) : null;
+  try {
+    return execFileSync(
+      'git',
+      ['describe', '--tags', '--abbrev=0', '--match', 'v*', `${current}^`],
+      { encoding: 'utf8' },
+    ).trim();
+  } catch {
+    const tags = git(['tag', '--sort=-v:refname'])
+      .split('\n')
+      .map((t) => t.trim())
+      .filter(Boolean);
+    const i = tags.indexOf(current);
+    return i >= 0 ? (tags[i + 1] ?? null) : null;
+  }
 }
 
 const prev = previousTag(tag);
