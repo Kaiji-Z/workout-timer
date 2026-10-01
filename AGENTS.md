@@ -704,7 +704,7 @@ adb install -r build/app/outputs/flutter-apk/app-release.apk  # 永远 -r 覆盖
 
 - 触发：推送 `v*` tag；或手动补发已存在的 tag：`gh workflow run Release -f tag=vX.Y.Z`
 - 内置校验：tag 与 pubspec 不一致、或 version 带 `+buildNumber` 后缀都会直接失败
-- Release 说明由 GitHub 自动生成（What's Changed + 完整变更链接）；需要精修中文说明时：`gh release edit vX.Y.Z --notes-file <file>`
+- Release 说明**全自动生成**：`scripts/generate_release_notes.mjs` 把上个 tag 以来的 conventional commits 归类为中文说明（🚀 新功能 / 🛠 问题修复 / ⚡ 性能 / ♻️ 优化重构，chore/docs/test 折叠，`chore: bump version` 不入说明，附完整变更链接）——**前提是提交信息守规范**（`type(scope): 描述`），规范 = 说明的质量。需要修订已发版本的说明：`node scripts/generate_release_notes.mjs vX.Y.Z > f.md && gh release edit vX.Y.Z --notes-file f.md`
 - 产物：Release 页附件 `app-release.apk`
 
 ### 红线
