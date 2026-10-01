@@ -4384,6 +4384,24 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'{count} 次训练'**
   String historyMonthCount(int count);
+
+  /// No description provided for @statsHeatmapWdMon.
+  ///
+  /// In zh, this message translates to:
+  /// **'一'**
+  String get statsHeatmapWdMon;
+
+  /// No description provided for @statsHeatmapWdWed.
+  ///
+  /// In zh, this message translates to:
+  /// **'三'**
+  String get statsHeatmapWdWed;
+
+  /// No description provided for @statsHeatmapWdFri.
+  ///
+  /// In zh, this message translates to:
+  /// **'五'**
+  String get statsHeatmapWdFri;
 }
 
 class _AppLocalizationsDelegate

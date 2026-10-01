@@ -2466,4 +2466,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String historyMonthCount(int count) {
     return '$count 次训练';
   }
+
+  @override
+  String get statsHeatmapWdMon => '一';
+
+  @override
+  String get statsHeatmapWdWed => '三';
+
+  @override
+  String get statsHeatmapWdFri => '五';
 }

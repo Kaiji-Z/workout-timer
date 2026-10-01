@@ -2533,4 +2533,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String historyMonthCount(int count) {
     return '$count workouts';
   }
+
+  @override
+  String get statsHeatmapWdMon => 'M';
+
+  @override
+  String get statsHeatmapWdWed => 'W';
+
+  @override
+  String get statsHeatmapWdFri => 'F';
 }

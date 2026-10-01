@@ -930,5 +930,8 @@
         "type": "int"
       }
     }
-  }
+  },
+  "statsHeatmapWdMon": "M",
+  "statsHeatmapWdWed": "W",
+  "statsHeatmapWdFri": "F"
 }

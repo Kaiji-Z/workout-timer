@@ -2537,5 +2537,11 @@
         "type": "int"
       }
     }
-  }
+  },
+  "statsHeatmapWdMon": "一",
+  "@statsHeatmapWdMon": {},
+  "statsHeatmapWdWed": "三",
+  "@statsHeatmapWdWed": {},
+  "statsHeatmapWdFri": "五",
+  "@statsHeatmapWdFri": {}
 }

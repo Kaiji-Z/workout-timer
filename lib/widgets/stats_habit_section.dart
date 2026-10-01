@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../l10n/app_localizations.dart';
 import '../l10n/context_l10n.dart';
@@ -43,6 +44,15 @@ class StatsHabitSection extends StatefulWidget {
 }
 
 class _StatsHabitSectionState extends State<StatsHabitSection> {
+  /// 格间距（与 [_YearHeatmapPainter] 共用同一几何）
+  static const _gap = 2.0;
+
+  /// 左侧星期纵标留白宽度
+  static const _gutterWidth = 16.0;
+
+  /// 顶部月份横标行高度
+  static const _monthLabelHeight = 14.0;
+
   late int _year = widget.today.year;
 
   @override
@@ -233,34 +243,129 @@ class _StatsHabitSectionState extends State<StatsHabitSection> {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final cell = (constraints.maxWidth - (columns - 1) * 2) / columns;
-        final height = 7 * cell + 6 * 2;
+        final gridWidth = constraints.maxWidth - _gutterWidth;
+        final cell = (gridWidth - (columns - 1) * _gap) / columns;
+        final gridHeight = 7 * cell + 6 * _gap;
 
-        return SizedBox(
-          height: height,
-          width: double.infinity,
-          child: CustomPaint(
-            painter: _YearHeatmapPainter(
-              year: _year,
-              yearData: yearData,
-              maxVolume: maxVolume,
-              columns: columns,
-              leadingBlanks: leadingBlanks,
-              cell: cell,
-              today: widget.today,
-              theme: theme,
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 横坐标：月份标签，锚定各月 1 日所在列
+            SizedBox(
+              height: _monthLabelHeight,
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  for (final label in _monthLabels(context, leadingBlanks))
+                    Positioned(
+                      left: _gutterWidth + label.column * (cell + _gap),
+                      top: 0,
+                      child: Text(
+                        label.text,
+                        style: context.bodySmall.copyWith(
+                          fontSize: 9,
+                          color: theme.secondaryTextColor,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
             ),
-          ),
+            const SizedBox(height: 4),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 纵坐标：隔行星期标签（一/三/五行，GitHub 式）
+                SizedBox(
+                  width: _gutterWidth,
+                  height: gridHeight,
+                  child: Stack(
+                    children: [
+                      for (final rowLabel in _weekdayLabels(context))
+                        Positioned(
+                          left: 0,
+                          top: rowLabel.row * (cell + _gap),
+                          child: SizedBox(
+                            height: cell,
+                            width: _gutterWidth,
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                rowLabel.text,
+                                style: context.bodySmall.copyWith(
+                                  fontSize: 9,
+                                  color: theme.secondaryTextColor,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  width: gridWidth,
+                  height: gridHeight,
+                  child: CustomPaint(
+                    painter: _YearHeatmapPainter(
+                      year: _year,
+                      yearData: yearData,
+                      maxVolume: maxVolume,
+                      columns: columns,
+                      leadingBlanks: leadingBlanks,
+                      cell: cell,
+                      today: widget.today,
+                      theme: theme,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
         );
       },
     );
   }
+
+  /// 各月横标：文本 = 本地化月份缩写（zh「9月」/ en「Sep」），
+  /// 位置 = 该月 1 日所在周列。
+  List<_HeatmapAxisLabel> _monthLabels(BuildContext context, int leadingBlanks) {
+    final locale = Localizations.localeOf(context).languageCode;
+    final yearStart = DateTime(_year, 1, 1);
+    return [
+      for (var month = 1; month <= 12; month++)
+        _HeatmapAxisLabel(
+          text: DateFormat('MMM', locale).format(DateTime(_year, month, 1)),
+          column: (leadingBlanks + DateTime(_year, month, 1).difference(yearStart).inDays) ~/ 7,
+        ),
+    ];
+  }
+
+  /// 星期纵标：只标一/三/五行，避免七行全标挤在一起。
+  List<_HeatmapAxisLabel> _weekdayLabels(BuildContext context) {
+    final l10n = context.l10n;
+    return [
+      _HeatmapAxisLabel(text: l10n.statsHeatmapWdMon, row: 0),
+      _HeatmapAxisLabel(text: l10n.statsHeatmapWdWed, row: 2),
+      _HeatmapAxisLabel(text: l10n.statsHeatmapWdFri, row: 4),
+    ];
+  }
+}
+
+/// 热力图坐标轴标签（行/列 + 文本）。
+class _HeatmapAxisLabel {
+  final int column;
+  final int row;
+  final String text;
+
+  const _HeatmapAxisLabel({this.column = 0, this.row = 0, required this.text});
 }
 
 /// 全年训练热力图（GitHub 式）：列=周（周一起），行=星期。
 ///
-/// 强度用 Okabe-Ito blue 的透明度阶梯编码（数据色，色盲安全），
-/// 未来日期不画。纯绘制，无交互（克制原则）。
+/// 强度用 Okabe-Ito blue 的透明度阶梯编码（数据色，色盲安全）；
+/// 过去未训练 = 淡底格，未来日期 = 虚线描边占位（虚显，一眼分清
+/// 「没练」和「还没到」）。纯绘制，无交互（克制原则）。
 class _YearHeatmapPainter extends CustomPainter {
   final int year;
   final Map<DateTime, double> yearData;
@@ -286,18 +391,34 @@ class _YearHeatmapPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final emptyPaint = Paint()
       ..color = theme.textColor.withValues(alpha: 0.06);
+    final futurePaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1
+      ..color = theme.textColor.withValues(alpha: 0.18);
     final todayDate = DateTime(today.year, today.month, today.day);
-    const gap = 2.0;
+    const gap = _StatsHabitSectionState._gap;
     const heatBlue = Color(0xFF0072B2); // Okabe-Ito blue
 
     for (var dayOfYear = 0; dayOfYear < 366; dayOfYear++) {
       final date = DateTime(year, 1, 1).add(Duration(days: dayOfYear));
       if (date.year != year) break;
-      if (date.isAfter(todayDate)) continue;
 
       final slot = leadingBlanks + dayOfYear;
       final col = slot ~/ 7;
       final row = slot % 7;
+      final rect = Rect.fromLTWH(
+        col * (cell + gap),
+        row * (cell + gap),
+        cell,
+        cell,
+      );
+      final rrect = RRect.fromRectAndRadius(rect, Radius.circular(cell * 0.2));
+
+      // 未来日期：虚线描边占位（虚显），不参与热度编码
+      if (date.isAfter(todayDate)) {
+        canvas.drawPath(_dashedPath(rrect), futurePaint);
+        continue;
+      }
 
       // 有键 = 当天练过（含旧版无容量会话），最低热度也点亮
       final volume = yearData[DateTime(date.year, date.month, date.day)];
@@ -311,17 +432,25 @@ class _YearHeatmapPainter extends CustomPainter {
               ..color = heatBlue.withValues(alpha: 0.2 + intensity * 0.55))
           : emptyPaint;
 
-      final rect = Rect.fromLTWH(
-        col * (cell + gap),
-        row * (cell + gap),
-        cell,
-        cell,
-      );
-      canvas.drawRRect(
-        RRect.fromRectAndRadius(rect, Radius.circular(cell * 0.2)),
-        paint,
-      );
+      canvas.drawRRect(rrect, paint);
     }
+  }
+
+  /// 方格的虚线描边路径（2-2 点划）。
+  Path _dashedPath(RRect rrect) {
+    final source = Path()..addRRect(rrect);
+    final dashed = Path();
+    for (final metric in source.computeMetrics()) {
+      const dashLength = 2.0;
+      const dashGap = 2.0;
+      var distance = 0.0;
+      while (distance < metric.length) {
+        final end = (distance + dashLength).clamp(0.0, metric.length);
+        dashed.addPath(metric.extractPath(distance, end), Offset.zero);
+        distance += dashLength + dashGap;
+      }
+    }
+    return dashed;
   }
 
   @override
