@@ -122,6 +122,19 @@ class _CompletedMedalDisplayState extends State<CompletedMedalDisplay>
   }
 
   Future<void> _runSequence() async {
+    // 减弱动态效果（系统设置）时跳过动画序列：直接呈现最终状态，
+    // 且不做呼吸循环（PRODUCT.md 无障碍要求可降级）。
+    if (MediaQuery.of(context).disableAnimations) {
+      for (final controller in [
+        _shrinkController,
+        _popController,
+        _digitController,
+        _captionController,
+      ]) {
+        controller.value = 1;
+      }
+      return;
+    }
     await _shrinkController.forward(); // 环收缩
     _popController.forward(); // 奖牌弹出
     await Future.delayed(const Duration(milliseconds: 250));

@@ -396,12 +396,8 @@ class _PlanProgressCardState extends State<PlanProgressCard>
                         Container(
                           width: double.infinity,
                           decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                theme.accentColor,
-                                theme.accentColor.withValues(alpha: 0.8),
-                              ],
-                            ),
+                            // 主按钮实底 accent（DESIGN.md：无装饰性渐变）
+                            color: theme.accentColor,
                             borderRadius: BorderRadius.circular(
                               AppDimensions.radiusXl,
                             ),
