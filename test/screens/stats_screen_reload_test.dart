@@ -144,7 +144,7 @@ void main() {
     expect(find.text('550 kg'), findsOneWidget);
   });
 
-  testWidgets('a rolling range chip pushes the AI analysis screen', (
+  testWidgets('the app bar AI entry pushes the AI analysis screen', (
     tester,
   ) async {
     final repo = FakeRecordRepository();
@@ -172,15 +172,10 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(seconds: 2));
 
-    // The stats body is a lazy ListView — the AI entry sits at the very
-    // bottom and is not built until scrolled into the viewport.
-    await tester.scrollUntilVisible(
-      find.text('Last 7 days'),
-      200,
-      scrollable: find.byType(Scrollable).first,
-    );
-    await tester.pump(const Duration(milliseconds: 200));
-    await tester.tap(find.text('Last 7 days'));
+    // 底部入口卡已移除，唯一入口在 AppBar 右上角
+    expect(find.text('Pick a rolling review window anchored on today'),
+        findsNothing);
+    await tester.tap(find.text('AI analysis'));
     await tester.pump();
     await tester.pump(const Duration(seconds: 2));
 

@@ -46,4 +46,39 @@ void main() {
       );
     },
   );
+
+  testWidgets('range tabs re-window records and regenerate the prompt', (
+    tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({});
+    await tester.pumpWidget(
+      ChangeNotifierProvider<ThemeProvider>(
+        create: (_) => ThemeProvider(),
+        child: MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: AIAnalysisScreen(
+            startDate: DateTime(2026, 9, 2),
+            endDate: DateTime(2026, 10, 1),
+            records: const [],
+            previousRecords: const [],
+            allRecords: const [],
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+
+    // 初始 30 天窗口的周期行
+    expect(find.textContaining('Last 30 days ('), findsOneWidget);
+
+    // 切到 7 天标签页 → 报告与提示词都换成 7 天窗口
+    await tester.tap(find.text('Last 7 days'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+
+    expect(find.textContaining('Last 7 days ('), findsOneWidget);
+    expect(find.textContaining('Last 30 days ('), findsNothing);
+  });
 }
