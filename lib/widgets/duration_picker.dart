@@ -1,6 +1,5 @@
-import 'dart:ui';
-import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
 import '../l10n/context_l10n.dart';
 import '../theme/theme_provider.dart';
@@ -9,9 +8,7 @@ import '../utils/dimensions.dart';
 import 'package:provider/provider.dart';
 import '../theme/build_context_text_styles.dart';
 
-/// iOS 26 风格时间选择器
-/// 分钟滚轮：0-5 分钟
-/// 秒滚轮：00/10/20/30/40/50（每10秒一格）
+/// 休息时长选择器：顶部一键预设（30/60/90/120s），滚轮负责任意值。
 class DurationPicker extends StatefulWidget {
   final int initialDurationSeconds;
   final Function(int seconds) onDurationSelected;
@@ -48,6 +45,9 @@ class DurationPicker extends StatefulWidget {
 }
 
 class _DurationPickerState extends State<DurationPicker> {
+  /// 一键预设（与 TimerProvider 的 presetTimes 同一套）
+  static const _presetSeconds = [30, 60, 90, 120];
+
   late int _minutes;
   late int _seconds;
 
@@ -102,94 +102,140 @@ class _DurationPickerState extends State<DurationPicker> {
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().currentTheme;
     final l10n = context.l10n;
-    // iPhone 5c 主题统一使用浅色风格
-    final screenHeight = MediaQuery.of(context).size.height;
 
     return Container(
-      height: screenHeight * 0.45,
       decoration: BoxDecoration(
-        // iOS 26 风格：液态玻璃底部 sheet
+        color: theme.surfaceColor,
         borderRadius: const BorderRadius.vertical(
-          top: Radius.circular(AppDimensions.radiusChip),
+          top: Radius.circular(AppDimensions.radiusSheet),
         ),
       ),
-      child: ClipRRect(
-        borderRadius: const BorderRadius.vertical(
-          top: Radius.circular(AppDimensions.radiusChip),
-        ),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
-          child: Container(
+      child: Column(
+        children: [
+          // 顶部拖动条
+          Container(
+            margin: const EdgeInsets.only(top: 8),
+            width: 36,
+            height: 5,
             decoration: BoxDecoration(
-              // 半透明材质 - 浅色风格
-              color: theme.surfaceColor.withValues(alpha: 0.92),
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(AppDimensions.radiusChip),
-              ),
-              border: Border.all(
-                color: theme.surfaceColor.withValues(alpha: 0.5),
-                width: 0.5,
+              color: theme.dividerColor,
+              borderRadius: BorderRadius.circular(
+                AppDimensions.radiusXxs,
               ),
             ),
-            child: Column(
+          ),
+          // Header
+          _buildHeader(theme),
+          // 一键预设（30/60/90/120s）— 滚轮只留给非预设值
+          _buildPresetRow(theme),
+          // Picker
+          Expanded(
+            child: Row(
               children: [
-                // 顶部拖动条 - iOS 26 风格
-                Container(
-                  margin: const EdgeInsets.only(top: 8),
-                  width: 36,
-                  height: 5,
-                  decoration: BoxDecoration(
-                    color: theme.dividerColor,
-                    borderRadius: BorderRadius.circular(
-                      AppDimensions.radiusXxs,
-                    ),
-                  ),
-                ),
-                // Header
-                _buildHeader(theme),
-                // Picker
+                // Minutes picker
                 Expanded(
-                  child: Row(
-                    children: [
-                      // Minutes picker
-                      Expanded(
-                        child: _buildWheel(
-                          controller: _minuteController,
-                          items: _minuteOptions,
-                          suffix: l10n.widgetMinuteSuffix,
-                          theme: theme,
-                          onChanged: (index) {
-                            setState(() {
-                              _minutes = _minuteOptions[index];
-                            });
-                          },
-                        ),
-                      ),
-                      // Seconds picker
-                      Expanded(
-                        child: _buildWheel(
-                          controller: _secondController,
-                          items: _secondOptions,
-                          suffix: l10n.widgetSecondSuffix,
-                          theme: theme,
-                          onChanged: (index) {
-                            setState(() {
-                              _seconds = _secondOptions[index];
-                            });
-                          },
-                        ),
-                      ),
-                    ],
+                  child: _buildWheel(
+                    controller: _minuteController,
+                    items: _minuteOptions,
+                    suffix: l10n.widgetMinuteSuffix,
+                    theme: theme,
+                    onChanged: (index) {
+                      setState(() {
+                        _minutes = _minuteOptions[index];
+                      });
+                    },
                   ),
                 ),
-                // Preview & Confirm Button
-                _buildBottomSection(theme),
-                SizedBox(height: MediaQuery.of(context).padding.bottom + 8),
+                // Seconds picker
+                Expanded(
+                  child: _buildWheel(
+                    controller: _secondController,
+                    items: _secondOptions,
+                    suffix: l10n.widgetSecondSuffix,
+                    theme: theme,
+                    onChanged: (index) {
+                      setState(() {
+                        _seconds = _secondOptions[index];
+                      });
+                    },
+                  ),
+                ),
               ],
             ),
           ),
+          // Preview & Confirm Button
+          _buildBottomSection(theme),
+          SizedBox(height: MediaQuery.of(context).padding.bottom + 8),
+        ],
+      ),
+    );
+  }
+
+  /// 预设行：点一下直接把两个滚轮对到该值；当前值命中预设时实底高亮。
+  Widget _buildPresetRow(AppThemeData theme) {
+    final l10n = context.l10n;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+      child: Row(
+        children: [
+          for (final preset in _presetSeconds) ...[
+            Expanded(
+              child: _buildPresetChip(theme, preset, l10n),
+            ),
+            if (preset != _presetSeconds.last) const SizedBox(width: 8),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPresetChip(
+    AppThemeData theme,
+    int preset,
+    AppLocalizations l10n,
+  ) {
+    final selected = _totalSeconds == preset;
+    return GestureDetector(
+      key: Key('duration-preset-$preset'),
+      onTap: () => _applyPreset(preset),
+      child: Container(
+        // 触控目标 ≥48dp（健身房手汗场景）
+        constraints: const BoxConstraints(minHeight: 48),
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          // The 15% Tint Rule — 选中态实底 accent
+          color: selected
+              ? theme.accentColor
+              : theme.accentColor.withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(AppDimensions.radiusChip),
+        ),
+        child: Text(
+          _formatDuration(preset, l10n),
+          style: context.bodyMedium.copyWith(
+            fontWeight: FontWeight.w600,
+            color: selected ? theme.onAccentColor : theme.accentColor,
+            fontFeatures: const [FontFeature.tabularFigures()],
+          ),
         ),
       ),
+    );
+  }
+
+  void _applyPreset(int preset) {
+    setState(() {
+      _minutes = preset ~/ 60;
+      _seconds = preset % 60;
+    });
+    // 两个滚轮同步滚到对应刻度，视觉与状态一致
+    _minuteController.animateToItem(
+      _minuteOptions.indexOf(_minutes),
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeOut,
+    );
+    _secondController.animateToItem(
+      _secondOptions.indexOf(_seconds),
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeOut,
     );
   }
 
