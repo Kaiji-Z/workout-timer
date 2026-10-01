@@ -54,6 +54,13 @@ jobs:
             exit 1
           fi
 
+      - name: Generate release notes
+        # 放在环境搭建/构建之前：说明生成只需要 git 历史，失败时
+        # 不必白等 8 分钟构建。分类规则见脚本头注释。
+        run: |
+          node scripts/generate_release_notes.mjs "${{ steps.tag.outputs.tag }}" > release_notes.md
+          cat release_notes.md
+
       - name: Setup Java
         uses: actions/setup-java@v5
         with:
@@ -84,17 +91,31 @@ jobs:
         # --no-tree-shake-icons 必带，否则 Material Icons 花屏
         run: flutter build apk --release --no-tree-shake-icons
 
-      - name: Generate release notes
-        # 从上个 tag 到本 tag 的 conventional commits 归类生成中文说明
-        # （scripts/generate_release_notes.mjs，分类规则见脚本头注释）
+      - name: Compute APK checksum
+        # sideload 分发没有商店校验，附 SHA256 让下载损坏/篡改可自查
         run: |
-          node scripts/generate_release_notes.mjs "${{ steps.tag.outputs.tag }}" > release_notes.md
-          cat release_notes.md
+          cd build/app/outputs/flutter-apk
+          sha256sum app-release.apk > app-release.apk.sha256
+          cat app-release.apk.sha256
+
+      - name: Keep build artifacts
+        # Publish 失败（网络/权限抖动）时 APK 不至于无处可取，
+        # 不必整个 workflow 重跑 9 分钟
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ steps.tag.outputs.tag }}
+          path: |
+            build/app/outputs/flutter-apk/app-release.apk
+            build/app/outputs/flutter-apk/app-release.apk.sha256
+          retention-days: 14
 
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.tag.outputs.tag }}
           name: 撸铁计时器 ${{ steps.tag.outputs.tag }}
-          files: build/app/outputs/flutter-apk/app-release.apk
+          files: |
+            build/app/outputs/flutter-apk/app-release.apk
+            build/app/outputs/flutter-apk/app-release.apk.sha256
           body_path: release_notes.md
