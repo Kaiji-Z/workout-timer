@@ -71,6 +71,12 @@ const sections = new Map([
 const breaking = [];
 const other = [];
 
+// 用户不可感知的支撑性提交（含 l10n 文案增改）不进功能/修复区，
+// 一律折叠进「其他」；TDD 的 (RED)/(GREEN) 阶段标记从展示文本剥掉。
+const isSupportCommit = (type, scope) =>
+  ['chore', 'docs', 'test', 'ci', 'style', 'build', 'l10n'].includes(type) ||
+  scope === 'l10n';
+
 for (const entry of raw.split('\x1e')) {
   const record = entry.trim();
   if (!record) continue;
@@ -83,12 +89,13 @@ for (const entry of raw.split('\x1e')) {
     other.push(`- ${subject} (${hash})`);
     continue;
   }
-  const [, type, scope, text] = match;
+  const [, type, scope, rawText] = match;
   if (/BREAKING CHANGE/i.test(body) || subject.includes('!:')) {
-    breaking.push(`- ${scope ? `**${scope}**: ` : ''}${text} (${hash})`);
+    breaking.push(`- ${scope ? `**${scope}**: ` : ''}${rawText} (${hash})`);
   }
+  const text = rawText.replace(/\s*\((?:RED|GREEN)\)\s*$/i, '');
   const line = `- ${scope ? `**${scope}**: ` : ''}${text} (${hash})`;
-  if (sections.has(type)) {
+  if (!isSupportCommit(type, scope) && sections.has(type)) {
     sections.get(type).push(line);
   } else {
     other.push(line);
