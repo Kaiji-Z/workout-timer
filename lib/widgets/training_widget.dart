@@ -160,7 +160,10 @@ class _TrainingWidgetState extends State<TrainingWidget>
                     _showPlanSelector(theme, planProvider, progressProvider),
                 borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
                 child: Container(
-                  padding: const EdgeInsets.all(8),
+                  // 触控目标 ≥48dp（手汗场景宁大勿小）
+                  width: 48,
+                  height: 48,
+                  alignment: Alignment.center,
                   decoration: BoxDecoration(
                     color: _isPlanMode
                         ? theme.accentColor.withValues(alpha: 0.1)
@@ -366,6 +369,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
         children: [
           CircularControlButton(
             icon: Icons.timer_outlined,
+            semanticLabel: context.l10n.trainingRestDuration,
             onPressed: () => _showDurationPicker(context, training),
           ),
           const SizedBox(width: 16),
@@ -393,12 +397,14 @@ class _TrainingWidgetState extends State<TrainingWidget>
         children: [
           CircularControlButton(
             icon: Icons.pause,
+            semanticLabel: context.l10n.semanticPause,
             onPressed: training.pauseExercise,
           ),
           const SizedBox(width: 12),
           CircularControlButton(
             icon: Icons.stop,
             iconColor: theme.errorColor,
+            semanticLabel: context.l10n.semanticEndWorkout,
             onPressed: () {
               final completedExercise = progressProvider.currentExercise;
               if (_isPlanMode && completedExercise != null) {
@@ -476,6 +482,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
           CircularControlButton(
             icon: Icons.stop,
             iconColor: theme.errorColor,
+            semanticLabel: context.l10n.semanticEndWorkout,
             onPressed: () {
               final completedExercise = progressProvider.currentExercise;
               if (_isPlanMode && completedExercise != null) {
@@ -524,12 +531,14 @@ class _TrainingWidgetState extends State<TrainingWidget>
           CircularControlButton(
             icon: Icons.delete_outline,
             iconColor: theme.errorColor,
+            semanticLabel: context.l10n.semanticDeleteWorkout,
             onPressed: () =>
                 _confirmDiscard(context, training, progressProvider),
           ),
           const SizedBox(width: 12),
           CircularControlButton(
             icon: Icons.play_arrow,
+            semanticLabel: context.l10n.trainingContinue,
             onPressed: () {
               training.resumeExercise();
             },

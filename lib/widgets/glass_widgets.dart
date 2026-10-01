@@ -223,33 +223,37 @@ class _PrimaryActionButtonState extends State<PrimaryActionButton>
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().currentTheme;
     final bgColor = widget.backgroundColor ?? theme.accentColor;
-    return buildPressable(
-      onPressed: widget.onPressed,
-      child: Container(
-        height: widget.height,
-        decoration: BoxDecoration(
-          color: bgColor,
-          borderRadius: BorderRadius.circular(widget.height / 2),
-          boxShadow: AppElevation.raised(bgColor.withValues(alpha: 0.3)),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (widget.icon != null) ...[
-                Icon(widget.icon, color: theme.onAccentColor, size: 22),
-                const SizedBox(width: 8),
-              ],
-              Text(
-                widget.label,
-                style: context.titleLarge.copyWith(
-                  color: theme.onAccentColor,
-                  letterSpacing: 0.5,
+    // GestureDetector 无按钮角色；显式声明让读屏识别为可按按钮
+    return Semantics(
+      button: true,
+      child: buildPressable(
+        onPressed: widget.onPressed,
+        child: Container(
+          height: widget.height,
+          decoration: BoxDecoration(
+            color: bgColor,
+            borderRadius: BorderRadius.circular(widget.height / 2),
+            boxShadow: AppElevation.raised(bgColor.withValues(alpha: 0.3)),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (widget.icon != null) ...[
+                  Icon(widget.icon, color: theme.onAccentColor, size: 22),
+                  const SizedBox(width: 8),
+                ],
+                Text(
+                  widget.label,
+                  style: context.titleLarge.copyWith(
+                    color: theme.onAccentColor,
+                    letterSpacing: 0.5,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

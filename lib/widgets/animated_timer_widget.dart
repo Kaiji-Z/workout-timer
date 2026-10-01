@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import '../l10n/context_l10n.dart';
 import '../theme/app_theme.dart';
 import '../theme/build_context_text_styles.dart';
 
@@ -141,60 +142,88 @@ class _AnimatedTimerDisplayState extends State<AnimatedTimerDisplay>
     final cardSize = widget.size * 0.65;
     // idle 与激活态数字一致:w700 实色。idle 的"待发"信号靠满环传达,
     // 不靠弱化数字 — 数字是倒计时起点,弱化它反而让人看不出是倒计时。
-    return Container(
-      width: cardSize,
-      height: cardSize,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: widget.theme.primaryColor,
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          AnimatedSwitcher(
-            duration: const Duration(milliseconds: 250),
-            transitionBuilder: (child, animation) {
-              return FadeTransition(
-                opacity: animation,
-                child: SlideTransition(
-                  position:
-                      Tween<Offset>(
-                        begin: const Offset(0.0, 0.1),
-                        end: Offset.zero,
-                      ).animate(
-                        CurvedAnimation(
-                          parent: animation,
-                          curve: Curves.easeOut,
+    return Semantics(
+      // 屏幕阅读器播报：只在里程碑（30/15/10/5..1秒）变化，避免逐秒轰炸
+      liveRegion: true,
+      label: _announcementLabel(widget.seconds),
+      child: Container(
+        width: cardSize,
+        height: cardSize,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: widget.theme.primaryColor,
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 250),
+              transitionBuilder: (child, animation) {
+                return FadeTransition(
+                  opacity: animation,
+                  child: SlideTransition(
+                    position:
+                        Tween<Offset>(
+                          begin: const Offset(0.0, 0.1),
+                          end: Offset.zero,
+                        ).animate(
+                          CurvedAnimation(
+                            parent: animation,
+                            curve: Curves.easeOut,
+                          ),
                         ),
-                      ),
-                  child: child,
+                    child: child,
+                  ),
+                );
+              },
+              child: ExcludeSemantics(
+                // 原始 mm:ss 每秒都在变，交给下面的 liveRegion 按里程碑播报
+                child: Text(
+                  timeText,
+                  key: ValueKey(timeText),
+                  style: context.displayLarge.copyWith(
+                    fontFamily: 'Rajdhani',
+                    fontWeight: FontWeight.w700,
+                    fontSize: widget.size * 0.18,
+                    letterSpacing: -0.5,
+                  ),
                 ),
-              );
-            },
-            child: Text(
-              timeText,
-              key: ValueKey(timeText),
-              style: context.displayLarge.copyWith(
-                fontFamily: 'Rajdhani',
-                fontWeight: FontWeight.w700,
-                fontSize: widget.size * 0.18,
-                letterSpacing: -0.5,
               ),
             ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            widget.label,
-            style: context.labelLarge.copyWith(
-              fontSize: widget.size * 0.045,
-              color: widget.theme.secondaryTextColor,
-              letterSpacing: 0.5,
+            const SizedBox(height: 4),
+            Text(
+              widget.label,
+              style: context.labelLarge.copyWith(
+                fontSize: widget.size * 0.045,
+                color: widget.theme.secondaryTextColor,
+                letterSpacing: 0.5,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
+  }
+
+  /// 里程碑播报标签：30/15/10/5..1 秒各播一次，其余时刻保持上一次的
+  /// 值不变（liveRegion 只在 label 变化时播报，稳定值=静默）。
+  String _announcementLabel(int seconds) {
+    final l10n = context.l10n;
+    final int announced;
+    if (seconds > 30) {
+      announced = -1;
+    } else if (seconds >= 16) {
+      announced = 30;
+    } else if (seconds >= 11) {
+      announced = 15;
+    } else if (seconds >= 6) {
+      announced = 10;
+    } else {
+      announced = seconds;
+    }
+    if (announced <= 0) return '';
+    return l10n.semanticRestSecondsLeft(announced);
   }
 
   String _formatTime(int totalSeconds) {
