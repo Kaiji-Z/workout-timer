@@ -115,7 +115,7 @@ class _StatsScreenState extends State<StatsScreen> {
         ),
         actions: [
           TextButton.icon(
-            onPressed: () => _openAiReview(30),
+            onPressed: _openAiReview,
             icon: Icon(Icons.psychology, size: 20, color: theme.accentColor),
             label: Text(
               l10n.statsAiAnalysis,
@@ -256,117 +256,15 @@ class _StatsScreenState extends State<StatsScreen> {
         const SizedBox(height: 12),
         buildDensityMetric(context, rolling28, theme),
         const SizedBox(height: 20),
-        _buildAiReviewEntry(theme),
       ],
     );
   }
 
-  // ==================== AI 复盘入口（滚动范围） ====================
-
-  Widget _buildAiReviewEntry(AppThemeData theme) {
-    final l10n = context.l10n;
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(AppDimensions.screenPadding),
-      decoration: BoxDecoration(
-        color: theme.surfaceColorRaised,
-        borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
-        boxShadow: AppElevation.raised(theme.shadowColor),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.psychology, size: 16, color: theme.accentColor),
-              const SizedBox(width: 6),
-              Text(
-                l10n.statsAiAnalysis,
-                style: context.bodyMedium.copyWith(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: theme.secondaryTextColor,
-                  letterSpacing: 1,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Text(
-            l10n.statsAiReviewSubtitle,
-            style: context.bodySmall.copyWith(
-              color: theme.secondaryTextColor,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              _rangeChip(theme, l10n.anRangeDays(7), () => _openAiReview(7)),
-              _rangeChip(theme, l10n.anRangeDays(30), () => _openAiReview(30)),
-              _rangeChip(theme, l10n.anRangeDays(90), () => _openAiReview(90)),
-              _rangeChip(theme, l10n.anRangeCustom, _openAiReviewCustom),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _rangeChip(AppThemeData theme, String label, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        decoration: BoxDecoration(
-          // The 15% Tint Rule
-          color: theme.accentColor.withValues(alpha: 0.15),
-          borderRadius: BorderRadius.circular(AppDimensions.radiusChip),
-          border: Border.all(
-            color: theme.accentColor.withValues(alpha: 0.3),
-          ),
-        ),
-        child: Text(
-          label,
-          style: context.bodySmall.copyWith(
-            fontWeight: FontWeight.w600,
-            color: theme.accentColor,
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// 打开滚动复盘：窗口 [今天-(N-1), 今天]，对照窗口为紧邻的前 N 天。
-  void _openAiReview(int rangeDays) {
+  /// 打开滚动复盘（默认 30 天，页内可用标签页切换范围）：窗口 [今天-(N-1), 今天]。
+  void _openAiReview() {
     final now = DateTime.now();
     final end = DateTime(now.year, now.month, now.day);
-    _pushAiReview(start: end.subtract(Duration(days: rangeDays - 1)), end: end);
-  }
-
-  /// 自定义复盘：依次选起止日期（滚动语义，不允许选到未来）。
-  Future<void> _openAiReviewCustom() async {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-
-    final start = await showDatePicker(
-      context: context,
-      initialDate: today.subtract(const Duration(days: 29)),
-      firstDate: DateTime(2020),
-      lastDate: today,
-    );
-    if (start == null || !mounted) return;
-
-    final end = await showDatePicker(
-      context: context,
-      initialDate: today,
-      firstDate: start,
-      lastDate: today,
-    );
-    if (end == null || !mounted) return;
-
-    _pushAiReview(start: start, end: DateTime(end.year, end.month, end.day));
+    _pushAiReview(start: end.subtract(const Duration(days: 29)), end: end);
   }
 
   void _pushAiReview({required DateTime start, required DateTime end}) {

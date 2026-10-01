@@ -47,11 +47,18 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
   /// 输出模式：纯复盘 / 复盘+下周计划（默认后者，SPEC §3.4）
   bool _includeNextPlan = true;
 
+  /// 复盘窗口（可变：右上角进入后由标签页切换范围）。
+  /// 初始值来自构造参数，之后 [_setRange] 从 allRecords 重算。
+  late DateTime _startDate;
+  late DateTime _endDate;
+  late List<WorkoutRecord> _records;
+  late List<WorkoutRecord> _previousRecords;
+
   final StatsCalculatorService _statsCalc = StatsCalculatorService();
 
   /// 复盘窗口天数（含首尾）
   int get _rangeDays =>
-      widget.endDate.difference(widget.startDate).inDays + 1;
+      _endDate.difference(_startDate).inDays + 1;
 
   /// 窗口是否长到让 1RM 进步趋势有意义（≥3 周）
   bool get _showProgression => _rangeDays >= 21;
@@ -66,6 +73,10 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
   @override
   void initState() {
     super.initState();
+    _startDate = widget.startDate;
+    _endDate = widget.endDate;
+    _records = widget.records;
+    _previousRecords = widget.previousRecords;
     _loadUserPreferences();
   }
 
@@ -159,7 +170,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
 
   /// Format muscle volume distribution (weighted by training volume)
   String _formatMuscleVolumeDistribution(AppLocalizations l10n) {
-    final dist = _statsCalc.calculateMuscleVolumeDistribution(widget.records);
+    final dist = _statsCalc.calculateMuscleVolumeDistribution(_records);
     if (dist.isEmpty) return l10n.anNoMuscleData;
 
     final sorted = dist.entries.toList()
@@ -189,9 +200,9 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
 
   /// Format volume trend (current vs previous period)
   String _formatVolumeTrend(AppLocalizations l10n) {
-    final currentVolume = _statsCalc.calculateTotalVolume(widget.records);
+    final currentVolume = _statsCalc.calculateTotalVolume(_records);
     final previousVolume = _statsCalc.calculateTotalVolume(
-      widget.previousRecords,
+      _previousRecords,
     );
 
     if (currentVolume == 0 && previousVolume == 0) return l10n.anNoTrendData;
@@ -223,8 +234,8 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
     }
 
     // Training frequency trend
-    final currentDays = _countUniqueDays(widget.records);
-    final previousDays = _countUniqueDays(widget.previousRecords);
+    final currentDays = _countUniqueDays(_records);
+    final previousDays = _countUniqueDays(_previousRecords);
     if (previousDays > 0) {
       final diff = currentDays - previousDays;
       final arrow = diff > 0
@@ -237,10 +248,10 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
 
     // Per-muscle volume trend
     final currentMuscleVol = _statsCalc.calculateMuscleVolumeDistribution(
-      widget.records,
+      _records,
     );
     final previousMuscleVol = _statsCalc.calculateMuscleVolumeDistribution(
-      widget.previousRecords,
+      _previousRecords,
     );
     final allMuscles = {
       ...currentMuscleVol.keys,
@@ -272,7 +283,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
   /// Format sets per muscle group with MEV reference
   String _formatSetsPerMuscleGroup(AppLocalizations l10n) {
     final setsPerMuscle = _statsCalc.calculateSetsPerMuscleGroup(
-      widget.records,
+      _records,
     );
     if (setsPerMuscle.isEmpty) return l10n.anNoSetsData;
 
@@ -305,7 +316,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
 
   /// Format estimated 1RM for top exercises (uses English names for AI)
   String _formatEstimated1RM(AppLocalizations l10n) {
-    final trend = _calculate1RMTrendEn(widget.records);
+    final trend = _calculate1RMTrendEn(_records);
     if (trend.isEmpty) return l10n.anNo1rmData;
 
     // Sort by estimated1RM descending (best session), take top 10
@@ -329,7 +340,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
 
   /// Format 1RM progression trend (month view only)
   String _format1RMProgression(AppLocalizations l10n) {
-    final trend = _calculate1RMTrendEn(widget.records);
+    final trend = _calculate1RMTrendEn(_records);
     if (trend.isEmpty) return l10n.anNo1rmTrendData;
 
     // Filter to exercises with 2+ sessions, sort by change%
@@ -387,7 +398,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
     // Recovery is a global state (not period-specific)
     final records = widget.allRecords.isNotEmpty
         ? widget.allRecords
-        : widget.records;
+        : _records;
     if (records.isEmpty) return l10n.anNoRecoveryData;
 
     final Map<PrimaryMuscleGroup, DateTime> lastTrainedDates = {};
@@ -464,10 +475,10 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
     final rangeDays = _rangeDays;
     final periodLabel = l10n.anRangeDays(rangeDays);
     final dateRange = l10n.anDateRange(
-      widget.startDate.month,
-      widget.startDate.day,
-      widget.endDate.month,
-      widget.endDate.day,
+      _startDate.month,
+      _startDate.day,
+      _endDate.month,
+      _endDate.day,
     );
 
     String goalLabel(String code) {
@@ -531,10 +542,10 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
     }
 
     // Basic statistics
-    final totalVolume = _statsCalc.calculateTotalVolume(widget.records);
-    final density = _statsCalc.calculateDensity(widget.records);
-    final sessionCount = widget.records.length;
-    final workoutDays = _countUniqueDays(widget.records);
+    final totalVolume = _statsCalc.calculateTotalVolume(_records);
+    final density = _statsCalc.calculateDensity(_records);
+    final sessionCount = _records.length;
+    final workoutDays = _countUniqueDays(_records);
     String fmtVol(double v) =>
         v >= 1000 ? '${(v / 1000).toStringAsFixed(1)}k' : v.toStringAsFixed(0);
 
@@ -562,8 +573,8 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
 
     // 急慢性负荷比（护栏参考）——窗口锚定 endDate
     final loadRatio = _statsCalc.acuteChronicRatio(
-      widget.allRecords.isNotEmpty ? widget.allRecords : widget.records,
-      asOf: widget.endDate,
+      widget.allRecords.isNotEmpty ? widget.allRecords : _records,
+      asOf: _endDate,
     );
     buffer.writeln(
       loadRatio == null
@@ -701,6 +712,10 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Section 0: 复盘范围标签页（锚定今天，可随时切换重算）
+            _buildRangeTabs(theme),
+            const SizedBox(height: 16),
+
             // Section 1: Instructions
             buildAnalysisInstructionsBox(context, theme),
             const SizedBox(height: 24),
@@ -805,12 +820,12 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
 
   Widget _buildBasicInfoSection(AppThemeData theme) {
     final l10n = context.l10n;
-    final totalVolume = _statsCalc.calculateTotalVolume(widget.records);
-    final density = _statsCalc.calculateDensity(widget.records);
+    final totalVolume = _statsCalc.calculateTotalVolume(_records);
+    final density = _statsCalc.calculateDensity(_records);
     final totalDurationMin =
-        widget.records.fold<int>(0, (sum, r) => sum + r.durationSeconds) ~/ 60;
-    final sessionCount = widget.records.length;
-    final workoutDays = _countUniqueDays(widget.records);
+        _records.fold<int>(0, (sum, r) => sum + r.durationSeconds) ~/ 60;
+    final sessionCount = _records.length;
+    final workoutDays = _countUniqueDays(_records);
     final avgPerSession = sessionCount > 0
         ? totalDurationMin ~/ sessionCount
         : 0;
@@ -950,6 +965,117 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
         ),
       ],
     );
+  }
+
+  /// 复盘范围标签页：滚动 7/30/90 天 + 自定义起止。
+  ///
+  /// 切换后从 allRecords 重算当前/对照窗口并即时重新生成报告与提示词。
+  Widget _buildRangeTabs(AppThemeData theme) {
+    final l10n = context.l10n;
+    final currentDays = _rangeDays;
+
+    Widget tab(String label, bool selected, VoidCallback onTap) {
+      return GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          decoration: BoxDecoration(
+            // The 15% Tint Rule — 选中态实底 accent，未选中 15% tint
+            color: selected
+                ? theme.accentColor
+                : theme.accentColor.withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(AppDimensions.radiusChip),
+            border: selected
+                ? null
+                : Border.all(
+                    color: theme.accentColor.withValues(alpha: 0.3),
+                  ),
+          ),
+          child: Text(
+            label,
+            style: context.bodySmall.copyWith(
+              fontWeight: FontWeight.w600,
+              color: selected ? theme.onAccentColor : theme.accentColor,
+              fontFeatures: const [FontFeature.tabularFigures()],
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        tab(l10n.anRangeDays(7), currentDays == 7, () => _setRange(7)),
+        tab(l10n.anRangeDays(30), currentDays == 30, () => _setRange(30)),
+        tab(l10n.anRangeDays(90), currentDays == 90, () => _setRange(90)),
+        tab(l10n.anRangeCustom, _isCustomWindow, _pickCustomRange),
+      ],
+    );
+  }
+
+  /// 当前窗口是否不是三个预设滚动档（即自定义起止）。
+  bool get _isCustomWindow =>
+      _rangeDays != 7 && _rangeDays != 30 && _rangeDays != 90;
+
+  /// 切换滚动范围：以构造时锚定的结束日为「今天」重算两个窗口。
+  void _setRange(int rangeDays) {
+    if (_rangeDays == rangeDays && !_isCustomWindow) return;
+    _applyWindow(
+      start: _endDate
+          .subtract(Duration(days: rangeDays - 1)),
+      end: _endDate,
+    );
+  }
+
+  /// 自定义起止：依次选开始/结束日（滚动语义，不允许选到未来）。
+  Future<void> _pickCustomRange() async {
+    final start = await showDatePicker(
+      context: context,
+      initialDate: _startDate,
+      firstDate: DateTime(2020),
+      lastDate: _endDate,
+    );
+    if (start == null || !mounted) return;
+
+    final pickedEnd = await showDatePicker(
+      context: context,
+      initialDate: _endDate,
+      firstDate: start,
+      lastDate: _endDate,
+    );
+    if (pickedEnd == null || !mounted) return;
+
+    _applyWindow(
+      start: DateTime(start.year, start.month, start.day),
+      end: DateTime(pickedEnd.year, pickedEnd.month, pickedEnd.day),
+    );
+  }
+
+  /// 用新窗口替换当前/对照记录并重新生成报告与提示词。
+  void _applyWindow({required DateTime start, required DateTime end}) {
+    final rangeDays = end.difference(start).inDays + 1;
+    final prevEnd = start.subtract(const Duration(days: 1));
+    final l10n = context.l10n;
+    setState(() {
+      _startDate = start;
+      _endDate = end;
+      _records = _statsCalc.filterRollingWindow(
+        widget.allRecords,
+        asOf: end,
+        windowDays: rangeDays,
+      );
+      _previousRecords = _statsCalc.filterRollingWindow(
+        widget.allRecords,
+        asOf: prevEnd,
+        windowDays: rangeDays,
+      );
+      _isPromptCopied = false;
+      if (_generatedPrompt != null) {
+        _generatedPrompt = _generatePrompt(l10n);
+      }
+    });
   }
 
   /// 输出模式切换：纯复盘 / 复盘+下周计划（SPEC §3.4）。
