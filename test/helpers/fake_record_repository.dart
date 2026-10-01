@@ -31,6 +31,11 @@ class FakeRecordRepository implements RecordRepository {
   }
 
   @override
+  Future<void> deleteRecord(String recordId) async {
+    dbRecords.removeWhere((r) => r.id == recordId);
+  }
+
+  @override
   dynamic noSuchMethod(Invocation invocation) =>
       throw UnimplementedError('${invocation.memberName} not faked');
 }

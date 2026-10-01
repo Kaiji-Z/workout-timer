@@ -148,6 +148,31 @@ void main() {
     expect(find.text('9/2026'), findsNothing);
   });
 
+  testWidgets('swipe delete offers undo that restores the record', (
+    tester,
+  ) async {
+    final repo = FakeRecordRepository()
+      ..dbRecords.add(recordOf('a', DateTime(2026, 9, 15), 80));
+    await pumpHistory(tester, repo);
+    expect(find.text('9/2026'), findsOneWidget);
+
+    // 滑动删除（endToStart）
+    await tester.drag(find.byType(Dismissible), const Offset(-600, 0));
+    await tester.pumpAndSettle(const Duration(milliseconds: 100));
+
+    expect(repo.dbRecords, isEmpty);
+    expect(find.text('9/2026'), findsNothing);
+    // SnackBar 提供撤销入口
+    expect(find.text('Deleted'), findsOneWidget);
+    expect(find.text('Undo'), findsOneWidget);
+
+    // 撤销 → 记录完整恢复
+    await tester.tap(find.text('Undo'));
+    await tester.pumpAndSettle(const Duration(milliseconds: 100));
+    expect(repo.dbRecords, hasLength(1));
+    expect(find.text('9/2026'), findsOneWidget);
+  });
+
   testWidgets('clearing the query returns to grouped list', (tester) async {
     final repo = FakeRecordRepository()
       ..dbRecords.addAll([recordOf('a', DateTime(2026, 9, 15), 80)]);
