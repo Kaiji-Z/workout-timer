@@ -39,6 +39,9 @@ jobs:
         uses: actions/checkout@v5
         with:
           ref: ${{ steps.tag.outputs.tag }}
+          # 生成更新说明需要完整历史与 tag 列表
+          fetch-depth: 0
+          fetch-tags: true
 
       - name: Verify tag matches pubspec version
         # AGENTS.md 发版规则：tag(vX.Y.Z) = pubspec(version: X.Y.Z)，
@@ -81,10 +84,17 @@ jobs:
         # --no-tree-shake-icons 必带，否则 Material Icons 花屏
         run: flutter build apk --release --no-tree-shake-icons
 
+      - name: Generate release notes
+        # 从上个 tag 到本 tag 的 conventional commits 归类生成中文说明
+        # （scripts/generate_release_notes.mjs，分类规则见脚本头注释）
+        run: |
+          node scripts/generate_release_notes.mjs "${{ steps.tag.outputs.tag }}" > release_notes.md
+          cat release_notes.md
+
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.tag.outputs.tag }}
           name: 撸铁计时器 ${{ steps.tag.outputs.tag }}
           files: build/app/outputs/flutter-apk/app-release.apk
-          generate_release_notes: true
+          body_path: release_notes.md
