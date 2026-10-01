@@ -57,8 +57,15 @@ jobs:
       - name: Generate release notes
         # 放在环境搭建/构建之前：说明生成只需要 git 历史，失败时
         # 不必白等 8 分钟构建。分类规则见脚本头注释。
+        # 补发早于脚本引入的 tag 时，tag 树里没有 scripts/——回退用
+        # master 上的脚本（说明工具不随包发布，APK 仍严格按 tag 构建）。
         run: |
-          node scripts/generate_release_notes.mjs "${{ steps.tag.outputs.tag }}" > release_notes.md
+          NOTES=scripts/generate_release_notes.mjs
+          if [ ! -f "$NOTES" ]; then
+            git show "origin/master:$NOTES" > /tmp/generate_release_notes.mjs
+            NOTES=/tmp/generate_release_notes.mjs
+          fi
+          node "$NOTES" "${{ steps.tag.outputs.tag }}" > release_notes.md
           cat release_notes.md
 
       - name: Setup Java
