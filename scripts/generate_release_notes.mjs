@@ -97,6 +97,23 @@ for (const entry of raw.split('\x1e')) {
 
 const out = [];
 out.push('## 更新内容');
+
+// 固定迁移提示：1.2.x 时代 APK 的 versionCode=2，高于 1.3+ 的 1，
+// 安装器会拦下并提示"已安装更高版本"。放在折叠区，既醒目又不喧宾夺主。
+out.push(
+  '<details>',
+  '<summary>📱 从 1.2.x 或更早版本升级？请先迁移数据（点开看步骤）</summary>',
+  '',
+  '新版与 1.2.x 的内部版本号规则不同，直接安装会被系统提示"已安装更高版本"而拦下。完整迁移步骤：',
+  '',
+  '1. 在旧版中打开 **设置 → 数据 → 导出数据**（文件保存在手机 Downloads 目录；也可在分享面板里另存一份更稳妥）',
+  '2. 用文件管理器确认导出文件存在，然后 **卸载旧版 app**',
+  '3. 安装本版本 APK',
+  '4. 打开新版：**设置 → 数据 → 导入数据**，选择刚才导出的文件',
+  '',
+  '</details>',
+  '',
+);
 if (breaking.length > 0) {
   out.push('### ⚠️ 破坏性变更', ...breaking, '');
 }
@@ -120,7 +137,11 @@ if (other.length > 0) {
     '',
   );
 }
-if (out.length === 1) {
+const hasCommits =
+  breaking.length > 0 ||
+  [...sections.values()].some((lines) => lines.length > 0) ||
+  other.length > 0;
+if (!hasCommits) {
   out.push('本版本以内部改进与维护为主。');
 }
 
