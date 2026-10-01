@@ -154,6 +154,13 @@ void main() {
       expect(find.text('This week 2/4'), findsOneWidget);
       expect(find.text('Year in training'), findsOneWidget);
       expect(find.text('2026'), findsOneWidget);
+      // 热力图横坐标：月份起始列标签
+      expect(find.text('Jan'), findsOneWidget);
+      expect(find.text('Sep'), findsOneWidget);
+      // 纵坐标：GitHub 式隔行星期标签（一/三/五行）
+      expect(find.text('M'), findsOneWidget);
+      expect(find.text('W'), findsOneWidget);
+      expect(find.text('F'), findsOneWidget);
     });
 
     testWidgets('shows no-streak hint when streak is zero', (tester) async {
