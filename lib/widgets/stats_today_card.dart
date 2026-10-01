@@ -99,11 +99,27 @@ class StatsTodayCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                l10n.statsLoadRatioLabel,
-                style: context.bodySmall.copyWith(
-                  color: theme.secondaryTextColor,
-                ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    l10n.statsLoadRatioLabel,
+                    style: context.bodySmall.copyWith(
+                      color: theme.secondaryTextColor,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  // 首次见到的用户需要一条行内解释，不止免责声明
+                  Tooltip(
+                    message: l10n.tooltipAcwr,
+                    triggerMode: TooltipTriggerMode.tap,
+                    child: Icon(
+                      Icons.info_outline,
+                      size: 14,
+                      color: theme.secondaryTextColor,
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 2),
               Text(

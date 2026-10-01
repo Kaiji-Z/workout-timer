@@ -122,7 +122,7 @@ class _StatsProgressSectionState extends State<StatsProgressSection> {
     final shown = sorted.take(8).toList();
 
     return SizedBox(
-      height: 34,
+      height: 48,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: shown.length,
@@ -135,7 +135,7 @@ class _StatsProgressSectionState extends State<StatsProgressSection> {
             label: Text(
               name,
               style: context.bodySmall.copyWith(
-                fontSize: 11,
+                fontSize: 12,
                 color: isSelected ? theme.onAccentColor : theme.textColor,
               ),
             ),
@@ -144,9 +144,8 @@ class _StatsProgressSectionState extends State<StatsProgressSection> {
             backgroundColor: theme.textColor.withValues(alpha: 0.06),
             selectedColor: theme.accentColor,
             showCheckmark: false,
-            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            visualDensity: VisualDensity.compact,
-            labelPadding: const EdgeInsets.symmetric(horizontal: 4),
+            materialTapTargetSize: MaterialTapTargetSize.padded,
+            labelPadding: const EdgeInsets.symmetric(horizontal: 8),
           );
         },
       ),
@@ -215,11 +214,15 @@ class _StatsProgressSectionState extends State<StatsProgressSection> {
             }),
           ],
         ),
-        Text(
-          'Mayhew',
-          style: context.bodySmall.copyWith(
-            fontSize: 10,
-            color: theme.secondaryTextColor,
+        Tooltip(
+          message: l10n.tooltipMayhew,
+          triggerMode: TooltipTriggerMode.tap,
+          child: Text(
+            'Mayhew',
+            style: context.bodySmall.copyWith(
+              fontSize: 11,
+              color: theme.secondaryTextColor,
+            ),
           ),
         ),
       ],
@@ -236,7 +239,10 @@ class _StatsProgressSectionState extends State<StatsProgressSection> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        // 触控目标 ≥48dp
+        constraints: const BoxConstraints(minHeight: 48),
+        padding: const EdgeInsets.symmetric(horizontal: 14),
+        alignment: Alignment.center,
         decoration: BoxDecoration(
           // The 15% Tint Rule — selected 用实底 accent，未选中用 15% tint
           color: selected ? theme.accentColor : theme.accentColor.withValues(alpha: 0.15),
@@ -245,7 +251,7 @@ class _StatsProgressSectionState extends State<StatsProgressSection> {
         child: Text(
           label,
           style: context.bodySmall.copyWith(
-            fontSize: 11,
+            fontSize: 12,
             fontWeight: FontWeight.w600,
             color: selected ? theme.onAccentColor : theme.accentColor,
           ),

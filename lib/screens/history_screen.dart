@@ -524,7 +524,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
       return GestureDetector(
         onTap: onTap,
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          // 触控目标 ≥48dp
+          constraints: const BoxConstraints(minHeight: 48),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          alignment: Alignment.center,
           decoration: BoxDecoration(
             // The 15% Tint Rule — 选中态实底 accent
             color: selected
@@ -548,7 +551,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
       height: 48,
       child: ListView(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         children: [
           chip(l10n.historyYearAll, _yearFilter == null, () {
             setState(() => _yearFilter = null);

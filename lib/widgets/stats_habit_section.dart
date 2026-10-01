@@ -115,6 +115,7 @@ class _StatsHabitSectionState extends State<StatsHabitSection> {
           _buildYearSelector(context, l10n),
           const SizedBox(height: 10),
           _buildHeatmap(context),
+          _buildHeatmapLegend(context),
         ],
       ),
     );
@@ -327,6 +328,73 @@ class _StatsHabitSectionState extends State<StatsHabitSection> {
     );
   }
 
+  /// 图例：淡底=没练，虚线=还没到，蓝色深浅=当天容量多少。
+  Widget _buildHeatmapLegend(BuildContext context) {
+    final l10n = context.l10n;
+    final theme = widget.theme;
+    const heatBlue = Color(0xFF0072B2);
+    final cell = 10.0;
+
+    Widget swatch({bool dashed = false, Color? fill}) {
+      final rrect = RRect.fromRectAndRadius(
+        Rect.fromLTWH(0, 0, cell, cell),
+        Radius.circular(cell * 0.2),
+      );
+      return SizedBox(
+        width: cell,
+        height: cell,
+        child: CustomPaint(
+          painter: _LegendSwatchPainter(
+            rrect: rrect,
+            fill: fill,
+            dashed: dashed,
+            strokeColor: theme.textColor.withValues(alpha: 0.18),
+          ),
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 8, left: _gutterWidth),
+      child: Row(
+        children: [
+          swatch(dashed: true),
+          const SizedBox(width: 4),
+          Text(
+            l10n.statsHabitFuture,
+            style: context.bodySmall.copyWith(
+              fontSize: 10,
+              color: theme.secondaryTextColor,
+            ),
+          ),
+          const SizedBox(width: 12),
+          swatch(fill: theme.textColor.withValues(alpha: 0.06)),
+          const SizedBox(width: 4),
+          Text(
+            l10n.heatmapLegendLess,
+            style: context.bodySmall.copyWith(
+              fontSize: 10,
+              color: theme.secondaryTextColor,
+            ),
+          ),
+          const SizedBox(width: 4),
+          for (final alpha in [0.3, 0.45, 0.6, 0.75]) ...[
+            swatch(fill: heatBlue.withValues(alpha: alpha)),
+            const SizedBox(width: 2),
+          ],
+          const SizedBox(width: 2),
+          Text(
+            l10n.heatmapLegendMore,
+            style: context.bodySmall.copyWith(
+              fontSize: 10,
+              color: theme.secondaryTextColor,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   /// 各月横标：文本 = 本地化月份缩写（zh「9月」/ en「Sep」），
   /// 位置 = 该月 1 日所在周列。
   List<_HeatmapAxisLabel> _monthLabels(BuildContext context, int leadingBlanks) {
@@ -459,4 +527,50 @@ class _YearHeatmapPainter extends CustomPainter {
       oldDelegate.yearData != yearData ||
       oldDelegate.maxVolume != maxVolume ||
       oldDelegate.today != today;
+}
+
+/// 图例小方块绘制：实底填充或虚线描边。
+class _LegendSwatchPainter extends CustomPainter {
+  final RRect rrect;
+  final Color? fill;
+  final bool dashed;
+  final Color strokeColor;
+
+  _LegendSwatchPainter({
+    required this.rrect,
+    required this.dashed,
+    required this.strokeColor,
+    this.fill,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final fillColor = fill;
+    if (fillColor != null) {
+      canvas.drawRRect(rrect, Paint()..color = fillColor);
+    }
+    if (dashed) {
+      final source = Path()..addRRect(rrect);
+      final dashedPath = Path();
+      for (final metric in source.computeMetrics()) {
+        var distance = 0.0;
+        while (distance < metric.length) {
+          final end = (distance + 2.0).clamp(0.0, metric.length);
+          dashedPath.addPath(metric.extractPath(distance, end), Offset.zero);
+          distance += 4.0;
+        }
+      }
+      canvas.drawPath(
+        dashedPath,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1
+          ..color = strokeColor,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(_LegendSwatchPainter oldDelegate) =>
+      oldDelegate.fill != fill || oldDelegate.dashed != dashed;
 }
