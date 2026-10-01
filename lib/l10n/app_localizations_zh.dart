@@ -2493,4 +2493,33 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get trainingDiscardBody => '未保存的组数与时长将全部丢失。';
+
+  @override
+  String get semanticPause => '暂停';
+
+  @override
+  String get semanticEndWorkout => '结束训练';
+
+  @override
+  String get semanticDeleteWorkout => '删除本次训练';
+
+  @override
+  String semanticRestSecondsLeft(Object seconds) {
+    return '剩余$seconds秒';
+  }
+
+  @override
+  String get tooltipAcwr => '近7天与28天平均训练量之比。0.8–1.3 表示负荷平稳，明显偏高提示应减量。';
+
+  @override
+  String get tooltipMayhew => '估算单次极限重量（Mayhew 公式）';
+
+  @override
+  String get heatmapLegendLess => '少';
+
+  @override
+  String get heatmapLegendMore => '多';
+
+  @override
+  String get statsHabitFuture => '还没到';
 }

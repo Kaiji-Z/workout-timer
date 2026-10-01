@@ -2560,4 +2560,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get trainingDiscardBody => 'Unsaved sets and duration will be lost.';
+
+  @override
+  String get semanticPause => 'Pause';
+
+  @override
+  String get semanticEndWorkout => 'End workout';
+
+  @override
+  String get semanticDeleteWorkout => 'Delete this workout';
+
+  @override
+  String semanticRestSecondsLeft(Object seconds) {
+    return '$seconds seconds left';
+  }
+
+  @override
+  String get tooltipAcwr =>
+      'Ratio of the last 7 days to the 28-day average training volume. 0.8-1.3 is steady; well above that suggests backing off.';
+
+  @override
+  String get tooltipMayhew => 'Estimated one-rep max (Mayhew formula)';
+
+  @override
+  String get heatmapLegendLess => 'Less';
+
+  @override
+  String get heatmapLegendMore => 'More';
+
+  @override
+  String get statsHabitFuture => 'Upcoming';
 }

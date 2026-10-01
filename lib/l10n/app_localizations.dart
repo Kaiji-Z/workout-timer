@@ -4438,6 +4438,60 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'未保存的组数与时长将全部丢失。'**
   String get trainingDiscardBody;
+
+  /// No description provided for @semanticPause.
+  ///
+  /// In zh, this message translates to:
+  /// **'暂停'**
+  String get semanticPause;
+
+  /// No description provided for @semanticEndWorkout.
+  ///
+  /// In zh, this message translates to:
+  /// **'结束训练'**
+  String get semanticEndWorkout;
+
+  /// No description provided for @semanticDeleteWorkout.
+  ///
+  /// In zh, this message translates to:
+  /// **'删除本次训练'**
+  String get semanticDeleteWorkout;
+
+  /// No description provided for @semanticRestSecondsLeft.
+  ///
+  /// In zh, this message translates to:
+  /// **'剩余{seconds}秒'**
+  String semanticRestSecondsLeft(Object seconds);
+
+  /// No description provided for @tooltipAcwr.
+  ///
+  /// In zh, this message translates to:
+  /// **'近7天与28天平均训练量之比。0.8–1.3 表示负荷平稳，明显偏高提示应减量。'**
+  String get tooltipAcwr;
+
+  /// No description provided for @tooltipMayhew.
+  ///
+  /// In zh, this message translates to:
+  /// **'估算单次极限重量（Mayhew 公式）'**
+  String get tooltipMayhew;
+
+  /// No description provided for @heatmapLegendLess.
+  ///
+  /// In zh, this message translates to:
+  /// **'少'**
+  String get heatmapLegendLess;
+
+  /// No description provided for @heatmapLegendMore.
+  ///
+  /// In zh, this message translates to:
+  /// **'多'**
+  String get heatmapLegendMore;
+
+  /// No description provided for @statsHabitFuture.
+  ///
+  /// In zh, this message translates to:
+  /// **'还没到'**
+  String get statsHabitFuture;
 }
 
 class _AppLocalizationsDelegate
