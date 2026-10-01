@@ -605,6 +605,11 @@ git config alias.pushall '!git push origin && git push gitee'
 [可选：详细说明为什么改、改了什么]
 ```
 
+> **描述用中文**（type/scope 保持英文）。Release 说明直接从提交描述生成，
+> 中文描述 = 用户可读的更新说明；英文描述用户只能看懂个大概。
+> TDD 的阶段标记（如 `(RED)`/`(GREEN)`）不要写进描述——生成说明时会剥掉，
+> 但从一开始就不写更干净。
+
 **Type**:
 - `feat(scope)` — 新功能
 - `fix(scope)` — 修复 bug
