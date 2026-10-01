@@ -725,35 +725,35 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
             const SizedBox(height: 12),
 
             // a) Basic Info
-            buildAnalysisGlassCard(
+            buildAnalysisCard(
               theme: theme,
               child: _buildBasicInfoSection(theme),
             ),
             const SizedBox(height: 12),
 
             // b) Trend Changes
-            buildAnalysisGlassCard(
+            buildAnalysisCard(
               theme: theme,
               child: _buildTrendSection(theme),
             ),
             const SizedBox(height: 12),
 
             // c) Muscle Volume Distribution
-            buildAnalysisGlassCard(
+            buildAnalysisCard(
               theme: theme,
               child: _buildMuscleDistributionSection(theme),
             ),
             const SizedBox(height: 12),
 
             // d) Sets Per Muscle Group (NEW)
-            buildAnalysisGlassCard(
+            buildAnalysisCard(
               theme: theme,
               child: _buildSetsPerMuscleSection(theme),
             ),
             const SizedBox(height: 12),
 
             // e) Estimated 1RM (REPLACED from PR)
-            buildAnalysisGlassCard(
+            buildAnalysisCard(
               theme: theme,
               child: _buildEstimated1RMSection(theme),
             ),
@@ -761,7 +761,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
 
             // f) 1RM Progression — 仅窗口 ≥3 周
             if (_showProgression) ...[
-              buildAnalysisGlassCard(
+              buildAnalysisCard(
                 theme: theme,
                 child: _build1RMProgressionSection(theme),
               ),
@@ -769,7 +769,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
             ],
 
             // g) Recovery Status
-            buildAnalysisGlassCard(
+            buildAnalysisCard(
               theme: theme,
               child: _buildRecoverySection(theme),
             ),

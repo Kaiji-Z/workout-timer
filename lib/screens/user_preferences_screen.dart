@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -469,28 +468,16 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
     required Widget child,
     EdgeInsetsGeometry? padding,
   }) {
-    // 深色模式下使用更低的透明度
-    final isDark = theme.isDark;
-    final bgAlpha = isDark ? 0.08 : 0.12;
-    final borderAlpha = isDark ? 0.20 : 0.30;
-
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-        child: Container(
-          padding: padding ?? const EdgeInsets.symmetric(vertical: 4),
-          decoration: BoxDecoration(
-            color: theme.surfaceColor.withValues(alpha: bgAlpha),
-            borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
-            border: Border.all(
-              color: theme.surfaceColor.withValues(alpha: borderAlpha),
-              width: 1,
-            ),
-          ),
-          child: child,
-        ),
+    // Flat：实底 + raised 阴影（No-Glow Rule，原毛玻璃已移除）
+    return Container(
+      width: double.infinity,
+      padding: padding ?? const EdgeInsets.symmetric(vertical: 4),
+      decoration: BoxDecoration(
+        color: theme.surfaceColorRaised,
+        borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
+        boxShadow: AppElevation.raised(theme.shadowColor),
       ),
+      child: child,
     );
   }
 

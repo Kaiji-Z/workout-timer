@@ -1,6 +1,4 @@
 // AI 分析页的通用展示组件（从 ai_analysis_screen.dart 拆分）。
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
 import '../l10n/context_l10n.dart';
@@ -89,32 +87,20 @@ Widget buildAnalysisSubsectionHeader(
   );
 }
 
-/// 毛玻璃卡片容器（BackdropFilter 模糊 + 半透明表面）。
-Widget buildAnalysisGlassCard({
+/// 报告卡片容器（Flat：实底 + raised 阴影，No-Glow Rule 禁毛玻璃）。
+Widget buildAnalysisCard({
   required AppThemeData theme,
   required Widget child,
 }) {
-  final isDark = theme.isDark;
-  final bgAlpha = isDark ? 0.08 : 0.12;
-  final borderAlpha = isDark ? 0.20 : 0.30;
-
-  return ClipRRect(
-    borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
-    child: BackdropFilter(
-      filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-      child: Container(
-        padding: const EdgeInsets.all(AppDimensions.screenPadding),
-        decoration: BoxDecoration(
-          color: theme.surfaceColor.withValues(alpha: bgAlpha),
-          borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
-          border: Border.all(
-            color: theme.surfaceColor.withValues(alpha: borderAlpha),
-            width: 1,
-          ),
-        ),
-        child: child,
-      ),
+  return Container(
+    width: double.infinity,
+    padding: const EdgeInsets.all(AppDimensions.screenPadding),
+    decoration: BoxDecoration(
+      color: theme.surfaceColorRaised,
+      borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
+      boxShadow: AppElevation.raised(theme.shadowColor),
     ),
+    child: child,
   );
 }
 
