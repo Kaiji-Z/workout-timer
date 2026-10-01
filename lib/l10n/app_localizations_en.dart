@@ -2542,4 +2542,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get statsHeatmapWdFri => 'F';
+
+  @override
+  String get historyDeleteConfirmTitle => 'Delete this record?';
+
+  @override
+  String get historyDeletedSnack => 'Deleted';
+
+  @override
+  String get historyUndo => 'Undo';
+
+  @override
+  String get exportHistoryFailedGeneric => 'Export failed, please try again';
+
+  @override
+  String get trainingDiscardTitle => 'Discard this workout?';
+
+  @override
+  String get trainingDiscardBody => 'Unsaved sets and duration will be lost.';
 }

@@ -86,12 +86,59 @@ class _HistoryScreenState extends State<HistoryScreen> {
     }
   }
 
-  Future<void> _deleteRecord(String id) async {
+  /// 滑动删除详细记录：删除后给 SnackBar 撤销入口（可完整恢复）。
+  Future<void> _deleteRecordWithUndo(WorkoutRecord record) async {
+    final l10n = context.l10n;
     try {
-      await context.read<RecordProvider>().deleteRecord(id);
+      await context.read<RecordProvider>().deleteRecord(record.id);
       setState(() {});
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.historyDeletedSnack),
+          action: SnackBarAction(
+            label: l10n.historyUndo,
+            onPressed: () async {
+              try {
+                await context.read<RecordProvider>().saveRecord(record);
+                if (mounted) setState(() {});
+              } catch (e) {
+                debugPrint('Error restoring record: $e');
+              }
+            },
+          ),
+        ),
+      );
     } catch (e) {
       debugPrint('Error deleting record: $e');
+    }
+  }
+
+  /// 旧版会话无法整体恢复（saveSession 会生成新 id），改为确认后删除。
+  Future<void> _deleteSessionConfirmed(WorkoutSession session) async {
+    final l10n = context.l10n;
+    final theme = context.read<ThemeProvider>().currentTheme;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.historyDeleteConfirmTitle),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(l10n.widgetCancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(
+              l10n.recDetailDeleteAction,
+              style: TextStyle(color: theme.errorColor),
+            ),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) {
+      await _deleteSession(session.id);
     }
   }
 
@@ -204,7 +251,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text(l10n.exportHistoryFailed('$e'))));
+        ).showSnackBar(
+          SnackBar(content: Text(l10n.exportHistoryFailedGeneric)),
+        );
       }
     }
   }
@@ -552,14 +601,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 ? _RecordCard(
                     record: record,
                     formatDate: _formatDate,
-                    onDelete: () => _deleteRecord(record.id),
+                    onDelete: () => _deleteRecordWithUndo(record),
                     onTap: () => _navigateToDetail(record),
                     theme: theme,
                   )
                 : _SessionCard(
                     session: record as WorkoutSession,
                     formatDate: _formatDate,
-                    onDelete: () => _deleteSession(record.id),
+                    onDelete: () => _deleteSessionConfirmed(record),
                     theme: theme,
                   ),
           ),
@@ -742,16 +791,13 @@ class _RecordCard extends StatelessWidget {
       background: Container(
         margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.transparent, theme.accentColor],
-            begin: Alignment.centerLeft,
-            end: Alignment.centerRight,
-          ),
+          // 破坏性动作用 error 语义色，不用品牌靛蓝
+          color: theme.errorColor,
           borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
         ),
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 20),
-        child: Icon(Icons.delete, color: theme.textColor),
+        child: Icon(Icons.delete, color: theme.onAccentColor),
       ),
       onDismissed: (direction) => onDelete(),
       child: AnimatedCard(
@@ -930,16 +976,13 @@ class _SessionCard extends StatelessWidget {
       background: Container(
         margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.transparent, theme.accentColor],
-            begin: Alignment.centerLeft,
-            end: Alignment.centerRight,
-          ),
+          // 破坏性动作用 error 语义色，不用品牌靛蓝
+          color: theme.errorColor,
           borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
         ),
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 20),
-        child: Icon(Icons.delete, color: theme.textColor),
+        child: Icon(Icons.delete, color: theme.onAccentColor),
       ),
       onDismissed: (direction) => onDelete(),
       child: Container(
@@ -986,14 +1029,6 @@ class _SessionCard extends StatelessWidget {
                   Text(formatDate(session), style: context.bodySmall),
                 ],
               ),
-            ),
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: theme.borderColor.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
-              ),
-              child: Icon(Icons.chevron_right, color: theme.secondaryTextColor),
             ),
           ],
         ),

@@ -524,12 +524,8 @@ class _TrainingWidgetState extends State<TrainingWidget>
           CircularControlButton(
             icon: Icons.delete_outline,
             iconColor: theme.errorColor,
-            onPressed: () {
-              training.resetWorkout();
-              if (_isPlanMode) {
-                progressProvider.endPlan();
-              }
-            },
+            onPressed: () =>
+                _confirmDiscard(context, training, progressProvider),
           ),
           const SizedBox(width: 12),
           CircularControlButton(
@@ -550,6 +546,38 @@ class _TrainingWidgetState extends State<TrainingWidget>
     }
 
     return const SizedBox.shrink();
+  }
+
+  /// 完成态删除需确认——误触不能直接丢掉整场训练。
+  Future<void> _confirmDiscard(
+    BuildContext context,
+    TrainingProvider training,
+    TrainingProgressProvider progressProvider,
+  ) async {
+    final l10n = context.l10n;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.trainingDiscardTitle),
+        content: Text(l10n.trainingDiscardBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(l10n.widgetCancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(l10n.recDetailDeleteAction),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) {
+      training.resetWorkout();
+      if (_isPlanMode) {
+        progressProvider.endPlan();
+      }
+    }
   }
 
   /// 显示计划选择器

@@ -4402,6 +4402,42 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'五'**
   String get statsHeatmapWdFri;
+
+  /// No description provided for @historyDeleteConfirmTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'删除这条记录？'**
+  String get historyDeleteConfirmTitle;
+
+  /// No description provided for @historyDeletedSnack.
+  ///
+  /// In zh, this message translates to:
+  /// **'已删除'**
+  String get historyDeletedSnack;
+
+  /// No description provided for @historyUndo.
+  ///
+  /// In zh, this message translates to:
+  /// **'撤销'**
+  String get historyUndo;
+
+  /// No description provided for @exportHistoryFailedGeneric.
+  ///
+  /// In zh, this message translates to:
+  /// **'导出失败，请重试'**
+  String get exportHistoryFailedGeneric;
+
+  /// No description provided for @trainingDiscardTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'放弃这次训练？'**
+  String get trainingDiscardTitle;
+
+  /// No description provided for @trainingDiscardBody.
+  ///
+  /// In zh, this message translates to:
+  /// **'未保存的组数与时长将全部丢失。'**
+  String get trainingDiscardBody;
 }
 
 class _AppLocalizationsDelegate

@@ -933,5 +933,11 @@
   },
   "statsHeatmapWdMon": "M",
   "statsHeatmapWdWed": "W",
-  "statsHeatmapWdFri": "F"
+  "statsHeatmapWdFri": "F",
+  "historyDeleteConfirmTitle": "Delete this record?",
+  "historyDeletedSnack": "Deleted",
+  "historyUndo": "Undo",
+  "exportHistoryFailedGeneric": "Export failed, please try again",
+  "trainingDiscardTitle": "Discard this workout?",
+  "trainingDiscardBody": "Unsaved sets and duration will be lost."
 }

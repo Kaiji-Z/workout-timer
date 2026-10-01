@@ -2475,4 +2475,22 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get statsHeatmapWdFri => '五';
+
+  @override
+  String get historyDeleteConfirmTitle => '删除这条记录？';
+
+  @override
+  String get historyDeletedSnack => '已删除';
+
+  @override
+  String get historyUndo => '撤销';
+
+  @override
+  String get exportHistoryFailedGeneric => '导出失败，请重试';
+
+  @override
+  String get trainingDiscardTitle => '放弃这次训练？';
+
+  @override
+  String get trainingDiscardBody => '未保存的组数与时长将全部丢失。';
 }

@@ -2543,5 +2543,17 @@
   "statsHeatmapWdWed": "三",
   "@statsHeatmapWdWed": {},
   "statsHeatmapWdFri": "五",
-  "@statsHeatmapWdFri": {}
+  "@statsHeatmapWdFri": {},
+  "historyDeleteConfirmTitle": "删除这条记录？",
+  "@historyDeleteConfirmTitle": {},
+  "historyDeletedSnack": "已删除",
+  "@historyDeletedSnack": {},
+  "historyUndo": "撤销",
+  "@historyUndo": {},
+  "exportHistoryFailedGeneric": "导出失败，请重试",
+  "@exportHistoryFailedGeneric": {},
+  "trainingDiscardTitle": "放弃这次训练？",
+  "@trainingDiscardTitle": {},
+  "trainingDiscardBody": "未保存的组数与时长将全部丢失。",
+  "@trainingDiscardBody": {}
 }
