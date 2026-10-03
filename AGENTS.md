@@ -580,6 +580,19 @@ git config alias.pushall '!git push origin && git push gitee'
 
 ---
 
+## 落地页(GitHub Pages)
+
+**线上地址**: https://kaiji-z.github.io/workout-timer/
+
+- **站点源是 master**,由 `.github/workflows/pages.yml` 组装并部署(Pages 构建模式 2026-10-03 起已切为 GitHub Actions)。
+- **改落地页**: 改 `docs/landing/index.html` → push master → 自动部署(触发 paths 含 `docs/landing/**`、`docs/screenshots/**`、`docs/privacy_policy.html`、字体、图标)。
+- **部署产物**: `index.html`(落地页)+ `privacy_policy.html` / `privacy-policy.html`(隐私政策,下划线路径被 App Store 资料引用,**勿删**)+ `screenshots/` + `icon.png` + `fonts/Rajdhani-Bold-4.ttf`。
+- **gh-pages 分支已弃用**(遗留历史,workflow 模式不读它)——不要再手动往它 push;隐私政策源文件以 master 的 `docs/privacy_policy.html` 为准。
+- 落地页无构建步骤:单文件 HTML + 内联 CSS/JS,资源全用相对路径(站点在 `/workout-timer/` 子路径下)。设计遵循 Flat Vitality 规则(Duality / 15% tint / No-Glow / tabular-nums / Rajdhani 仅用于计时数字)。
+- App 内设置页的「完整隐私政策」链接指向站点根路径(现为落地页,页脚有隐私政策入口);若要改成 `/privacy-policy.html` 直链,改 l10n arb 后随下个版本发布。
+
+---
+
 ## GIT COMMIT RULES
 
 ### Atomic Commit Principle
