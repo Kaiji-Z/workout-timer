@@ -1,0 +1,57 @@
+# GH Pages 部署:落地页 + 隐私政策 + 截图资源
+# Pages 站点需在仓库 Settings 中将 Build and deployment 来源设为 GitHub Actions
+name: Pages
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'docs/landing/**'
+      - 'docs/screenshots/**'
+      - 'docs/privacy_policy.html'
+      - 'fonts/Rajdhani-Bold-4.ttf'
+      - 'assets/icon.png'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Assemble site
+        run: |
+          mkdir -p _site/fonts
+          cp docs/landing/index.html _site/index.html
+          # 隐私政策:下划线路径是 App Store 资料引用的地址,连字号路径作别名
+          cp docs/privacy_policy.html _site/privacy_policy.html
+          cp docs/privacy_policy.html _site/privacy-policy.html
+          cp -r docs/screenshots _site/screenshots
+          cp assets/icon.png _site/icon.png
+          cp fonts/Rajdhani-Bold-4.ttf _site/fonts/
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
