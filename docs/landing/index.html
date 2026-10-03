@@ -10,40 +10,40 @@
   <meta property="og:url" content="https://kaiji-z.github.io/workout-timer/">
   <meta property="og:image" content="https://kaiji-z.github.io/workout-timer/screenshots/timer.jpg">
   <meta property="og:type" content="website">
-  <meta name="theme-color" content="#1A237E">
+  <meta name="theme-color" content="#FFB74D">
   <link rel="icon" type="image/png" href="./icon.png">
   <style>
-    /* ============ Flat Vitality 落地页 ============
-       规则:暖背景与深靛蓝同场(Duality)/激活态 15% 靛蓝 /
-       无发光无玻璃(No-Glow)/变化数字 tabular-nums /
-       Rajdhani 只用于计时数字(One Display Font) */
+    /* ============================================================
+       Flat Vitality — The Duality Rule: 暖背景与深靛蓝同场
+       15% tint 激活态 / No-Glow / tabular-nums /
+       Rajdhani 仅用于计时数字(The One Display Font Rule)
+       ============================================================ */
     :root {
-      --accent: #1A237E;            /* 深靛蓝 — 冷静 */
-      --accent-70: rgba(26, 35, 126, 0.7);
-      --accent-15: rgba(26, 35, 126, 0.15);
-      --accent-30: rgba(26, 35, 126, 0.3);
-      --warm-1: #FFB74D;            /* 琥珀金 — 汗水 */
+      --ink: #1A237E;                       /* 深靛蓝 — 冷静,双墨铁律的墨色 */
+      --ink-70: rgba(26, 35, 126, 0.7);
+      --ink-15: rgba(26, 35, 126, 0.15);
+      --ink-30: rgba(26, 35, 126, 0.3);
+      --warm-1: #FFB74D;                    /* 琥珀金 — 汗水 */
       --warm-2: #FFA726;
-      --coral-1: #FF8A65;
-      --coral-2: #FF7043;
-      --sky-1: #64B5F6;
-      --sky-2: #42A5F5;
       --text: #212121;
       --text-2: #757575;
+      --warm-text-2: #5D4037;               /* 暖底上的次要文字:从色相取,不用灰 */
       --surface: #FFFFFF;
-      --surface-raised: #F5F5F5;
-      --divider: #E0E0E0;
+      --surface-dim: #F6E7D2;               /* 已滑掉的通知:暖调,不是灰 */
+      --surface-dim-text: #6D4C41;
+      --night: #1E1E2E;
+      --night-text: #C5C5D5;
       --shadow-resting: 0 2px 8px rgba(33, 33, 33, 0.12);
       --shadow-raised: 0 4px 16px rgba(33, 33, 33, 0.12);
-      --radius-card: 16px;
-      --radius-pill: 28px;
+      --shadow-btn: 0 4px 16px rgba(26, 35, 126, 0.3);
+      --r-card: 16px;
+      --r-chip: 20px;
+      --r-pill: 28px;
+      --r-tile: 12px;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html { scroll-behavior: smooth; }
-    @media (prefers-reduced-motion: reduce) {
-      html { scroll-behavior: auto; }
-      * { animation: none !important; transition: none !important; }
-    }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "PingFang SC",
         "Hiragino Sans GB", "Microsoft YaHei", "Segoe UI", Roboto, sans-serif;
@@ -59,92 +59,69 @@
       font-display: swap;
     }
     .num { font-variant-numeric: tabular-nums; }
-    a { color: var(--accent); }
-    .container { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+    ::selection { background: var(--ink-15); }
+    :focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; border-radius: 4px; }
+    html { scrollbar-color: var(--ink-30) transparent; scrollbar-width: thin; }
+    a { color: var(--ink); text-underline-offset: 3px; }
+    img { display: block; }
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
 
-    /* ============ 顶部导航 ============ */
+    /* ---- 滚动进度:追光纪律,永远告诉你现在在哪 ---- */
+    .chase {
+      position: fixed; top: 0; left: 0; right: 0; height: 3px;
+      background: var(--ink); transform-origin: 0 50%; transform: scaleX(0);
+      z-index: 90;
+    }
+
+    /* ---- 顶部导航 ---- */
     .nav {
       position: sticky; top: 0; z-index: 50;
-      background: var(--surface);
-      box-shadow: var(--shadow-resting);
+      background: var(--surface); box-shadow: var(--shadow-resting);
     }
-    .nav-inner {
-      display: flex; align-items: center; gap: 12px;
-      height: 64px;
-    }
+    .nav-inner { display: flex; align-items: center; gap: 12px; height: 64px; }
     .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
     .brand img { width: 32px; height: 32px; border-radius: 8px; }
-    .brand span { font-size: 17px; font-weight: 700; color: var(--text); }
-    .nav-links { display: flex; gap: 4px; margin-left: auto; align-items: center; }
-    .nav-links a {
-      text-decoration: none; color: var(--text-2);
-      font-size: 14px; font-weight: 500;
-      padding: 10px 14px; border-radius: var(--radius-pill);
-      transition: color 0.15s;
+    .brand b { font-size: 17px; color: var(--text); }
+    .nav-right { margin-left: auto; display: flex; align-items: center; gap: 6px; }
+    .nav-link {
+      text-decoration: none; color: var(--warm-text-2);
+      font-size: 14px; font-weight: 500; padding: 10px 14px;
+      border-radius: var(--r-pill); transition: background 0.15s, color 0.15s;
     }
-    .nav-links a:hover { color: var(--accent); background: var(--accent-15); }
-    .btn-pill {
+    .nav-link:hover { color: var(--ink); background: var(--ink-15); }
+    .btn {
       display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-      min-height: 48px; padding: 0 24px;
-      border-radius: var(--radius-pill);
-      font-size: 15px; font-weight: 600; text-decoration: none;
-      transition: transform 0.1s ease-out;
+      min-height: 48px; padding: 0 24px; border-radius: var(--r-pill);
+      font-size: 15px; font-weight: 600; text-decoration: none; cursor: pointer;
+      letter-spacing: 0.5px; transition: transform 0.1s ease-out, background 0.15s, filter 0.15s;
     }
-    .btn-pill:active { transform: scale(0.95); }
-    .btn-primary {
-      background: var(--accent); color: #FFFFFF;
-      box-shadow: 0 4px 16px rgba(26, 35, 126, 0.3);
+    .btn:active { transform: scale(0.95); }
+    .btn-ink { background: var(--ink); color: #FFFFFF; box-shadow: var(--shadow-btn); }
+    .btn-ink:hover { background: #283593; }
+    .btn-ghost {
+      background: transparent; color: var(--ink); border: 2px solid rgba(26, 35, 126, 0.5);
     }
-    .btn-primary:hover { background: #283593; }
-    .btn-outline {
-      background: transparent; color: var(--accent);
-      border: 2px solid var(--accent-30);
-    }
-    .btn-outline:hover { background: var(--accent-15); }
+    .lock .btn-ghost { border-color: var(--warm-text-2); }
+    .btn-ghost:hover { background: var(--ink-15); }
     .btn-nav { min-height: 44px; padding: 0 20px; font-size: 14px; }
-    @media (max-width: 720px) { .nav-links a.nav-anchor { display: none; } }
+    @media (max-width: 720px) { .nav-link.gh { display: none; } }
 
-    /* ============ Hero:汗水背景 × 冷静计时 ============ */
-    .hero { background: linear-gradient(160deg, var(--warm-1), var(--warm-2)); }
-    .hero-inner {
-      display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 48px;
-      align-items: center; padding: 72px 0 80px;
+    /* ---- 锁屏首屏:暖渐变满幅(与叙事段同一块连续地面) ---- */
+    .amber-field { background: linear-gradient(160deg, var(--warm-1), var(--warm-2)); }
+    .lock {
+      padding: 20px 0 72px;
     }
-    @media (max-width: 880px) {
-      .hero-inner { grid-template-columns: 1fr; padding: 48px 0 56px; text-align: center; }
-      .hero-copy .badge-row { justify-content: center; }
-      .hero-ctas { justify-content: center; }
+    .statusbar {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 14px; font-weight: 600; color: var(--ink);
+      font-variant-numeric: tabular-nums;
+      max-width: 560px; margin: 8px auto 0;
     }
-    .badge-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
-    .chip {
-      display: inline-block; padding: 6px 14px;
-      border-radius: 20px; font-size: 13px; font-weight: 600;
-      background: var(--accent-15); color: var(--accent);
-    }
-    .hero h1 {
-      font-size: clamp(34px, 5vw, 52px);
-      line-height: 1.2; letter-spacing: -1px; font-weight: 700;
-      margin-bottom: 16px;
-    }
-    .hero .lede {
-      font-size: clamp(16px, 2vw, 18px); color: #4E342E;
-      max-width: 30em; margin-bottom: 28px;
-    }
-    @media (max-width: 880px) { .hero .lede { margin-left: auto; margin-right: auto; } }
-    .hero-ctas { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 18px; }
-    .hero .privacy-note { font-size: 13.5px; color: #5D4037; }
-
-    /* ---- 交互计时器演示 ---- */
-    .timer-demo {
-      background: rgba(255, 255, 255, 0.55);
-      border-radius: var(--radius-card);
-      padding: 28px 24px 24px;
-      display: flex; flex-direction: column; align-items: center; gap: 18px;
-      box-shadow: var(--shadow-resting);
-    }
-    .timer-demo .caption { font-size: 13px; font-weight: 600; color: var(--text-2); letter-spacing: 2px; }
-    .ring-wrap { position: relative; width: 232px; height: 232px; }
-    .ring-wrap svg { width: 100%; height: 100%; display: block; }
+    .statusbar .icons { margin-left: auto; display: flex; gap: 10px; align-items: center; }
+    .statusbar svg { display: block; }
+    .timer-stage { text-align: center; margin-top: 40px; }
+    .ring-wrap { position: relative; width: 264px; height: 264px; margin: 0 auto; }
+    .ring-wrap svg.ring { width: 100%; height: 100%; display: block; }
     .ring-bg { stroke: rgba(255, 255, 255, 0.85); }
     .ring-track {
       stroke: url(#ringGrad); stroke-linecap: round;
@@ -153,346 +130,481 @@
     }
     @media (prefers-reduced-motion: reduce) { .ring-track { transition: none; } }
     .ring-num {
-      position: absolute; inset: 0;
-      display: flex; align-items: center; justify-content: center;
-      font-family: "Rajdhani", "Segoe UI", sans-serif;
-      font-weight: 700; font-size: 96px; color: var(--accent);
-      font-variant-numeric: tabular-nums;
-      line-height: 1;
+      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+      font-family: "Rajdhani", "Segoe UI", sans-serif; font-weight: 700;
+      font-size: 108px; color: var(--ink); font-variant-numeric: tabular-nums; line-height: 1;
     }
-    .ring-num .unit { font-size: 30px; margin-left: 6px; color: var(--accent-70); }
-    .controls { display: flex; gap: 20px; }
-    .ctrl-btn {
+    .ring-num .unit { font-size: 32px; margin-left: 6px; color: var(--ink-70); }
+    @media (min-width: 880px) {
+      .ring-wrap { width: 300px; height: 300px; }
+      .ring-num { font-size: 124px; }
+    }
+    .controls { display: flex; gap: 20px; justify-content: center; margin-top: 26px; }
+    .ctrl {
       width: 56px; height: 56px; border-radius: 50%;
-      background: var(--surface); color: var(--text);
-      border: none; cursor: pointer;
+      background: var(--surface); color: var(--text); border: none; cursor: pointer;
       display: inline-flex; align-items: center; justify-content: center;
       box-shadow: var(--shadow-raised);
       transition: transform 0.1s ease-out, background 0.15s;
     }
-    .ctrl-btn:hover { background: var(--surface-raised); }
-    .ctrl-btn:active { transform: scale(0.92); background: var(--accent-15); }
-    .ctrl-btn svg { width: 24px; height: 24px; }
-    .presets { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
-    .preset-chip {
-      min-height: 40px; padding: 8px 18px; border-radius: var(--radius-pill);
-      border: none; cursor: pointer;
+    .ctrl:hover { background: #F1F1F1; }
+    .ctrl:active { transform: scale(0.92); background: var(--ink-15); }
+    .ctrl svg { width: 24px; height: 24px; }
+    .presets { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 24px; }
+    .preset {
+      min-height: 44px; padding: 8px 18px; border-radius: var(--r-pill); border: none; cursor: pointer;
       background: var(--surface); color: var(--text);
-      font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums;
+      font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums;
       box-shadow: var(--shadow-resting);
-      transition: transform 0.1s ease-out;
+      transition: transform 0.1s ease-out, background 0.15s, color 0.15s;
     }
-    .preset-chip:active { transform: scale(0.92); }
-    .preset-chip.active { background: var(--accent); color: #FFFFFF; }
+    .preset:active { transform: scale(0.92); }
+    .preset.on { background: var(--ink); color: #FFFFFF; }
+    .hero-ctas { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-top: 34px; }
+    .hero-note { margin-top: 16px; font-size: 13.5px; color: var(--warm-text-2); }
+    .hero-note a { color: var(--ink); }
+    .peek {
+      max-width: 460px; margin: 56px auto 0;
+      background: var(--surface); border-radius: var(--r-card);
+      box-shadow: var(--shadow-raised); padding: 14px 16px;
+      display: flex; align-items: center; gap: 12px; text-align: left;
+    }
+    .peek .tile { flex: none; width: 40px; height: 40px; border-radius: var(--r-tile);
+      background: var(--ink-15); color: var(--ink);
+      display: flex; align-items: center; justify-content: center; }
+    .peek .tile svg { width: 20px; height: 20px; }
+    .peek b { display: block; font-size: 14.5px; }
+    .peek span { display: block; font-size: 13px; color: var(--text-2); }
 
-    /* ============ 痛点 → 答案 ============ */
-    .pain { padding: 64px 0; }
-    .pain-inner { max-width: 720px; margin: 0 auto; text-align: center; }
-    .pain .scene {
-      font-size: clamp(17px, 2.4vw, 21px); color: var(--text-2);
-      margin-bottom: 24px;
+    /* ---- 叙事节拍 ---- */
+    .scene {
+      padding: 8px 0 96px;
     }
-    .pain .scene strong { color: var(--text); }
-    .pain .answer {
-      font-size: clamp(20px, 3vw, 26px); font-weight: 700;
-      color: var(--accent); letter-spacing: -0.5px;
+    .scene h2, .tray h2, .shots h2, .dl h2 {
+      font-size: clamp(26px, 4vw, 40px); font-weight: 700;
+      letter-spacing: -0.02em; line-height: 1.25;
     }
-    .pain .answer em { font-style: normal; border-bottom: 3px solid var(--warm-2); }
+    .scene-grid { max-width: 640px; margin: 0 auto; }
+    .scene h2 { color: var(--ink); max-width: 15em; }
+    .ntf {
+      background: var(--surface); border-radius: var(--r-card);
+      box-shadow: var(--shadow-raised); padding: 14px 16px;
+      display: grid; grid-template-columns: 40px 1fr; gap: 12px;
+    }
+    .ntf .tile { width: 40px; height: 40px; border-radius: var(--r-tile);
+      background: var(--ink-15); color: var(--ink);
+      display: flex; align-items: center; justify-content: center; }
+    .ntf .tile svg { width: 20px; height: 20px; }
+    .ntf .meta { display: flex; align-items: baseline; gap: 8px; font-size: 12.5px; color: var(--text-2); }
+    .ntf .meta b { color: var(--text); font-weight: 600; }
+    .ntf .meta .t { margin-left: auto; font-variant-numeric: tabular-nums; }
+    .ntf h3 { font-size: 15.5px; font-weight: 600; margin-top: 2px; }
+    .ntf p { font-size: 14px; color: var(--text-2); }
+    .ntf .chips { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+    .chip {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 10px; border-radius: var(--r-chip);
+      background: var(--ink-15); color: var(--ink);
+      font-size: 12px; font-weight: 600;
+    }
+    .ntf.dim { background: var(--surface-dim); box-shadow: none; }
+    .ntf.dim .tile { background: rgba(109, 76, 65, 0.12); color: var(--surface-dim-text); }
+    .ntf.dim .meta b, .ntf.dim h3 { color: var(--surface-dim-text); }
+    .ntf.dim p { color: var(--surface-dim-text); }
+    .scene .stack { display: grid; gap: 14px; margin-top: 28px; }
+    .scene .stack .ntf.dim { transform: rotate(-1deg); }
+    .scene .after {
+      margin-top: 28px; font-size: clamp(17px, 2.4vw, 20px);
+      color: var(--warm-text-2); max-width: 30em;
+    }
+    .scene .after strong { color: var(--ink); }
 
-    /* ============ 功能卡片 ============ */
-    .features { background: var(--surface-raised); padding: 72px 0; }
-    .section-title { text-align: center; font-size: 28px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 8px; }
-    .section-sub { text-align: center; color: var(--text-2); font-size: 15px; margin-bottom: 40px; }
-    .feature-grid {
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+    /* ---- 托盘:白底 ---- */
+    .tray { background: var(--surface); padding: 96px 0; }
+    .col { max-width: 560px; margin: 0 auto; }
+    .col.wide { max-width: 640px; }
+    .tray h2 { max-width: 18em; }
+    .tray .lede { color: var(--text-2); font-size: 15.5px; margin-top: 10px; max-width: 36em; }
+    .tray-list { display: grid; gap: 12px; margin-top: 40px; }
+    .tlabel {
+      font-size: 12.5px; font-weight: 700; color: var(--ink);
+      font-variant-numeric: tabular-nums; letter-spacing: 0.02em;
+      margin-top: 10px;
     }
-    @media (max-width: 880px) { .feature-grid { grid-template-columns: 1fr 1fr; } }
-    @media (max-width: 600px) { .feature-grid { grid-template-columns: 1fr; } }
-    .feature-card {
-      background: var(--surface);
-      border-radius: var(--radius-card);
-      padding: 24px 20px;
-      box-shadow: var(--shadow-resting);
+    .tlabel:first-child { margin-top: 0; }
+    .kv { display: flex; gap: 20px; margin-top: 8px; flex-wrap: wrap; }
+    .kv div b { display: block; font-size: 20px; font-weight: 700;
+      font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+    .kv div span { font-size: 12px; color: var(--text-2); }
+    .ntf .act {
+      margin-top: 10px; display: inline-flex; font-size: 13px; font-weight: 600;
+      color: var(--ink); text-decoration: none; padding: 6px 12px;
+      border-radius: var(--r-chip); background: var(--ink-15);
     }
-    .feature-icon {
-      width: 44px; height: 44px; border-radius: 14px;
-      background: var(--accent-15); color: var(--accent);
-      display: flex; align-items: center; justify-content: center;
-      margin-bottom: 14px;
+    .ntf .act:hover { background: rgba(26, 35, 126, 0.22); }
+    .tray-close {
+      margin-top: 36px; color: var(--text-2); font-size: 14px;
+      display: flex; align-items: center; gap: 8px;
     }
-    .feature-icon svg { width: 22px; height: 22px; }
-    .feature-card h3 { font-size: 17px; font-weight: 600; margin-bottom: 8px; }
-    .feature-card p { font-size: 14px; color: var(--text-2); }
-    .feature-card p + p { margin-top: 6px; }
-    .theme-dots { display: flex; gap: 6px; margin-top: 12px; }
-    .theme-dots i {
-      width: 18px; height: 18px; border-radius: 50%;
-      box-shadow: var(--shadow-resting);
+    .tray-close::after { content: ""; flex: 1; height: 1px; background: var(--ink-15); }
+
+    /* ---- 签名时刻:托盘入场(唯一的编排动效) ---- */
+    @media (prefers-reduced-motion: no-preference) {
+      html.js .enter { opacity: 0; transform: translateY(-14px); }
+      html.js .enter.in {
+        opacity: 1; transform: none;
+        transition: opacity 0.45s ease-out, transform 0.45s cubic-bezier(0.22, 0.9, 0.3, 1);
+        transition-delay: var(--d, 0ms);
+      }
     }
 
-    /* ============ 截图 ============ */
-    .shots { padding: 72px 0; }
-    .shot-grid {
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px;
+    /* ---- 截图:点开通知之后 ---- */
+    .shots { background: var(--surface); padding: 0 0 96px; }
+    .shots h2 { max-width: 16em; }
+    .shots .lede { color: var(--text-2); font-size: 15.5px; margin-top: 10px; }    .strip {
+      display: flex; gap: 24px; margin-top: 40px;
+      overflow-x: auto; scroll-snap-type: x proximity;
+      padding: 8px 24px 20px; margin-left: -24px; margin-right: -24px;
+      scrollbar-width: thin; scrollbar-color: var(--ink-30) transparent;
     }
-    @media (max-width: 880px) { .shot-grid { grid-template-columns: 1fr 1fr; } }
-    @media (max-width: 560px) { .shot-grid { grid-template-columns: 1fr; } }
-    .shot { text-align: center; }
+    .shot { flex: none; scroll-snap-align: center; text-align: center; width: 232px; }
     .shot img {
-      width: 100%; max-width: 280px; border-radius: var(--radius-card);
-      box-shadow: var(--shadow-raised); display: block; margin: 0 auto;
+      width: 232px; border-radius: var(--r-card);
+      box-shadow: var(--shadow-raised); margin: 0 auto;
     }
-    .shot figcaption { font-size: 14px; color: var(--text-2); margin-top: 12px; }
-    .shot figcaption strong { color: var(--text); font-weight: 600; }
+    .shot figcaption { font-size: 13.5px; color: var(--text-2); margin-top: 12px; }
+    .shot figcaption b { color: var(--text); font-weight: 600; }
+    .strip-hint { font-size: 13px; color: var(--text-2); margin-top: 4px; text-align: center; }
 
-    /* ============ 下载:深靛蓝 × 暖按钮 ============ */
-    .download { background: var(--accent); color: #FFFFFF; padding: 72px 0; }
-    .download .section-title { color: #FFFFFF; }
-    .download .section-sub { color: rgba(255, 255, 255, 0.75); }
-    .dl-version {
-      text-align: center; font-size: 14px; color: rgba(255, 255, 255, 0.85);
-      margin-bottom: 28px; font-variant-numeric: tabular-nums;
+    /* ---- 下载:深靛蓝满幅 ---- */
+    .dl { background: var(--ink); color: #FFFFFF; padding: 96px 0; text-align: center; }
+    .dl .card-zone { text-align: left; }
+    .dl h2 { color: #FFFFFF; }
+    .dl .lede { color: rgba(255, 255, 255, 0.75); font-size: 15.5px; margin-top: 10px; }
+    .dl-card {
+      background: var(--surface); color: var(--text);
+      border-radius: var(--r-card); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      max-width: 560px; margin: 40px auto 0; padding: 28px 24px;
     }
-    .dl-ctas { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-bottom: 24px; }
-    .btn-warm {
+    .dl-card .app-row { display: flex; align-items: center; gap: 12px; }
+    .dl-card .app-row img { width: 48px; height: 48px; border-radius: 12px; }
+    .dl-card .app-row b { font-size: 17px; display: block; }
+    .dl-card .app-row span { font-size: 13px; color: var(--text-2); font-variant-numeric: tabular-nums; }
+    .dl-card .btn { width: 100%; margin-top: 16px; }
+    .dl-card .btn-warm {
       background: linear-gradient(160deg, var(--warm-1), var(--warm-2));
-      color: var(--accent); font-weight: 700;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+      color: var(--ink); font-weight: 700;
+      box-shadow: var(--shadow-raised);
     }
-    .btn-warm:hover { filter: brightness(1.05); }
-    .btn-white-outline {
-      background: transparent; color: #FFFFFF;
-      border: 2px solid rgba(255, 255, 255, 0.4);
-    }
-    .btn-white-outline:hover { background: rgba(255, 255, 255, 0.1); }
-    .dl-note { text-align: center; font-size: 13.5px; color: rgba(255, 255, 255, 0.7); max-width: 620px; margin: 0 auto; }
-    .dl-note a { color: var(--warm-1); }
+    .dl-card .btn-warm:hover { filter: brightness(1.05); }
+    .dl-card .btn-ghost { margin-top: 10px; }
+    .dl-card .fine { font-size: 13px; color: var(--text-2); margin-top: 16px; line-height: 1.6; }
+    .dl-card .fine a { color: var(--ink); }
 
-    /* ============ 页脚 ============ */
-    .footer {
-      background: #1E1E2E; color: #9E9E9E;
-      padding: 40px 0 32px; font-size: 13.5px;
+    /* ---- 页脚:托盘的安静收尾 ---- */
+    .footer { background: var(--night); color: var(--night-text); padding: 56px 0 40px; font-size: 13.5px; }
+    .footer .done {
+      display: flex; align-items: center; gap: 12px;
+      color: var(--night-text); font-size: 14px; margin-bottom: 28px;
     }
-    .footer-links {
-      display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: center;
-      margin-bottom: 16px;
-    }
+    .footer .done::after { content: ""; flex: 1; height: 1px; background: rgba(197, 197, 213, 0.2); }
+    .footer-links { display: flex; flex-wrap: wrap; gap: 8px 24px; margin-bottom: 16px; }
     .footer-links a { color: #E8E8E8; text-decoration: none; }
-    .footer-links a:hover { color: var(--warm-1); }
-    .footer .credits { text-align: center; line-height: 1.9; }
-    .footer .credits a { color: #9E9E9E; }
+    .footer-links a:hover { color: var(--warm-1); text-decoration: underline; text-underline-offset: 3px; }
+    .footer .credits { line-height: 1.9; color: var(--night-text); }
+    .footer .credits a { color: var(--night-text); }
   </style>
 </head>
 <body>
+<!--
+  DIRECTION CONTRACT (surface scope, seed key: workouttimer-landing)
+  THESIS: 整页就是你训练中那部手机的锁屏——产品不被描述,被直接收到;
+          拒绝"渐变 hero + 功能卡网格 + 截图墙"的分类默认编排。
+  OWN-WORLD: Flat Vitality 双墨纪律——琥珀金渐变地面,所有规则线/标签/
+          时间戳/边框一律深靛蓝墨,中性灰只存在于卡片表面;白卡
+          16px 圆角 + raised 阴影;Rajdhani 只属于倒计时数字。
+  STORY: 访客在三屏内明白:这是管组间休息的计时器,到点会用声音+振动把
+          你叫回来;功能以通知卡按时间堆叠为证;然后下载安装。
+  FIRST VIEWPORT: 满幅琥珀渐变锁屏——顶部状态行(时间+信号电池),中央
+          264-300px 进度环 + Rajdhani 大数字(可交互:预设/暂停/重置,
+          aria 播报状态),下方 下载APK 主按钮;底部一张"提醒已就绪"
+          白卡探出。主操作在首屏按钮行可见。
+  FORM: 结构候选 #6「一次训练的锁屏」(本人列表共鸣序第6,骰子分配领先);
+          seed key workouttimer-landing。签名交互:托盘通知卡随滚动按
+          时间顺序入场(唯一编排动效);追光纪律:视口顶部 3px 靛蓝滚动
+          进度条永远指示位置。挑战者捐纳:鼓机的"追光/步进行不换行只缩放"、
+          双色调的"两墨到底"、张拉整体的"三态不只靠颜色"。
+  FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance.
+-->
+<script>document.documentElement.classList.add('js');</script>
 
-<!-- ===== 导航 ===== -->
+<div class="chase" id="chase" aria-hidden="true"></div>
+
+<!-- ===== 顶部导航 ===== -->
 <header class="nav">
-  <div class="container nav-inner">
+  <div class="wrap nav-inner">
     <a class="brand" href="./">
       <img src="./icon.png" alt="撸铁计时器图标">
-      <span>撸铁计时器</span>
+      <b>撸铁计时器</b>
     </a>
-    <nav class="nav-links">
-      <a class="nav-anchor" href="#features">功能</a>
-      <a class="nav-anchor" href="#screenshots">界面</a>
-      <a href="https://github.com/Kaiji-Z/workout-timer" target="_blank" rel="noopener">GitHub</a>
-      <a class="btn-pill btn-primary btn-nav" href="https://github.com/Kaiji-Z/workout-timer/releases/latest" target="_blank" rel="noopener">下载 APK</a>
+    <nav class="nav-right" aria-label="页面导航">
+      <a class="nav-link gh" href="https://github.com/Kaiji-Z/workout-timer" target="_blank" rel="noopener">GitHub 源码</a>
+      <a class="btn btn-ink btn-nav" href="https://github.com/Kaiji-Z/workout-timer/releases/latest" target="_blank" rel="noopener">下载 APK</a>
     </nav>
   </div>
 </header>
 
-<!-- ===== Hero ===== -->
-<section class="hero">
-  <div class="container hero-inner">
-    <div class="hero-copy">
-      <div class="badge-row">
-        <span class="chip">免费 · 开源</span>
-        <span class="chip">无广告 · 无会员</span>
-        <span class="chip">无账号 · 数据不出手机</span>
-      </div>
-      <h1>组间休息，<br>精准掌控</h1>
-      <p class="lede">
-        做完一组，按下开始；到点了，声音 + 振动叫你回来。
-        一个只做一件事的健身计时器——不让短视频偷走你的组间休息，不让身体凉掉。
-      </p>
-      <div class="hero-ctas">
-        <a class="btn-pill btn-primary" href="https://github.com/Kaiji-Z/workout-timer/releases/latest" target="_blank" rel="noopener">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m6 11 6 6 6-6"/><path d="M5 21h14"/></svg>
-          下载 APK
-        </a>
-        <a class="btn-pill btn-outline" href="https://github.com/Kaiji-Z/workout-timer" target="_blank" rel="noopener">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.93c.58.1.79-.25.79-.56v-2.17c-3.2.7-3.87-1.37-3.87-1.37-.53-1.33-1.28-1.69-1.28-1.69-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.19 1.76 1.19 1.02 1.76 2.69 1.25 3.34.96.1-.74.4-1.25.73-1.54-2.55-.29-5.23-1.28-5.23-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.51-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.78 0c2.2-1.49 3.16-1.18 3.16-1.18.63 1.59.24 2.76.12 3.05.74.81 1.19 1.84 1.19 3.1 0 4.43-2.7 5.4-5.26 5.69.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5Z"/></svg>
-          源码与 Star
-        </a>
-      </div>
-      <p class="privacy-note">Android 5.0+ · iOS / Windows / Web 可从源码构建 · <a href="./privacy-policy.html">隐私政策</a></p>
+<!-- ===== 锁屏 + 痛点:同一块琥珀地面 ===== -->
+<div class="amber-field">
+<section class="lock">
+  <div class="wrap">
+    <div class="statusbar" aria-hidden="true">
+      <span>08:47</span>
+      <span class="icons">
+        <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><path d="M8 9.5a1.6 1.6 0 0 1 1.6 1.6c0 .5-1.6 1-1.6 1s-1.6-.5-1.6-1A1.6 1.6 0 0 1 8 9.5Zm-3.2-2.7a4.9 4.9 0 0 1 6.4 0l-1.2 1.3a3.1 3.1 0 0 0-4 0Zm-2.6-2.7a8.6 8.6 0 0 1 11.6 0l-1.2 1.3a6.9 6.9 0 0 0-9.2 0Z"/></svg>
+        <svg width="22" height="12" viewBox="0 0 22 12" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="1" y="1.5" width="17" height="9" rx="2.5"/><rect x="3" y="3.5" width="11" height="5" rx="1" fill="currentColor" stroke="none"/><path d="M20 4.5v3" stroke-linecap="round"/></svg>
+      </span>
     </div>
 
-    <!-- 交互式计时器演示 -->
-    <div class="timer-demo" aria-label="计时器演示">
-      <span class="caption">组间休息</span>
-      <div class="ring-wrap">
-        <svg viewBox="0 0 232 232" aria-hidden="true">
+    <div class="timer-stage">
+      <div class="ring-wrap" id="ringWrap" role="timer" aria-label="组间休息演示计时器">
+        <svg class="ring" viewBox="0 0 264 264" aria-hidden="true">
           <defs>
             <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stop-color="#1A237E"/>
               <stop offset="100%" stop-color="rgba(26,35,126,0.7)"/>
             </linearGradient>
           </defs>
-          <circle class="ring-bg" cx="116" cy="116" r="100" fill="none" stroke-width="10"/>
-          <circle class="ring-track" id="ringTrack" cx="116" cy="116" r="100" fill="none" stroke-width="10"/>
+          <circle class="ring-bg" cx="132" cy="132" r="116" fill="none" stroke-width="10"/>
+          <circle class="ring-track" id="ringTrack" cx="132" cy="132" r="116" fill="none" stroke-width="10"/>
         </svg>
-        <div class="ring-num"><span id="ringNum">90</span><span class="unit">s</span></div>
+        <div class="ring-num" aria-hidden="true"><span id="ringNum">90</span><span class="unit">s</span></div>
       </div>
+      <p id="timerLive" aria-live="polite" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);"></p>
+
       <div class="controls">
-        <button class="ctrl-btn" id="btnToggle" aria-label="暂停或继续倒计时">
+        <button class="ctrl" id="btnToggle" aria-label="暂停或继续倒计时">
           <svg id="iconPause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
           <svg id="iconPlay" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="display:none"><path d="M8 5.5v13a1 1 0 0 0 1.53.85l10.2-6.5a1 1 0 0 0 0-1.7L9.53 4.65A1 1 0 0 0 8 5.5Z"/></svg>
         </button>
-        <button class="ctrl-btn" id="btnReset" aria-label="重置倒计时">
+        <button class="ctrl" id="btnReset" aria-label="重置倒计时">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>
         </button>
       </div>
+
       <div class="presets" role="group" aria-label="预设休息时长">
-        <button class="preset-chip" data-sec="30">30s</button>
-        <button class="preset-chip" data-sec="60">60s</button>
-        <button class="preset-chip active" data-sec="90">90s</button>
-        <button class="preset-chip" data-sec="120">120s</button>
+        <button class="preset" data-sec="30" aria-pressed="false">30s</button>
+        <button class="preset" data-sec="60" aria-pressed="false">60s</button>
+        <button class="preset on" data-sec="90" aria-pressed="true">90s</button>
+        <button class="preset" data-sec="120" aria-pressed="false">120s</button>
       </div>
+
+      <div class="hero-ctas">
+        <a class="btn btn-ink" href="https://github.com/Kaiji-Z/workout-timer/releases/latest" target="_blank" rel="noopener">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m6 11 6 6 6-6"/><path d="M5 21h14"/></svg>
+          下载 APK
+        </a>
+        <a class="btn btn-ghost" href="https://github.com/Kaiji-Z/workout-timer" target="_blank" rel="noopener">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.93c.58.1.79-.25.79-.56v-2.17c-3.2.7-3.87-1.37-3.87-1.37-.53-1.33-1.28-1.69-1.28-1.69-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.19 1.76 1.19 1.02 1.76 2.69 1.25 3.34.96.1-.74.4-1.25.73-1.54-2.55-.29-5.23-1.28-5.23-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.51-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.78 0c2.2-1.49 3.16-1.18 3.16-1.18.63 1.59.24 2.76.12 3.05.74.81 1.19 1.84 1.19 3.1 0 4.43-2.7 5.4-5.26 5.69.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5Z"/></svg>
+          GitHub 源码
+        </a>
+      </div>
+      <p class="hero-note">免费 · 开源 · 无广告 · 无账号 · <a href="./privacy-policy.html">隐私政策</a> · Android 5.0+</p>
+    </div>
+
+    <div class="peek">
+      <span class="tile" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"/><path d="M10.3 21a2 2 0 0 0 3.4 0"/></svg>
+      </span>
+      <span>
+        <b>休息结束提醒已就绪</b>
+        <span>声音 + 振动 + 弹窗，锁屏后台照样叫你</span>
+      </span>
     </div>
   </div>
 </section>
 
-<!-- ===== 痛点 ===== -->
-<section class="pain">
-  <div class="container pain-inner">
-    <p class="scene">
-      刚做完一组大重量卧推，气喘吁吁，抓起手机想看一眼休息时间——
-      <strong>15 分钟后你还在短视频里</strong>，身体凉了，训练状态全没了。
-    </p>
-    <p class="answer">按下开始，倒计时。时间到了，<em>提醒你回来</em>。就这么简单。</p>
-  </div>
-</section>
-
-<!-- ===== 功能 ===== -->
-<section class="features" id="features">
-  <div class="container">
-    <h2 class="section-title">计时器是灵魂，其余都是后勤</h2>
-    <p class="section-sub">核心闭环做到极致，进阶功能都在——但从不打扰只想计时的人</p>
-    <div class="feature-grid">
-      <div class="feature-card">
-        <div class="feature-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5"/><path d="M9 2h6"/><path d="M19 5 21 7"/><path d="M5 5 3 7"/></svg>
-        </div>
-        <h3>组间休息计时器</h3>
-        <p>预设 30 / 60 / 90 / 120 秒一键切换，大号倒计时 + 进度环，扫一眼就懂。</p>
-        <p>锁屏后台继续计时，到点声音 + 振动 + 通知三重提醒，自动统计完成组数。</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg>
-        </div>
-        <h3>870+ 动作库</h3>
-        <p>覆盖胸 / 背 / 腿 / 肩 / 臂 / 核心全部肌群，每个动作附示范图片。</p>
-        <p>中英文双语模糊搜索，按肌群、器械筛选，常用动作一键收藏。</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M8 2v4M16 2v4M3 10h18"/><path d="m9.5 15.5 2 2 3.5-3.5"/></svg>
-        </div>
-        <h3>训练计划 · 日历</h3>
-        <p>AI 一键生成训练方案，也可以自己搭建：动作、组数、次数全可自定义。</p>
-        <p>日历视图安排每日训练，执行时逐动作引导推进。</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="m7 14 4-4 3 3 5-6"/></svg>
-        </div>
-        <h3>每组记录 · 数据统计</h3>
-        <p>逐组记录重量 × 次数，自重动作按生物力学系数折算训练量。</p>
-        <p>周 / 月 / 年统计、肌群分布环、力量趋势与 1RM 估算、AI 训练分析。</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="13.5" cy="6.5" r="2.5"/><circle cx="19" cy="13" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="10" cy="19" r="2.5"/><path d="M12 22a10 10 0 1 1 10-10"/></svg>
-        </div>
-        <h3>三主题 · 深色模式</h3>
-        <p>琥珀金 / 珊瑚橙 / 天际蓝三套主题，每种自动派生深色变体。</p>
-        <div class="theme-dots" aria-hidden="true">
-          <i style="background:linear-gradient(135deg,#FFB74D,#FFA726)"></i>
-          <i style="background:linear-gradient(135deg,#FF8A65,#FF7043)"></i>
-          <i style="background:linear-gradient(135deg,#64B5F6,#42A5F5)"></i>
+<!-- ===== 痛点:一条被划掉的通知 ===== -->
+<section class="scene">
+  <div class="wrap scene-grid">
+    <h2>15 分钟的组间休息，<br>去了短视频里</h2>
+    <div class="stack">
+      <div class="ntf dim" aria-label="场景：被刷掉的通知">
+        <span class="tile" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="m10 9 5 3-5 3Z"/></svg>
+        </span>
+        <div>
+          <div class="meta"><b>短视频</b><span>已使用 14 分钟</span><span class="t num">刚刚</span></div>
+          <h3>你刷掉了 14:32 的组间休息</h3>
+          <p>身体凉了，训练状态全没了</p>
         </div>
       </div>
-      <div class="feature-card">
-        <div class="feature-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2.5"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/><path d="M12 15v2"/></svg>
+      <div class="ntf">
+        <span class="tile" aria-hidden="true">
+          <img src="./icon.png" alt="" width="28" height="28" style="border-radius:8px">
+        </span>
+        <div>
+          <div class="meta"><b>撸铁计时器</b><span class="t num">刚刚</span></div>
+          <h3>休息结束 · 该回来推下一组了</h3>
+          <p>卧推 85kg × 5 · 第 4 组等你</p>
+          <div class="chips" aria-hidden="true">
+            <span class="chip">声音</span>
+            <span class="chip">振动</span>
+            <span class="chip">弹窗</span>
+          </div>
         </div>
-        <h3>隐私是默认承诺</h3>
-        <p>没有账号、没有云同步、不上传任何数据——全部存在你手机的本地 SQLite 里。</p>
-        <p>可随时导出全部数据（JSON / Markdown），数据只归你。</p>
       </div>
     </div>
+    <p class="after">按下开始，倒计时；到点了，<strong>声音加振动把你拽回杠铃边</strong>。就这一件事，做到极致——计划、动作库、每组记录，都是围绕它的后勤。</p>
+  </div>
+</section>
+</div>
+
+<!-- ===== 托盘:一节训练的通知流 ===== -->
+<section class="tray">
+  <div class="wrap col">
+    <h2>一节训练，它把每件事<br>送到锁屏上</h2>
+    <p class="lede">计时是灵魂，其余都是后勤——后勤的意思是：你抬头之前，它已经替你记好了。</p>
+
+    <div class="tray-list">
+      <p class="tlabel enter" style="--d:0ms">刚刚</p>
+
+      <div class="ntf enter" style="--d:60ms">
+        <span class="tile" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5"/><path d="M9 2h6"/></svg>
+        </span>
+        <div>
+          <div class="meta"><b>撸铁计时器</b><span class="t num">08:47</span></div>
+          <h3>第 4 组完成 · 休息 90 秒</h3>
+          <p>下一组：深蹲 100kg × 5 · 已自动开始倒计时</p>
+        </div>
+      </div>
+
+      <div class="ntf enter" style="--d:140ms">
+        <span class="tile" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg>
+        </span>
+        <div>
+          <div class="meta"><b>组记录已保存</b><span class="t num">08:45</span></div>
+          <h3>深蹲 100kg × 5 · 第 3 组</h3>
+          <div class="kv">
+            <div><b class="num">100<small style="font-size:12px;font-weight:600"> kg</small></b><span>本次重量</span></div>
+            <div><b class="num">5</b><span>次数</span></div>
+            <div><b class="num">500<small style="font-size:12px;font-weight:600"> kg</small></b><span>该动作总容量</span></div>
+          </div>
+        </div>
+      </div>
+
+      <p class="tlabel enter" style="--d:200ms">今天</p>
+
+      <div class="ntf enter" style="--d:260ms">
+        <span class="tile" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M8 2v4M16 2v4M3 10h18"/><path d="m9.5 15.5 2 2 3.5-3.5"/></svg>
+        </span>
+        <div>
+          <div class="meta"><b>今日计划 · 腿日</b><span class="t num">07:58</span></div>
+          <h3>Week 12 · 6 个动作 · 约 45 分钟</h3>
+          <a class="act" href="https://github.com/Kaiji-Z/workout-timer#-功能" target="_blank" rel="noopener">看看计划怎么用</a>
+        </div>
+      </div>
+
+      <div class="ntf enter" style="--d:340ms">
+        <span class="tile" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 14 4-4 3 3 5-6"/></svg>
+        </span>
+        <div>
+          <div class="meta"><b>本周训练摘要</b><span>示例数据</span><span class="t num">07:30</span></div>
+          <h3>4 练 · 腿 2 次 · 推 1 次 · 拉 1 次</h3>
+          <div class="kv">
+            <div><b class="num">12,450<small style="font-size:12px;font-weight:600"> kg</small></b><span>总容量</span></div>
+            <div><b class="num">3<small style="font-size:12px;font-weight:600"> h</small>46<small style="font-size:12px;font-weight:600"> m</small></b><span>训练时长</span></div>
+            <div><b class="num">+8%</b><span>对比上周</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ntf enter" style="--d:420ms">
+        <span class="tile" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2.5"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/><path d="M12 15v2"/></svg>
+        </span>
+        <div>
+          <div class="meta"><b>隐私</b><span class="t num">—</span></div>
+          <h3>没有收集任何数据 · 全部存在你手机上</h3>
+          <p>无账号、无云同步、无分析 SDK；随时可导出全部数据</p>
+        </div>
+      </div>
+    </div>
+
+    <p class="tray-close">没有更多通知</p>
   </div>
 </section>
 
-<!-- ===== 截图 ===== -->
-<section class="shots" id="screenshots">
-  <div class="container">
-    <h2 class="section-title">真实界面，没有美术加工</h2>
-    <p class="section-sub">Flat Vitality 设计系统——温暖渐变对决深靛蓝</p>
-    <div class="shot-grid">
+<!-- ===== 截图:点开通知之后 ===== -->
+<section class="shots">
+  <div class="wrap">
+    <div class="col wide">
+      <h2>点开，是完整的 App</h2>
+      <p class="lede">没有概念稿——下面全部是真实界面。</p>
+    </div>
+    <div class="strip" role="group" aria-label="应用截图，可左右滑动" tabindex="0">
       <figure class="shot">
         <img src="./screenshots/timer.jpg" alt="计时器界面：大号倒计时与进度环" loading="lazy">
-        <figcaption><strong>计时器</strong> · 大号倒计时 + 进度环</figcaption>
+        <figcaption><b>计时器</b> · 大号倒计时 + 进度环</figcaption>
       </figure>
       <figure class="shot">
         <img src="./screenshots/plan-calendar.jpg" alt="训练计划日历视图" loading="lazy">
-        <figcaption><strong>训练计划</strong> · 日历安排每日训练</figcaption>
-      </figure>
-      <figure class="shot">
-        <img src="./screenshots/stats-overview.jpg" alt="统计概览：周数据与总览" loading="lazy">
-        <figcaption><strong>统计概览</strong> · 训练量与频率</figcaption>
-      </figure>
-      <figure class="shot">
-        <img src="./screenshots/stats-detail.jpg" alt="统计详情：容量趋势图" loading="lazy">
-        <figcaption><strong>统计详情</strong> · 容量趋势 + 1RM 估算</figcaption>
+        <figcaption><b>训练计划</b> · 日历安排每日训练</figcaption>
       </figure>
       <figure class="shot">
         <img src="./screenshots/exercise-list.jpg" alt="动作库列表：870 余个动作" loading="lazy">
-        <figcaption><strong>动作库</strong> · 870+ 动作搜索筛选</figcaption>
+        <figcaption><b>动作库</b> · 870+ 动作搜索筛选</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="./screenshots/stats-overview.jpg" alt="统计概览" loading="lazy">
+        <figcaption><b>统计概览</b> · 训练量与频率</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="./screenshots/stats-detail.jpg" alt="统计详情：容量趋势图" loading="lazy">
+        <figcaption><b>统计详情</b> · 容量趋势 + 1RM 估算</figcaption>
       </figure>
       <figure class="shot">
         <img src="./screenshots/ai-wizard.jpg" alt="AI 计划向导" loading="lazy">
-        <figcaption><strong>AI 向导</strong> · 一键生成训练计划</figcaption>
+        <figcaption><b>AI 向导</b> · 一键生成训练计划</figcaption>
       </figure>
     </div>
+    <p class="strip-hint">← 拖动查看 →</p>
   </div>
 </section>
 
 <!-- ===== 下载 ===== -->
-<section class="download" id="download">
-  <div class="container">
-    <h2 class="section-title">下一组，现在开始</h2>
-    <p class="section-sub">免费下载，没有内购，没有广告</p>
-    <p class="dl-version">当前版本 <strong class="num" id="verTag">v1.4.0</strong> · Android APK（arm64）</p>
-    <div class="dl-ctas">
-      <a class="btn-pill btn-warm" href="https://github.com/Kaiji-Z/workout-timer/releases/latest" target="_blank" rel="noopener">
+<section class="dl">
+  <div class="wrap">
+    <h2>下一组，现在开始</h2>
+    <p class="lede">免费下载，没有内购，没有广告。</p>
+    <div class="dl-card card-zone">
+      <div class="app-row">
+        <img src="./icon.png" alt="撸铁计时器图标">
+        <span>
+          <b>撸铁计时器 WorkoutTimer</b>
+          <span class="num" id="verTag">v1.4.0 · Android APK（arm64）</span>
+        </span>
+      </div>
+      <a class="btn btn-warm" href="https://github.com/Kaiji-Z/workout-timer/releases/latest" target="_blank" rel="noopener">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m6 11 6 6 6-6"/><path d="M5 21h14"/></svg>
-        GitHub Releases
+        GitHub Releases 下载
       </a>
-      <a class="btn-pill btn-white-outline" href="https://gitee.com/kaiji1126/workout-timer/releases" target="_blank" rel="noopener">Gitee 镜像（国内加速）</a>
+      <a class="btn btn-ghost" href="https://gitee.com/kaiji1126/workout-timer/releases" target="_blank" rel="noopener">Gitee 镜像（国内加速）</a>
+      <p class="fine">
+        直接覆盖安装即可；从 1.2.x 升级请先看<a href="https://github.com/Kaiji-Z/workout-timer/releases" target="_blank" rel="noopener">版本说明中的迁移指引</a>（导出 → 卸载 → 安装 → 导入）。iOS / Windows / Web 可从源码构建（Flutter）。
+      </p>
     </div>
-    <p class="dl-note">
-      直接覆盖安装即可；从 1.2.x 升级请先看<a href="https://github.com/Kaiji-Z/workout-timer/releases" target="_blank" rel="noopener">版本说明中的迁移指引</a>（导出 → 卸载 → 安装 → 导入）。<br>
-      iOS / Windows / Web 用户可从源码构建（Flutter）。
-    </p>
   </div>
 </section>
 
 <!-- ===== 页脚 ===== -->
 <footer class="footer">
-  <div class="container">
+  <div class="wrap">
+    <p class="done">下一组见</p>
     <div class="footer-links">
       <a href="https://github.com/Kaiji-Z/workout-timer" target="_blank" rel="noopener">GitHub 源码</a>
       <a href="https://gitee.com/kaiji1126/workout-timer" target="_blank" rel="noopener">Gitee 镜像</a>
@@ -511,15 +623,28 @@
 (function () {
   'use strict';
 
+  /* ---- 追光:滚动进度 ---- */
+  var chase = document.getElementById('chase');
+  function chaseUpdate() {
+    var doc = document.documentElement;
+    var max = doc.scrollHeight - window.innerHeight;
+    var p = max > 0 ? window.scrollY / max : 0;
+    chase.style.transform = 'scaleX(' + p + ')';
+  }
+  window.addEventListener('scroll', chaseUpdate, { passive: true });
+  window.addEventListener('resize', chaseUpdate);
+  chaseUpdate();
+
   /* ---- 交互计时器演示 ---- */
-  var CIRC = 2 * Math.PI * 100;
+  var CIRC = 2 * Math.PI * 116;
   var track = document.getElementById('ringTrack');
   var numEl = document.getElementById('ringNum');
+  var liveEl = document.getElementById('timerLive');
   var btnToggle = document.getElementById('btnToggle');
   var btnReset = document.getElementById('btnReset');
   var iconPlay = document.getElementById('iconPlay');
   var iconPause = document.getElementById('iconPause');
-  var chips = Array.prototype.slice.call(document.querySelectorAll('.preset-chip'));
+  var chips = Array.prototype.slice.call(document.querySelectorAll('.preset'));
 
   track.style.strokeDasharray = CIRC;
 
@@ -527,12 +652,14 @@
   var left = total;
   var running = true;
   var timerId = null;
+  var doneHold = false;
 
   function render() {
-    var elapsed = total - left;
-    track.style.strokeDashoffset = CIRC * (elapsed / total);
+    track.style.strokeDashoffset = CIRC * ((total - left) / total);
     numEl.textContent = left;
   }
+
+  function announce(msg) { liveEl.textContent = msg; }
 
   function setIcons() {
     iconPlay.style.display = running ? 'none' : 'block';
@@ -542,14 +669,17 @@
   function tick() {
     if (left > 0) {
       left -= 1;
+      render();
+      if (left === 30 || left === 10) { announce('剩余 ' + left + ' 秒'); }
       if (left === 0) {
-        // 到点:展示 0,短暂停顿后自动开始下一组
+        announce('休息结束');
+        doneHold = true;
         window.setTimeout(function () {
+          doneHold = false;
           left = total;
           render();
         }, 1500);
       }
-      render();
     }
   }
 
@@ -564,6 +694,7 @@
     if (timerId !== null) { window.clearInterval(timerId); timerId = null; }
     running = false;
     setIcons();
+    announce('已暂停，剩余 ' + left + ' 秒');
   }
 
   btnToggle.addEventListener('click', function () {
@@ -573,23 +704,46 @@
   btnReset.addEventListener('click', function () {
     left = total;
     render();
-    if (running && timerId === null) { start(); }
+    announce('已重置为 ' + total + ' 秒');
+    if (running && timerId === null && !doneHold) { start(); }
   });
 
   chips.forEach(function (chip) {
     chip.addEventListener('click', function () {
-      chips.forEach(function (c) { c.classList.remove('active'); });
-      chip.classList.add('active');
+      chips.forEach(function (c) {
+        c.classList.remove('on');
+        c.setAttribute('aria-pressed', 'false');
+      });
+      chip.classList.add('on');
+      chip.setAttribute('aria-pressed', 'true');
       total = parseInt(chip.getAttribute('data-sec'), 10);
       left = total;
       render();
+      announce('已设为 ' + total + ' 秒');
       if (!running) { start(); }
     });
   });
 
   render();
   setIcons();
-  if (running) { start(); }
+  start();
+
+  /* ---- 托盘入场:唯一的编排动效 ---- */
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var enterEls = Array.prototype.slice.call(document.querySelectorAll('.enter'));
+  if (reduce || !('IntersectionObserver' in window)) {
+    enterEls.forEach(function (el) { el.classList.add('in'); });
+  } else {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.2 });
+    enterEls.forEach(function (el) { io.observe(el); });
+  }
 
   /* ---- 最新版本号(失败则静默保留 v1.4.0) ---- */
   var verEl = document.getElementById('verTag');
@@ -597,7 +751,7 @@
     window.fetch('https://api.github.com/repos/Kaiji-Z/workout-timer/releases/latest')
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (data) {
-        if (data && data.tag_name) { verEl.textContent = data.tag_name; }
+        if (data && data.tag_name) { verEl.textContent = data.tag_name + ' · Android APK（arm64）'; }
       })
       .catch(function () { /* 保留静态版本号 */ });
   }
