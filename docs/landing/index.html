@@ -520,13 +520,12 @@
   var iconPlay = document.getElementById('iconPlay');
   var iconPause = document.getElementById('iconPause');
   var chips = Array.prototype.slice.call(document.querySelectorAll('.preset-chip'));
-  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   track.style.strokeDasharray = CIRC;
 
   var total = 90;
   var left = total;
-  var running = !reduced;
+  var running = true;
   var timerId = null;
 
   function render() {
@@ -555,7 +554,7 @@
   }
 
   function start() {
-    if (timerId !== null || reduced) { running = true; setIcons(); return; }
+    if (timerId !== null) { running = true; setIcons(); return; }
     timerId = window.setInterval(tick, 1000);
     running = true;
     setIcons();
@@ -574,7 +573,7 @@
   btnReset.addEventListener('click', function () {
     left = total;
     render();
-    if (running && timerId === null && !reduced) { start(); }
+    if (running && timerId === null) { start(); }
   });
 
   chips.forEach(function (chip) {
@@ -584,13 +583,13 @@
       total = parseInt(chip.getAttribute('data-sec'), 10);
       left = total;
       render();
-      if (!running && !reduced) { start(); }
+      if (!running) { start(); }
     });
   });
 
   render();
   setIcons();
-  if (running && !reduced) { start(); }
+  if (running) { start(); }
 
   /* ---- 最新版本号(失败则静默保留 v1.4.0) ---- */
   var verEl = document.getElementById('verTag');
