@@ -320,6 +320,24 @@ abstract class AppLocalizations {
   /// **'取消计划'**
   String get trainingCancelPlan;
 
+  /// No description provided for @trainingSwitchPlanTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'结束当前训练？'**
+  String get trainingSwitchPlanTitle;
+
+  /// No description provided for @trainingSwitchPlanBody.
+  ///
+  /// In zh, this message translates to:
+  /// **'正在训练中，开始新计划会结束并丢弃当前进度。'**
+  String get trainingSwitchPlanBody;
+
+  /// No description provided for @trainingSwitchPlanConfirm.
+  ///
+  /// In zh, this message translates to:
+  /// **'结束并开始新计划'**
+  String get trainingSwitchPlanConfirm;
+
   /// No description provided for @trainingPlanSummary.
   ///
   /// In zh, this message translates to:

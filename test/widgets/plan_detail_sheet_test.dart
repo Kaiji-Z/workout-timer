@@ -44,8 +44,8 @@ void main() {
   });
 
   Future<BuildContext> pumpSheetHarness(WidgetTester tester, WorkoutPlan plan) async {
-    // 计划详情表内容超过默认 800x600 测试视口，加高以保证按钮可点。
-    await tester.binding.setSurfaceSize(const Size(600, 2200));
+    // 计划详情表在测试视口里整体偏低，surface 加高并预留底部余量保证按钮可点。
+    await tester.binding.setSurfaceSize(const Size(600, 2400));
     addTearDown(() => tester.binding.setSurfaceSize(null));
     final themeProvider = ThemeProvider();
     await themeProvider.initialize();
@@ -102,6 +102,17 @@ void main() {
     expect(progress.currentPlan?.id, plan.id);
   });
 
+  /// 打开详情表并点「开始训练」。tap 的手势在下一次 pump 才派发，
+  /// 所以先 pump() 启动动画，再 pump(时长) 跑完。
+  Future<void> openSheetAndTapStart(WidgetTester tester) async {
+    await tester.tap(find.text('open-sheet'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.tap(find.text('开始训练'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+  }
+
   testWidgets('运动中开始训练先弹确认对话框', (tester) async {
     final plan = planFixture();
     final sheetContext = await pumpSheetHarness(tester, plan);
@@ -111,12 +122,47 @@ void main() {
     training.startExercise();
     await tester.pump();
 
-    await tester.tap(find.text('open-sheet'));
-    await tester.pump(const Duration(milliseconds: 300));
-    await tester.tap(find.text('开始训练'));
-    await tester.pump(const Duration(milliseconds: 300));
+    await openSheetAndTapStart(tester);
 
     expect(find.byType(AlertDialog), findsOneWidget);
     expect(progress.currentPlan, isNull);
+  });
+
+  testWidgets('运动中确认后丢弃进度并激活新计划', (tester) async {
+    final plan = planFixture();
+    final sheetContext = await pumpSheetHarness(tester, plan);
+    final training = sheetContext.read<TrainingProvider>();
+    final progress = sheetContext.read<TrainingProgressProvider>();
+
+    training.startExercise();
+    await tester.pump();
+
+    await openSheetAndTapStart(tester);
+
+    await tester.tap(find.text('结束并开始新计划'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+
+    expect(progress.currentPlan?.id, plan.id);
+    expect(training.isIdle, isTrue);
+  });
+
+  testWidgets('运动中取消则保持现状', (tester) async {
+    final plan = planFixture();
+    final sheetContext = await pumpSheetHarness(tester, plan);
+    final training = sheetContext.read<TrainingProvider>();
+    final progress = sheetContext.read<TrainingProgressProvider>();
+
+    training.startExercise();
+    await tester.pump();
+
+    await openSheetAndTapStart(tester);
+
+    await tester.tap(find.text('取消'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+
+    expect(progress.currentPlan, isNull);
+    expect(find.byType(PlanDetailSheet), findsOneWidget);
   });
 }

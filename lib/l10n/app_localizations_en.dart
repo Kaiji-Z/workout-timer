@@ -140,6 +140,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get trainingCancelPlan => 'Cancel Plan';
 
   @override
+  String get trainingSwitchPlanTitle => 'End current workout?';
+
+  @override
+  String get trainingSwitchPlanBody =>
+      'A workout is in progress. Starting a new plan will end it and discard the current progress.';
+
+  @override
+  String get trainingSwitchPlanConfirm => 'End & start new plan';
+
+  @override
   String trainingPlanSummary(int exerciseCount, int totalSets) {
     return '$exerciseCount exercises · $totalSets sets';
   }

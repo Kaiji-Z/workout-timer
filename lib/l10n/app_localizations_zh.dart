@@ -140,6 +140,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get trainingCancelPlan => '取消计划';
 
   @override
+  String get trainingSwitchPlanTitle => '结束当前训练？';
+
+  @override
+  String get trainingSwitchPlanBody => '正在训练中，开始新计划会结束并丢弃当前进度。';
+
+  @override
+  String get trainingSwitchPlanConfirm => '结束并开始新计划';
+
+  @override
   String trainingPlanSummary(int exerciseCount, int totalSets) {
     return '$exerciseCount动作 · $totalSets组';
   }

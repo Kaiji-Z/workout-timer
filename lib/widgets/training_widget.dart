@@ -688,9 +688,20 @@ class _TrainingWidgetState extends State<TrainingWidget>
                       ),
                     ),
                     selected: isSelected,
-                    onTap: () {
+                    onTap: () async {
+                      // 运动中切计划会清空进度，先确认（与计划详情入口同一守卫）。
+                      final training = context.read<TrainingProvider>();
+                      final navigator = Navigator.of(context);
+                      final confirmed = await confirmSwitchPlanWhileActive(
+                        context,
+                        training,
+                      );
+                      if (!confirmed) return;
+                      navigator.pop();
+                      if (training.isExercising || training.isResting) {
+                        training.resetWorkout();
+                      }
                       progressProvider.startPlan(plan);
-                      Navigator.pop(context);
                     },
                   );
                 },

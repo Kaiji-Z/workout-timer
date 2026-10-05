@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
 import '../l10n/context_l10n.dart';
 import '../providers/training_progress_provider.dart';
+import '../providers/training_provider.dart';
 import '../theme/app_theme.dart';
 import '../theme/build_context_text_styles.dart';
 import 'plan_card.dart';
@@ -47,6 +48,38 @@ Widget buildTrainingCompactProgress(
       ],
     ),
   );
+}
+
+/// 运动中/休息中切换计划前确认——startPlan 会清空已有进度，误触不能直接丢掉整场训练。
+///
+/// 无进行中的训练直接放行；否则弹确认框，返回用户是否确认放弃当前进度。
+Future<bool> confirmSwitchPlanWhileActive(
+  BuildContext context,
+  TrainingProvider training,
+) async {
+  if (!training.isExercising && !training.isResting) return true;
+  final l10n = context.l10n;
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (dialogContext) => AlertDialog(
+      title: Text(l10n.trainingSwitchPlanTitle),
+      content: Text(l10n.trainingSwitchPlanBody),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(dialogContext, false),
+          child: Text(l10n.widgetCancel),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(dialogContext, true),
+          child: Text(
+            l10n.trainingSwitchPlanConfirm,
+            style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
+        ),
+      ],
+    ),
+  );
+  return confirmed == true;
 }
 
 /// 「X h Y min」时长格式化。

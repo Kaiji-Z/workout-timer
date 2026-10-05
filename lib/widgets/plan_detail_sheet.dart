@@ -5,11 +5,13 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../l10n/app_localizations.dart';
 import '../theme/theme_provider.dart';
 import '../utils/dimensions.dart';
-import '../providers/plan_provider.dart';
+import '../providers/training_progress_provider.dart';
+import '../providers/training_provider.dart';
 import '../models/workout_plan.dart';
 import '../models/muscle_group.dart';
 import '../widgets/fullscreen_image_viewer.dart';
 import '../widgets/exercise_detail_sheet.dart';
+import '../widgets/training_components.dart';
 import '../theme/app_theme.dart';
 import '../theme/build_context_text_styles.dart';
 import '../main.dart';
@@ -345,9 +347,21 @@ class PlanDetailSheet extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton.icon(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      context.read<PlanProvider>().selectPlan(plan);
+                    onPressed: () async {
+                      // 先捕获依赖，await 之后不再触碰已 pop 的 sheet context。
+                      final training = context.read<TrainingProvider>();
+                      final progress = context.read<TrainingProgressProvider>();
+                      final navigator = Navigator.of(context);
+                      final confirmed = await confirmSwitchPlanWhileActive(
+                        context,
+                        training,
+                      );
+                      if (!confirmed) return;
+                      navigator.pop();
+                      if (training.isExercising || training.isResting) {
+                        training.resetWorkout();
+                      }
+                      progress.startPlan(plan);
                       MainNavigation.switchToTab(2);
                     },
                     icon: Icon(Icons.play_arrow, color: theme.onAccentColor),

@@ -142,6 +142,12 @@
   "@trainingSelectPlan": {},
   "trainingCancelPlan": "取消计划",
   "@trainingCancelPlan": {},
+  "trainingSwitchPlanTitle": "结束当前训练？",
+  "@trainingSwitchPlanTitle": {},
+  "trainingSwitchPlanBody": "正在训练中，开始新计划会结束并丢弃当前进度。",
+  "@trainingSwitchPlanBody": {},
+  "trainingSwitchPlanConfirm": "结束并开始新计划",
+  "@trainingSwitchPlanConfirm": {},
   "trainingPlanSummary": "{exerciseCount}动作 · {totalSets}组",
   "@trainingPlanSummary": {
     "placeholders": {
