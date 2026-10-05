@@ -166,6 +166,33 @@ class AppLocalizationsZh extends AppLocalizations {
   String get aiPrefsPrefilled => '已从你的训练偏好预填';
 
   @override
+  String get onboardingPage1Title => '组间休息，交给倒计时';
+
+  @override
+  String get onboardingPage1Body => '30/60/90/120 秒预设，到点通知提醒，专心举铁';
+
+  @override
+  String get onboardingPage2Title => '按计划训练，不乱练';
+
+  @override
+  String get onboardingPage2Body => 'AI 一分钟生成计划，或手动创建，跟着动作与组数走';
+
+  @override
+  String get onboardingPage3Title => '每组都算数';
+
+  @override
+  String get onboardingPage3Body => '记录次数与重量，历史与统计看见你的进步';
+
+  @override
+  String get onboardingSkip => '跳过';
+
+  @override
+  String get onboardingNext => '下一步';
+
+  @override
+  String get onboardingCta => '去创建第一个计划';
+
+  @override
   String trainingPlanSummary(int exerciseCount, int totalSets) {
     return '$exerciseCount动作 · $totalSets组';
   }

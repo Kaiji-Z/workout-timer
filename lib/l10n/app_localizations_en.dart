@@ -168,6 +168,36 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiPrefsPrefilled => 'Pre-filled from your training preferences';
 
   @override
+  String get onboardingPage1Title => 'Rest, timed for you';
+
+  @override
+  String get onboardingPage1Body =>
+      '30/60/90/120s presets with a reminder when rest is over';
+
+  @override
+  String get onboardingPage2Title => 'Train to a plan';
+
+  @override
+  String get onboardingPage2Body =>
+      'Generate one with AI in a minute, or build your own';
+
+  @override
+  String get onboardingPage3Title => 'Every set counts';
+
+  @override
+  String get onboardingPage3Body =>
+      'Log reps and weight; history and stats show your progress';
+
+  @override
+  String get onboardingSkip => 'Skip';
+
+  @override
+  String get onboardingNext => 'Next';
+
+  @override
+  String get onboardingCta => 'Create your first plan';
+
+  @override
   String trainingPlanSummary(int exerciseCount, int totalSets) {
     return '$exerciseCount exercises · $totalSets sets';
   }

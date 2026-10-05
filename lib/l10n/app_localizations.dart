@@ -368,6 +368,60 @@ abstract class AppLocalizations {
   /// **'已从你的训练偏好预填'**
   String get aiPrefsPrefilled;
 
+  /// No description provided for @onboardingPage1Title.
+  ///
+  /// In zh, this message translates to:
+  /// **'组间休息，交给倒计时'**
+  String get onboardingPage1Title;
+
+  /// No description provided for @onboardingPage1Body.
+  ///
+  /// In zh, this message translates to:
+  /// **'30/60/90/120 秒预设，到点通知提醒，专心举铁'**
+  String get onboardingPage1Body;
+
+  /// No description provided for @onboardingPage2Title.
+  ///
+  /// In zh, this message translates to:
+  /// **'按计划训练，不乱练'**
+  String get onboardingPage2Title;
+
+  /// No description provided for @onboardingPage2Body.
+  ///
+  /// In zh, this message translates to:
+  /// **'AI 一分钟生成计划，或手动创建，跟着动作与组数走'**
+  String get onboardingPage2Body;
+
+  /// No description provided for @onboardingPage3Title.
+  ///
+  /// In zh, this message translates to:
+  /// **'每组都算数'**
+  String get onboardingPage3Title;
+
+  /// No description provided for @onboardingPage3Body.
+  ///
+  /// In zh, this message translates to:
+  /// **'记录次数与重量，历史与统计看见你的进步'**
+  String get onboardingPage3Body;
+
+  /// No description provided for @onboardingSkip.
+  ///
+  /// In zh, this message translates to:
+  /// **'跳过'**
+  String get onboardingSkip;
+
+  /// No description provided for @onboardingNext.
+  ///
+  /// In zh, this message translates to:
+  /// **'下一步'**
+  String get onboardingNext;
+
+  /// No description provided for @onboardingCta.
+  ///
+  /// In zh, this message translates to:
+  /// **'去创建第一个计划'**
+  String get onboardingCta;
+
   /// No description provided for @trainingPlanSummary.
   ///
   /// In zh, this message translates to:

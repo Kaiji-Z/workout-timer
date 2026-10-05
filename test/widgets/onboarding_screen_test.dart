@@ -30,13 +30,14 @@ void main() {
   });
 
   /// MainNavigation 完整 harness——引导从主框架之上弹出。
+  /// 注意：不要在这里调 loadPlans/loadRecords——它们会触发
+  /// ExerciseService 资产加载，在 flutter_tester 中会挂死；
+  /// 引导流程不依赖计划/记录数据。
   Future<void> pumpApp(WidgetTester tester) async {
     final themeProvider = ThemeProvider();
     await themeProvider.initialize();
     final localeProvider = LocaleProvider();
     await localeProvider.initialize();
-    final planProvider = PlanProvider();
-    await planProvider.loadPlans();
 
     await tester.pumpWidget(
       MultiProvider(
@@ -45,8 +46,8 @@ void main() {
           ChangeNotifierProvider.value(value: localeProvider),
           ChangeNotifierProvider(create: (_) => TimerProvider()),
           ChangeNotifierProvider(create: (_) => TrainingProvider()),
-          ChangeNotifierProvider.value(value: planProvider),
-          ChangeNotifierProvider(create: (_) => RecordProvider()..loadRecords()),
+          ChangeNotifierProvider(create: (_) => PlanProvider()),
+          ChangeNotifierProvider(create: (_) => RecordProvider()),
           ChangeNotifierProvider(create: (_) => TrainingProgressProvider()),
         ],
         child: MaterialApp(
@@ -101,11 +102,14 @@ void main() {
 
     expect(find.text('组间休息，交给倒计时'), findsOneWidget);
 
+    // tap 手势在下一次 pump 才派发，先 pump() 启动翻页动画再跑完。
     await tester.tap(find.text('下一步'));
+    await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
     expect(find.text('按计划训练，不乱练'), findsOneWidget);
 
     await tester.tap(find.text('下一步'));
+    await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
     expect(find.text('每组都算数'), findsOneWidget);
     expect(find.text('去创建第一个计划'), findsOneWidget);
@@ -116,6 +120,7 @@ void main() {
     expect(find.byType(OnboardingScreen), findsOneWidget);
 
     await tester.tap(find.text('跳过'));
+    await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
 
     expect(find.byType(OnboardingScreen), findsNothing);

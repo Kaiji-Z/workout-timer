@@ -11,6 +11,8 @@ import 'screens/settings_screen.dart';
 import 'screens/history_screen.dart';
 import 'screens/stats_screen.dart';
 import 'screens/plan_screen.dart';
+import 'screens/onboarding_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'providers/timer_provider.dart';
 import 'providers/training_provider.dart';
 import 'providers/plan_provider.dart';
@@ -24,6 +26,7 @@ import 'services/notification_service.dart';
 import 'services/error_reporter_service.dart';
 import 'services/exercise_service.dart';
 import 'services/timer_service.dart';
+import 'animations/page_transitions.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -222,6 +225,24 @@ class MainNavigation extends StatefulWidget {
 
 class _MainNavigationState extends State<MainNavigation> {
   int _currentIndex = 2;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _maybeShowOnboarding();
+    });
+  }
+
+  /// 首次启动弹出三页轮播引导；`onboarding_done` 由引导页置位。
+  Future<void> _maybeShowOnboarding() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (prefs.getBool('onboarding_done') ?? false) return;
+    if (!mounted) return;
+    Navigator.of(context).push(
+      FadeUpPageRoute(page: const OnboardingScreen()),
+    );
+  }
 
   /// Allow external code to change the current tab
   void setCurrentIndex(int index) {
