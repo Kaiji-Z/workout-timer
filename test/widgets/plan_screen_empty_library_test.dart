@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workout_timer/core/service_locator.dart';
 import 'package:workout_timer/l10n/app_localizations.dart';
 import 'package:workout_timer/providers/plan_provider.dart';
+import 'package:workout_timer/screens/ai_plan_wizard_screen.dart';
 import 'package:workout_timer/screens/plan_form_screen.dart';
 import 'package:workout_timer/screens/plan_screen.dart';
 import 'package:workout_timer/theme/theme_provider.dart';
@@ -47,5 +48,37 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
 
     expect(find.byType(PlanFormScreen), findsNothing);
+    expect(find.text('还没有任何计划'), findsOneWidget);
+    expect(find.text('用 AI 一分钟生成，或自己动手创建'), findsOneWidget);
+    // AppBar 的 AI 入口 + 弹窗里的 AI 按钮各一个。
+    expect(find.text('AI训练计划'), findsNWidgets(2));
+    expect(find.text('创建新计划'), findsOneWidget);
+  });
+
+  testWidgets('二选一里选 AI 进入向导', (tester) async {
+    await pumpPlanScreen(tester);
+
+    await tester.tap(find.text('添加今日计划'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+
+    await tester.tap(find.text('AI训练计划').last);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 600));
+
+    expect(find.byType(AIPlanWizardScreen), findsOneWidget);
+    expect(find.byType(PlanFormScreen), findsNothing);
+  });
+
+  testWidgets('计划库按钮在空库时同样弹二选一引导', (tester) async {
+    await pumpPlanScreen(tester);
+
+    await tester.tap(find.text('📚 我的计划库'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+
+    expect(find.byType(PlanFormScreen), findsNothing);
+    expect(find.text('还没有任何计划'), findsOneWidget);
+    expect(find.text('AI训练计划'), findsNWidgets(2));
   });
 }

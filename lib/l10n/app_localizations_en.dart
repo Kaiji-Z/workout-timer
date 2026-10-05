@@ -1088,6 +1088,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get planEmptyAddToday => 'Add today\'s plan';
 
   @override
+  String get planEmptyLibraryTitle => 'No plans yet';
+
+  @override
+  String get planEmptyLibraryBody =>
+      'Generate one with AI in a minute, or build your own';
+
+  @override
   String planSelectToAddTitle(int month, int day) {
     return 'Select a plan to add to $month/$day';
   }

@@ -10,6 +10,7 @@ import '../models/workout_plan.dart';
 import '../widgets/calendar_widget.dart';
 import '../widgets/plan_card.dart';
 import '../widgets/plan_detail_sheet.dart';
+import '../widgets/ui_components.dart';
 import 'plan_form_screen.dart';
 import 'ai_plan_wizard_screen.dart';
 import '../theme/app_theme.dart';
@@ -329,7 +330,8 @@ class _PlanScreenState extends State<PlanScreen> {
     final l10n = context.l10n;
 
     if (allPlans.isEmpty) {
-      _navigateToCreatePlan();
+      // 库里没有任何计划：先引导 AI/手动二选一，而不是直接甩手动表单。
+      _showEmptyLibraryChooser();
       return;
     }
 
@@ -439,7 +441,115 @@ class _PlanScreenState extends State<PlanScreen> {
     );
   }
 
+  /// 计划库为空时的引导：AI 生成 / 手动创建 二选一。
+  void _showEmptyLibraryChooser() {
+    final theme = context.read<ThemeProvider>().currentTheme;
+    final l10n = context.l10n;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: theme.surfaceColor,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(AppDimensions.radiusSheet),
+        ),
+      ),
+      builder: (sheetContext) {
+        return SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Center(child: SheetDragHandle()),
+                const SizedBox(height: 16),
+                Text(
+                  l10n.planEmptyLibraryTitle,
+                  style: context.headlineLarge.copyWith(fontSize: 18),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  l10n.planEmptyLibraryBody,
+                  style: context.bodyMedium.copyWith(
+                    color: theme.secondaryTextColor,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () async {
+                      Navigator.pop(sheetContext);
+                      final result = await Navigator.push<bool>(
+                        context,
+                        FadeUpPageRoute(page: const AIPlanWizardScreen()),
+                      );
+                      if (result == true && mounted) {
+                        context.read<PlanProvider>().loadPlans();
+                      }
+                    },
+                    icon: Icon(
+                      Icons.auto_awesome,
+                      size: 18,
+                      color: theme.onAccentColor,
+                    ),
+                    label: Text(
+                      l10n.planAiButton,
+                      style: context.titleLarge.copyWith(
+                        color: theme.onAccentColor,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: theme.accentColor,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                          AppDimensions.radiusLg,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(sheetContext);
+                      _navigateToCreatePlan();
+                    },
+                    icon: const Icon(Icons.add),
+                    label: Text(l10n.planCreateNew),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: theme.accentColor,
+                      side: BorderSide(color: theme.accentColor),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                          AppDimensions.radiusLg,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   void _showPlanLibraryModal(PlanProvider planProvider) {
+    if (planProvider.plans.isEmpty) {
+      // 空库直接给 AI/手动二选一，避免打开一个空列表。
+      _showEmptyLibraryChooser();
+      return;
+    }
     final theme = context.read<ThemeProvider>().currentTheme;
     final l10n = context.l10n;
 

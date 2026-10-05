@@ -1962,6 +1962,18 @@ abstract class AppLocalizations {
   /// **'添加今日计划'**
   String get planEmptyAddToday;
 
+  /// No description provided for @planEmptyLibraryTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'还没有任何计划'**
+  String get planEmptyLibraryTitle;
+
+  /// No description provided for @planEmptyLibraryBody.
+  ///
+  /// In zh, this message translates to:
+  /// **'用 AI 一分钟生成，或自己动手创建'**
+  String get planEmptyLibraryBody;
+
   /// No description provided for @planSelectToAddTitle.
   ///
   /// In zh, this message translates to:

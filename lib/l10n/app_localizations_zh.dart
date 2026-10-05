@@ -1058,6 +1058,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get planEmptyAddToday => '添加今日计划';
 
   @override
+  String get planEmptyLibraryTitle => '还没有任何计划';
+
+  @override
+  String get planEmptyLibraryBody => '用 AI 一分钟生成，或自己动手创建';
+
+  @override
   String planSelectToAddTitle(int month, int day) {
     return '选择计划添加到 $month月$day日';
   }

@@ -312,6 +312,8 @@
   "planRemovedToast": "Removed \"{name}\" from {month}/{day}",
   "planLibraryButton": "📚 My plan library",
   "planEmptyAddToday": "Add today's plan",
+  "planEmptyLibraryTitle": "No plans yet",
+  "planEmptyLibraryBody": "Generate one with AI in a minute, or build your own",
   "planSelectToAddTitle": "Select a plan to add to {month}/{day}",
   "planCreateNew": "Create new plan",
   "planLibraryTitle": "My plan library",
