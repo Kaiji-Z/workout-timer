@@ -308,6 +308,12 @@ abstract class AppLocalizations {
   /// **'还没有计划，请先创建计划'**
   String get trainingNoPlan;
 
+  /// No description provided for @trainingNoPlanAction.
+  ///
+  /// In zh, this message translates to:
+  /// **'去创建'**
+  String get trainingNoPlanAction;
+
   /// No description provided for @trainingSelectPlan.
   ///
   /// In zh, this message translates to:

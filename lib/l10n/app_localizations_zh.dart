@@ -134,6 +134,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get trainingNoPlan => '还没有计划，请先创建计划';
 
   @override
+  String get trainingNoPlanAction => '去创建';
+
+  @override
   String get trainingSelectPlan => '选择训练计划';
 
   @override

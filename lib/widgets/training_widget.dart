@@ -21,6 +21,7 @@ import 'bulk_exercise_data_dialog.dart';
 import 'set_record_dialog.dart';
 import '../theme/build_context_text_styles.dart';
 import 'training_components.dart';
+import '../main.dart';
 
 /// 训练主界面 - 极简设计
 ///
@@ -42,19 +43,33 @@ class _TrainingWidgetState extends State<TrainingWidget>
   bool _isPlanMode = false;
   WorkoutPlan? _selectedPlan;
   bool _detailedRecordingEnabled = false;
+  // 计划入口角标：用户打开过一次计划选择后就不再提示。
+  // 首帧先视为已读，等本地偏好加载后再显示，避免闪烁。
+  bool _planSelectorOpened = true;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _loadDetailedRecordingPref();
+    _loadLocalPrefs();
   }
 
-  Future<void> _loadDetailedRecordingPref() async {
+  Future<void> _loadLocalPrefs() async {
     final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
     setState(() {
       _detailedRecordingEnabled = prefs.getBool('detailed_recording') ?? false;
+      _planSelectorOpened = prefs.getBool('plan_selector_opened') ?? false;
     });
+  }
+
+  /// 打开过一次计划选择（无论是否选中）就记住，角标不再出现。
+  void _markPlanSelectorOpened() {
+    if (_planSelectorOpened) return;
+    setState(() => _planSelectorOpened = true);
+    SharedPreferences.getInstance().then(
+      (prefs) => prefs.setBool('plan_selector_opened', true),
+    );
   }
 
   @override
@@ -153,7 +168,10 @@ class _TrainingWidgetState extends State<TrainingWidget>
           // Plan icon button
           Tooltip(
             message: context.l10n.trainingSelectPlan,
-            child: Material(
+            child: Badge(
+              isLabelVisible: !_planSelectorOpened,
+              backgroundColor: theme.accentColor,
+              child: Material(
               color: Colors.transparent,
               child: InkWell(
                 onTap: () =>
@@ -180,12 +198,12 @@ class _TrainingWidgetState extends State<TrainingWidget>
                 ),
               ),
             ),
+            ),
           ),
         ],
       ),
     );
   }
-
   /// 极简进度行
   /// 主内容区域 - 计时器
   Widget _buildMainContent(
@@ -595,12 +613,17 @@ class _TrainingWidgetState extends State<TrainingWidget>
     PlanProvider planProvider,
     TrainingProgressProvider progressProvider,
   ) {
+    _markPlanSelectorOpened();
     final plans = planProvider.plans;
 
     if (plans.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(context.l10n.trainingNoPlan),
+          action: SnackBarAction(
+            label: context.l10n.trainingNoPlanAction,
+            onPressed: () => MainNavigation.switchToTab(0),
+          ),
           behavior: SnackBarBehavior.floating,
         ),
       );

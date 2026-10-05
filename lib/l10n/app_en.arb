@@ -35,6 +35,7 @@
   "trainingSkipRest": "Skip Rest",
   "trainingSave": "Save",
   "trainingNoPlan": "No plan yet, create one first",
+  "trainingNoPlanAction": "Create One",
   "trainingSelectPlan": "Select Plan",
   "trainingCancelPlan": "Cancel Plan",
   "trainingSwitchPlanTitle": "End current workout?",
