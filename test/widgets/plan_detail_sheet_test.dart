@@ -43,7 +43,10 @@ void main() {
         .setMockMethodCallHandler(timerChannel, null);
   });
 
-  Future<BuildContext> pumpSheetHarness(WidgetTester tester, WorkoutPlan plan) async {
+  Future<BuildContext> pumpSheetHarness(
+    WidgetTester tester,
+    WorkoutPlan plan,
+  ) async {
     // 计划详情表在测试视口里整体偏低，surface 加高并预留底部余量保证按钮可点。
     await tester.binding.setSurfaceSize(const Size(600, 2400));
     addTearDown(() => tester.binding.setSurfaceSize(null));
@@ -71,10 +74,8 @@ void main() {
                     onPressed: () => showModalBottomSheet(
                       context: context,
                       isScrollControlled: true,
-                      builder: (_) => PlanDetailSheet(
-                        plan: plan,
-                        onAddToDate: () {},
-                      ),
+                      builder: (_) =>
+                          PlanDetailSheet(plan: plan, onAddToDate: () {}),
                     ),
                     child: const Text('open-sheet'),
                   ),

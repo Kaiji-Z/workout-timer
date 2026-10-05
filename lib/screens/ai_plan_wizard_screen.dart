@@ -242,9 +242,7 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
         Flexible(
           child: Text(
             context.l10n.aiPrefsHint,
-            style: context.bodySmall.copyWith(
-              color: theme.secondaryTextColor,
-            ),
+            style: context.bodySmall.copyWith(color: theme.secondaryTextColor),
           ),
         ),
         const SizedBox(width: 8),
@@ -921,12 +919,13 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
     final outOfRangeCount = warnings
         .where((w) => w.type == PlanImportWarningType.outOfRangeDay)
         .length;
-    final duplicateDays = warnings
-        .where((w) => w.type == PlanImportWarningType.duplicateDay)
-        .map((w) => w.day)
-        .toSet()
-        .toList()
-      ..sort();
+    final duplicateDays =
+        warnings
+            .where((w) => w.type == PlanImportWarningType.duplicateDay)
+            .map((w) => w.day)
+            .toSet()
+            .toList()
+          ..sort();
 
     return Container(
       width: double.infinity,

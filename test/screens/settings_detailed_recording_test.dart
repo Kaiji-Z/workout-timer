@@ -41,9 +41,6 @@ void main() {
     }
 
     expect(find.text('详细记录模式'), findsOneWidget);
-    expect(
-      find.text('保存计划训练时，弹窗批量核对每组的次数与重量'),
-      findsOneWidget,
-    );
+    expect(find.text('保存计划训练时，弹窗批量核对每组的次数与重量'), findsOneWidget);
   });
 }

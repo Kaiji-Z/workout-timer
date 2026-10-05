@@ -239,9 +239,7 @@ class _MainNavigationState extends State<MainNavigation> {
     final prefs = await SharedPreferences.getInstance();
     if (prefs.getBool('onboarding_done') ?? false) return;
     if (!mounted) return;
-    Navigator.of(context).push(
-      FadeUpPageRoute(page: const OnboardingScreen()),
-    );
+    Navigator.of(context).push(FadeUpPageRoute(page: const OnboardingScreen()));
   }
 
   /// Allow external code to change the current tab

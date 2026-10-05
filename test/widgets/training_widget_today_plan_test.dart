@@ -33,15 +33,16 @@ void main() {
       id: id,
       name: name,
       targetMuscles: const [PrimaryMuscleGroup.chest],
-      exercises: [
-        PlanExercise(exerciseId: 'e1', targetSets: 3, order: 0),
-      ],
+      exercises: [PlanExercise(exerciseId: 'e1', targetSets: 3, order: 0)],
       createdAt: DateTime(2026, 1, 1),
     );
   }
 
-  Future<PlanProvider> pumpTraining(WidgetTester tester,
-      {required WorkoutPlan plan, required DateTime scheduledDate}) async {
+  Future<PlanProvider> pumpTraining(
+    WidgetTester tester, {
+    required WorkoutPlan plan,
+    required DateTime scheduledDate,
+  }) async {
     final themeProvider = ThemeProvider();
     await themeProvider.initialize();
     final planProvider = PlanProvider();
@@ -93,9 +94,9 @@ void main() {
     await tester.tap(find.textContaining('今日计划'));
     await tester.pump();
 
-    final progress = tester.element(
-      find.byType(TrainingWidget),
-    ).read<TrainingProgressProvider>();
+    final progress = tester
+        .element(find.byType(TrainingWidget))
+        .read<TrainingProgressProvider>();
     expect(progress.currentPlan?.name, '拉背日');
   });
 

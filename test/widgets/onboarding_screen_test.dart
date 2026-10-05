@@ -69,9 +69,7 @@ void main() {
     await themeProvider.initialize();
     await tester.pumpWidget(
       MultiProvider(
-        providers: [
-          ChangeNotifierProvider.value(value: themeProvider),
-        ],
+        providers: [ChangeNotifierProvider.value(value: themeProvider)],
         child: MaterialApp(
           locale: const Locale('zh'),
           localizationsDelegates: AppLocalizations.localizationsDelegates,

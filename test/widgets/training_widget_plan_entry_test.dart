@@ -45,9 +45,8 @@ void main() {
   }
 
   /// Badge 组件始终存在，按「圆点是否可见」断言。
-  Finder visiblePlanBadge() => find.byWidgetPredicate(
-        (w) => w is Badge && w.isLabelVisible,
-      );
+  Finder visiblePlanBadge() =>
+      find.byWidgetPredicate((w) => w is Badge && w.isLabelVisible);
 
   testWidgets('从未打开计划选择器时入口显示角标', (tester) async {
     await pumpTraining(tester);

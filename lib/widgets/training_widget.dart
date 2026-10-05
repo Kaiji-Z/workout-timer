@@ -180,38 +180,41 @@ class _TrainingWidgetState extends State<TrainingWidget>
               isLabelVisible: !_planSelectorOpened,
               backgroundColor: theme.accentColor,
               child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: () =>
-                    _showPlanSelector(theme, planProvider, progressProvider),
-                borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
-                child: Container(
-                  // 触控目标 ≥48dp（手汗场景宁大勿小）
-                  width: 48,
-                  height: 48,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: _isPlanMode
-                        ? theme.accentColor.withValues(alpha: 0.1)
-                        : Colors.transparent,
-                    borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
-                  ),
-                  child: Icon(
-                    Icons.playlist_add_check,
-                    size: 24,
-                    color: _isPlanMode
-                        ? theme.accentColor
-                        : theme.secondaryTextColor,
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () =>
+                      _showPlanSelector(theme, planProvider, progressProvider),
+                  borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
+                  child: Container(
+                    // 触控目标 ≥48dp（手汗场景宁大勿小）
+                    width: 48,
+                    height: 48,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: _isPlanMode
+                          ? theme.accentColor.withValues(alpha: 0.1)
+                          : Colors.transparent,
+                      borderRadius: BorderRadius.circular(
+                        AppDimensions.radiusMd,
+                      ),
+                    ),
+                    child: Icon(
+                      Icons.playlist_add_check,
+                      size: 24,
+                      color: _isPlanMode
+                          ? theme.accentColor
+                          : theme.secondaryTextColor,
+                    ),
                   ),
                 ),
               ),
-            ),
             ),
           ),
         ],
       ),
     );
   }
+
   /// 极简进度行
   /// 主内容区域 - 计时器
   Widget _buildMainContent(
@@ -304,10 +307,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
             onTap: () => progressProvider.startPlan(plan),
             borderRadius: BorderRadius.circular(AppDimensions.radiusChip),
             child: Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 10,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               decoration: BoxDecoration(
                 color: theme.accentColor.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(AppDimensions.radiusChip),
@@ -333,11 +333,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
                     ),
                   ),
                   const SizedBox(width: 4),
-                  Icon(
-                    Icons.chevron_right,
-                    size: 18,
-                    color: theme.accentColor,
-                  ),
+                  Icon(Icons.chevron_right, size: 18, color: theme.accentColor),
                 ],
               ),
             ),
