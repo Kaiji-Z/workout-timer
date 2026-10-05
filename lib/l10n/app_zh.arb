@@ -655,6 +655,8 @@
   "settingsEnableVibration": "启用振动",
   "@settingsEnableVibration": {},
   "settingsDetailedRecording": "详细记录模式",
+  "settingsDetailedRecordingDesc": "保存计划训练时，弹窗批量核对每组的次数与重量",
+  "@settingsDetailedRecordingDesc": {},
   "@settingsDetailedRecording": {},
   "settingsSelectRingtone": "选择铃声",
   "@settingsSelectRingtone": {},

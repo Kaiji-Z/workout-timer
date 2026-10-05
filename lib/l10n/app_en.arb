@@ -164,6 +164,8 @@
   "settingsNotificationRingtone": "Notification Ringtone",
   "settingsEnableVibration": "Enable Vibration",
   "settingsDetailedRecording": "Detailed Recording Mode",
+  "settingsDetailedRecordingDesc": "When saving a planned workout, review reps and weight for every set in one dialog",
+  "@settingsDetailedRecordingDesc": {},
   "settingsSelectRingtone": "Select Ringtone",
   "settingsClose": "Close",
   "settingsCancel": "Cancel",

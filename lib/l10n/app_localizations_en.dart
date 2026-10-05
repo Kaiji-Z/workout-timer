@@ -594,6 +594,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsDetailedRecording => 'Detailed Recording Mode';
 
   @override
+  String get settingsDetailedRecordingDesc =>
+      'When saving a planned workout, review reps and weight for every set in one dialog';
+
+  @override
   String get settingsSelectRingtone => 'Select Ringtone';
 
   @override

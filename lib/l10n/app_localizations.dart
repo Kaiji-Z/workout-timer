@@ -1074,6 +1074,12 @@ abstract class AppLocalizations {
   /// **'详细记录模式'**
   String get settingsDetailedRecording;
 
+  /// No description provided for @settingsDetailedRecordingDesc.
+  ///
+  /// In zh, this message translates to:
+  /// **'保存计划训练时，弹窗批量核对每组的次数与重量'**
+  String get settingsDetailedRecordingDesc;
+
   /// No description provided for @settingsSelectRingtone.
   ///
   /// In zh, this message translates to:

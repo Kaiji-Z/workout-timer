@@ -587,6 +587,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsDetailedRecording => '详细记录模式';
 
   @override
+  String get settingsDetailedRecordingDesc => '保存计划训练时，弹窗批量核对每组的次数与重量';
+
+  @override
   String get settingsSelectRingtone => '选择铃声';
 
   @override

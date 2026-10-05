@@ -372,6 +372,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                       _saveSettings();
                     },
                     theme,
+                    subtitle: l10n.settingsDetailedRecordingDesc,
                   ),
                   Divider(
                     color: theme.surfaceColor.withValues(alpha: 0.1),
