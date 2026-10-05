@@ -350,6 +350,24 @@ abstract class AppLocalizations {
   /// **'今日计划：{name}'**
   String trainingTodayPlan(String name);
 
+  /// No description provided for @aiPrefsHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'想让 AI 更懂你？先完善训练偏好'**
+  String get aiPrefsHint;
+
+  /// No description provided for @aiPrefsHintAction.
+  ///
+  /// In zh, this message translates to:
+  /// **'去设置'**
+  String get aiPrefsHintAction;
+
+  /// No description provided for @aiPrefsPrefilled.
+  ///
+  /// In zh, this message translates to:
+  /// **'已从你的训练偏好预填'**
+  String get aiPrefsPrefilled;
+
   /// No description provided for @trainingPlanSummary.
   ///
   /// In zh, this message translates to:

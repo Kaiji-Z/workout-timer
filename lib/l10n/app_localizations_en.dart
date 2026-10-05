@@ -158,6 +158,16 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get aiPrefsHint =>
+      'Want plans that fit you? Set your training preferences first';
+
+  @override
+  String get aiPrefsHintAction => 'Set up';
+
+  @override
+  String get aiPrefsPrefilled => 'Pre-filled from your training preferences';
+
+  @override
   String trainingPlanSummary(int exerciseCount, int totalSets) {
     return '$exerciseCount exercises · $totalSets sets';
   }

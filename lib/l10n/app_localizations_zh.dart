@@ -157,6 +157,15 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String get aiPrefsHint => '想让 AI 更懂你？先完善训练偏好';
+
+  @override
+  String get aiPrefsHintAction => '去设置';
+
+  @override
+  String get aiPrefsPrefilled => '已从你的训练偏好预填';
+
+  @override
   String trainingPlanSummary(int exerciseCount, int totalSets) {
     return '$exerciseCount动作 · $totalSets组';
   }

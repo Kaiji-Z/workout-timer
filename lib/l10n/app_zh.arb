@@ -158,6 +158,12 @@
       }
     }
   },
+  "aiPrefsHint": "想让 AI 更懂你？先完善训练偏好",
+  "@aiPrefsHint": {},
+  "aiPrefsHintAction": "去设置",
+  "@aiPrefsHintAction": {},
+  "aiPrefsPrefilled": "已从你的训练偏好预填",
+  "@aiPrefsPrefilled": {},
   "trainingPlanSummary": "{exerciseCount}动作 · {totalSets}组",
   "@trainingPlanSummary": {
     "placeholders": {

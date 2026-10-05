@@ -14,6 +14,8 @@ import '../services/ai_prompt_service.dart';
 import '../services/exercise_matcher_service.dart';
 import '../services/exercise_service.dart';
 import '../services/user_preferences_service.dart';
+import '../screens/user_preferences_screen.dart';
+import '../animations/page_transitions.dart';
 import '../providers/plan_provider.dart';
 import '../utils/dimensions.dart';
 import '../widgets/ai_wizard_components.dart';
@@ -210,6 +212,67 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
     super.dispose();
   }
 
+  /// 问卷选项来源说明：偏好已定制显示「已预填」，仍是默认值则引导去设置页完善。
+  Widget _buildPreferenceSourceHint(AppThemeData theme) {
+    final defaults = const UserPreferences();
+    final isCustomized =
+        _goal != defaults.goal ||
+        _weeklyFrequency != defaults.frequency ||
+        _experience != defaults.experience ||
+        _equipment != defaults.equipment ||
+        _focusAreas.isNotEmpty;
+
+    if (isCustomized) {
+      return Row(
+        children: [
+          Icon(Icons.tune, size: 14, color: theme.accentColor),
+          const SizedBox(width: 6),
+          Flexible(
+            child: Text(
+              context.l10n.aiPrefsPrefilled,
+              style: context.bodySmall.copyWith(color: theme.accentColor),
+            ),
+          ),
+        ],
+      );
+    }
+
+    return Row(
+      children: [
+        Flexible(
+          child: Text(
+            context.l10n.aiPrefsHint,
+            style: context.bodySmall.copyWith(
+              color: theme.secondaryTextColor,
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        TextButton(
+          style: TextButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            minimumSize: Size.zero,
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          ),
+          onPressed: () async {
+            await Navigator.push(
+              context,
+              FadeUpPageRoute(page: const UserPreferencesScreen()),
+            );
+            if (mounted) _loadPreferences();
+          },
+          child: Text(
+            context.l10n.aiPrefsHintAction,
+            style: TextStyle(
+              color: theme.accentColor,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>().currentTheme;
@@ -380,7 +443,9 @@ class _AIPlanWizardScreenState extends State<AIPlanWizardScreen> {
             l10n.aiNewPlanSubheading,
             style: context.bodyMedium.copyWith(color: theme.secondaryTextColor),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 12),
+          _buildPreferenceSourceHint(theme),
+          const SizedBox(height: 12),
 
           _buildSingleSelectQuestion(
             l10n.prefGoalSection,
