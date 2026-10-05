@@ -127,6 +127,14 @@ class _TrainingWidgetState extends State<TrainingWidget>
                 child: _buildMainContent(training, theme, progressProvider),
               ),
 
+              // 今日排期提醒（空闲态且未进计划模式时显示）
+              _buildTodayScheduleChip(
+                training,
+                theme,
+                planProvider,
+                progressProvider,
+              ),
+
               // 状态徽章
               _buildStatusBadge(training, theme, progressProvider),
 
@@ -268,6 +276,73 @@ class _TrainingWidgetState extends State<TrainingWidget>
         size: AppDimensions.timerSize(context),
         sessionDuration: 0,
         countdownProgress: 1.0,
+      ),
+    );
+  }
+
+  /// 今日排期 chip：日历排了计划的当天，空闲态一键载入，不用来回切页。
+  Widget _buildTodayScheduleChip(
+    TrainingProvider training,
+    AppThemeData theme,
+    PlanProvider planProvider,
+    TrainingProgressProvider progressProvider,
+  ) {
+    if (!training.isIdle || _isPlanMode) return const SizedBox.shrink();
+    final now = DateTime.now();
+    final todayPlans = planProvider.getPlansForDate(
+      DateTime(now.year, now.month, now.day),
+    );
+    if (todayPlans.isEmpty) return const SizedBox.shrink();
+    final plan = todayPlans.first;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Center(
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () => progressProvider.startPlan(plan),
+            borderRadius: BorderRadius.circular(AppDimensions.radiusChip),
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 10,
+              ),
+              decoration: BoxDecoration(
+                color: theme.accentColor.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(AppDimensions.radiusChip),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.calendar_today,
+                    size: 16,
+                    color: theme.accentColor,
+                  ),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
+                      context.l10n.trainingTodayPlan(plan.name),
+                      style: context.labelLarge.copyWith(
+                        color: theme.accentColor,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Icon(
+                    Icons.chevron_right,
+                    size: 18,
+                    color: theme.accentColor,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

@@ -153,6 +153,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get trainingSwitchPlanConfirm => 'End & start new plan';
 
   @override
+  String trainingTodayPlan(String name) {
+    return 'Today: $name';
+  }
+
+  @override
   String trainingPlanSummary(int exerciseCount, int totalSets) {
     return '$exerciseCount exercises · $totalSets sets';
   }

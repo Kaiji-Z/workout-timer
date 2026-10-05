@@ -152,6 +152,11 @@ class AppLocalizationsZh extends AppLocalizations {
   String get trainingSwitchPlanConfirm => '结束并开始新计划';
 
   @override
+  String trainingTodayPlan(String name) {
+    return '今日计划：$name';
+  }
+
+  @override
   String trainingPlanSummary(int exerciseCount, int totalSets) {
     return '$exerciseCount动作 · $totalSets组';
   }

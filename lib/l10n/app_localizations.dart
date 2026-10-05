@@ -344,6 +344,12 @@ abstract class AppLocalizations {
   /// **'结束并开始新计划'**
   String get trainingSwitchPlanConfirm;
 
+  /// No description provided for @trainingTodayPlan.
+  ///
+  /// In zh, this message translates to:
+  /// **'今日计划：{name}'**
+  String trainingTodayPlan(String name);
+
   /// No description provided for @trainingPlanSummary.
   ///
   /// In zh, this message translates to:

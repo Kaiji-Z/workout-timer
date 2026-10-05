@@ -150,6 +150,14 @@
   "@trainingSwitchPlanBody": {},
   "trainingSwitchPlanConfirm": "结束并开始新计划",
   "@trainingSwitchPlanConfirm": {},
+  "trainingTodayPlan": "今日计划：{name}",
+  "@trainingTodayPlan": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "trainingPlanSummary": "{exerciseCount}动作 · {totalSets}组",
   "@trainingPlanSummary": {
     "placeholders": {
