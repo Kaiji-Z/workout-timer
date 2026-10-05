@@ -22,7 +22,6 @@ class PlanProvider extends ChangeNotifier {
 
   List<WorkoutPlan> _plans = [];
   final Map<String, List<WorkoutPlan>> _calendarPlans = {}; // Key: 'yyyy-MM-dd'
-  WorkoutPlan? _selectedPlan;
   bool _isLoading = false;
   String? _error;
 
@@ -32,7 +31,6 @@ class PlanProvider extends ChangeNotifier {
   List<WorkoutPlan> get plans => _plans;
   List<Exercise> get exercises => _exercises;
   Set<DateTime> get datesWithPlans => getDatesWithPlans();
-  WorkoutPlan? get selectedPlan => _selectedPlan;
   bool get isLoading => _isLoading;
   String? get error => _error;
   int get planCount => _plans.length;
@@ -139,10 +137,6 @@ class PlanProvider extends ChangeNotifier {
       _calendarPlans.forEach((key, plans) {
         plans.removeWhere((p) => p.id == planId);
       });
-
-      if (_selectedPlan?.id == planId) {
-        _selectedPlan = null;
-      }
 
       notifyListeners();
     } catch (e, st) {
@@ -426,12 +420,6 @@ class PlanProvider extends ChangeNotifier {
     }
   }
 
-  /// 选择计划（用于训练）
-  void selectPlan(WorkoutPlan? plan) {
-    _selectedPlan = plan;
-    notifyListeners();
-  }
-
   /// 根据ID获取计划
   WorkoutPlan? getPlanById(String id) {
     return _plans.where((p) => p.id == id).firstOrNull;
@@ -467,7 +455,6 @@ class PlanProvider extends ChangeNotifier {
   void dispose() {
     _plans.clear();
     _calendarPlans.clear();
-    _selectedPlan = null;
     super.dispose();
   }
 }
