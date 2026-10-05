@@ -103,6 +103,7 @@ lib/
 │   ├── record_detail_screen.dart   # Detailed record view (809 lines)
 │   ├── stats_screen.dart     # Statistics dashboard (989 lines; charts in widgets/stats_charts.dart)
 │   ├── user_preferences_screen.dart # Training preferences (575 lines)
+│   ├── onboarding_screen.dart # First-run 3-page carousel (gated by SharedPreferences `onboarding_done`, pushed from MainNavigation.initState)
 │   └── settings_screen.dart  # User preferences (1194 lines; dialogs/cards in widgets/settings_widgets.dart)
 ├── widgets/                  # Reusable UI components
 │   ├── training_widget.dart  # Main training UI
@@ -416,6 +417,20 @@ setUpAll(() {
 ```
 Without this, tests crash with platform errors on desktop/web.
 
+### Critical: No ExerciseService Asset Loading in Widget Tests
+Never call `PlanProvider.loadPlans()` / `ExerciseService.loadExercises()` in
+widget tests — `rootBundle.loadString` on the large exercise DB asset HANGS
+flutter_tester (test hits the 10-minute timeout). Seed data via
+`createPlan()` + `assignPlanToDate()` instead (they don't touch assets), and
+pair with `DatabaseHelper.resetForTesting()` in `setUpAll` to route the DB
+through sqflite_ffi in-memory.
+
+### One-time Hints (SharedPreferences flags)
+| Key | Meaning |
+|-----|---------|
+| `onboarding_done` | First-run carousel shown once; set by OnboardingScreen on any exit |
+| `plan_selector_opened` | Timer page plan-icon badge hidden after user opens the plan selector once |
+
 ### Test Fixtures
 `test/helpers/test_fixtures.dart` exports `sampleExercises` — a `List<Exercise>` with bilingual names and full muscle group data. Used by matcher tests and AI prompt tests.
 
@@ -500,6 +515,8 @@ expect(find.text('开始运动'), findsOneWidget);
 | Bottom navigation | `main.dart` (`MainNavigation` widget) |
 | AI plan wizard | `screens/ai_plan_wizard_screen.dart` |
 | AI analysis dashboard | `screens/ai_analysis_screen.dart` |
+| First-run onboarding | `screens/onboarding_screen.dart` (pushed from `main.dart` MainNavigation) |
+| Plan-mode confirm helper | `widgets/training_components.dart` (`confirmSwitchPlanWhileActive`) |
 | Exercise selection | `screens/exercise_selection_screen.dart` |
 | Plan form | `screens/plan_form_screen.dart` |
 | Record detail | `screens/record_detail_screen.dart` |
