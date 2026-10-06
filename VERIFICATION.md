@@ -167,24 +167,40 @@ A feature is done if and only if ALL hold:
 - Regression set directory: `test/`（models/services/providers/widgets/screens/integration 分层）+ `integration_test/`（设备级，当前 1 个冒烟）
 - Assertion framework: flutter_test（sdk）原生 expect/finder；护栏见 §3.1
 
-### 8.3 Flag mechanism [auto-fill]
-- 现状：无开发用 flag 机制 → **design during remediation**。候选方案（待治理轮确认）：
-  a) 行为类新功能必须携带 SharedPreferences dev flag（命名 `flag_*`），回归双态跑；
-  b) 复用既有用户设置作行为开关（`detailed_recording` 先例）；
-  c) UI 文案/布局类变更豁免 flag（记入 DoD 例外），但必须有回归测试。
+### 8.3 Flag mechanism [auto-fill] — 定稿（2026-10-06，开发者确认「按建议走」）
+- 分类法（三类）：
+  a) **行为/数据流类新功能**：必须携带 SharedPreferences dev flag（命名 `flag_*`），回归套件双态跑（flag on/off），off == 变更前行为；
+  b) **复用既有用户设置作行为开关**：如 `detailed_recording`、`idle_reminder_*`——这些已经是合法 flag，测试须覆盖开与关两侧（先例：settings_detailed_recording_test.dart）；
+  c) **UI 文案/布局类变更**：豁免 flag（记入 §6 DoD 例外），但回归测试不可豁免。
+- 本轮治理不新增 flag 代码；规则即时生效，后续每个 feat 按 (a/b/c) 归类并在提交说明注明。
 
-### 8.4 Supervisor design [must-ask] ⚠️ pending
-> 待开发者回答：
-1. 哪个模型给模糊部分打分？（或：确认本项目暂无模糊输出、Layer 2 整体豁免？）
-2. 打分维度有哪些？
-3. 每维度通过阈值？
-4. 监督者 prompt 禁止包含什么？（默认禁止：代码实现 / PR 描述 / commit / 开发对话）
+### 8.4 Supervisor design [must-ask] — 已填（2026-10-06，开发者确认「按建议走」）
+1. **Layer 2 整体豁免**：本项目当前无模糊输出（AI 向导 prompt 为确定性模板、动作匹配为确定性算法），不需要 LLM 打分层。
+2. 维度：不适用。
+3. 阈值：不适用。
+4. **预留规则**（未来接入真 LLM 生成/解析时生效，届时必须先跑全量回归）：
+   - judge 模型必须异于生成模型；
+   - 监督者 prompt 禁止包含：代码实现、PR 描述、commit 记录、开发对话；
+   - 维度（初始建议）：正确性 / 完整性 / 可用性，各 0-10 分，通过阈值 ≥8；
+   - 监督者只见「期望的正确行为 + 实际运行轨迹」。
 
-### 8.5 Acceptance criteria [must-ask] ⚠️ pending
-> 待开发者回答：
-1. 核心工作流的 happy path？（输入 → 动作 → 分支 → 输出；本项目核心流候选：建计划(AI/手动)→排期→按计划训练→组间休息→每组记录→保存→历史/统计可见）
-2. 3–5 条验收标准，形如「在条件 X 下，应当 Y」？
-3. 反向验收标准（绝不允许发生的行为）？
+### 8.5 Acceptance criteria [must-ask] — 已填（2026-10-06，开发者确认「按建议走」，采纳 agent 草案）
+
+**核心流 happy path**：建计划（AI 生成 / 手动创建）→ 排期到日历 → 按计划训练（动作进度）→ 组间休息（倒计时/跳过）→ 每组记录（次数/重量）→ 保存 → 历史与统计可见。
+
+**验收标准**（条件 X → 应当 Y）：
+1. 当天已排期的计划，计时页空闲态应当显示「今日计划」chip，点击一键进入该计划模式。
+2. 从计划详情点「开始训练」，应当进入该计划的训练模式（出现动作进度行），而非自由模式。
+3. 组间休息倒计时自然结束或被跳过后，应当回到运动状态且组数 +1；计划模式下应当弹出该组记录对话框。
+4. 训练保存成功后，历史页应当能检索到该条记录（含计划名 / 动作 / 组数）。
+5. 空计划库时，任何创建入口应当引导至 AI 生成 / 手动创建二选一；从「添加今日计划」语境手动创建成功后应当自动排到所选日期。
+
+**反向验收标准**（绝不允许发生）：
+1. 同一计划在同一天不允许出现两条排期（UI 列表与 DB 均不允许；守卫：test/providers/plan_provider_assign_test.dart）。
+2. 保存失败不允许静默丢数据——必须有用户可见的错误提示（守卫：translateTrainingSaveError 路径测试）。
+3. 计时在 app 切后台再返回后不允许时长回退（守卫：lifecycle resumed → refreshDuration 的 integration 断言；OS 级后台保活属平台行为，列为自动化已知盲区，靠前台服务存在性 + 厂商引导页兜底）。
+4. 被丢弃（未保存）的训练不允许出现在历史中。
+5. 用户可见文案不允许绕过 i18n 硬编码（守卫：test/i18n/no_hardcoded_chinese_test.dart）。
 
 ### 8.6 Fill status (maintained by the agent)
 
@@ -192,9 +208,9 @@ A feature is done if and only if ALL hold:
 |---|---|---|---|
 | 8.1 | auto-fill | 已填 | pubspec.yaml / .github/workflows/android-build.yml / lib/main.dart |
 | 8.2 | auto-fill | 已填 | test/ 树 61 文件、629 测试基线 |
-| 8.3 | auto-fill | 无机制，治理轮设计 | 全库无 flag_* 键；先例 detailed_recording |
-| 8.4 | must-ask | pending | — |
-| 8.5 | must-ask | pending | — |
+| 8.3 | auto-fill | 已定稿（a/b/c 分类法） | 开发者 2026-10-06 确认 |
+| 8.4 | must-ask | 已填：Layer 2 豁免 + 预留规则 | 开发者 2026-10-06「按建议走」 |
+| 8.5 | must-ask | 已填：happy path + 5 验收 + 5 反向 | 开发者 2026-10-06「按建议走」 |
 | 8.7 | auto-fill→must-ask | 已填：flutter_test（sdk），无需外部工具 | pubspec.yaml |
 
 ### 8.7 Eval toolchain [auto-fill→must-ask] ⚙️
