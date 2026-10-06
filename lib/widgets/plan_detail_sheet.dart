@@ -325,7 +325,11 @@ class PlanDetailSheet extends StatelessWidget {
               children: [
                 Expanded(
                   child: OutlinedButton.icon(
-                    onPressed: onAddToDate,
+                    onPressed: () {
+                      // 添加后关闭弹窗：既明确动作完成，也避免连点重复排期。
+                      Navigator.pop(context);
+                      onAddToDate();
+                    },
                     icon: Icon(Icons.calendar_today, color: theme.accentColor),
                     label: Text(
                       l10n.planDetailAddToCalendar,

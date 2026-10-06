@@ -166,8 +166,13 @@ class PlanProvider extends ChangeNotifier {
       final plan = _plans.where((p) => p.id == planId).firstOrNull;
       if (plan != null) {
         final key = _dateToKey(date);
-        _calendarPlans.putIfAbsent(key, () => []).add(plan);
-        notifyListeners();
+        final dayPlans = _calendarPlans.putIfAbsent(key, () => []);
+        // repository 侧已存在时会跳过插入，内存同步也要对齐，
+        // 否则计划页按 plan.id 生成的 key 重复直接崩。
+        if (!dayPlans.any((p) => p.id == planId)) {
+          dayPlans.add(plan);
+          notifyListeners();
+        }
       }
     } catch (e) {
       debugPrint('Error assigning plan to date: $e');
