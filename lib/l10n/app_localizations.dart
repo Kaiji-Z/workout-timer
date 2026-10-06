@@ -314,6 +314,12 @@ abstract class AppLocalizations {
   /// **'去创建'**
   String get trainingNoPlanAction;
 
+  /// No description provided for @trainingPlanAction.
+  ///
+  /// In zh, this message translates to:
+  /// **'选计划'**
+  String get trainingPlanAction;
+
   /// No description provided for @trainingSelectPlan.
   ///
   /// In zh, this message translates to:

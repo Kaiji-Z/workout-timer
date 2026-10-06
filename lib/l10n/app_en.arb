@@ -36,6 +36,7 @@
   "trainingSave": "Save",
   "trainingNoPlan": "No plan yet, create one first",
   "trainingNoPlanAction": "Create One",
+  "trainingPlanAction": "Plan",
   "trainingSelectPlan": "Select Plan",
   "trainingCancelPlan": "Cancel Plan",
   "trainingSwitchPlanTitle": "End current workout?",

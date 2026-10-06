@@ -137,6 +137,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get trainingNoPlanAction => 'Create One';
 
   @override
+  String get trainingPlanAction => 'Plan';
+
+  @override
   String get trainingSelectPlan => 'Select Plan';
 
   @override

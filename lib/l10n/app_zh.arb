@@ -140,6 +140,8 @@
   "@trainingNoPlan": {},
   "trainingNoPlanAction": "去创建",
   "@trainingNoPlanAction": {},
+  "trainingPlanAction": "选计划",
+  "@trainingPlanAction": {},
   "trainingSelectPlan": "选择训练计划",
   "@trainingSelectPlan": {},
   "trainingCancelPlan": "取消计划",

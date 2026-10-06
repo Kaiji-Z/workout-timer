@@ -150,7 +150,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
     );
   }
 
-  /// 顶部标题 + 计划图标入口
+  /// 顶部标题 + 计划入口（文字+图标，与其他页右上角动作按钮一致）
   Widget _buildHeader(
     AppThemeData theme,
     PlanProvider planProvider,
@@ -158,59 +158,58 @@ class _TrainingWidgetState extends State<TrainingWidget>
   ) {
     return Padding(
       padding: const EdgeInsets.only(top: 12, bottom: 12, left: 20, right: 16),
-      child: Row(
-        children: [
-          // Left spacer to balance plan icon
-          const SizedBox(width: 40),
-          // Centered title
-          Expanded(
-            child: Text(
-              context.l10n.navTimer,
-              style: context.headlineMedium.copyWith(
-                fontWeight: FontWeight.w700,
-                letterSpacing: -0.5, // Match other pages
+      child: SizedBox(
+        height: 48,
+        child: Stack(
+          children: [
+            // 居中标题
+            Center(
+              child: Text(
+                context.l10n.navTimer,
+                style: context.headlineMedium.copyWith(
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: -0.5, // Match other pages
+                ),
               ),
-              textAlign: TextAlign.center,
             ),
-          ),
-          // Plan icon button
-          Tooltip(
-            message: context.l10n.trainingSelectPlan,
-            child: Badge(
-              isLabelVisible: !_planSelectorOpened,
-              backgroundColor: theme.accentColor,
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap: () =>
-                      _showPlanSelector(theme, planProvider, progressProvider),
-                  borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
-                  child: Container(
-                    // 触控目标 ≥48dp（手汗场景宁大勿小）
-                    width: 48,
-                    height: 48,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: _isPlanMode
-                          ? theme.accentColor.withValues(alpha: 0.1)
-                          : Colors.transparent,
-                      borderRadius: BorderRadius.circular(
-                        AppDimensions.radiusMd,
-                      ),
+            // 右上角计划入口
+            Positioned(
+              right: 0,
+              top: 0,
+              bottom: 0,
+              child: Center(
+                child: Badge(
+                  isLabelVisible: !_planSelectorOpened,
+                  backgroundColor: theme.accentColor,
+                  child: TextButton.icon(
+                    onPressed: () => _showPlanSelector(
+                      theme,
+                      planProvider,
+                      progressProvider,
                     ),
-                    child: Icon(
+                    style: TextButton.styleFrom(
+                      backgroundColor: _isPlanMode
+                          ? theme.accentColor.withValues(alpha: 0.15)
+                          : Colors.transparent,
+                    ),
+                    icon: Icon(
                       Icons.playlist_add_check,
-                      size: 24,
-                      color: _isPlanMode
-                          ? theme.accentColor
-                          : theme.secondaryTextColor,
+                      size: 18,
+                      color: theme.accentColor,
+                    ),
+                    label: Text(
+                      context.l10n.trainingPlanAction,
+                      style: context.labelLarge.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: theme.accentColor,
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
