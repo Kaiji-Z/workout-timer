@@ -27,9 +27,7 @@ void main() {
       id: id,
       name: '推举日',
       targetMuscles: const [PrimaryMuscleGroup.chest],
-      exercises: [
-        PlanExercise(exerciseId: 'e1', targetSets: 3, order: 0),
-      ],
+      exercises: [PlanExercise(exerciseId: 'e1', targetSets: 3, order: 0)],
       createdAt: DateTime(2026, 1, 1),
     );
   }
