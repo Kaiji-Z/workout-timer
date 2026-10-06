@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>撸铁计时器 WorkoutTimer — 组间休息，精准掌控</title>
-  <meta name="description" content="免费开源的健身组间休息计时器：预设 30/60/90/120 秒、锁屏后台计时、声音+振动提醒、870+ 动作库、AI 训练计划、每组重量记录与统计。无广告、无账号、数据只存你手机上。">
+  <meta name="description" content="免费开源的健身组间休息计时器：预设 30/60/90/120 秒、锁屏后台计时、声音+振动提醒、870+ 动作库、AI 训练计划（无需 API Key，配合任意免费 AI）、每组重量记录与统计。无广告、无账号、数据只存你手机上。">
   <meta property="og:title" content="撸铁计时器 WorkoutTimer">
   <meta property="og:description" content="组间休息，精准掌控。免费开源、无广告、数据不出手机。">
   <meta property="og:url" content="https://kaiji-z.github.io/workout-timer/">
@@ -52,6 +52,7 @@
       line-height: 1.7;
       -webkit-font-smoothing: antialiased;
     }
+    [lang="en"] body, html[lang="en"] body { letter-spacing: 0.01em; }
     @font-face {
       font-family: "Rajdhani";
       src: url("./fonts/Rajdhani-Bold-4.ttf") format("truetype");
@@ -83,6 +84,17 @@
     .brand img { width: 32px; height: 32px; border-radius: 8px; }
     .brand b { font-size: 17px; color: var(--text); }
     .nav-right { margin-left: auto; display: flex; align-items: center; gap: 6px; }
+    .lang-switch {
+      display: flex; align-items: center; gap: 2px;
+      background: var(--ink-15); border-radius: var(--r-pill); padding: 3px;
+    }
+    .lang-btn {
+      border: none; cursor: pointer; background: transparent; color: var(--ink);
+      font-size: 12.5px; font-weight: 700; padding: 6px 12px;
+      border-radius: var(--r-pill); letter-spacing: 0.02em;
+      transition: background 0.15s, color 0.15s;
+    }
+    .lang-btn.on { background: var(--ink); color: #FFFFFF; }
     .nav-link {
       text-decoration: none; color: var(--warm-text-2);
       font-size: 14px; font-weight: 500; padding: 10px 14px;
@@ -257,12 +269,29 @@
         transition-delay: var(--d, 0ms);
       }
     }
+    /* 打印/无 JS 兜底:托盘卡片永远不能消失 */
+    @media print {
+      .enter { opacity: 1 !important; transform: none !important; }
+    }
+    .no-js .enter { opacity: 1; transform: none; }
 
-    /* ---- 截图:点开通知之后 ---- */
+    /* ---- 动图 + 截图:点开通知之后 ---- */
     .shots { background: var(--surface); padding: 0 0 96px; }
     .shots h2 { max-width: 16em; }
-    .shots .lede { color: var(--text-2); font-size: 15.5px; margin-top: 10px; }    .strip {
-      display: flex; gap: 24px; margin-top: 40px;
+    .shots .lede { color: var(--text-2); font-size: 15.5px; margin-top: 10px; }
+    .gif-strip {
+      display: flex; gap: 24px; margin-top: 40px; flex-wrap: wrap;
+    }
+    .gif-strip .shot { width: calc((100% - 48px) / 3); }
+    .gif-strip .shot img {
+      width: 100%; border-radius: var(--r-card);
+      box-shadow: var(--shadow-raised);
+    }
+    @media (max-width: 720px) {
+      .gif-strip .shot { width: calc((100% - 24px) / 2); }
+    }
+    .strip {
+      display: flex; gap: 24px; margin-top: 56px;
       overflow-x: auto; scroll-snap-type: x proximity;
       padding: 8px 24px 20px; margin-left: -24px; margin-right: -24px;
       scrollbar-width: thin; scrollbar-color: var(--ink-30) transparent;
@@ -325,6 +354,9 @@
           16px 圆角 + raised 阴影;Rajdhani 只属于倒计时数字。
   STORY: 访客在三屏内明白:这是管组间休息的计时器,到点会用声音+振动把
           你叫回来;功能以通知卡按时间堆叠为证;然后下载安装。
+          2026-10: 增加中英双语切换(文本+图片+GIF 双套素材,localStorage
+          记忆);托盘新增「AI 计划已导入」卡——零 API Key、配合任意免费
+          AI 是核心卖点;动图区展示真实录制流程。
   FIRST VIEWPORT: 满幅琥珀渐变锁屏——顶部状态行(时间+信号电池),中央
           264-300px 进度环 + Rajdhani 大数字(可交互:预设/暂停/重置,
           aria 播报状态),下方 下载APK 主按钮;底部一张"提醒已就绪"
@@ -344,12 +376,16 @@
 <header class="nav">
   <div class="wrap nav-inner">
     <a class="brand" href="./">
-      <img src="./icon.png" alt="撸铁计时器图标">
+      <img src="./icon.png" alt="撸铁计时器图标" data-alt-zh="撸铁计时器图标" data-alt-en="Workout Timer icon">
       <b>撸铁计时器</b>
     </a>
-    <nav class="nav-right" aria-label="页面导航">
-      <a class="nav-link gh" href="https://github.com/Kaiji-Z/workout-timer" target="_blank" rel="noopener">GitHub 源码</a>
-      <a class="btn btn-ink btn-nav" href="https://github.com/Kaiji-Z/workout-timer/releases/latest" target="_blank" rel="noopener">下载 APK</a>
+    <nav class="nav-right" aria-label="Page controls" data-aria-zh="页面导航" data-aria-en="Page controls">
+      <div class="lang-switch" role="group" aria-label="Language" >
+        <button class="lang-btn on" id="langZh" type="button" aria-pressed="true">中文</button>
+        <button class="lang-btn" id="langEn" type="button" aria-pressed="false">EN</button>
+      </div>
+      <a class="nav-link gh" href="https://github.com/Kaiji-Z/workout-timer" target="_blank" rel="noopener" data-i18n="nav_github">GitHub 源码</a>
+      <a class="btn btn-ink btn-nav" href="https://github.com/Kaiji-Z/workout-timer/releases/latest" target="_blank" rel="noopener" data-i18n="nav_download">下载 APK</a>
     </nav>
   </div>
 </header>
@@ -367,7 +403,7 @@
     </div>
 
     <div class="timer-stage">
-      <div class="ring-wrap" id="ringWrap" role="timer" aria-label="组间休息演示计时器">
+      <div class="ring-wrap" id="ringWrap" role="timer" data-aria-zh="组间休息演示计时器" data-aria-en="Rest timer demo">
         <svg class="ring" viewBox="0 0 264 264" aria-hidden="true">
           <defs>
             <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -383,16 +419,16 @@
       <p id="timerLive" aria-live="polite" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);"></p>
 
       <div class="controls">
-        <button class="ctrl" id="btnToggle" aria-label="暂停或继续倒计时">
+        <button class="ctrl" id="btnToggle" data-aria-zh="暂停或继续倒计时" data-aria-en="Pause or resume countdown">
           <svg id="iconPause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
           <svg id="iconPlay" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="display:none"><path d="M8 5.5v13a1 1 0 0 0 1.53.85l10.2-6.5a1 1 0 0 0 0-1.7L9.53 4.65A1 1 0 0 0 8 5.5Z"/></svg>
         </button>
-        <button class="ctrl" id="btnReset" aria-label="重置倒计时">
+        <button class="ctrl" id="btnReset" data-aria-zh="重置倒计时" data-aria-en="Reset countdown">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>
         </button>
       </div>
 
-      <div class="presets" role="group" aria-label="预设休息时长">
+      <div class="presets" role="group" data-aria-zh="预设休息时长" data-aria-en="Preset rest durations">
         <button class="preset" data-sec="30" aria-pressed="false">30s</button>
         <button class="preset" data-sec="60" aria-pressed="false">60s</button>
         <button class="preset on" data-sec="90" aria-pressed="true">90s</button>
@@ -402,14 +438,14 @@
       <div class="hero-ctas">
         <a class="btn btn-ink" href="https://github.com/Kaiji-Z/workout-timer/releases/latest" target="_blank" rel="noopener">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m6 11 6 6 6-6"/><path d="M5 21h14"/></svg>
-          下载 APK
+          <span data-i18n="hero_download">下载 APK</span>
         </a>
         <a class="btn btn-ghost" href="https://github.com/Kaiji-Z/workout-timer" target="_blank" rel="noopener">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.93c.58.1.79-.25.79-.56v-2.17c-3.2.7-3.87-1.37-3.87-1.37-.53-1.33-1.28-1.69-1.28-1.69-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.19 1.76 1.19 1.02 1.76 2.69 1.25 3.34.96.1-.74.4-1.25.73-1.54-2.55-.29-5.23-1.28-5.23-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.51-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.78 0c2.2-1.49 3.16-1.18 3.16-1.18.63 1.59.24 2.76.12 3.05.74.81 1.19 1.84 1.19 3.1 0 4.43-2.7 5.4-5.26 5.69.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5Z"/></svg>
-          GitHub 源码
+          <span data-i18n="hero_github">GitHub 源码</span>
         </a>
       </div>
-      <p class="hero-note">免费 · 开源 · 无广告 · 无账号 · <a href="./privacy-policy.html">隐私政策</a> · Android 5.0+</p>
+      <p class="hero-note" data-i18n="hero_note">免费 · 开源 · 无广告 · 无账号 · <a href="./privacy-policy.html" data-i18n="hero_privacy_link">隐私政策</a> · Android 5.0+</p>
     </div>
 
     <div class="peek">
@@ -417,8 +453,8 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"/><path d="M10.3 21a2 2 0 0 0 3.4 0"/></svg>
       </span>
       <span>
-        <b>休息结束提醒已就绪</b>
-        <span>声音 + 振动 + 弹窗，锁屏后台照样叫你</span>
+        <b data-i18n="peek_title">休息结束提醒已就绪</b>
+        <span data-i18n="peek_body">声音 + 振动 + 弹窗，锁屏后台照样叫你</span>
       </span>
     </div>
   </div>
@@ -427,16 +463,16 @@
 <!-- ===== 痛点:一条被划掉的通知 ===== -->
 <section class="scene">
   <div class="wrap scene-grid">
-    <h2>15 分钟的组间休息，<br>去了短视频里</h2>
+    <h2 data-i18n="scene_h2">15 分钟的组间休息，<br>去了短视频里</h2>
     <div class="stack">
-      <div class="ntf dim" aria-label="场景：被刷掉的通知">
+      <div class="ntf dim" data-aria-zh="场景：被刷掉的通知" data-aria-en="Scene: the notification you scrolled past">
         <span class="tile" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="m10 9 5 3-5 3Z"/></svg>
         </span>
         <div>
-          <div class="meta"><b>短视频</b><span>已使用 14 分钟</span><span class="t num">刚刚</span></div>
-          <h3>你刷掉了 14:32 的组间休息</h3>
-          <p>身体凉了，训练状态全没了</p>
+          <div class="meta"><b data-i18n="scene_app1">短视频</b><span data-i18n="scene_app1_meta">已使用 14 分钟</span><span class="t num" data-i18n="t_just_now">刚刚</span></div>
+          <h3 data-i18n="scene_h3">你刷掉了 14:32 的组间休息</h3>
+          <p data-i18n="scene_p">身体凉了，训练状态全没了</p>
         </div>
       </div>
       <div class="ntf">
@@ -444,18 +480,18 @@
           <img src="./icon.png" alt="" width="28" height="28" style="border-radius:8px">
         </span>
         <div>
-          <div class="meta"><b>撸铁计时器</b><span class="t num">刚刚</span></div>
-          <h3>休息结束 · 该回来推下一组了</h3>
-          <p>卧推 85kg × 5 · 第 4 组等你</p>
+          <div class="meta"><b data-i18n="scene_app2">撸铁计时器</b><span class="t num" data-i18n="t_just_now2">刚刚</span></div>
+          <h3 data-i18n="scene_h3b">休息结束 · 该回来推下一组了</h3>
+          <p data-i18n="scene_pb">卧推 85kg × 5 · 第 4 组等你</p>
           <div class="chips" aria-hidden="true">
-            <span class="chip">声音</span>
-            <span class="chip">振动</span>
-            <span class="chip">弹窗</span>
+            <span class="chip" data-i18n="chip_sound">声音</span>
+            <span class="chip" data-i18n="chip_vibrate">振动</span>
+            <span class="chip" data-i18n="chip_banner">弹窗</span>
           </div>
         </div>
       </div>
     </div>
-    <p class="after">按下开始，倒计时；到点了，<strong>声音加振动把你拽回杠铃边</strong>。就这一件事，做到极致——计划、动作库、每组记录，都是围绕它的后勤。</p>
+    <p class="after" data-i18n="scene_after">按下开始，倒计时；到点了，<strong data-i18n="scene_after_strong">声音加振动把你拽回杠铃边</strong>。就这一件事，做到极致——计划、动作库、每组记录，都是围绕它的后勤。</p>
   </div>
 </section>
 </div>
@@ -463,20 +499,20 @@
 <!-- ===== 托盘:一节训练的通知流 ===== -->
 <section class="tray">
   <div class="wrap col">
-    <h2>一节训练，它把每件事<br>送到锁屏上</h2>
-    <p class="lede">计时是灵魂，其余都是后勤——后勤的意思是：你抬头之前，它已经替你记好了。</p>
+    <h2 data-i18n="tray_h2">一节训练，它把每件事<br>送到锁屏上</h2>
+    <p class="lede" data-i18n="tray_lede">计时是灵魂，其余都是后勤——后勤的意思是：你抬头之前，它已经替你记好了。</p>
 
     <div class="tray-list">
-      <p class="tlabel enter" style="--d:0ms">刚刚</p>
+      <p class="tlabel enter" style="--d:0ms" data-i18n="t_just_now3">刚刚</p>
 
       <div class="ntf enter" style="--d:60ms">
         <span class="tile" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5"/><path d="M9 2h6"/></svg>
         </span>
         <div>
-          <div class="meta"><b>撸铁计时器</b><span class="t num">08:47</span></div>
-          <h3>第 4 组完成 · 休息 90 秒</h3>
-          <p>下一组：深蹲 100kg × 5 · 已自动开始倒计时</p>
+          <div class="meta"><b data-i18n="tray_app">撸铁计时器</b><span class="t num">08:47</span></div>
+          <h3 data-i18n="tray_c1_h">第 4 组完成 · 休息 90 秒</h3>
+          <p data-i18n="tray_c1_p">下一组：深蹲 100kg × 5 · 已自动开始倒计时</p>
         </div>
       </div>
 
@@ -485,26 +521,37 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg>
         </span>
         <div>
-          <div class="meta"><b>组记录已保存</b><span class="t num">08:45</span></div>
-          <h3>深蹲 100kg × 5 · 第 3 组</h3>
+          <div class="meta"><b data-i18n="tray_c2_title">组记录已保存</b><span class="t num">08:45</span></div>
+          <h3 data-i18n="tray_c2_h">深蹲 100kg × 5 · 第 3 组</h3>
           <div class="kv">
-            <div><b class="num">100<small style="font-size:12px;font-weight:600"> kg</small></b><span>本次重量</span></div>
-            <div><b class="num">5</b><span>次数</span></div>
-            <div><b class="num">500<small style="font-size:12px;font-weight:600"> kg</small></b><span>该动作总容量</span></div>
+            <div><b class="num">100<small style="font-size:12px;font-weight:600"> kg</small></b><span data-i18n="tray_c2_k1">本次重量</span></div>
+            <div><b class="num">5</b><span data-i18n="tray_c2_k2">次数</span></div>
+            <div><b class="num">500<small style="font-size:12px;font-weight:600"> kg</small></b><span data-i18n="tray_c2_k3">该动作总容量</span></div>
           </div>
         </div>
       </div>
 
-      <p class="tlabel enter" style="--d:200ms">今天</p>
+      <p class="tlabel enter" style="--d:200ms" data-i18n="t_today">今天</p>
 
       <div class="ntf enter" style="--d:260ms">
         <span class="tile" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M8 2v4M16 2v4M3 10h18"/><path d="m9.5 15.5 2 2 3.5-3.5"/></svg>
         </span>
         <div>
-          <div class="meta"><b>今日计划 · 腿日</b><span class="t num">07:58</span></div>
-          <h3>Week 12 · 6 个动作 · 约 45 分钟</h3>
-          <a class="act" href="https://github.com/Kaiji-Z/workout-timer#-功能" target="_blank" rel="noopener">看看计划怎么用</a>
+          <div class="meta"><b data-i18n="tray_c3_title">今日计划 · 腿日</b><span class="t num">07:58</span></div>
+          <h3 data-i18n="tray_c3_h">Week 12 · 6 个动作 · 约 45 分钟</h3>
+          <a class="act" href="https://github.com/Kaiji-Z/workout-timer#-功能" target="_blank" rel="noopener" data-i18n="tray_c3_act">看看计划怎么用</a>
+        </div>
+      </div>
+
+      <div class="ntf enter" style="--d:300ms">
+        <span class="tile" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 2l3 3M12 2 9 5"/><path d="m8 8 8 8-4 6-4-6Z"/><path d="M4 14h16"/></svg>
+        </span>
+        <div>
+          <div class="meta"><b data-i18n="tray_ai_title">AI 计划已导入</b><span data-i18n="tray_ai_meta">来自免费 AI · 零 API Key</span><span class="t num">07:30</span></div>
+          <h3 data-i18n="tray_ai_h">6 天分化 · 已排入未来 4 周</h3>
+          <p data-i18n="tray_ai_p">专业提示词发给任意免费 AI，JSON 一键导入——不订阅、不内购</p>
         </div>
       </div>
 
@@ -513,12 +560,12 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 14 4-4 3 3 5-6"/></svg>
         </span>
         <div>
-          <div class="meta"><b>本周训练摘要</b><span>示例数据</span><span class="t num">07:30</span></div>
-          <h3>4 练 · 腿 2 次 · 推 1 次 · 拉 1 次</h3>
+          <div class="meta"><b data-i18n="tray_c4_title">本周训练摘要</b><span data-i18n="tray_c4_meta">示例数据</span><span class="t num">07:30</span></div>
+          <h3 data-i18n="tray_c4_h">4 练 · 腿 2 次 · 推 1 次 · 拉 1 次</h3>
           <div class="kv">
-            <div><b class="num">12,450<small style="font-size:12px;font-weight:600"> kg</small></b><span>总容量</span></div>
-            <div><b class="num">3<small style="font-size:12px;font-weight:600"> h</small>46<small style="font-size:12px;font-weight:600"> m</small></b><span>训练时长</span></div>
-            <div><b class="num">+8%</b><span>对比上周</span></div>
+            <div><b class="num">12,450<small style="font-size:12px;font-weight:600"> kg</small></b><span data-i18n="tray_c4_k1">总容量</span></div>
+            <div><b class="num">3<small style="font-size:12px;font-weight:600"> h</small>46<small style="font-size:12px;font-weight:600"> m</small></b><span data-i18n="tray_c4_k2">训练时长</span></div>
+            <div><b class="num">+8%</b><span data-i18n="tray_c4_k3">对比上周</span></div>
           </div>
         </div>
       </div>
@@ -528,75 +575,101 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2.5"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/><path d="M12 15v2"/></svg>
         </span>
         <div>
-          <div class="meta"><b>隐私</b><span class="t num">—</span></div>
-          <h3>没有收集任何数据 · 全部存在你手机上</h3>
-          <p>无账号、无云同步、无分析 SDK；随时可导出全部数据</p>
+          <div class="meta"><b data-i18n="tray_c5_title">隐私</b><span class="t num">—</span></div>
+          <h3 data-i18n="tray_c5_h">没有收集任何数据 · 全部存在你手机上</h3>
+          <p data-i18n="tray_c5_p">无账号、无云同步、无分析 SDK；随时可导出全部数据</p>
         </div>
       </div>
     </div>
 
-    <p class="tray-close">没有更多通知</p>
+    <p class="tray-close" data-i18n="tray_close">没有更多通知</p>
   </div>
 </section>
 
-<!-- ===== 截图:点开通知之后 ===== -->
+<!-- ===== 动图与截图:点开通知之后 ===== -->
 <section class="shots">
   <div class="wrap">
     <div class="col wide">
-      <h2>点开，是完整的 App</h2>
-      <p class="lede">没有概念稿——下面全部是真实界面。</p>
+      <h2 data-i18n="shots_h2">点开，是完整的 App</h2>
+      <p class="lede" data-i18n="shots_lede">没有概念稿——下面全部是真实界面、真机录制。</p>
     </div>
-    <div class="strip" role="group" aria-label="应用截图，可左右滑动" tabindex="0">
+
+    <div class="gif-strip" role="group" data-aria-zh="真实录制动图" data-aria-en="Real screen recordings">
       <figure class="shot">
-        <img src="./screenshots/timer.jpg" alt="计时器界面：大号倒计时与进度环" loading="lazy">
-        <figcaption><b>计时器</b> · 大号倒计时 + 进度环</figcaption>
+        <img src="./screenshots/demo-training.gif"
+             data-src-zh="./screenshots/demo-training.gif" data-src-en="./screenshots/demo-training-en.gif"
+             alt="按计划训练动图" data-alt-zh="按计划训练动图" data-alt-en="Guided plan workout GIF" loading="lazy">
+        <figcaption><b data-i18n="gif1_t">按计划训练</b> · <span data-i18n="gif1_c">动作引导 + 每组记录</span></figcaption>
       </figure>
       <figure class="shot">
-        <img src="./screenshots/plan-calendar.jpg" alt="训练计划日历视图" loading="lazy">
-        <figcaption><b>训练计划</b> · 日历安排每日训练</figcaption>
+        <img src="./screenshots/demo-timer.gif"
+             data-src-zh="./screenshots/demo-timer.gif" data-src-en="./screenshots/demo-timer-en.gif"
+             alt="组间休息倒计时动图" data-alt-zh="组间休息倒计时动图" data-alt-en="Rest countdown GIF" loading="lazy">
+        <figcaption><b data-i18n="gif2_t">组间休息</b> · <span data-i18n="gif2_c">到点声音 + 振动叫你</span></figcaption>
       </figure>
       <figure class="shot">
-        <img src="./screenshots/exercise-list.jpg" alt="动作库列表：870 余个动作" loading="lazy">
-        <figcaption><b>动作库</b> · 870+ 动作搜索筛选</figcaption>
-      </figure>
-      <figure class="shot">
-        <img src="./screenshots/stats-overview.jpg" alt="统计概览" loading="lazy">
-        <figcaption><b>统计概览</b> · 训练量与频率</figcaption>
-      </figure>
-      <figure class="shot">
-        <img src="./screenshots/stats-detail.jpg" alt="统计详情：容量趋势图" loading="lazy">
-        <figcaption><b>统计详情</b> · 容量趋势 + 1RM 估算</figcaption>
-      </figure>
-      <figure class="shot">
-        <img src="./screenshots/ai-wizard.jpg" alt="AI 计划向导" loading="lazy">
-        <figcaption><b>AI 向导</b> · 一键生成训练计划</figcaption>
+        <img src="./screenshots/demo-stats.gif"
+             data-src-zh="./screenshots/demo-stats.gif" data-src-en="./screenshots/demo-stats-en.gif"
+             alt="训练统计动图" data-alt-zh="训练统计动图" data-alt-en="Training statistics GIF" loading="lazy">
+        <figcaption><b data-i18n="gif3_t">训练统计</b> · <span data-i18n="gif3_c">恢复 · 剂量 · 进步 · 习惯</span></figcaption>
       </figure>
     </div>
-    <p class="strip-hint">← 拖动查看 →</p>
+
+    <div class="strip" role="group" data-aria-zh="应用截图，可左右滑动" data-aria-en="App screenshots, scrollable" tabindex="0">
+      <figure class="shot">
+        <img src="./screenshots/timer.jpg" data-src-zh="./screenshots/timer.jpg" data-src-en="./screenshots/timer-en.jpg"
+             alt="计时器界面" data-alt-zh="计时器界面：大号倒计时与进度环" data-alt-en="Timer: big countdown with progress ring" loading="lazy">
+        <figcaption><b data-i18n="shot1_t">计时器</b> · <span data-i18n="shot1_c">大号倒计时 + 进度环</span></figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="./screenshots/plan-calendar.jpg" data-src-zh="./screenshots/plan-calendar.jpg" data-src-en="./screenshots/plan-calendar-en.jpg"
+             alt="训练计划日历" data-alt-zh="训练计划日历视图" data-alt-en="Training plan calendar" loading="lazy">
+        <figcaption><b data-i18n="shot2_t">训练计划</b> · <span data-i18n="shot2_c">日历安排每日训练</span></figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="./screenshots/exercise-list.jpg" data-src-zh="./screenshots/exercise-list.jpg" data-src-en="./screenshots/exercise-list-en.jpg"
+             alt="动作库列表" data-alt-zh="动作库列表：870 余个动作" data-alt-en="Exercise library: 870+ exercises" loading="lazy">
+        <figcaption><b data-i18n="shot3_t">动作库</b> · <span data-i18n="shot3_c">870+ 动作搜索筛选</span></figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="./screenshots/stats-overview.jpg" data-src-zh="./screenshots/stats-overview.jpg" data-src-en="./screenshots/stats-overview-en.jpg"
+             alt="统计概览" data-alt-zh="统计概览：今日状态与剂量" data-alt-en="Stats: today status and dose" loading="lazy">
+        <figcaption><b data-i18n="shot4_t">统计 · 今日</b> · <span data-i18n="shot4_c">恢复状态 + 剂量监控</span></figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="./screenshots/stats-detail.jpg" data-src-zh="./screenshots/stats-detail.jpg" data-src-en="./screenshots/stats-detail-en.jpg"
+             alt="统计详情" data-alt-zh="统计详情：进步趋势与热力图" data-alt-en="Stats: progress trend and heatmap" loading="lazy">
+        <figcaption><b data-i18n="shot5_t">统计 · 进步</b> · <span data-i18n="shot5_c">e1RM 趋势 + 全年热力图</span></figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="./screenshots/ai-wizard.jpg" data-src-zh="./screenshots/ai-wizard.jpg" data-src-en="./screenshots/ai-wizard-en.jpg"
+             alt="AI 计划向导" data-alt-zh="AI 计划向导" data-alt-en="AI plan wizard" loading="lazy">
+        <figcaption><b data-i18n="shot6_t">AI 向导</b> · <span data-i18n="shot6_c">问卷 → 提示词 → 一键导入</span></figcaption>
+      </figure>
+    </div>
+    <p class="strip-hint" data-i18n="strip_hint">← 拖动查看 →</p>
   </div>
 </section>
 
 <!-- ===== 下载 ===== -->
 <section class="dl">
   <div class="wrap">
-    <h2>下一组，现在开始</h2>
-    <p class="lede">免费下载，没有内购，没有广告。</p>
+    <h2 data-i18n="dl_h2">下一组，现在开始</h2>
+    <p class="lede" data-i18n="dl_lede">免费下载，没有内购，没有广告。</p>
     <div class="dl-card card-zone">
       <div class="app-row">
-        <img src="./icon.png" alt="撸铁计时器图标">
+        <img src="./icon.png" alt="撸铁计时器图标" data-alt-zh="撸铁计时器图标" data-alt-en="Workout Timer icon">
         <span>
-          <b>撸铁计时器 WorkoutTimer</b>
-          <span class="num" id="verTag">v1.4.0 · Android APK（arm64）</span>
+          <b data-i18n="dl_app">撸铁计时器 WorkoutTimer</b>
+          <span class="num" id="verTag" data-fallback-zh="v1.5.0 · Android APK（arm64）" data-fallback-en="v1.5.0 · Android APK (arm64)">v1.5.0 · Android APK（arm64）</span>
         </span>
       </div>
       <a class="btn btn-warm" href="https://github.com/Kaiji-Z/workout-timer/releases/latest" target="_blank" rel="noopener">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m6 11 6 6 6-6"/><path d="M5 21h14"/></svg>
-        GitHub Releases 下载
+        <span data-i18n="dl_btn">GitHub Releases 下载</span>
       </a>
-      <a class="btn btn-ghost" href="https://gitee.com/kaiji1126/workout-timer/releases" target="_blank" rel="noopener">Gitee 镜像（国内加速）</a>
-      <p class="fine">
-        直接覆盖安装即可；从 1.2.x 升级请先看<a href="https://github.com/Kaiji-Z/workout-timer/releases" target="_blank" rel="noopener">版本说明中的迁移指引</a>（导出 → 卸载 → 安装 → 导入）。iOS / Windows / Web 可从源码构建（Flutter）。
-      </p>
+      <a class="btn btn-ghost" href="https://gitee.com/kaiji1126/workout-timer/releases" target="_blank" rel="noopener" data-i18n="dl_gitee">Gitee 镜像（国内加速）</a>
+      <p class="fine" data-i18n="dl_fine">直接覆盖安装即可；从 1.2.x 升级请先看<a href="https://github.com/Kaiji-Z/workout-timer/releases" target="_blank" rel="noopener" data-i18n="dl_fine_link">版本说明中的迁移指引</a>（导出 → 卸载 → 安装 → 导入）。iOS / Windows / Web 可从源码构建（Flutter）。</p>
     </div>
   </div>
 </section>
@@ -604,17 +677,15 @@
 <!-- ===== 页脚 ===== -->
 <footer class="footer">
   <div class="wrap">
-    <p class="done">下一组见</p>
+    <p class="done" data-i18n="footer_done">下一组见</p>
     <div class="footer-links">
-      <a href="https://github.com/Kaiji-Z/workout-timer" target="_blank" rel="noopener">GitHub 源码</a>
-      <a href="https://gitee.com/kaiji1126/workout-timer" target="_blank" rel="noopener">Gitee 镜像</a>
-      <a href="./privacy-policy.html">隐私政策</a>
-      <a href="https://github.com/Kaiji-Z/workout-timer/blob/master/README_EN.md" target="_blank" rel="noopener">English README</a>
+      <a href="https://github.com/Kaiji-Z/workout-timer" target="_blank" rel="noopener" data-i18n="footer_github">GitHub 源码</a>
+      <a href="https://gitee.com/kaiji1126/workout-timer" target="_blank" rel="noopener" data-i18n="footer_gitee">Gitee 镜像</a>
+      <a href="./privacy-policy.html" data-i18n="footer_privacy">隐私政策</a>
+      <a href="https://github.com/Kaiji-Z/workout-timer/blob/master/README_EN.md" target="_blank" rel="noopener" data-i18n="footer_readme">English README</a>
     </div>
     <p class="credits">
-      撸铁计时器 WorkoutTimer · MIT License · © 2026<br>
-      动作数据库来自 <a href="https://github.com/yuhonas/free-exercise-db" target="_blank" rel="noopener">free-exercise-db</a>（CC0）·
-      Rajdhani 字体来自 <a href="https://fonts.google.com/specimen/Rajdhani" target="_blank" rel="noopener">Google Fonts</a>（SIL OFL）
+      <span data-i18n="footer_credits">撸铁计时器 WorkoutTimer · MIT License · © 2026<br>动作数据库来自 <a href="https://github.com/yuhonas/free-exercise-db" target="_blank" rel="noopener">free-exercise-db</a>（CC0）· Rajdhani 字体来自 <a href="https://fonts.google.com/specimen/Rajdhani" target="_blank" rel="noopener">Google Fonts</a>（SIL OFL）</span>
     </p>
   </div>
 </footer>
@@ -622,6 +693,150 @@
 <script>
 (function () {
   'use strict';
+
+  /* ============ 中英双语:i18n 字典 + 图片双套 ============ */
+  var I18N = {
+    zh: {
+      _title: '撸铁计时器 WorkoutTimer — 组间休息，精准掌控',
+      nav_github: 'GitHub 源码', nav_download: '下载 APK',
+      hero_download: '下载 APK', hero_github: 'GitHub 源码',
+      hero_note: '免费 · 开源 · 无广告 · 无账号 · <a href="./privacy-policy.html">隐私政策</a> · Android 5.0+',
+      peek_title: '休息结束提醒已就绪', peek_body: '声音 + 振动 + 弹窗，锁屏后台照样叫你',
+      scene_h2: '15 分钟的组间休息，<br>去了短视频里',
+      scene_app1: '短视频', scene_app1_meta: '已使用 14 分钟', t_just_now: '刚刚',
+      scene_h3: '你刷掉了 14:32 的组间休息', scene_p: '身体凉了，训练状态全没了',
+      scene_app2: '撸铁计时器', t_just_now2: '刚刚',
+      scene_h3b: '休息结束 · 该回来推下一组了', scene_pb: '卧推 85kg × 5 · 第 4 组等你',
+      chip_sound: '声音', chip_vibrate: '振动', chip_banner: '弹窗',
+      scene_after: '按下开始，倒计时；到点了，<strong>声音加振动把你拽回杠铃边</strong>。就这一件事，做到极致——计划、动作库、每组记录，都是围绕它的后勤。',
+      tray_h2: '一节训练，它把每件事<br>送到锁屏上',
+      tray_lede: '计时是灵魂，其余都是后勤——后勤的意思是：你抬头之前，它已经替你记好了。',
+      t_just_now3: '刚刚', tray_app: '撸铁计时器',
+      tray_c1_h: '第 4 组完成 · 休息 90 秒', tray_c1_p: '下一组：深蹲 100kg × 5 · 已自动开始倒计时',
+      tray_c2_title: '组记录已保存', tray_c2_h: '深蹲 100kg × 5 · 第 3 组',
+      tray_c2_k1: '本次重量', tray_c2_k2: '次数', tray_c2_k3: '该动作总容量',
+      t_today: '今天', tray_c3_title: '今日计划 · 腿日',
+      tray_c3_h: 'Week 12 · 6 个动作 · 约 45 分钟', tray_c3_act: '看看计划怎么用',
+      tray_ai_title: 'AI 计划已导入', tray_ai_meta: '来自免费 AI · 零 API Key',
+      tray_ai_h: '6 天分化 · 已排入未来 4 周',
+      tray_ai_p: '专业提示词发给任意免费 AI，JSON 一键导入——不订阅、不内购',
+      tray_c4_title: '本周训练摘要', tray_c4_meta: '示例数据',
+      tray_c4_h: '4 练 · 腿 2 次 · 推 1 次 · 拉 1 次',
+      tray_c4_k1: '总容量', tray_c4_k2: '训练时长', tray_c4_k3: '对比上周',
+      tray_c5_title: '隐私', tray_c5_h: '没有收集任何数据 · 全部存在你手机上',
+      tray_c5_p: '无账号、无云同步、无分析 SDK；随时可导出全部数据',
+      tray_close: '没有更多通知',
+      shots_h2: '点开，是完整的 App', shots_lede: '没有概念稿——下面全部是真实界面、真机录制。',
+      gif1_t: '按计划训练', gif1_c: '动作引导 + 每组记录',
+      gif2_t: '组间休息', gif2_c: '到点声音 + 振动叫你',
+      gif3_t: '训练统计', gif3_c: '恢复 · 剂量 · 进步 · 习惯',
+      shot1_t: '计时器', shot1_c: '大号倒计时 + 进度环',
+      shot2_t: '训练计划', shot2_c: '日历安排每日训练',
+      shot3_t: '动作库', shot3_c: '870+ 动作搜索筛选',
+      shot4_t: '统计 · 今日', shot4_c: '恢复状态 + 剂量监控',
+      shot5_t: '统计 · 进步', shot5_c: 'e1RM 趋势 + 全年热力图',
+      shot6_t: 'AI 向导', shot6_c: '问卷 → 提示词 → 一键导入',
+      strip_hint: '← 拖动查看 →',
+      dl_h2: '下一组，现在开始', dl_lede: '免费下载，没有内购，没有广告。',
+      dl_app: '撸铁计时器 WorkoutTimer', dl_btn: 'GitHub Releases 下载',
+      dl_gitee: 'Gitee 镜像（国内加速）',
+      dl_fine: '直接覆盖安装即可；从 1.2.x 升级请先看<a href="https://github.com/Kaiji-Z/workout-timer/releases" target="_blank" rel="noopener">版本说明中的迁移指引</a>（导出 → 卸载 → 安装 → 导入）。iOS / Windows / Web 可从源码构建（Flutter）。',
+      footer_done: '下一组见', footer_github: 'GitHub 源码', footer_gitee: 'Gitee 镜像',
+      footer_privacy: '隐私政策', footer_readme: 'English README',
+      footer_credits: '撸铁计时器 WorkoutTimer · MIT License · © 2026<br>动作数据库来自 <a href="https://github.com/yuhonas/free-exercise-db" target="_blank" rel="noopener">free-exercise-db</a>（CC0）· Rajdhani 字体来自 <a href="https://fonts.google.com/specimen/Rajdhani" target="_blank" rel="noopener">Google Fonts</a>（SIL OFL）',
+      _live_rest: '剩余 {s} 秒', _live_done: '休息结束', _live_paused: '已暂停，剩余 {s} 秒',
+      _live_reset: '已重置为 {s} 秒', _live_set: '已设为 {s} 秒'
+    },
+    en: {
+      _title: 'Workout Timer — Own your rest. Own your set.',
+      nav_github: 'Source', nav_download: 'Download APK',
+      hero_download: 'Download APK', hero_github: 'Source on GitHub',
+      hero_note: 'Free · Open source · No ads · No account · <a href="./privacy-policy.html">Privacy Policy</a> · Android 5.0+',
+      peek_title: 'Your rest-end alert is ready', peek_body: 'Sound + vibration + banner — it calls you back even from the lock screen',
+      scene_h2: 'Your 15-minute rest,<br>lost to short videos',
+      scene_app1: 'Short Videos', scene_app1_meta: '14 min used', t_just_now: 'just now',
+      scene_h3: 'You scrolled away a 14:32 rest', scene_p: 'Body cold, momentum gone',
+      scene_app2: 'Workout Timer', t_just_now2: 'just now',
+      scene_h3b: 'Rest over — back to the bar for set 4', scene_pb: 'Bench 85kg × 5 · set 4 is waiting',
+      chip_sound: 'Sound', chip_vibrate: 'Vibration', chip_banner: 'Banner',
+      scene_after: 'Press start, the countdown runs; when it hits zero, <strong>sound and vibration drag you back to the bar</strong>. One job, done to obsession — plans, the exercise library, per-set logging are all logistics around it.',
+      tray_h2: 'One workout, every detail<br>delivered to your lock screen',
+      tray_lede: 'Timing is the soul; everything else is logistics — and logistics means it\u2019s all logged before you even look up.',
+      t_just_now3: 'Just now', tray_app: 'Workout Timer',
+      tray_c1_h: 'Set 4 done · rest 90 seconds', tray_c1_p: 'Next: Squat 100kg × 5 · countdown started automatically',
+      tray_c2_title: 'Set saved', tray_c2_h: 'Squat 100kg × 5 · set 3',
+      tray_c2_k1: 'weight', tray_c2_k2: 'reps', tray_c2_k3: 'total volume',
+      t_today: 'Today', tray_c3_title: "Today's plan · Leg day",
+      tray_c3_h: 'Week 12 · 6 exercises · ~45 min', tray_c3_act: 'See how plans work',
+      tray_ai_title: 'AI plan imported', tray_ai_meta: 'from a free AI · zero API keys',
+      tray_ai_h: '6-day split · scheduled 4 weeks out',
+      tray_ai_p: 'A pro prompt goes to any free AI; paste the JSON back to import — no subscription, no IAP',
+      tray_c4_title: 'Weekly summary', tray_c4_meta: 'sample data',
+      tray_c4_h: '4 sessions · legs ×2 · push ×1 · pull ×1',
+      tray_c4_k1: 'volume', tray_c4_k2: 'training time', tray_c4_k3: 'vs last week',
+      tray_c5_title: 'Privacy', tray_c5_h: 'Nothing collected · everything stays on your phone',
+      tray_c5_p: 'No account, no cloud sync, no analytics SDK; export everything anytime',
+      tray_close: 'No more notifications',
+      shots_h2: 'Open it up — a full app', shots_lede: 'No mockups — everything below is the real UI, recorded on a device.',
+      gif1_t: 'Guided workouts', gif1_c: 'exercise-by-exercise + per-set logging',
+      gif2_t: 'Rest timing', gif2_c: 'sound + vibration when time\u2019s up',
+      gif3_t: 'Statistics', gif3_c: 'recovery · dose · progress · habits',
+      shot1_t: 'Timer', shot1_c: 'big countdown + progress ring',
+      shot2_t: 'Plans', shot2_c: 'schedule training by calendar',
+      shot3_t: 'Library', shot3_c: '870+ exercises, search & filters',
+      shot4_t: 'Stats · Today', shot4_c: 'recovery chips + dose monitoring',
+      shot5_t: 'Stats · Progress', shot5_c: 'e1RM trend + year heatmap',
+      shot6_t: 'AI wizard', shot6_c: 'questionnaire → prompt → one-tap import',
+      strip_hint: '← drag to browse →',
+      dl_h2: 'Next set starts now', dl_lede: 'Free download. No in-app purchases, no ads.',
+      dl_app: 'WorkoutTimer', dl_btn: 'Download from GitHub Releases',
+      dl_gitee: 'Gitee mirror (mainland China)',
+      dl_fine: 'Overwrite-install is fine; upgrading from 1.2.x? Read the <a href="https://github.com/Kaiji-Z/workout-timer/releases" target="_blank" rel="noopener">migration guide in the release notes</a> (export → uninstall → install → import). iOS / Windows / Web build from source (Flutter).',
+      footer_done: 'See you at the next set', footer_github: 'Source', footer_gitee: 'Gitee mirror',
+      footer_privacy: 'Privacy Policy', footer_readme: '中文 README',
+      footer_credits: 'WorkoutTimer · MIT License · © 2026<br>Exercise data from <a href="https://github.com/yuhonas/free-exercise-db" target="_blank" rel="noopener">free-exercise-db</a> (CC0) · Rajdhani font from <a href="https://fonts.google.com/specimen/Rajdhani" target="_blank" rel="noopener">Google Fonts</a> (SIL OFL)',
+      _live_rest: '{s} seconds left', _live_done: 'Rest over', _live_paused: 'Paused, {s} seconds left',
+      _live_reset: 'Reset to {s} seconds', _live_set: 'Set to {s} seconds'
+    }
+  };
+
+  var lang = 'zh';
+  try { lang = localStorage.getItem('wt_lang') === 'en' ? 'en' : 'zh'; } catch (e) {}
+
+  function applyLang(l) {
+    lang = l;
+    var dict = I18N[l];
+    document.documentElement.lang = l === 'en' ? 'en' : 'zh-CN';
+    document.title = dict._title;
+    var nodes = document.querySelectorAll('[data-i18n]');
+    for (var i = 0; i < nodes.length; i++) {
+      var k = nodes[i].getAttribute('data-i18n');
+      if (dict[k]) nodes[i].innerHTML = dict[k];
+    }
+    var ariaEls = document.querySelectorAll('[data-aria-zh]');
+    for (var j = 0; j < ariaEls.length; j++) {
+      ariaEls[j].setAttribute('aria-label', l === 'en' ? ariaEls[j].getAttribute('data-aria-en') : ariaEls[j].getAttribute('data-aria-zh'));
+    }
+    var altEls = document.querySelectorAll('[data-alt-zh]');
+    for (var a = 0; a < altEls.length; a++) {
+      altEls[a].setAttribute('alt', l === 'en' ? altEls[a].getAttribute('data-alt-en') : altEls[a].getAttribute('data-alt-zh'));
+    }
+    var imgEls = document.querySelectorAll('img[data-src-zh]');
+    for (var m = 0; m < imgEls.length; m++) {
+      imgEls[m].src = l === 'en' ? imgEls[m].getAttribute('data-src-en') : imgEls[m].getAttribute('data-src-zh');
+    }
+    var verEl = document.getElementById('verTag');
+    if (verEl && !verEl.dataset.fetched) {
+      verEl.textContent = l === 'en' ? verEl.getAttribute('data-fallback-en') : verEl.getAttribute('data-fallback-zh');
+    }
+    var zhBtn = document.getElementById('langZh'), enBtn = document.getElementById('langEn');
+    zhBtn.classList.toggle('on', l === 'zh'); zhBtn.setAttribute('aria-pressed', l === 'zh');
+    enBtn.classList.toggle('on', l === 'en'); enBtn.setAttribute('aria-pressed', l === 'en');
+    try { localStorage.setItem('wt_lang', l); } catch (e) {}
+  }
+
+  document.getElementById('langZh').addEventListener('click', function () { applyLang('zh'); });
+  document.getElementById('langEn').addEventListener('click', function () { applyLang('en'); });
 
   /* ---- 追光:滚动进度 ---- */
   var chase = document.getElementById('chase');
@@ -654,6 +869,8 @@
   var timerId = null;
   var doneHold = false;
 
+  function fmt(t, s) { return t.replace('{s}', s); }
+
   function render() {
     track.style.strokeDashoffset = CIRC * ((total - left) / total);
     numEl.textContent = left;
@@ -670,9 +887,9 @@
     if (left > 0) {
       left -= 1;
       render();
-      if (left === 30 || left === 10) { announce('剩余 ' + left + ' 秒'); }
+      if (left === 30 || left === 10) { announce(fmt(I18N[lang]._live_rest, left)); }
       if (left === 0) {
-        announce('休息结束');
+        announce(I18N[lang]._live_done);
         doneHold = true;
         window.setTimeout(function () {
           doneHold = false;
@@ -694,7 +911,7 @@
     if (timerId !== null) { window.clearInterval(timerId); timerId = null; }
     running = false;
     setIcons();
-    announce('已暂停，剩余 ' + left + ' 秒');
+    announce(fmt(I18N[lang]._live_paused, left));
   }
 
   btnToggle.addEventListener('click', function () {
@@ -704,7 +921,7 @@
   btnReset.addEventListener('click', function () {
     left = total;
     render();
-    announce('已重置为 ' + total + ' 秒');
+    announce(fmt(I18N[lang]._live_reset, total));
     if (running && timerId === null && !doneHold) { start(); }
   });
 
@@ -719,7 +936,7 @@
       total = parseInt(chip.getAttribute('data-sec'), 10);
       left = total;
       render();
-      announce('已设为 ' + total + ' 秒');
+      announce(fmt(I18N[lang]._live_set, total));
       if (!running) { start(); }
     });
   });
@@ -745,13 +962,19 @@
     enterEls.forEach(function (el) { io.observe(el); });
   }
 
-  /* ---- 最新版本号(失败则静默保留 v1.4.0) ---- */
+  /* ---- 语言初切(在版本号 fetch 之前应用,避免闪烁) ---- */
+  applyLang(lang);
+
+  /* ---- 最新版本号(失败则静默保留静态版本号) ---- */
   var verEl = document.getElementById('verTag');
   if (verEl && window.fetch) {
     window.fetch('https://api.github.com/repos/Kaiji-Z/workout-timer/releases/latest')
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (data) {
-        if (data && data.tag_name) { verEl.textContent = data.tag_name + ' · Android APK（arm64）'; }
+        if (data && data.tag_name) {
+          verEl.dataset.fetched = '1';
+          verEl.textContent = data.tag_name + (lang === 'en' ? ' · Android APK (arm64)' : ' · Android APK（arm64）');
+        }
       })
       .catch(function () { /* 保留静态版本号 */ });
   }
