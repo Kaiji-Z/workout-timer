@@ -331,7 +331,8 @@ class _PlanScreenState extends State<PlanScreen> {
 
     if (allPlans.isEmpty) {
       // 库里没有任何计划：先引导 AI/手动二选一，而不是直接甩手动表单。
-      _showEmptyLibraryChooser();
+      // 从「添加今日计划」语境进入时，创建完自动排到所选日期。
+      _showEmptyLibraryChooser(assignToSelectedDate: true);
       return;
     }
 
@@ -442,7 +443,10 @@ class _PlanScreenState extends State<PlanScreen> {
   }
 
   /// 计划库为空时的引导：AI 生成 / 手动创建 二选一。
-  void _showEmptyLibraryChooser() {
+  ///
+  /// [assignToSelectedDate] 为 true 时（从「添加今日计划」空卡片进入），
+  /// 手动创建成功后自动把新计划排到当前选中日期。
+  void _showEmptyLibraryChooser({bool assignToSelectedDate = false}) {
     final theme = context.read<ThemeProvider>().currentTheme;
     final l10n = context.l10n;
 
@@ -518,9 +522,29 @@ class _PlanScreenState extends State<PlanScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton.icon(
-                    onPressed: () {
+                    onPressed: () async {
                       Navigator.pop(sheetContext);
-                      _navigateToCreatePlan();
+                      final result = await Navigator.push<bool>(
+                        context,
+                        FadeUpPageRoute(page: const PlanFormScreen()),
+                      );
+                      if (result != true || !mounted) return;
+                      final provider = context.read<PlanProvider>();
+                      if (assignToSelectedDate) {
+                        // createPlan 头插新计划；这里再按 createdAt 兜底取最新。
+                        WorkoutPlan? newest;
+                        for (final p in provider.plans) {
+                          if (newest == null ||
+                              p.createdAt.isAfter(newest.createdAt)) {
+                            newest = p;
+                          }
+                        }
+                        if (newest != null) {
+                          await _addPlanToDate(provider, newest);
+                          return;
+                        }
+                      }
+                      provider.loadPlans();
                     },
                     icon: const Icon(Icons.add),
                     label: Text(l10n.planCreateNew),
@@ -773,7 +797,10 @@ class _PlanScreenState extends State<PlanScreen> {
     );
   }
 
-  void _addPlanToDate(PlanProvider planProvider, WorkoutPlan plan) async {
+  Future<void> _addPlanToDate(
+    PlanProvider planProvider,
+    WorkoutPlan plan,
+  ) async {
     final theme = context.read<ThemeProvider>().currentTheme;
     final l10n = context.l10n;
     try {
