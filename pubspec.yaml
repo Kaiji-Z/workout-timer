@@ -3,7 +3,7 @@ description: "撸铁计时器 - 专业的健身休息计时应用"
 publish_to: 'none'
 license: MIT
 
-version: 1.4.0
+version: 1.5.0
 
 environment:
   sdk: ^3.10.7
