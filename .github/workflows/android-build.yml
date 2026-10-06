@@ -49,8 +49,11 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
 
-      - name: Run unit tests
-        run: flutter test
+      - name: Run unit tests with coverage
+        run: flutter test --coverage
+
+      - name: Coverage gate (core layers, see VERIFICATION.md)
+        run: dart scripts/check_coverage.dart
 
       - name: Build APK (debug)
         run: flutter build apk --debug
