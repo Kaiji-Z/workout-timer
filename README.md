@@ -13,16 +13,21 @@
 
 免费 · 开源 · 无广告 · 无会员 · 数据不上传
 
-[下载 APK](https://github.com/Kaiji-Z/workout-timer/releases) · [功能](#-功能) · [构建](#-从源码构建) · [技术栈](#-技术栈)
+[下载 APK](https://github.com/Kaiji-Z/workout-timer/releases) · [功能](#-功能) · [截图](#-界面) · [构建](#-从源码构建) · [技术栈](#-技术栈)
 
 </div>
 
 ---
 
-| ⏱️ 计时器 | 📚 动作库 | 🎨 主题切换 |
+| 🏋️ 按计划训练 | ⏱️ 组间休息 | 📊 训练统计 |
 |:---:|:---:|:---:|
-| <img src="docs/screenshots/demo-timer.gif" width="240" alt="30 秒组间休息倒计时演示（3 倍速）"> | <img src="docs/screenshots/demo-exercises.gif" width="240" alt="动作库浏览演示（2 倍速）"> | <img src="docs/screenshots/demo-themes.gif" width="240" alt="三主题切换演示（2 倍速）"> |
-| 30 秒组间休息 | 870+ 动作浏览 | 三主题随心换 |
+| <img src="docs/screenshots/demo-training.gif" width="240" alt="按计划训练演示（加速播放）"> | <img src="docs/screenshots/demo-timer.gif" width="240" alt="组间休息倒计时演示（3 倍速）"> | <img src="docs/screenshots/demo-stats.gif" width="240" alt="训练统计演示（加速播放）"> |
+| 动作引导 + 每组记录 | 30 秒组间休息 | 恢复 · 剂量 · 进步 · 习惯 |
+
+| 📚 动作库 | 🎨 主题切换 |
+|:---:|:---:|
+| <img src="docs/screenshots/demo-exercises.gif" width="240" alt="动作库演示（加速播放）"> | <img src="docs/screenshots/demo-themes.gif" width="240" alt="三主题切换演示（2 倍速）"> |
+| 870+ 动作，双语搜索 | 琥珀金 / 珊瑚橙 / 天空蓝 |
 
 ## 这是什么？
 
@@ -38,6 +43,16 @@
 
 ## ✨ 功能
 
+### 🤖 AI 计划，不花一分钱
+
+**不需要 API Key，不需要订阅，不需要任何内置大模型**——这就是本 App 的 AI 玩法：
+
+1. 填一份问卷（目标 / 频率 / 时长 / 经验 / 器械），App 生成一份**专业级训练提示词**
+2. 复制提示词，粘贴给你手头**任意免费 AI**（ChatGPT / 豆包 / Kimi / 通义千问…）
+3. 把 AI 返回的 JSON 计划贴回来，预览后一键导入日历
+
+AI 训练复盘同理：App 把你的训练数据整理成报告，交给免费 AI 分析，返回建议与下周计划。**你的数据 + 任意免费 AI = 私人教练，成本为零。**
+
 ### ⏱️ 计时器
 
 | | |
@@ -52,33 +67,32 @@
 ### 📚 动作库
 
 - **870+ 专业动作**，覆盖胸/背/腿/肩/臂/核心全部肌群
-- 每个动作附带示范图片
-- 中英文双语搜索，模糊匹配
-- 按肌群、器械筛选
-- 收藏常用动作
+- 每个动作附分步示范图片 + 动作指导
+- **中英文双语搜索**，模糊匹配（中文界面也能搜英文动作名）
+- 按肌群、器械筛选，收藏常用动作
 
 ### 📋 训练计划
 
-- **AI 生成计划**：输入训练目标，一键生成完整训练方案
-- 日历视图安排每日训练
-- 计划内动作支持自定义组数、次数
-- 执行计划时自动引导，逐个动作推进
+- **AI 生成计划**：提示词 → 免费 AI → 一键导入（见上）
+- 手动创建：选肌群 → 挑动作 → 自定义组数，三步完成
+- 日历视图安排每日训练，当天计划在计时页一键开练
+- 执行计划时逐个动作引导，组间自动衔接
 
-### 📊 训练记录
+### 📊 训练记录与统计
 
 - 每组记录**重量 × 次数**，精确追踪进步
 - 自重动作自动计算训练量（生物力学系数）
-- 周/月/年统计 + 肌群训练分布环形图
-- 力量进步趋势图 + 1RM 估算
-- 肌群恢复状态追踪
-- AI 训练分析报告
+- **今日状态卡**：肌群恢复时长 + 急慢性负荷比（护栏参考）
+- **剂量监控**：滚动 7 天每肌群组数，对照 MEV/MRV 参考带
+- **进步追踪**：e1RM 估算趋势 + 最近 PR + 6 周滚动容量
+- **习惯热力图**：全年打卡 + 连续达标周
+- AI 训练分析报告（配合免费 AI 使用，见上）
 
-### 🎨 外观
+### 🌍 界面
 
-- **3 种主题**：琥珀金 / 珊瑚橙 / 天际蓝
-- **深色模式**：每种主题自动生成深色变体
+- **中英双语**，应用内一键切换
+- **3 种主题**：琥珀金 / 珊瑚橙 / 天空蓝，各配自动深色变体
 - Flat Vitality 设计系统 — 温暖渐变 + 深蓝强调色
-- 按压动画、数字动画、页面转场动画
 - 全面无障碍支持（Tooltip、语义标注、实时播报）
 
 ### 🔒 隐私
@@ -86,7 +100,7 @@
 - **所有数据只存你手机上**（SQLite 本地数据库）
 - 没有账号注册，没有云同步，没有数据上传
 - 不收集任何个人信息
-- 支持导出全部数据（JSON 格式）
+- 支持导出 / 导入全部数据（JSON 格式）
 
 ---
 
@@ -95,22 +109,22 @@
 | 计时器 | 训练计划 | 历史记录 |
 |:---:|:---:|:---:|
 | <img src="docs/screenshots/timer.jpg" width="240" alt="计时器"> | <img src="docs/screenshots/plan-calendar.jpg" width="240" alt="训练计划"> | <img src="docs/screenshots/history.jpg" width="240" alt="历史记录"> |
-| 大号倒计时 + 进度环 | 日历 + 计划卡片 | 训练记录列表 |
+| 今日计划 + 大号倒计时 | 日历排期 + 计划卡片 | 按月归档的训练史 |
 
-| 统计概览 | 统计详情 | AI 分析 |
+| 统计 · 今日状态 | 统计 · 进步与习惯 | AI 分析 |
 |:---:|:---:|:---:|
-| <img src="docs/screenshots/stats-overview.jpg" width="240" alt="统计概览"> | <img src="docs/screenshots/stats-detail.jpg" width="240" alt="统计详情"> | <img src="docs/screenshots/ai-analysis.jpg" width="240" alt="AI 分析"> |
-| 周数据 + 概览 | 容量趋势图 | 智能训练报告 |
+| <img src="docs/screenshots/stats-overview.jpg" width="240" alt="统计今日状态"> | <img src="docs/screenshots/stats-detail.jpg" width="240" alt="统计进步与习惯"> | <img src="docs/screenshots/ai-analysis.jpg" width="240" alt="AI 分析"> |
+| 恢复 chips + 剂量监控 | e1RM 趋势 + 全年热力图 | 数据报告 → 免费 AI 复盘 |
 
 | AI 向导 | 动作库 | 动作详情 |
 |:---:|:---:|:---:|
 | <img src="docs/screenshots/ai-wizard.jpg" width="240" alt="AI 向导"> | <img src="docs/screenshots/exercise-list.jpg" width="240" alt="动作库"> | <img src="docs/screenshots/exercise-detail.jpg" width="240" alt="动作详情"> |
-| 生成训练计划 | 870+ 动作搜索 | 动作示范 + 说明 |
+| 问卷 → 提示词 → 导入 | 870+ 动作搜索筛选 | 分步图解 + 动作指导 |
 
 | 设置 |
 |:---:|
 | <img src="docs/screenshots/settings.jpg" width="240" alt="设置"> |
-| 通知 · 深色模式 · 主题切换 |
+| 通知 · 深色模式 · 主题 · 语言 · 数据管理 |
 
 ---
 
@@ -156,6 +170,7 @@ export FLUTTER_STORAGE_BASE_URL=https://storage.flutter-io.cn
 | SQLite (sqflite) | 本地数据库，5 版增量迁移 |
 | fl_chart | 数据可视化 |
 | flutter_local_notifications | 通知提醒 |
+| flutter_localizations (gen-l10n) | 中英双语 |
 | Rajdhani | 计时器专用字体 |
 
 ---
@@ -165,28 +180,25 @@ export FLUTTER_STORAGE_BASE_URL=https://storage.flutter-io.cn
 ```
 lib/
 ├── main.dart                 # 入口，MultiProvider，底部导航
-├── providers/                     # 状态管理 (ChangeNotifier × 6)
+├── providers/                # 状态管理 (ChangeNotifier × 7)
 │   ├── timer_provider.dart   # 倒计时 + 组数
 │   ├── training_provider.dart # 训练状态机
 │   ├── plan_provider.dart    # 计划 CRUD
 │   ├── record_provider.dart  # 训练记录 + 统计
 │   ├── training_progress_provider.dart # 实时训练进度
-│   └── locale_provider.dart  # 系统语言/中英文切换
+│   └── locale_provider.dart  # 中英文切换
 ├── models/                   # 数据模型 (fromMap/toMap/copyWith)
-├── screens/                  # 11 个页面
-├── widgets/                  # 可复用组件 (15+)
+├── screens/                  # 12 个页面
+├── widgets/                  # 可复用组件 (30+)
 ├── theme/                    # Flat Vitality 主题系统
 │   ├── app_theme.dart        # 3 主题 + 深色变体
 │   └── theme_provider.dart   # 主题状态 + 持久化
 ├── animations/               # 动画原语
-│   ├── animation_primitives.dart # AnimatedCard, CountUp, Shimmer
-│   └── page_transitions.dart # FadeUpPageRoute, ScaleFadePageRoute
-├── services/                 # 数据库、通知、AI、统计
+├── services/                 # 数据库、通知、AI 提示词、统计
 │   ├── database_helper.dart  # SQLite v5，增量迁移
-│   ├── notification_service.dart
-│   ├── ai_prompt_service.dart
-│   ├── stats_calculator_service.dart
-│   └── ...
+│   ├── ai_prompt_service.dart    # AI 计划提示词生成
+│   ├── stats_calculator_service.dart # e1RM / 容量 / 剂量
+│   └── data_transfer_service.dart    # 数据导出/导入
 ├── utils/
 │   └── dimensions.dart       # AppDimensions 设计 token
 └── data/                     # 870+ 动作静态 JSON

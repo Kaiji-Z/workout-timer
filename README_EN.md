@@ -13,16 +13,21 @@
 
 Free · Open Source · No Ads · No Sign-up · No Cloud
 
-[Download APK](https://github.com/Kaiji-Z/workout-timer/releases) · [Features](#-features) · [Build](#-build-from-source) · [Tech Stack](#-tech-stack)
+[Download APK](https://github.com/Kaiji-Z/workout-timer/releases) · [Features](#-features) · [Screenshots](#-screenshots) · [Build](#-build-from-source) · [Tech Stack](#-tech-stack)
 
 </div>
 
 ---
 
-| ⏱️ Timer | 📚 Exercise Library | 🎨 Themes |
+| 🏋️ Follow the plan | ⏱️ Rest timing | 📊 Statistics |
 |:---:|:---:|:---:|
-| <img src="docs/screenshots/demo-timer.gif" width="240" alt="30-second rest countdown demo (3x speed)"> | <img src="docs/screenshots/demo-exercises.gif" width="240" alt="Exercise library browsing demo (2x speed)"> | <img src="docs/screenshots/demo-themes.gif" width="240" alt="Theme switching demo (2x speed)"> |
-| 30s rest countdown | Browse 870+ exercises | Three themes, one tap |
+| <img src="docs/screenshots/demo-training-en.gif" width="240" alt="Guided plan workout demo (sped up)"> | <img src="docs/screenshots/demo-timer-en.gif" width="240" alt="30-second rest countdown demo (3x speed)"> | <img src="docs/screenshots/demo-stats-en.gif" width="240" alt="Training statistics demo (sped up)"> |
+| Guided exercises + per-set logging | 30s rest between sets | Recovery · Dose · Progress · Habits |
+
+| 📚 Exercise library | 🎨 Themes |
+|:---:|:---:|
+| <img src="docs/screenshots/demo-exercises-en.gif" width="240" alt="Exercise library demo (sped up)"> | <img src="docs/screenshots/demo-themes-en.gif" width="240" alt="Theme switching demo (2x speed)"> |
+| 870+ exercises, bilingual search | Amber / Coral / Sky Blue |
 
 ## What is this?
 
@@ -38,6 +43,16 @@ But if you need more — training plans, an exercise library, per-set weight log
 
 ## ✨ Features
 
+### 🤖 AI plans without paying a cent
+
+**No API key, no subscription, no built-in LLM** — that's the whole trick:
+
+1. Fill in a questionnaire (goal / frequency / duration / experience / equipment), and the app writes you a **professional-grade training prompt**
+2. Copy the prompt and paste it into **any free AI** you already use (ChatGPT / Gemini / Claude free tiers…)
+3. Paste the JSON plan the AI returns back into the app — preview and import it to your calendar in one tap
+
+AI training reviews work the same way: the app turns your training data into a report, your free AI analyzes it, and returns advice plus next week's plan. **Your data + any free AI = a personal coach, at zero cost.**
+
 ### ⏱️ Timer
 
 | | |
@@ -52,33 +67,32 @@ But if you need more — training plans, an exercise library, per-set weight log
 ### 📚 Exercise Library
 
 - **870+ professional exercises** covering chest / back / legs / shoulders / arms / core
-- Demo image for every exercise
-- Bilingual (CN/EN) search with fuzzy matching
-- Filter by muscle group and equipment
-- Favorite your go-to exercises
+- Step-by-step demo images + instructions for every exercise
+- **Bilingual (CN/EN) search** with fuzzy matching — search English names from a Chinese UI and vice versa
+- Filter by muscle group and equipment, favorite your go-to exercises
 
 ### 📋 Training Plans
 
-- **AI-generated plans**: enter your goal, get a complete program in one tap
-- Calendar view to schedule each day's training
-- Per-exercise customizable sets and reps
+- **AI-generated plans**: prompt → free AI → one-tap import (see above)
+- Manual builder: pick muscles → choose exercises → set reps, done in three steps
+- Calendar view to schedule each day; today's plan starts from the timer in one tap
 - Guided execution that walks you through exercises one by one
 
-### 📊 Training Log
+### 📊 Training Log & Stats
 
 - Per-set **weight × reps** logging for precise progress tracking
 - Auto-computed volume for bodyweight exercises (biomechanics coefficients)
-- Weekly / monthly / yearly stats + muscle-group distribution donut chart
-- Strength progress trends + 1RM estimation
-- Muscle group recovery status tracking
-- AI training analysis report
+- **Today card**: muscle recovery times + acute/chronic load ratio (guardrail reference)
+- **Dose monitoring**: rolling 7-day sets per muscle group against MEV/MRV reference bands
+- **Progress**: e1RM estimation trend + recent PRs + 6-week rolling volume
+- **Habit heatmap**: full-year check-ins + streak weeks
+- AI training analysis report (works with any free AI, see above)
 
-### 🎨 Appearance
+### 🌍 Interface
 
-- **3 themes**: Amber Gold / Coral Orange / Sky Blue
-- **Dark mode**: each theme auto-generates a dark variant
+- **Bilingual English / 中文**, switchable in-app
+- **3 themes**: Amber Gold / Coral Orange / Sky Blue, each with an auto-generated dark variant
 - Flat Vitality design system — warm gradients + deep indigo accent
-- Press animations, number animations, page transitions
 - Full accessibility support (tooltips, semantic labels, live announcements)
 
 ### 🔒 Privacy
@@ -86,7 +100,7 @@ But if you need more — training plans, an exercise library, per-set weight log
 - **All data stays on your phone** (local SQLite database)
 - No account registration, no cloud sync, no data upload
 - Collects no personal information
-- Export all your data (JSON format) anytime
+- Export / import all your data (JSON format) anytime
 
 ---
 
@@ -94,23 +108,23 @@ But if you need more — training plans, an exercise library, per-set weight log
 
 | Timer | Plans | History |
 |:---:|:---:|:---:|
-| <img src="docs/screenshots/timer.jpg" width="240" alt="Timer"> | <img src="docs/screenshots/plan-calendar.jpg" width="240" alt="Plans"> | <img src="docs/screenshots/history.jpg" width="240" alt="History"> |
-| Big countdown + progress ring | Calendar + plan cards | Workout log list |
+| <img src="docs/screenshots/timer-en.jpg" width="240" alt="Timer"> | <img src="docs/screenshots/plan-calendar-en.jpg" width="240" alt="Plans"> | <img src="docs/screenshots/history-en.jpg" width="240" alt="History"> |
+| Today's plan + big countdown | Calendar scheduling + plan cards | Workouts archived by month |
 
-| Stats overview | Stats detail | AI analysis |
+| Stats · Today | Stats · Progress & habits | AI analysis |
 |:---:|:---:|:---:|
-| <img src="docs/screenshots/stats-overview.jpg" width="240" alt="Stats overview"> | <img src="docs/screenshots/stats-detail.jpg" width="240" alt="Stats detail"> | <img src="docs/screenshots/ai-analysis.jpg" width="240" alt="AI analysis"> |
-| Weekly data + overview | Volume trend chart | Smart training report |
+| <img src="docs/screenshots/stats-overview-en.jpg" width="240" alt="Stats today"> | <img src="docs/screenshots/stats-detail-en.jpg" width="240" alt="Stats progress"> | <img src="docs/screenshots/ai-analysis-en.jpg" width="240" alt="AI analysis"> |
+| Recovery chips + dose monitoring | e1RM trend + year heatmap | Data report → free AI review |
 
 | AI wizard | Exercise library | Exercise detail |
 |:---:|:---:|:---:|
-| <img src="docs/screenshots/ai-wizard.jpg" width="240" alt="AI wizard"> | <img src="docs/screenshots/exercise-list.jpg" width="240" alt="Exercise library"> | <img src="docs/screenshots/exercise-detail.jpg" width="240" alt="Exercise detail"> |
-| Generate a training plan | 870+ exercise search | Demo + instructions |
+| <img src="docs/screenshots/ai-wizard-en.jpg" width="240" alt="AI wizard"> | <img src="docs/screenshots/exercise-list-en.jpg" width="240" alt="Exercise library"> | <img src="docs/screenshots/exercise-detail-en.jpg" width="240" alt="Exercise detail"> |
+| Questionnaire → prompt → import | 870+ exercise search & filters | Step images + instructions |
 
 | Settings |
 |:---:|
-| <img src="docs/screenshots/settings.jpg" width="240" alt="Settings"> |
-| Notifications · Dark mode · Theme switcher |
+| <img src="docs/screenshots/settings-en.jpg" width="240" alt="Settings"> |
+| Notifications · Dark mode · Theme · Language · Data |
 
 ---
 
@@ -156,6 +170,7 @@ export FLUTTER_STORAGE_BASE_URL=https://storage.flutter-io.cn
 | SQLite (sqflite) | Local database, 5 incremental migrations |
 | fl_chart | Data visualization |
 | flutter_local_notifications | Notification alerts |
+| flutter_localizations (gen-l10n) | EN/中文 bilingual UI |
 | Rajdhani | Timer-specific font |
 
 ---
@@ -165,28 +180,25 @@ export FLUTTER_STORAGE_BASE_URL=https://storage.flutter-io.cn
 ```
 lib/
 ├── main.dart                 # Entry, MultiProvider, bottom nav
-├── providers/                # State management (ChangeNotifier × 6)
+├── providers/                # State management (ChangeNotifier × 7)
 │   ├── timer_provider.dart   # Countdown + set counter
 │   ├── training_provider.dart # Training state machine
 │   ├── plan_provider.dart    # Plan CRUD
 │   ├── record_provider.dart  # Workout log + stats
 │   ├── training_progress_provider.dart # Real-time training progress
-│   └── locale_provider.dart  # System locale / EN-ZH switching
+│   └── locale_provider.dart  # EN/中文 switching
 ├── models/                   # Data models (fromMap/toMap/copyWith)
-├── screens/                  # 11 screens
-├── widgets/                  # Reusable components (15+)
+├── screens/                  # 12 screens
+├── widgets/                  # Reusable components (30+)
 ├── theme/                    # Flat Vitality theme system
 │   ├── app_theme.dart        # 3 themes + dark variants
 │   └── theme_provider.dart   # Theme state + persistence
 ├── animations/               # Animation primitives
-│   ├── animation_primitives.dart # AnimatedCard, CountUp, Shimmer
-│   └── page_transitions.dart # FadeUpPageRoute, ScaleFadePageRoute
-├── services/                 # Database, notifications, AI, stats
+├── services/                 # Database, notifications, AI prompts, stats
 │   ├── database_helper.dart  # SQLite v5, incremental migrations
-│   ├── notification_service.dart
-│   ├── ai_prompt_service.dart
-│   ├── stats_calculator_service.dart
-│   └── ...
+│   ├── ai_prompt_service.dart    # AI plan prompt generation
+│   ├── stats_calculator_service.dart # e1RM / volume / dose
+│   └── data_transfer_service.dart    # Data export/import
 ├── utils/
 │   └── dimensions.dart       # AppDimensions design tokens
 └── data/                     # 870+ static exercise JSON
