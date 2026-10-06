@@ -226,13 +226,15 @@ A feature is done if and only if ALL hold:
 
 ---
 
-## 附：验证缺口清单（诊断 2026-10-06，按优先级；治理轮按此施工）
+## 附：验证缺口清单（诊断 2026-10-06，治理轮 2026-10-06 施工完成）
 
-| 级别 | 缺口 | 补救方案 |
+| 级别 | 缺口 | 状态 |
 |---|---|---|
-| P0 | 关键 UI 流程回归缺口：PlanScreen 当日列表渲染（重复 key 类崩溃守卫）、详情弹窗→日历联动、创建→自动排期链路无测试 | 补 widget 测试；把人工验证清单固化为用例 |
-| P0 | 端到端太薄：integration_test/ 仅 1 个启动冒烟；「选计划→开始→休息→记录→保存→历史可见」全流程无自动化 | 补 2-3 条 integration 用例，`flutter test integration_test/ -d <emulator>` CLI 可跑 |
-| P1 | 无 flag 机制 | 按 §8.3 候选方案治理 |
-| P1 | 无覆盖率度量与阈值 | `flutter test --coverage` + 核心层阈值接入 CI |
-| P2 | 模拟器冒烟未脚本化 | 固化为一键 smoke 脚本（android-emulator 工具链） |
-| P2 | 无结构化运行 trace | 视需要引入；当前 DB+Provider 检索已够用 |
+| P0 | 关键 UI 流程回归缺口（当日列表渲染、详情弹窗→日历联动、创建→自动排期） | ✅ 已补：test/screens/plan_screen_test.dart（3 用例）+ newestPlan 单测；重复 key 崩溃有 test/providers/plan_provider_assign_test.dart 守卫 |
+| P0 | 端到端太薄 | ✅ 已补：integration_test/training_flow_e2e_test.dart（3 条验收流）+ app_test.dart 冒烟重写，全部模拟器 CLI 实跑通过；**e2e 首跑即抓到并修复一个真生产 bug**：完成态奖牌在 initState 读 MediaQuery（结束训练必崩）+ 动画序列缺 mounted 守卫（快速保存崩）——lib/widgets/completed_medal_display.dart |
+| P1 | 无 flag 机制 | ✅ 已定稿 §8.3 三分类法（a/b/c），规则即时生效 |
+| P1 | 无覆盖率度量与阈值 | ✅ 已接：`flutter test --coverage` + scripts/check_coverage.dart（核心层合计门禁，起点 55%，当前 56.0%），CI 已挂门禁步骤；后续棘轮抬高 |
+| P2 | 模拟器冒烟未脚本化 | ✅ 由 integration 用例覆盖（CLI 单命令可复现），不再单独立项 |
+| P2 | 无结构化运行 trace | 保留为已知欠账；当前 DB+Provider 检索够用 |
+
+**已知自动化盲区（诚实记录）**：OS 级后台保活（厂商 ROM 行为）无法自动化，依赖前台服务存在性 + 设置页厂商引导；反向标准 3 只自动化到 lifecycle-resumed 分支层。
