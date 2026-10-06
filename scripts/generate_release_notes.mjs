@@ -90,7 +90,10 @@ for (const entry of raw.split('\x1e')) {
     continue;
   }
   const [, type, scope, rawText] = match;
-  if (/BREAKING CHANGE/i.test(body) || subject.includes('!:')) {
+  // 约定式破坏性变更只认两种形式：subject 的 "!:" 或 body 的
+  // "BREAKING CHANGE:" footer（行首）。宽松子串匹配会把正文散文
+  // （如 "breaking changes on top"）误判为破坏性变更。
+  if (/^BREAKING CHANGE:/m.test(body) || subject.includes('!:')) {
     breaking.push(`- ${scope ? `**${scope}**: ` : ''}${rawText} (${hash})`);
   }
   const text = rawText.replace(/\s*\((?:RED|GREEN)\)\s*$/i, '');
