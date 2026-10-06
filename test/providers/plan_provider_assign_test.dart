@@ -45,4 +45,32 @@ void main() {
 
     expect(provider.getPlansForDate(date).length, 1);
   });
+
+  test('newestPlan 返回 createdAt 最新的计划', () async {
+    final provider = PlanProvider();
+    final older = WorkoutPlan(
+      id: 'plan-old',
+      name: '旧计划',
+      targetMuscles: const [PrimaryMuscleGroup.chest],
+      exercises: [PlanExercise(exerciseId: 'e1', targetSets: 1, order: 0)],
+      createdAt: DateTime(2026, 1, 1),
+    );
+    final newer = WorkoutPlan(
+      id: 'plan-new',
+      name: '新计划',
+      targetMuscles: const [PrimaryMuscleGroup.chest],
+      exercises: [PlanExercise(exerciseId: 'e1', targetSets: 1, order: 0)],
+      createdAt: DateTime(2026, 2, 1),
+    );
+    // 先建新的再建旧的，证明不是依赖插入顺序。
+    await provider.createPlan(newer);
+    await provider.createPlan(older);
+
+    expect(provider.newestPlan?.id, 'plan-new');
+  });
+
+  test('空计划库时 newestPlan 为 null', () {
+    final provider = PlanProvider();
+    expect(provider.newestPlan, isNull);
+  });
 }

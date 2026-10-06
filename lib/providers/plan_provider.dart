@@ -425,6 +425,18 @@ class PlanProvider extends ChangeNotifier {
     }
   }
 
+  /// 最近创建的计划（创建流程头插 + createdAt 兜底）。
+  /// 「创建后自动排期」用它定位刚建的计划。
+  WorkoutPlan? get newestPlan {
+    WorkoutPlan? newest;
+    for (final p in _plans) {
+      if (newest == null || p.createdAt.isAfter(newest.createdAt)) {
+        newest = p;
+      }
+    }
+    return newest;
+  }
+
   /// 根据ID获取计划
   WorkoutPlan? getPlanById(String id) {
     return _plans.where((p) => p.id == id).firstOrNull;

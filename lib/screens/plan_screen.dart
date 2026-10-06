@@ -531,14 +531,7 @@ class _PlanScreenState extends State<PlanScreen> {
                       if (result != true || !mounted) return;
                       final provider = context.read<PlanProvider>();
                       if (assignToSelectedDate) {
-                        // createPlan 头插新计划；这里再按 createdAt 兜底取最新。
-                        WorkoutPlan? newest;
-                        for (final p in provider.plans) {
-                          if (newest == null ||
-                              p.createdAt.isAfter(newest.createdAt)) {
-                            newest = p;
-                          }
-                        }
+                        final newest = provider.newestPlan;
                         if (newest != null) {
                           await _addPlanToDate(provider, newest);
                           return;
