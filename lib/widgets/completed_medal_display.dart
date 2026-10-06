@@ -122,6 +122,9 @@ class _CompletedMedalDisplayState extends State<CompletedMedalDisplay>
   }
 
   Future<void> _runSequence() async {
+    // initState 期间禁止读 inherited（MediaQuery），先让出事件循环。
+    await Future<void>.delayed(Duration.zero);
+    if (!mounted) return;
     // 减弱动态效果（系统设置）时跳过动画序列：直接呈现最终状态，
     // 且不做呼吸循环（PRODUCT.md 无障碍要求可降级）。
     if (MediaQuery.of(context).disableAnimations) {
@@ -136,12 +139,16 @@ class _CompletedMedalDisplayState extends State<CompletedMedalDisplay>
       return;
     }
     await _shrinkController.forward(); // 环收缩
+    if (!mounted) return;
     _popController.forward(); // 奖牌弹出
     await Future.delayed(const Duration(milliseconds: 250));
+    if (!mounted) return;
     _digitController.forward(); // 数字登场
     await Future.delayed(const Duration(milliseconds: 150));
+    if (!mounted) return;
     _captionController.forward(); // 文案登场
     await Future.delayed(const Duration(milliseconds: 300));
+    if (!mounted) return;
     _breathController.repeat(reverse: true); // 呼吸
   }
 
