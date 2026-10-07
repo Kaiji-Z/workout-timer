@@ -143,11 +143,6 @@ class WorkoutPlan {
   /// 获取动作数量
   int get exerciseCount => exercises.length;
 
-  /// 获取目标部位的显示文本
-  String get targetMusclesText {
-    return targetMuscles.map((m) => m.displayName).join('、');
-  }
-
   /// 从JSON解析
   factory WorkoutPlan.fromJson(Map<String, dynamic> json) {
     // 解析目标肌肉部位

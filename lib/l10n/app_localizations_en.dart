@@ -2662,4 +2662,41 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get statsHabitFuture => 'Upcoming';
+
+  @override
+  String get histDateToday => 'Today';
+
+  @override
+  String get histDateYesterday => 'Yesterday';
+
+  @override
+  String histDateShort(int m, int d) {
+    return '$m/$d';
+  }
+
+  @override
+  String histDateFull(int y, int m, int d, String weekday) {
+    return '$weekday, $m/$d/$y';
+  }
+
+  @override
+  String get histWeekdayMon => 'Monday';
+
+  @override
+  String get histWeekdayTue => 'Tuesday';
+
+  @override
+  String get histWeekdayWed => 'Wednesday';
+
+  @override
+  String get histWeekdayThu => 'Thursday';
+
+  @override
+  String get histWeekdayFri => 'Friday';
+
+  @override
+  String get histWeekdaySat => 'Saturday';
+
+  @override
+  String get histWeekdaySun => 'Sunday';
 }

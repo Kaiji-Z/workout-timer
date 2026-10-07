@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
+import '../l10n/app_localizations.dart';
 import '../models/set_data.dart';
 import '../models/workout_plan.dart';
 import '../models/workout_record.dart';
@@ -255,18 +256,18 @@ class TrainingProgressProvider extends ChangeNotifier {
     return DateTime.now().difference(startTime).inSeconds;
   }
 
-  /// 获取格式化的训练时长
-  String get trainingDurationText {
+  /// 获取格式化的训练时长（单位词随 locale）
+  String trainingDurationText(AppLocalizations l10n) {
     final seconds = trainingDurationSeconds;
     final minutes = seconds ~/ 60;
     final remainingSeconds = seconds % 60;
 
     if (minutes == 0) {
-      return '$remainingSeconds秒';
+      return l10n.unitSeconds(remainingSeconds);
     } else if (remainingSeconds == 0) {
-      return '$minutes分钟';
+      return l10n.unitMinutes(minutes);
     } else {
-      return '$minutes分$remainingSeconds秒';
+      return l10n.unitMinutesSeconds(minutes, remainingSeconds);
     }
   }
 

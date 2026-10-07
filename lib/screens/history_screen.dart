@@ -876,14 +876,14 @@ class _RecordCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 8),
                         ],
-                        Text(record.dateText, style: context.bodySmall),
+                        Text(record.dateText(l10n), style: context.bodySmall),
                       ],
                     ),
                     const SizedBox(height: 4),
                     // 训练部位
                     if (record.trainedMuscles.isNotEmpty)
                       Text(
-                        record.trainedMusclesText,
+                        localizedMuscleList(context, record.trainedMuscles),
                         style: context.bodyMedium.copyWith(
                           fontWeight: FontWeight.w600,
                         ),
@@ -905,7 +905,10 @@ class _RecordCard extends StatelessWidget {
                           color: theme.secondaryTextColor,
                         ),
                         const SizedBox(width: 4),
-                        Text(record.durationText, style: context.bodySmall),
+                        Text(
+                          record.durationText(context.l10n),
+                          style: context.bodySmall,
+                        ),
                         const SizedBox(width: 12),
                         Icon(
                           Icons.repeat,

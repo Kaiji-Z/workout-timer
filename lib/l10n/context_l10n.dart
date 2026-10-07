@@ -36,3 +36,13 @@ String localizedMuscleGroup(BuildContext context, PrimaryMuscleGroup muscle) {
       return l10n.prefFocusAreaCore;
   }
 }
+
+/// 肌群列表的本地化串：zh 用「、」连接，en 用 ", "。
+/// 替代 `muscles.map((m) => m.displayName).join(...)` 的中文硬编码写法。
+String localizedMuscleList(
+  BuildContext context,
+  List<PrimaryMuscleGroup> muscles,
+) {
+  final separator = context.l10n.localeName == 'zh' ? '、' : ', ';
+  return muscles.map((m) => localizedMuscleGroup(context, m)).join(separator);
+}

@@ -1,4 +1,6 @@
 import 'dart:convert';
+
+import '../l10n/app_localizations.dart';
 import 'exercise.dart';
 import 'muscle_group.dart';
 import 'set_data.dart';
@@ -208,45 +210,50 @@ class WorkoutRecord {
   /// 是否是计划模式的记录
   bool get isPlanMode => planId != null;
 
-  /// 获取训练部位的显示文本
-  String get trainedMusclesText {
-    if (trainedMuscles.isEmpty) {
-      return '自由训练';
-    }
-    return trainedMuscles.map((m) => m.displayName).join('、');
-  }
-
-  /// 获取格式化的训练时长
-  String get durationText {
+  /// 获取格式化的训练时长（单位词随 locale）
+  String durationText(AppLocalizations l10n) {
     final minutes = durationSeconds ~/ 60;
     final seconds = durationSeconds % 60;
     if (minutes == 0) {
-      return '$seconds秒';
+      return l10n.unitSeconds(seconds);
     } else if (seconds == 0) {
-      return '$minutes分钟';
+      return l10n.unitMinutes(minutes);
     }
-    return '$minutes分$seconds秒';
+    return l10n.unitMinutesSeconds(minutes, seconds);
   }
 
-  /// 获取格式化的日期
-  String get dateText {
+  /// 获取格式化的日期（今天/昨天相对词与月日格式随 locale）
+  String dateText(AppLocalizations l10n) {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final recordDate = DateTime(date.year, date.month, date.day);
 
     if (recordDate == today) {
-      return '今天';
+      return l10n.histDateToday;
     } else if (recordDate == today.subtract(const Duration(days: 1))) {
-      return '昨天';
+      return l10n.histDateYesterday;
     } else {
-      return '${date.month}月${date.day}日';
+      return l10n.histDateShort(date.month, date.day);
     }
   }
 
-  /// 获取完整日期文本
-  String get fullDateText {
-    final weekdays = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
-    return '${date.year}年${date.month}月${date.day}日 ${weekdays[date.weekday - 1]}';
+  /// 获取完整日期文本（星期名随 locale）
+  String fullDateText(AppLocalizations l10n) {
+    final weekdays = [
+      l10n.histWeekdayMon,
+      l10n.histWeekdayTue,
+      l10n.histWeekdayWed,
+      l10n.histWeekdayThu,
+      l10n.histWeekdayFri,
+      l10n.histWeekdaySat,
+      l10n.histWeekdaySun,
+    ];
+    return l10n.histDateFull(
+      date.year,
+      date.month,
+      date.day,
+      weekdays[date.weekday - 1],
+    );
   }
 
   /// 获取动作数量
@@ -390,5 +397,5 @@ class WorkoutRecord {
 
   @override
   String toString() =>
-      'WorkoutRecord(id: $id, date: $dateText, duration: $durationText, sets: $totalSets)';
+      'WorkoutRecord(id: $id, date: ${date.toIso8601String()}, duration: ${durationSeconds}s, sets: $totalSets)';
 }

@@ -36,7 +36,7 @@ class RecordRepository {
       }
     });
 
-    debugPrint('Saved record: ${record.dateText}, ${record.totalSets} sets');
+    debugPrint('Saved record: ${record.date.toIso8601String()}, ${record.totalSets} sets');
     return record.id;
   }
 

@@ -26,12 +26,6 @@ void main() {
       });
     });
 
-    group('dateText', () {
-      test('formats as Chinese long form', () {
-        expect(sample.dateText, '2026年07月27日');
-      });
-    });
-
     group('toJson / fromJson round-trip', () {
       test('toJson emits camelCase keys with ISO date strings', () {
         final json = sample.toJson();

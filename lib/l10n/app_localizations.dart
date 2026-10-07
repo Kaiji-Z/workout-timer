@@ -4618,6 +4618,72 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'还没到'**
   String get statsHabitFuture;
+
+  /// No description provided for @histDateToday.
+  ///
+  /// In zh, this message translates to:
+  /// **'今天'**
+  String get histDateToday;
+
+  /// No description provided for @histDateYesterday.
+  ///
+  /// In zh, this message translates to:
+  /// **'昨天'**
+  String get histDateYesterday;
+
+  /// No description provided for @histDateShort.
+  ///
+  /// In zh, this message translates to:
+  /// **'{m}月{d}日'**
+  String histDateShort(int m, int d);
+
+  /// No description provided for @histDateFull.
+  ///
+  /// In zh, this message translates to:
+  /// **'{y}年{m}月{d}日 {weekday}'**
+  String histDateFull(int y, int m, int d, String weekday);
+
+  /// No description provided for @histWeekdayMon.
+  ///
+  /// In zh, this message translates to:
+  /// **'周一'**
+  String get histWeekdayMon;
+
+  /// No description provided for @histWeekdayTue.
+  ///
+  /// In zh, this message translates to:
+  /// **'周二'**
+  String get histWeekdayTue;
+
+  /// No description provided for @histWeekdayWed.
+  ///
+  /// In zh, this message translates to:
+  /// **'周三'**
+  String get histWeekdayWed;
+
+  /// No description provided for @histWeekdayThu.
+  ///
+  /// In zh, this message translates to:
+  /// **'周四'**
+  String get histWeekdayThu;
+
+  /// No description provided for @histWeekdayFri.
+  ///
+  /// In zh, this message translates to:
+  /// **'周五'**
+  String get histWeekdayFri;
+
+  /// No description provided for @histWeekdaySat.
+  ///
+  /// In zh, this message translates to:
+  /// **'周六'**
+  String get histWeekdaySat;
+
+  /// No description provided for @histWeekdaySun.
+  ///
+  /// In zh, this message translates to:
+  /// **'周日'**
+  String get histWeekdaySun;
 }
 
 class _AppLocalizationsDelegate

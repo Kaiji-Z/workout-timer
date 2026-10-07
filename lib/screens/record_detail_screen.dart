@@ -282,7 +282,7 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
                       fit: BoxFit.scaleDown,
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        widget.record.fullDateText,
+                        widget.record.fullDateText(context.l10n),
                         style: context.headlineMedium,
                       ),
                     ),
@@ -347,7 +347,7 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      widget.record.durationText,
+                      widget.record.durationText(context.l10n),
                       style: context.titleLarge.copyWith(
                         color: theme.accentColor,
                       ),
@@ -392,9 +392,7 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
                 child: _buildStatItem(
                   widget.record.trainedMuscles.isEmpty
                       ? l10n.recDetailNone
-                      : widget.record.trainedMuscles
-                            .map((m) => m.displayName)
-                            .join('/'),
+                      : localizedMuscleList(context, widget.record.trainedMuscles),
                   l10n.recDetailStatMuscles,
                   Icons.accessibility_new,
                   theme,

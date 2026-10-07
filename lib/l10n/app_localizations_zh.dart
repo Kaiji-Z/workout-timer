@@ -2587,4 +2587,41 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get statsHabitFuture => '还没到';
+
+  @override
+  String get histDateToday => '今天';
+
+  @override
+  String get histDateYesterday => '昨天';
+
+  @override
+  String histDateShort(int m, int d) {
+    return '$m月$d日';
+  }
+
+  @override
+  String histDateFull(int y, int m, int d, String weekday) {
+    return '$y年$m月$d日 $weekday';
+  }
+
+  @override
+  String get histWeekdayMon => '周一';
+
+  @override
+  String get histWeekdayTue => '周二';
+
+  @override
+  String get histWeekdayWed => '周三';
+
+  @override
+  String get histWeekdayThu => '周四';
+
+  @override
+  String get histWeekdayFri => '周五';
+
+  @override
+  String get histWeekdaySat => '周六';
+
+  @override
+  String get histWeekdaySun => '周日';
 }

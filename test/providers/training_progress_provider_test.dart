@@ -1,4 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:workout_timer/l10n/app_localizations_en.dart';
+import 'package:workout_timer/l10n/app_localizations_zh.dart';
 import 'package:workout_timer/models/muscle_group.dart';
 import 'package:workout_timer/models/set_data.dart';
 import 'package:workout_timer/models/workout_plan.dart';
@@ -394,9 +396,21 @@ void main() {
       // We can't easily fake the clock; just assert it ends with 秒 when
       // startPlan was called moments ago.
       provider.startPlan(planFixture());
-      final text = provider.trainingDurationText;
+      final text = provider.trainingDurationText(AppLocalizationsZh());
       // For a sub-minute duration, the text is "N秒".
       expect(text.endsWith('秒'), isTrue);
+    });
+
+    test('unit words follow locale', () {
+      // 5 分 30 秒 → zh「5分30秒」/ en "5m 30s"。
+      expect(
+        AppLocalizationsZh().unitMinutesSeconds(5, 30),
+        '5分30秒',
+      );
+      expect(
+        AppLocalizationsEn().unitMinutesSeconds(5, 30),
+        '5m 30s',
+      );
     });
   });
 

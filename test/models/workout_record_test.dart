@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:workout_timer/l10n/app_localizations_en.dart';
+import 'package:workout_timer/l10n/app_localizations_zh.dart';
 import 'package:workout_timer/models/workout_record.dart';
 import 'package:workout_timer/models/set_data.dart';
 
@@ -485,6 +487,72 @@ void main() {
         expect(restored.setsData![0].weight, equals(50.0));
         expect(restored.needsMigration, isFalse);
       });
+    });
+  });
+
+  group('WorkoutRecord.durationText', () {
+    WorkoutRecord recordWith(int seconds) => WorkoutRecord(
+          id: 'r',
+          date: DateTime(2026, 1, 1),
+          durationSeconds: seconds,
+          trainedMuscles: const [],
+          exercises: const [],
+          totalSets: 0,
+          createdAt: DateTime(2026, 1, 1),
+        );
+
+    test('seconds-only uses locale unit word', () {
+      expect(recordWith(26).durationText(AppLocalizationsZh()), '26秒');
+      expect(recordWith(26).durationText(AppLocalizationsEn()), '26s');
+    });
+
+    test('whole minutes use locale unit word', () {
+      expect(recordWith(120).durationText(AppLocalizationsZh()), '2分钟');
+      expect(recordWith(120).durationText(AppLocalizationsEn()), '2 min');
+    });
+
+    test('mixed minutes and seconds use locale unit words', () {
+      expect(recordWith(91 * 60 + 55).durationText(AppLocalizationsZh()),
+          '91分55秒');
+      expect(recordWith(91 * 60 + 55).durationText(AppLocalizationsEn()),
+          '91m 55s');
+    });
+  });
+
+  group('WorkoutRecord.dateText / fullDateText', () {
+    WorkoutRecord recordOn(DateTime date) => WorkoutRecord(
+          id: 'r',
+          date: date,
+          durationSeconds: 60,
+          trainedMuscles: const [],
+          exercises: const [],
+          totalSets: 0,
+          createdAt: date,
+        );
+
+    test('today/yesterday use relative words per locale', () {
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+      final yesterday = today.subtract(const Duration(days: 1));
+      expect(recordOn(today).dateText(AppLocalizationsZh()), '今天');
+      expect(recordOn(today).dateText(AppLocalizationsEn()), 'Today');
+      expect(recordOn(yesterday).dateText(AppLocalizationsZh()), '昨天');
+      expect(recordOn(yesterday).dateText(AppLocalizationsEn()), 'Yesterday');
+    });
+
+    test('older dates use short month-day per locale', () {
+      expect(recordOn(DateTime(2026, 7, 27)).dateText(AppLocalizationsZh()),
+          '7月27日');
+      expect(recordOn(DateTime(2026, 7, 27)).dateText(AppLocalizationsEn()),
+          '7/27');
+    });
+
+    test('fullDateText localizes weekday via intl', () {
+      // 2026-07-27 is a Monday.
+      expect(recordOn(DateTime(2026, 7, 27)).fullDateText(AppLocalizationsZh()),
+          '2026年7月27日 周一');
+      expect(recordOn(DateTime(2026, 7, 27)).fullDateText(AppLocalizationsEn()),
+          'Monday, 7/27/2026');
     });
   });
 }

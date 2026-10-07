@@ -402,7 +402,7 @@ class _PlanScreenState extends State<PlanScreen> {
                             ),
                           ),
                           title: Text(plan.name),
-                          subtitle: Text(plan.targetMusclesText),
+                          subtitle: Text(localizedMuscleList(context, plan.targetMuscles)),
                           onTap: () {
                             _addPlanToDate(planProvider, plan);
                             Navigator.pop(context);
@@ -670,7 +670,7 @@ class _PlanScreenState extends State<PlanScreen> {
                                               ),
                                               const SizedBox(height: 2),
                                               Text(
-                                                plan.targetMusclesText,
+                                                localizedMuscleList(context, plan.targetMuscles),
                                                 style: Theme.of(context)
                                                     .textTheme
                                                     .bodyMedium!

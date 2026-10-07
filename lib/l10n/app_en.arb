@@ -970,5 +970,16 @@
   "tooltipMayhew": "Estimated one-rep max (Mayhew formula)",
   "heatmapLegendLess": "Less",
   "heatmapLegendMore": "More",
-  "statsHabitFuture": "Upcoming"
+  "statsHabitFuture": "Upcoming",
+  "histDateToday": "Today",
+  "histDateYesterday": "Yesterday",
+  "histDateShort": "{m}/{d}",
+  "histDateFull": "{weekday}, {m}/{d}/{y}",
+  "histWeekdayMon": "Monday",
+  "histWeekdayTue": "Tuesday",
+  "histWeekdayWed": "Wednesday",
+  "histWeekdayThu": "Thursday",
+  "histWeekdayFri": "Friday",
+  "histWeekdaySat": "Saturday",
+  "histWeekdaySun": "Sunday"
 }

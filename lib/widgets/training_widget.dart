@@ -775,7 +775,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
                       ),
                     ),
                     title: Text(plan.name),
-                    subtitle: Text(plan.targetMusclesText),
+                    subtitle: Text(localizedMuscleList(context, plan.targetMuscles)),
                     trailing: Text(
                       context.l10n.trainingPlanSummary(
                         plan.exerciseCount,
@@ -957,7 +957,7 @@ class _TrainingWidgetState extends State<TrainingWidget>
               content: Text(
                 context.l10n.trainingSavedDetail(
                   record.totalSets,
-                  record.durationText,
+                  record.durationText(context.l10n),
                 ),
               ),
               backgroundColor: theme.progressRingColor,

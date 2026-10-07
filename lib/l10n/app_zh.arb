@@ -2621,5 +2621,39 @@
   "heatmapLegendMore": "多",
   "@heatmapLegendMore": {},
   "statsHabitFuture": "还没到",
-  "@statsHabitFuture": {}
+  "@statsHabitFuture": {},
+  "histDateToday": "今天",
+  "@histDateToday": {},
+  "histDateYesterday": "昨天",
+  "@histDateYesterday": {},
+  "histDateShort": "{m}月{d}日",
+  "@histDateShort": {
+    "placeholders": {
+      "m": { "type": "int" },
+      "d": { "type": "int" }
+    }
+  },
+  "histDateFull": "{y}年{m}月{d}日 {weekday}",
+  "@histDateFull": {
+    "placeholders": {
+      "y": { "type": "int" },
+      "m": { "type": "int" },
+      "d": { "type": "int" },
+      "weekday": { "type": "String" }
+    }
+  },
+  "histWeekdayMon": "周一",
+  "@histWeekdayMon": {},
+  "histWeekdayTue": "周二",
+  "@histWeekdayTue": {},
+  "histWeekdayWed": "周三",
+  "@histWeekdayWed": {},
+  "histWeekdayThu": "周四",
+  "@histWeekdayThu": {},
+  "histWeekdayFri": "周五",
+  "@histWeekdayFri": {},
+  "histWeekdaySat": "周六",
+  "@histWeekdaySat": {},
+  "histWeekdaySun": "周日",
+  "@histWeekdaySun": {}
 }

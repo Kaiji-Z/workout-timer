@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../l10n/app_localizations.dart';
+import '../l10n/context_l10n.dart';
 import '../theme/theme_provider.dart';
 import '../utils/dimensions.dart';
 import '../providers/training_progress_provider.dart';
@@ -85,7 +86,9 @@ class PlanDetailSheet extends StatelessWidget {
 
             // 目标部位
             Text(
-              l10n.planDetailTargetMuscles(plan.targetMusclesText),
+              l10n.planDetailTargetMuscles(
+                localizedMuscleList(context, plan.targetMuscles),
+              ),
               style: context.bodyMedium.copyWith(
                 color: theme.secondaryTextColor,
               ),

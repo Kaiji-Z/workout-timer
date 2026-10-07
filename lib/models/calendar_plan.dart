@@ -17,9 +17,6 @@ class CalendarPlan {
   /// 获取日期键（格式：yyyy-MM-dd）
   String get dateKey => DateFormat('yyyy-MM-dd').format(date);
 
-  /// 获取格式化的日期文本
-  String get dateText => DateFormat('yyyy年MM月dd日').format(date);
-
   /// 从JSON解析
   factory CalendarPlan.fromJson(Map<String, dynamic> json) {
     return CalendarPlan(

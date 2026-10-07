@@ -189,7 +189,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
       buffer.writeln(
         l10n.anPromptMuscleDistLine(
           i + 1,
-          entry.key.displayName,
+          localizedMuscleGroup(context, entry.key),
           volumeStr,
           pct,
         ),
@@ -256,7 +256,12 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
     final allMuscles = {
       ...currentMuscleVol.keys,
       ...previousMuscleVol.keys,
-    }.toList()..sort((a, b) => a.displayName.compareTo(b.displayName));
+    }.toList()..sort(
+      (a, b) => localizedMuscleGroup(
+        context,
+        a,
+      ).compareTo(localizedMuscleGroup(context, b)),
+    );
 
     for (final muscle in allMuscles) {
       final curr = currentMuscleVol[muscle] ?? 0;
@@ -267,7 +272,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
           final arrow = change > 0 ? '↑' : '↓';
           buffer.writeln(
             l10n.anPromptMuscleTrend(
-              muscle.displayName,
+              localizedMuscleGroup(context, muscle),
               change > 0 ? '+' : '',
               change,
               arrow,
@@ -308,7 +313,11 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
         status = l10n.anStatusInsufficient;
       }
       buffer.writeln(
-        l10n.anPromptSetsLine(entry.key.displayName, sets, status),
+        l10n.anPromptSetsLine(
+          localizedMuscleGroup(context, entry.key),
+          sets,
+          status,
+        ),
       );
     }
     return buffer.toString().trimRight();
@@ -437,7 +446,11 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
         status = l10n.anRecoveryJustTrained;
       }
       buffer.writeln(
-        l10n.anPromptRecoveryLine(entry.key.displayName, restDays, status),
+        l10n.anPromptRecoveryLine(
+          localizedMuscleGroup(context, entry.key),
+          restDays,
+          status,
+        ),
       );
     }
 
