@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">撸铁计时器</string>
+    <string name="notif_title">健身计时器</string>
+    <string name="notif_exercising">运动 %1$s</string>
+    <string name="notif_rest">休息 %1$s</string>
+    <string name="notif_remaining">剩余 %1$s</string>
+    <string name="notif_finished">计时结束</string>
+    <string name="notif_running">计时进行中…</string>
+    <string name="notif_rest_done_title">休息结束！</string>
+    <string name="notif_rest_done_text">准备开始下一组</string>
+    <string name="notif_channel_timer_name">计时服务</string>
+    <string name="notif_channel_timer_desc">用于保持计时器后台运行</string>
+    <string name="notif_channel_completion_name">计时完成</string>
+    <string name="notif_channel_completion_desc">休息倒计时结束提醒</string>
+</resources>

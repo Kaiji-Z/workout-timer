@@ -81,8 +81,10 @@ class TimerService : Service() {
                 stopForegroundService()
             }
             ACTION_UPDATE -> {
+                // Dart sends the raw exercise time (mm:ss); the localized
+                // "Exercising" prefix is composed here from resources.
                 val time = intent.getStringExtra("time") ?: "00:00"
-                updateNotification(time)
+                updateNotification(getString(R.string.notif_exercising, time))
             }
         }
         return START_STICKY
@@ -100,24 +102,13 @@ class TimerService : Service() {
         isCompleted = false
 
         // Start foreground service with initial notification
-        val initialText = if (mode == "rest") {
-            "休息 ${formatTime(durationSeconds)}"
-        } else {
-            "剩余 ${formatTime(durationSeconds)}"
-        }
-        startForegroundService(initialText)
+        startForegroundService(formatCountdownText(durationSeconds))
 
         // Create and start CountDownTimer
         countDownTimer = object : CountDownTimer(durationSeconds * 1000L, 1000L) {
             override fun onTick(millisUntilFinished: Long) {
                 remainingSeconds = (millisUntilFinished / 1000).toInt()
-                val timeText = formatTime(remainingSeconds)
-                val notificationText = if (timerMode == "rest") {
-                    "休息 $timeText"
-                } else {
-                    "剩余 $timeText"
-                }
-                updateNotification(notificationText)
+                updateNotification(formatCountdownText(remainingSeconds))
                 methodChannel?.invokeMethod("onTimerTick", mapOf(
                     "remaining" to remainingSeconds,
                     "completed" to false,
@@ -138,7 +129,7 @@ class TimerService : Service() {
                     "completed" to true,
                     "mode" to timerMode
                 ))
-                updateNotification("计时结束")
+                updateNotification(getString(R.string.notif_finished))
             }
         }.start()
     }
@@ -169,6 +160,15 @@ class TimerService : Service() {
         )
     }
 
+    private fun formatCountdownText(seconds: Int): String {
+        val timeText = formatTime(seconds)
+        return if (timerMode == "rest") {
+            getString(R.string.notif_rest, timeText)
+        } else {
+            getString(R.string.notif_remaining, timeText)
+        }
+    }
+
     private fun formatTime(seconds: Int): String {
         val mins = seconds / 60
         val secs = seconds % 60
@@ -178,10 +178,10 @@ class TimerService : Service() {
     private fun createNotificationChannel() {
         val channel = NotificationChannel(
             CHANNEL_ID,
-            "Timer Service",
+            getString(R.string.notif_channel_timer_name),
             NotificationManager.IMPORTANCE_LOW
         ).apply {
-            description = "Used to keep timer running in background"
+            description = getString(R.string.notif_channel_timer_desc)
             setShowBadge(false)
         }
         val manager = getSystemService(NotificationManager::class.java)
@@ -191,10 +191,10 @@ class TimerService : Service() {
     private fun createCompletionNotificationChannel() {
         val channel = NotificationChannel(
             COMPLETION_CHANNEL_ID,
-            "Timer Completion",
+            getString(R.string.notif_channel_completion_name),
             NotificationManager.IMPORTANCE_HIGH
         ).apply {
-            description = "Rest countdown completion alert"
+            description = getString(R.string.notif_channel_completion_desc)
             enableVibration(true)
             vibrationPattern = longArrayOf(0, 500, 200, 500)
             setBypassDnd(true)  // Override Do Not Disturb for timer alerts
@@ -215,8 +215,8 @@ class TimerService : Service() {
         )
 
         val notification = NotificationCompat.Builder(this, COMPLETION_CHANNEL_ID)
-            .setContentTitle("休息结束！")
-            .setContentText("准备开始下一组")
+            .setContentTitle(getString(R.string.notif_rest_done_title))
+            .setContentText(getString(R.string.notif_rest_done_text))
             .setSmallIcon(R.drawable.ic_launcher)
             .setAutoCancel(true)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -230,7 +230,7 @@ class TimerService : Service() {
     }
 
     private fun startForegroundService() {
-        startForeground(NOTIFICATION_ID, createNotification("计时进行中..."))
+        startForeground(NOTIFICATION_ID, createNotification(getString(R.string.notif_running)))
     }
 
     private fun startForegroundService(contentText: String) {
@@ -256,7 +256,7 @@ class TimerService : Service() {
         )
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("健身计时器")
+            .setContentTitle(getString(R.string.notif_title))
             .setContentText(content)
             .setSmallIcon(R.drawable.ic_launcher)
             .setOngoing(true)

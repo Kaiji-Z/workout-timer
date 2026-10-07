@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Workout Timer</string>
+    <string name="notif_title">Workout Timer</string>
+    <string name="notif_exercising">Exercising %1$s</string>
+    <string name="notif_rest">Rest %1$s</string>
+    <string name="notif_remaining">Remaining %1$s</string>
+    <string name="notif_finished">Timer finished</string>
+    <string name="notif_running">Timer running…</string>
+    <string name="notif_rest_done_title">Rest complete!</string>
+    <string name="notif_rest_done_text">Get ready for the next set</string>
+    <string name="notif_channel_timer_name">Timer Service</string>
+    <string name="notif_channel_timer_desc">Keeps the timer running in the background</string>
+    <string name="notif_channel_completion_name">Timer Completion</string>
+    <string name="notif_channel_completion_desc">Rest countdown completion alert</string>
+</resources>

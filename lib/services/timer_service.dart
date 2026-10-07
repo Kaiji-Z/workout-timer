@@ -41,7 +41,8 @@ class TimerService {
     }
   }
 
-  /// Update the foreground service notification text.
+  /// Update the foreground service notification with the raw exercise
+  /// time (mm:ss). Kotlin composes the localized prefix from resources.
   static Future<void> updateNotification(String time) async {
     if (kIsWeb) return;
     try {

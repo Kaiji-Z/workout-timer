@@ -598,9 +598,10 @@ class TrainingProvider extends ChangeNotifier {
 
   void _updateServiceNotification() {
     if (_canUsePlatformServices && _state != TrainingState.resting) {
-      // Only update during exercise — Kotlin handles rest notifications
-      final timeStr = '运动 $sessionDurationFormatted';
-      TimerService.updateNotification(timeStr);
+      // Only update during exercise — Kotlin handles rest notifications.
+      // Sends the raw mm:ss time; the localized "Exercising" prefix is
+      // composed on the Kotlin side from Android string resources.
+      TimerService.updateNotification(sessionDurationFormatted);
     }
   }
 
