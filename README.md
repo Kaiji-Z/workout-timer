@@ -19,15 +19,15 @@
 
 ---
 
-| 🏋️ 按计划训练 | ⏱️ 组间休息 | 📊 训练统计 |
+| 🏋️ 按计划训练 | 📊 训练统计 | 🤖 AI 计划与统计 |
 |:---:|:---:|:---:|
-| <img src="docs/screenshots/demo-training.gif" width="240" alt="按计划训练演示（加速播放）"> | <img src="docs/screenshots/demo-timer.gif" width="240" alt="组间休息倒计时演示（3 倍速）"> | <img src="docs/screenshots/demo-stats.gif" width="240" alt="训练统计演示（加速播放）"> |
-| 动作引导 + 每组记录 | 30 秒组间休息 | 恢复 · 剂量 · 进步 · 习惯 |
+| <img src="docs/screenshots/demo-training.gif" width="240" alt="按计划训练演示（加速播放）"> | <img src="docs/screenshots/demo-stats.gif" width="240" alt="训练统计演示（加速播放）"> | <img src="docs/screenshots/demo-ai.gif" width="240" alt="AI 计划与统计演示（加速播放）"> |
+| 动作引导 + 每组记录 | 恢复 · 剂量 · 进步 · 习惯 | 免费 AI，零 API Key |
 
-| 📚 动作库 | 🎨 主题切换 |
-|:---:|:---:|
-| <img src="docs/screenshots/demo-exercises.gif" width="240" alt="动作库演示（加速播放）"> | <img src="docs/screenshots/demo-themes.gif" width="240" alt="三主题切换演示（2 倍速）"> |
-| 870+ 动作，双语搜索 | 琥珀金 / 珊瑚橙 / 天空蓝 |
+| 📚 动作库 | 🗂️ 训练历史 | ⚙️ 训练偏好 |
+|:---:|:---:|:---:|
+| <img src="docs/screenshots/demo-exercises.gif" width="240" alt="动作库演示（加速播放）"> | <img src="docs/screenshots/demo-history.gif" width="240" alt="训练历史演示（加速播放）"> | <img src="docs/screenshots/demo-preferences.gif" width="240" alt="训练偏好演示（加速播放）"> |
+| 870+ 动作，双语搜索 | 每组数据完整留档 | AI 自动读取你的画像 |
 
 ## 这是什么？
 

@@ -19,15 +19,15 @@ Free · Open Source · No Ads · No Sign-up · No Cloud
 
 ---
 
-| 🏋️ Follow the plan | ⏱️ Rest timing | 📊 Statistics |
+| 🏋️ Follow the plan | 📊 Statistics | 🤖 AI plans & analysis |
 |:---:|:---:|:---:|
-| <img src="docs/screenshots/demo-training-en.gif" width="240" alt="Guided plan workout demo (sped up)"> | <img src="docs/screenshots/demo-timer-en.gif" width="240" alt="30-second rest countdown demo (3x speed)"> | <img src="docs/screenshots/demo-stats-en.gif" width="240" alt="Training statistics demo (sped up)"> |
-| Guided exercises + per-set logging | 30s rest between sets | Recovery · Dose · Progress · Habits |
+| <img src="docs/screenshots/demo-training-en.gif" width="240" alt="Guided plan workout demo (sped up)"> | <img src="docs/screenshots/demo-stats-en.gif" width="240" alt="Training statistics demo (sped up)"> | <img src="docs/screenshots/demo-ai-en.gif" width="240" alt="AI plans and analysis demo (sped up)"> |
+| Guided exercises + per-set logging | Recovery · Dose · Progress · Habits | Free AI, zero API keys |
 
-| 📚 Exercise library | 🎨 Themes |
-|:---:|:---:|
-| <img src="docs/screenshots/demo-exercises-en.gif" width="240" alt="Exercise library demo (sped up)"> | <img src="docs/screenshots/demo-themes-en.gif" width="240" alt="Theme switching demo (2x speed)"> |
-| 870+ exercises, bilingual search | Amber / Coral / Sky Blue |
+| 📚 Exercise library | 🗂️ Workout history | ⚙️ Training preferences |
+|:---:|:---:|:---:|
+| <img src="docs/screenshots/demo-exercises-en.gif" width="240" alt="Exercise library demo (sped up)"> | <img src="docs/screenshots/demo-history-en.gif" width="240" alt="Workout history demo (sped up)"> | <img src="docs/screenshots/demo-preferences-en.gif" width="240" alt="Training preferences demo (sped up)"> |
+| 870+ exercises, bilingual search | Every set, permanently logged | AI reads your profile automatically |
 
 ## What is this?
 
