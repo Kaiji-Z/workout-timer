@@ -113,8 +113,10 @@ class _TrainingWidgetState extends State<TrainingWidget>
               // 顶部标题 + 计划图标
               _buildHeader(theme, planProvider, progressProvider),
 
-              // 极简进度行（计划模式下显示）
-              if (_isPlanMode && _selectedPlan != null)
+              // 极简进度行（计划模式下显示；完成态由奖牌收尾，进度行退场）
+              if (_isPlanMode &&
+                  _selectedPlan != null &&
+                  !training.isCompleted)
                 buildTrainingCompactProgress(
                   context,
                   progressProvider: progressProvider,
