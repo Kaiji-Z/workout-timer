@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:workout_timer/l10n/app_localizations.dart';
 import 'package:workout_timer/models/muscle_group.dart';
+import 'package:workout_timer/models/workout_record.dart';
 import 'package:workout_timer/services/stats_calculator_service.dart';
 import 'package:workout_timer/theme/app_theme.dart';
+import 'package:workout_timer/widgets/stats_charts.dart';
 import 'package:workout_timer/widgets/stats_dose_section.dart';
 import 'package:workout_timer/widgets/stats_habit_section.dart';
 import 'package:workout_timer/widgets/stats_progress_section.dart';
@@ -177,6 +179,111 @@ void main() {
         ),
       );
       expect(find.text('No qualifying week yet'), findsOneWidget);
+    });
+
+    testWidgets('heatmap scrolls horizontally and anchors to today', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        wrap(
+          StatsHabitSection(
+            dailyVolume: {},
+            streakWeeks: 0,
+            sessionsThisWeek: 0,
+            weeklyTarget: 3,
+            // 用真实"今天"，与组件的当前年份判定保持一致
+            today: DateTime.now(),
+            theme: amberGoldTheme,
+          ),
+        ),
+      );
+      await tester.pump(); // post-frame 锚定跳转
+
+      final scrollableFinder = find.descendant(
+        of: find.byType(StatsHabitSection),
+        matching: find.byType(Scrollable),
+      );
+      expect(scrollableFinder, findsOneWidget);
+      final position = tester.state<ScrollableState>(scrollableFinder).position;
+      // 全年 53 列固定大格远宽于视口 → 可横向滑动
+      expect(position.maxScrollExtent, greaterThan(0));
+      // 当前年份初始锚定到最右（今天附近），而非年初
+      expect(position.pixels, greaterThan(0));
+
+      // 向右拖 → 回到年初
+      await tester.drag(scrollableFinder, const Offset(400, 0));
+      await tester.pumpAndSettle();
+      expect(position.pixels, 0);
+
+      // 切到过去年份停在年初；切回当前年份重新锚定到今天
+      await tester.tap(find.byIcon(Icons.chevron_left));
+      await tester.pump();
+      expect(position.pixels, 0);
+      await tester.tap(find.byIcon(Icons.chevron_right));
+      await tester.pump();
+      expect(position.pixels, greaterThan(0));
+    });
+  });
+
+  group('DensityMetricCard', () {
+    WorkoutRecord rec(String id, DateTime date, int sets, int seconds) =>
+        WorkoutRecord(
+          id: id,
+          date: date,
+          durationSeconds: seconds,
+          trainedMuscles: const [],
+          exercises: const [],
+          totalSets: sets,
+          createdAt: date,
+        );
+
+    final asOf = DateTime(2026, 9, 30);
+    // 密度刻意两两可分辨：7 天窗只有 a，30 天窗 a+b，全部 a+b+c
+    final records = [
+      rec('a', DateTime(2026, 9, 24), 10, 600),
+      rec('b', DateTime(2026, 9, 10), 30, 600),
+      rec('c', DateTime(2026, 7, 31), 60, 600),
+    ];
+
+    testWidgets('defaults to 30-day window and switches 7d/all', (tester) async {
+      await tester.pumpWidget(
+        wrap(
+          DensityMetricCard(
+            records: records,
+            asOf: asOf,
+            theme: amberGoldTheme,
+          ),
+        ),
+      );
+
+      // 默认近30天：a+b = 40 组 / 20 分钟 = 2.0
+      expect(find.text('2.0 sets/min'), findsOneWidget);
+      expect(find.text('40 sets / 20 min'), findsOneWidget);
+
+      await tester.tap(find.text('7 days'));
+      await tester.pump();
+      // 近7天：只剩 a = 10 组 / 10 分钟 = 1.0
+      expect(find.text('1.0 sets/min'), findsOneWidget);
+      expect(find.text('10 sets / 10 min'), findsOneWidget);
+
+      await tester.tap(find.text('All'));
+      await tester.pump();
+      // 全部：a+b+c = 100 组 / 30 分钟 = 3.3
+      expect(find.text('3.3 sets/min'), findsOneWidget);
+      expect(find.text('100 sets / 30 min'), findsOneWidget);
+    });
+
+    testWidgets('hidden when there are no records at all', (tester) async {
+      await tester.pumpWidget(
+        wrap(
+          DensityMetricCard(
+            records: const [],
+            asOf: asOf,
+            theme: amberGoldTheme,
+          ),
+        ),
+      );
+      expect(find.text('Density'), findsNothing);
     });
   });
 }
