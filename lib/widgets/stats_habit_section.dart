@@ -53,7 +53,42 @@ class _StatsHabitSectionState extends State<StatsHabitSection> {
   /// 顶部月份横标行高度
   static const _monthLabelHeight = 14.0;
 
+  /// 放大后的固定格宽。旧版自适应屏宽时 53 列挤在一屏，格子仅约 4px；
+  /// 改为固定大格 + 横向滑动浏览。
+  static const _cellSize = 14.0;
+
   late int _year = widget.today.year;
+
+  /// 热力图横向滚动控制器
+  final ScrollController _heatmapScroll = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _anchorHeatmap());
+  }
+
+  @override
+  void dispose() {
+    _heatmapScroll.dispose();
+    super.dispose();
+  }
+
+  /// 当前年份滚到最右（今天附近，最近的表现最相关）；
+  /// 历史年份回到年初。
+  void _anchorHeatmap() {
+    if (!_heatmapScroll.hasClients) return;
+    _heatmapScroll.jumpTo(
+      _year == widget.today.year
+          ? _heatmapScroll.position.maxScrollExtent
+          : 0,
+    );
+  }
+
+  void _changeYear(int delta) {
+    setState(() => _year += delta);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _anchorHeatmap());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -201,7 +236,7 @@ class _StatsHabitSectionState extends State<StatsHabitSection> {
       children: [
         IconButton(
           tooltip: l10n.statsPrevYear,
-          onPressed: () => setState(() => _year--),
+          onPressed: () => _changeYear(-1),
           icon: Icon(Icons.chevron_left, color: theme.textColor),
           visualDensity: VisualDensity.compact,
         ),
@@ -211,7 +246,7 @@ class _StatsHabitSectionState extends State<StatsHabitSection> {
         ),
         IconButton(
           tooltip: l10n.statsNextYear,
-          onPressed: canGoNext ? () => setState(() => _year++) : null,
+          onPressed: canGoNext ? () => _changeYear(1) : null,
           icon: Icon(
             Icons.chevron_right,
             color: canGoNext
@@ -242,89 +277,95 @@ class _StatsHabitSectionState extends State<StatsHabitSection> {
         : 365;
     final columns = ((leadingBlanks + daysInYear) / 7).ceil();
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final gridWidth = constraints.maxWidth - _gutterWidth;
-        final cell = (gridWidth - (columns - 1) * _gap) / columns;
-        final gridHeight = 7 * cell + 6 * _gap;
+    final cell = _cellSize;
+    final gridWidth = columns * cell + (columns - 1) * _gap;
+    final gridHeight = 7 * cell + 6 * _gap;
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 横坐标：月份标签，锚定各月 1 日所在列
-            SizedBox(
-              height: _monthLabelHeight,
-              child: Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  for (final label in _monthLabels(context, leadingBlanks))
-                    Positioned(
-                      left: _gutterWidth + label.column * (cell + _gap),
-                      top: 0,
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // 纵坐标：隔行星期标签（一/三/五行，GitHub 式），固定在视口左缘不随滚动移动
+        SizedBox(
+          width: _gutterWidth,
+          height: _monthLabelHeight + 4 + gridHeight,
+          child: Stack(
+            children: [
+              for (final rowLabel in _weekdayLabels(context))
+                Positioned(
+                  left: 0,
+                  top: _monthLabelHeight + 4 + rowLabel.row * (cell + _gap),
+                  child: SizedBox(
+                    height: cell,
+                    width: _gutterWidth,
+                    child: Align(
+                      alignment: Alignment.centerLeft,
                       child: Text(
-                        label.text,
+                        rowLabel.text,
                         style: context.bodySmall.copyWith(
                           fontSize: 9,
                           color: theme.secondaryTextColor,
                         ),
                       ),
                     ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 4),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 纵坐标：隔行星期标签（一/三/五行，GitHub 式）
-                SizedBox(
-                  width: _gutterWidth,
-                  height: gridHeight,
-                  child: Stack(
-                    children: [
-                      for (final rowLabel in _weekdayLabels(context))
-                        Positioned(
-                          left: 0,
-                          top: rowLabel.row * (cell + _gap),
-                          child: SizedBox(
-                            height: cell,
-                            width: _gutterWidth,
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                rowLabel.text,
-                                style: context.bodySmall.copyWith(
-                                  fontSize: 9,
-                                  color: theme.secondaryTextColor,
-                                ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+        // 月份横标 + 网格整体横向滑动（固定大格，全年 53 列超出视口）
+        Expanded(
+          child: SingleChildScrollView(
+            controller: _heatmapScroll,
+            scrollDirection: Axis.horizontal,
+            child: SizedBox(
+              width: gridWidth,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 横坐标：月份标签，锚定各月 1 日所在列
+                  SizedBox(
+                    height: _monthLabelHeight,
+                    child: Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        for (final label in _monthLabels(context, leadingBlanks))
+                          Positioned(
+                            left: label.column * (cell + _gap),
+                            top: 0,
+                            child: Text(
+                              label.text,
+                              style: context.bodySmall.copyWith(
+                                fontSize: 9,
+                                color: theme.secondaryTextColor,
                               ),
                             ),
                           ),
-                        ),
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  width: gridWidth,
-                  height: gridHeight,
-                  child: CustomPaint(
-                    painter: _YearHeatmapPainter(
-                      year: _year,
-                      yearData: yearData,
-                      maxVolume: maxVolume,
-                      columns: columns,
-                      leadingBlanks: leadingBlanks,
-                      cell: cell,
-                      today: widget.today,
-                      theme: theme,
+                      ],
                     ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 4),
+                  SizedBox(
+                    width: gridWidth,
+                    height: gridHeight,
+                    child: CustomPaint(
+                      painter: _YearHeatmapPainter(
+                        year: _year,
+                        yearData: yearData,
+                        maxVolume: maxVolume,
+                        columns: columns,
+                        leadingBlanks: leadingBlanks,
+                        cell: cell,
+                        today: widget.today,
+                        theme: theme,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ],
-        );
-      },
+          ),
+        ),
+      ],
     );
   }
 
@@ -433,7 +474,8 @@ class _HeatmapAxisLabel {
 ///
 /// 强度用 Okabe-Ito blue 的透明度阶梯编码（数据色，色盲安全）；
 /// 过去未训练 = 淡底格，未来日期 = 虚线描边占位（虚显，一眼分清
-/// 「没练」和「还没到」）。纯绘制，无交互（克制原则）。
+/// 「没练」和「还没到」）。格子固定大宽，横向滑动由外层
+/// SingleChildScrollView 承担；本 painter 只负责绘制。
 class _YearHeatmapPainter extends CustomPainter {
   final int year;
   final Map<DateTime, double> yearData;
