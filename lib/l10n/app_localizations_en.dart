@@ -2149,6 +2149,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get statsDensity => 'Density';
 
   @override
+  String get statsDensityRange7d => '7 days';
+
+  @override
+  String get statsDensityRange30d => '30 days';
+
+  @override
+  String get statsDensityRangeAll => 'All';
+
+  @override
   String statsSetsPerMinute(String value) {
     return '$value sets/min';
   }

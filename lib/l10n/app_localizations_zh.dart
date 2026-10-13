@@ -2088,6 +2088,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get statsDensity => '训练密度';
 
   @override
+  String get statsDensityRange7d => '近7天';
+
+  @override
+  String get statsDensityRange30d => '近30天';
+
+  @override
+  String get statsDensityRangeAll => '全部';
+
+  @override
   String statsSetsPerMinute(String value) {
     return '$value 组/分钟';
   }

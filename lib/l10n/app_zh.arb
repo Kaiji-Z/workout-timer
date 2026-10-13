@@ -2112,6 +2112,12 @@
   "@statsRecoveryStatus": {},
   "statsDensity": "训练密度",
   "@statsDensity": {},
+  "statsDensityRange7d": "近7天",
+  "@statsDensityRange7d": {},
+  "statsDensityRange30d": "近30天",
+  "@statsDensityRange30d": {},
+  "statsDensityRangeAll": "全部",
+  "@statsDensityRangeAll": {},
   "statsSetsPerMinute": "{value} 组/分钟",
   "@statsSetsPerMinute": {
     "placeholders": {

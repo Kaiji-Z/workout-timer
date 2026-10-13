@@ -210,12 +210,7 @@ class _StatsScreenState extends State<StatsScreen> {
       today: asOf,
     );
 
-    // 密度小指标（收编进习惯区下方，滚动28天口径）
-    final rolling28 = _statsCalc.filterRollingWindow(
-      _newRecords,
-      asOf: asOf,
-      windowDays: 28,
-    );
+    // 密度小指标（收编进习惯区下方，口径在卡片内切换 近7天/近30天/全部）
 
     return ListView(
       padding: EdgeInsets.only(
@@ -254,7 +249,7 @@ class _StatsScreenState extends State<StatsScreen> {
           theme: theme,
         ),
         const SizedBox(height: 12),
-        buildDensityMetric(context, rolling28, theme),
+        DensityMetricCard(records: _newRecords, asOf: asOf, theme: theme),
         const SizedBox(height: 20),
       ],
     );

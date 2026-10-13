@@ -3755,6 +3755,24 @@ abstract class AppLocalizations {
   /// **'训练密度'**
   String get statsDensity;
 
+  /// No description provided for @statsDensityRange7d.
+  ///
+  /// In zh, this message translates to:
+  /// **'近7天'**
+  String get statsDensityRange7d;
+
+  /// No description provided for @statsDensityRange30d.
+  ///
+  /// In zh, this message translates to:
+  /// **'近30天'**
+  String get statsDensityRange30d;
+
+  /// No description provided for @statsDensityRangeAll.
+  ///
+  /// In zh, this message translates to:
+  /// **'全部'**
+  String get statsDensityRangeAll;
+
   /// No description provided for @statsSetsPerMinute.
   ///
   /// In zh, this message translates to:
