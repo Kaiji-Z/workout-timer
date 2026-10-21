@@ -752,6 +752,7 @@ adb install -r build/app/outputs/flutter-apk/app-release.apk  # 永远 -r 覆盖
 
 - 触发：推送 `v*` tag；或手动补发已存在的 tag：`gh workflow run Release -f tag=vX.Y.Z`
 - 内置校验：tag 与 pubspec 不一致、或 version 带 `+buildNumber` 后缀都会直接失败
+- **正式签名（2026-10-22 起）**：构建前从 GitHub secrets 恢复正式 keystore（`Restore signing keystore` 步骤），secrets 缺失时硬失败——**绝不回退 debug 签名**。`build.gradle.kts` 在缺 `key.properties` 时会静默回退 debug 签名，而 CI runner 每次生成随机 debug keystore，导致历史上每个 release APK 签名都不同、用户覆盖升级必失败（INSTALL_FAILED_UPDATE_INCOMPATIBLE）。四个 secrets：`KEYSTORE_BASE64`（upload-keystore.jks 的 base64）/`KEYSTORE_PASSWORD`/`KEY_PASSWORD`/`KEY_ALIAS`；本地对应文件 `android/key.properties` + `android/app/upload-keystore.jks`（均 gitignore）。**keystore 丢失 = 所有已装机用户永久无法平滑升级**，务必备份（证书 SHA-256 `6D:A9:85:B4:…:37:56`）。2026-10-22 之前发的版本签名各不相同，从那些版本升级需卸载重装（先在 App 内导出数据）。
 - Release 说明**全自动生成**：`scripts/generate_release_notes.mjs` 把上个 tag 以来的 conventional commits 归类为中文说明（🚀 新功能 / 🛠 问题修复 / ⚡ 性能 / ♻️ 优化重构，chore/docs/test 折叠，`chore: bump version` 不入说明，附完整变更链接）——**前提是提交信息守规范**（`type(scope): 描述`），规范 = 说明的质量。每份说明固定附「1.2.x 迁移指引」折叠块（1.2 时代 versionCode=2 > 三段式派生的 1，安装器会拦覆盖安装；用户需导出→卸载→安装→导入）。需要修订已发版本的说明：`node scripts/generate_release_notes.mjs vX.Y.Z > f.md && gh release edit vX.Y.Z --notes-file f.md`
 - 产物：Release 页附件 `app-release.apk`
 
