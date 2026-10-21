@@ -94,6 +94,29 @@ jobs:
       - name: Run unit tests
         run: flutter test
 
+      - name: Restore signing keystore
+        # Release 禁止回退 debug 签名：build.gradle.kts 在缺 key.properties 时会回退
+        # debug 签名，而 CI runner 每次现场生成随机 debug keystore → 每个 release
+        # 签名都不同 → 用户覆盖升级必失败（INSTALL_FAILED_UPDATE_INCOMPATIBLE，
+        # 2026-10-22 修复，详见 AGENTS.md 发版规则）。
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+        run: |
+          if [ -z "$KEYSTORE_BASE64" ]; then
+            echo "::error::缺少签名 secrets（KEYSTORE_BASE64/KEYSTORE_PASSWORD/KEY_PASSWORD/KEY_ALIAS）——release 不允许回退 debug 签名，那会让所有用户无法覆盖升级"
+            exit 1
+          fi
+          printf '%s' "$KEYSTORE_BASE64" | base64 -d > android/app/upload-keystore.jks
+          cat > android/key.properties <<EOF
+          storePassword=$KEYSTORE_PASSWORD
+          keyPassword=$KEY_PASSWORD
+          keyAlias=$KEY_ALIAS
+          storeFile=upload-keystore.jks
+          EOF
+
       - name: Build release APK
         # --no-tree-shake-icons 必带，否则 Material Icons 花屏
         run: flutter build apk --release --no-tree-shake-icons
