@@ -59,15 +59,33 @@ void main() {
     expect(prefs.goal, 'fat_loss');
   });
 
-  testWidgets('体重输入：打字过程不弹提示，失焦提交后持久化', (tester) async {
+  testWidgets('体重输入：打字过程不弹提示，键盘完成后持久化', (tester) async {
     await pumpScreen(tester);
 
     await tester.enterText(find.byType(TextField), '72.5');
     await tester.pump();
-    // 输入中间态不弹保存提示
+    // 输入中间态不弹保存提示、不落盘
+    expect(find.text('偏好已保存'), findsNothing);
+    expect((await UserPreferencesService().loadPreferences()).bodyWeight, 0.0);
+
+    // 键盘「完成」提交
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    for (var i = 0; i < 5; i++) {
+      await tester.pump(const Duration(milliseconds: 200));
+    }
     expect(find.text('偏好已保存'), findsNothing);
 
-    // 点击其它区域使体重框失焦 → 触发提交保存
+    final prefs = await UserPreferencesService().loadPreferences();
+    expect(prefs.bodyWeight, 72.5);
+  });
+
+  testWidgets('体重输入后直接点选其它项：体重随本次点选一并持久化', (tester) async {
+    await pumpScreen(tester);
+
+    await tester.enterText(find.byType(TextField), '72.5');
+    await tester.pump();
+
+    // 不按键盘完成、体重框不失焦，直接点选训练目标（真实用户常见路径）
     await tester.tap(find.text('增肌').first);
     for (var i = 0; i < 5; i++) {
       await tester.pump(const Duration(milliseconds: 200));
@@ -76,6 +94,7 @@ void main() {
 
     final prefs = await UserPreferencesService().loadPreferences();
     expect(prefs.bodyWeight, 72.5);
+    expect(prefs.goal, 'muscle_building');
   });
 
   testWidgets('重进页面恢复上次保存的偏好与体重', (tester) async {

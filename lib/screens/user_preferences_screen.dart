@@ -22,6 +22,7 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
   UserPreferences _preferences = const UserPreferences();
   bool _isLoading = true;
   final TextEditingController _bodyWeightController = TextEditingController();
+  final FocusNode _bodyWeightFocus = FocusNode();
 
   // Stable value keys (locale-independent). Labels are resolved at build time.
   static const List<String> _goalValues = [
@@ -118,6 +119,7 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
   @override
   void initState() {
     super.initState();
+    _bodyWeightFocus.addListener(_onBodyWeightFocusChanged);
     _loadPreferences();
   }
 
@@ -134,20 +136,27 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
     }
   }
 
+  /// 静默保存：设置类页面即时生效、不打扰（一般 App 习惯），
+  /// 只有保存失败才向用户提示。
   Future<void> _savePreferences() async {
-    await _preferencesService.savePreferences(_preferences);
-    if (mounted) {
-      final l10n = context.l10n;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(l10n.prefSaved),
-          duration: const Duration(seconds: 1),
-        ),
-      );
+    try {
+      await _preferencesService.savePreferences(_preferences);
+    } catch (e) {
+      debugPrint('Error saving preferences: $e');
+      if (mounted) {
+        final l10n = context.l10n;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l10n.prefSaveFailed),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
     }
   }
 
   void _updateGoal(String goal) {
+    _commitBodyWeight();
     setState(() {
       _preferences = _preferences.copyWith(goal: goal);
     });
@@ -155,6 +164,7 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
   }
 
   void _updateExperience(String experience) {
+    _commitBodyWeight();
     setState(() {
       _preferences = _preferences.copyWith(experience: experience);
     });
@@ -162,6 +172,7 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
   }
 
   void _updateEquipment(String equipment) {
+    _commitBodyWeight();
     setState(() {
       _preferences = _preferences.copyWith(equipment: equipment);
     });
@@ -169,6 +180,7 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
   }
 
   void _updateFrequency(int frequency) {
+    _commitBodyWeight();
     setState(() {
       _preferences = _preferences.copyWith(frequency: frequency);
     });
@@ -176,21 +188,43 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
   }
 
   void _updateFocusAreas(List<String> focusAreas) {
+    _commitBodyWeight();
     setState(() {
       _preferences = _preferences.copyWith(focusAreas: focusAreas.join(','));
     });
     _savePreferences();
   }
 
-  void _updateBodyWeight(double weight) {
-    setState(() {
-      _preferences = _preferences.copyWith(bodyWeight: weight);
-    });
+  void _onBodyWeightFocusChanged() {
+    // 失焦即提交（点别处 / 切换输入框 / 键盘收起）
+    if (!_bodyWeightFocus.hasFocus) {
+      _commitBodyWeight();
+    }
+  }
+
+  /// 体重提交（键盘完成 / 失焦 / 点选其它项 / 离开页面）时才落盘；
+  /// 空或无效输入 = 清除已存体重；无变化不重复写。输入过程不保存——
+  /// 旧实现每字符保存并弹提示，既打扰又会把中间态（如 "7"）写成脏数据。
+  void _commitBodyWeight() {
+    final text = _bodyWeightController.text.trim();
+    final parsed = double.tryParse(text);
+    if (text.isNotEmpty && parsed == null) {
+      _bodyWeightController.clear();
+    }
+    final value = (parsed == null || parsed <= 0) ? 0.0 : parsed;
+    if (value == _preferences.bodyWeight) {
+      return;
+    }
+    _preferences = _preferences.copyWith(bodyWeight: value);
     _savePreferences();
   }
 
   @override
   void dispose() {
+    // 页面关闭兜底提交（pop 时失焦事件不保证触发）
+    _commitBodyWeight();
+    _bodyWeightFocus.removeListener(_onBodyWeightFocusChanged);
+    _bodyWeightFocus.dispose();
     _bodyWeightController.dispose();
     super.dispose();
   }
@@ -248,6 +282,9 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
                               Expanded(
                                 child: TextField(
                                   controller: _bodyWeightController,
+                                  focusNode: _bodyWeightFocus,
+                                  textInputAction: TextInputAction.done,
+                                  onSubmitted: (_) => _commitBodyWeight(),
                                   keyboardType:
                                       const TextInputType.numberWithOptions(
                                         decimal: true,
@@ -304,10 +341,6 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
                                         ),
                                   ),
                                   style: context.bodyLarge,
-                                  onChanged: (value) {
-                                    final weight = double.tryParse(value);
-                                    _updateBodyWeight(weight ?? 0.0);
-                                  },
                                 ),
                               ),
                             ],

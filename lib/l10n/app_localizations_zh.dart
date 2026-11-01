@@ -876,7 +876,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get prefCloseTooltip => '关闭';
 
   @override
-  String get prefSaved => '偏好已保存';
+  String get prefSaveFailed => '偏好保存失败，请重试';
 
   @override
   String get prefBodyWeightSection => '体重';

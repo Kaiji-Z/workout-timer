@@ -78,6 +78,11 @@ class UserPreferencesService {
   }
 
   /// Save user preferences to SharedPreferences
+  ///
+  /// bodyWeight=0 = 清除已存体重（统计侧 bodyWeight<=0 一律按未设置处理，
+  /// 见 bodyweight_coefficient_service / stats_calculator_service）。
+  /// 保存失败时 rethrow：偏好是用户明确录入的数据，不允许静默丢失，
+  /// 由 UI 层向用户提示。
   Future<void> savePreferences(UserPreferences prefs) async {
     try {
       final sharedPreferences = await SharedPreferences.getInstance();
@@ -86,11 +91,10 @@ class UserPreferencesService {
       await sharedPreferences.setString(_keyEquipment, prefs.equipment);
       await sharedPreferences.setInt(_keyFrequency, prefs.frequency);
       await sharedPreferences.setString(_keyFocusAreas, prefs.focusAreas);
-      if (prefs.bodyWeight > 0) {
-        await sharedPreferences.setDouble(_keyBodyWeight, prefs.bodyWeight);
-      }
+      await sharedPreferences.setDouble(_keyBodyWeight, prefs.bodyWeight);
     } catch (e) {
       debugPrint('Error saving user preferences: $e');
+      rethrow;
     }
   }
 }

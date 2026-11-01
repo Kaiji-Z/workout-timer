@@ -909,7 +909,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get prefCloseTooltip => 'Close';
 
   @override
-  String get prefSaved => 'Preferences saved';
+  String get prefSaveFailed => 'Failed to save preferences. Please try again';
 
   @override
   String get prefBodyWeightSection => 'Body Weight';

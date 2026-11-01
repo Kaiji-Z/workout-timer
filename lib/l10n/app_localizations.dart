@@ -1626,11 +1626,11 @@ abstract class AppLocalizations {
   /// **'关闭'**
   String get prefCloseTooltip;
 
-  /// No description provided for @prefSaved.
+  /// No description provided for @prefSaveFailed.
   ///
   /// In zh, this message translates to:
-  /// **'偏好已保存'**
-  String get prefSaved;
+  /// **'偏好保存失败，请重试'**
+  String get prefSaveFailed;
 
   /// No description provided for @prefBodyWeightSection.
   ///

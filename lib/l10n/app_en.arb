@@ -257,7 +257,7 @@
   "oemInstructionOneplus": "In \"Battery optimization\" advanced settings, find Workout Timer and choose \"Don't optimize\"",
   "prefTitle": "Training Preferences",
   "prefCloseTooltip": "Close",
-  "prefSaved": "Preferences saved",
+  "prefSaveFailed": "Failed to save preferences. Please try again",
   "prefBodyWeightSection": "Body Weight",
   "prefBodyWeightHint": "Used to calculate training volume for bodyweight exercises (e.g. pull-ups, push-ups)",
   "prefBodyWeightPlaceholder": "e.g. 70",
