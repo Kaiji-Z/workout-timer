@@ -48,15 +48,14 @@ class _StatsProgressSectionState extends State<StatsProgressSection> {
     final trends = widget.e1rmTrends;
 
     // 默认选中会话数最多的动作
-    final selected = _selectedExercise ??
+    final selected =
+        _selectedExercise ??
         (trends.isEmpty
             ? null
             : (trends.entries.toList()
-                  ..sort(
-                    (a, b) => b.value.length.compareTo(a.value.length),
-                  ))
-                .first
-                .key);
+                    ..sort((a, b) => b.value.length.compareTo(a.value.length)))
+                  .first
+                  .key);
 
     return Container(
       width: double.infinity,
@@ -115,8 +114,9 @@ class _StatsProgressSectionState extends State<StatsProgressSection> {
     final theme = widget.theme;
     final sorted = names.toList()
       ..sort(
-        (a, b) => (widget.e1rmTrends[b]?.length ?? 0)
-            .compareTo(widget.e1rmTrends[a]?.length ?? 0),
+        (a, b) => (widget.e1rmTrends[b]?.length ?? 0).compareTo(
+          widget.e1rmTrends[a]?.length ?? 0,
+        ),
       );
     // 会话数优先，最多展示 8 个（横向滚动），避免长名单占满卡片
     final shown = sorted.take(8).toList();
@@ -129,8 +129,7 @@ class _StatsProgressSectionState extends State<StatsProgressSection> {
         separatorBuilder: (_, _) => const SizedBox(width: 8),
         itemBuilder: (context, index) {
           final name = shown[index];
-          final isSelected =
-              name == (_selectedExercise ?? _defaultExercise());
+          final isSelected = name == (_selectedExercise ?? _defaultExercise());
           return ChoiceChip(
             label: Text(
               name,
@@ -173,8 +172,9 @@ class _StatsProgressSectionState extends State<StatsProgressSection> {
     final filtered = _last90Days
         ? points
               .where(
-                (p) => !p.date
-                    .isBefore(widget.today.subtract(const Duration(days: 90))),
+                (p) => !p.date.isBefore(
+                  widget.today.subtract(const Duration(days: 90)),
+                ),
               )
               .toList()
         : points;
@@ -236,24 +236,31 @@ class _StatsProgressSectionState extends State<StatsProgressSection> {
     VoidCallback onTap,
   ) {
     final theme = widget.theme;
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        // 触控目标 ≥48dp
-        constraints: const BoxConstraints(minHeight: 48),
-        padding: const EdgeInsets.symmetric(horizontal: 14),
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          // The 15% Tint Rule — selected 用实底 accent，未选中用 15% tint
-          color: selected ? theme.accentColor : theme.accentColor.withValues(alpha: 0.15),
-          borderRadius: BorderRadius.circular(AppDimensions.radiusChip),
-        ),
-        child: Text(
-          label,
-          style: context.bodySmall.copyWith(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            color: selected ? theme.onAccentColor : theme.accentColor,
+    // 读屏可聚焦可触发，且播报选中态（与密度卡范围 chips 同一语义）
+    return Semantics(
+      button: true,
+      selected: selected,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          // 触控目标 ≥48dp
+          constraints: const BoxConstraints(minHeight: 48),
+          padding: const EdgeInsets.symmetric(horizontal: 14),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            // The 15% Tint Rule — selected 用实底 accent，未选中用 15% tint
+            color: selected
+                ? theme.accentColor
+                : theme.accentColor.withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(AppDimensions.radiusChip),
+          ),
+          child: Text(
+            label,
+            style: context.bodySmall.copyWith(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: selected ? theme.onAccentColor : theme.accentColor,
+            ),
           ),
         ),
       ),
@@ -290,8 +297,7 @@ class _StatsProgressSectionState extends State<StatsProgressSection> {
       ),
       child: Row(
         children: [
-          Icon(Icons.emoji_events_outlined,
-              size: 14, color: theme.accentColor),
+          Icon(Icons.emoji_events_outlined, size: 14, color: theme.accentColor),
           const SizedBox(width: 6),
           Text(
             l10n.statsLatestPr,
@@ -391,9 +397,9 @@ class _StatsProgressSectionState extends State<StatsProgressSection> {
                             : 0.0,
                         child: Container(
                           decoration: BoxDecoration(
-                            color: const Color(0xFF0072B2).withValues(
-                              alpha: 0.75,
-                            ),
+                            color: const Color(
+                              0xFF0072B2,
+                            ).withValues(alpha: 0.75),
                             borderRadius: BorderRadius.circular(
                               AppDimensions.radiusSm,
                             ),

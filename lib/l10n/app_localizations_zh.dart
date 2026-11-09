@@ -2097,6 +2097,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get statsDensityRangeAll => '全部';
 
   @override
+  String get tooltipDensity => '口径内平均每次训练的组/分钟';
+
+  @override
   String statsSetsPerMinute(String value) {
     return '$value 组/分钟';
   }

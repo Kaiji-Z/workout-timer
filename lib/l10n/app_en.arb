@@ -611,6 +611,7 @@
   "statsDensityRange7d": "7 days",
   "statsDensityRange30d": "30 days",
   "statsDensityRangeAll": "All",
+  "tooltipDensity": "Average sets/min per workout in the selected range",
   "statsSetsPerMinute": "{value} sets/min",
   "statsSetsOverMinutes": "{sets} sets / {minutes} min",
   "statsNo1rmData": "No 1RM data",

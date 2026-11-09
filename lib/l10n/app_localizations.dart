@@ -3773,6 +3773,12 @@ abstract class AppLocalizations {
   /// **'全部'**
   String get statsDensityRangeAll;
 
+  /// No description provided for @tooltipDensity.
+  ///
+  /// In zh, this message translates to:
+  /// **'口径内平均每次训练的组/分钟'**
+  String get tooltipDensity;
+
   /// No description provided for @statsSetsPerMinute.
   ///
   /// In zh, this message translates to:

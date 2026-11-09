@@ -2118,6 +2118,8 @@
   "@statsDensityRange30d": {},
   "statsDensityRangeAll": "全部",
   "@statsDensityRangeAll": {},
+  "tooltipDensity": "口径内平均每次训练的组/分钟",
+  "@tooltipDensity": {},
   "statsSetsPerMinute": "{value} 组/分钟",
   "@statsSetsPerMinute": {
     "placeholders": {

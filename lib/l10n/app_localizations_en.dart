@@ -2158,6 +2158,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get statsDensityRangeAll => 'All';
 
   @override
+  String get tooltipDensity =>
+      'Average sets/min per workout in the selected range';
+
+  @override
   String statsSetsPerMinute(String value) {
     return '$value sets/min';
   }

@@ -248,7 +248,7 @@ class _StatsScreenState extends State<StatsScreen> {
           today: asOf,
           theme: theme,
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 20),
         DensityMetricCard(records: _newRecords, asOf: asOf, theme: theme),
         const SizedBox(height: 20),
       ],
