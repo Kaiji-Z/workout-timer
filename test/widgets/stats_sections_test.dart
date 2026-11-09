@@ -285,5 +285,129 @@ void main() {
       );
       expect(find.text('Density'), findsNothing);
     });
+
+    testWidgets('uses the same section chrome as sibling sections', (
+      tester,
+    ) async {
+      // 与 StatsDoseSection 同树渲染，直接对比根 Container 装饰：
+      // 密度卡必须与其他统计区共用区块制服（raised 面 + radiusXl +
+      // raised 阴影 + 无描边），区头遵循 16px 图标 + 13px 标题惯例。
+      await tester.pumpWidget(
+        wrap(
+          Column(
+            children: [
+              StatsDoseSection(
+                setsPerMuscle: const {PrimaryMuscleGroup.chest: 10},
+                doseStatus: statusOf(const {}),
+                volume7d: 500,
+                theme: amberGoldTheme,
+              ),
+              DensityMetricCard(
+                records: records,
+                asOf: asOf,
+                theme: amberGoldTheme,
+              ),
+            ],
+          ),
+        ),
+      );
+
+      BoxDecoration chromeOf(Type type) {
+        final container = tester.widget<Container>(
+          find
+              .descendant(of: find.byType(type), matching: find.byType(Container))
+              .first,
+        );
+        return container.decoration! as BoxDecoration;
+      }
+
+      final dose = chromeOf(StatsDoseSection);
+      final density = chromeOf(DensityMetricCard);
+      expect(density.color, dose.color, reason: '同用 surfaceColorRaised');
+      expect(density.borderRadius, dose.borderRadius, reason: '同用 radiusXl');
+      expect(density.border, dose.border, reason: '区块外壳不带描边');
+      expect(
+        density.boxShadow?.length,
+        dose.boxShadow?.length,
+        reason: '同用 AppElevation.raised 阴影',
+      );
+
+      // 区头惯例：16px accent 图标（不与剂量区的 speed 撞车）+ 13px 标题
+      final icon = tester.widget<Icon>(
+        find.descendant(
+          of: find.byType(DensityMetricCard),
+          matching: find.byIcon(Icons.bolt),
+        ),
+      );
+      expect(icon.size, 16);
+      expect(icon.color, amberGoldTheme.accentColor);
+      final title = tester.widget<Text>(
+        find.descendant(
+          of: find.byType(DensityMetricCard),
+          matching: find.text('Density'),
+        ),
+      );
+      expect(title.style?.fontSize, 13);
+    });
+
+    testWidgets('range chips expose button and selected semantics', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        wrap(
+          DensityMetricCard(
+            records: records,
+            asOf: asOf,
+            theme: amberGoldTheme,
+          ),
+        ),
+      );
+
+      Semantics? chipSemantics(String label) {
+        final f = find.ancestor(
+          of: find.text(label),
+          matching: find.byWidgetPredicate(
+            (w) => w is Semantics && w.properties.button == true,
+          ),
+        );
+        return f.evaluate().isEmpty ? null : tester.firstWidget<Semantics>(f);
+      }
+
+      // 默认近30天：button 角色 + selected 态可被读屏播报
+      expect(chipSemantics('30 days')!.properties.selected, isTrue);
+      expect(chipSemantics('7 days')!.properties.selected, isNot(isTrue));
+      expect(chipSemantics('All')!.properties.selected, isNot(isTrue));
+
+      await tester.tap(find.text('7 days'));
+      await tester.pump();
+      expect(chipSemantics('7 days')!.properties.selected, isTrue);
+      expect(chipSemantics('30 days')!.properties.selected, isNot(isTrue));
+    });
+
+    testWidgets('header carries a tap tooltip explaining the metric', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        wrap(
+          DensityMetricCard(
+            records: records,
+            asOf: asOf,
+            theme: amberGoldTheme,
+          ),
+        ),
+      );
+
+      final tooltip = tester.widget<Tooltip>(
+        find.descendant(
+          of: find.byType(DensityMetricCard),
+          matching: find.byType(Tooltip),
+        ),
+      );
+      expect(tooltip.triggerMode, TooltipTriggerMode.tap);
+      expect(
+        tooltip.message,
+        'Average sets/min per workout in the selected range',
+      );
+    });
   });
 }
