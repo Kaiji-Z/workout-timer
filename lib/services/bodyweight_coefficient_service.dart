@@ -181,6 +181,11 @@ class BodyweightCoefficientService {
   /// Calculate the equivalent weight for a bodyweight exercise.
   /// equivalentWeight = bodyWeight × coefficient + additionalWeight
   ///
+  /// ⚠️ 仅用于参考信息展示 / 聚合推导，不要把结果写入 `SetData.weight`。
+  /// 存储约定：`SetData.weight` 只存用户输入的原始配重（纯自重 → null），
+  /// 自重系数由聚合层 `RecordedExercise.bodyweightAdjustedVolume`
+  /// 统一补一次——写入等效值会导致下一组预填污染 + 容量双重计入。
+  ///
   /// [exercise] - The exercise being performed
   /// [bodyWeight] - User's body weight in kg
   /// [additionalWeight] - Extra weight added (e.g., weighted vest, dip belt)

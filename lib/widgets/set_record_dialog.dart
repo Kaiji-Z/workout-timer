@@ -320,22 +320,15 @@ class _SetRecordDialogState extends State<SetRecordDialog> {
   }
 
   void _save() {
+    // 存储约定：SetData.weight 永远只存用户输入的原始配重（纯自重 → null）。
+    // 等效重量（体重×系数+配重）不写库——容量/统计由聚合层
+    // RecordedExercise.bodyweightAdjustedVolume 统一补系数。
+    // 否则下一组预填上一组的等效值当配重，逐组滚雪球（已修的历史 bug）。
     final additionalWeight = double.tryParse(_weightController.text) ?? 0.0;
-    double weight;
-    final bodyWeight = _bodyWeight;
-    if (_isBodyweight && bodyWeight != null && bodyWeight > 0) {
-      weight = BodyweightCoefficientService.calculateEquivalentWeight(
-        exercise: widget.exercise,
-        bodyWeight: bodyWeight,
-        additionalWeight: additionalWeight,
-      );
-    } else {
-      weight = additionalWeight;
-    }
     final setData = SetData(
       setNumber: widget.setNumber,
       reps: _selectedReps,
-      weight: weight > 0 ? weight : null,
+      weight: additionalWeight > 0 ? additionalWeight : null,
     );
     Navigator.of(context).pop(setData);
   }

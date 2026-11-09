@@ -115,23 +115,12 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
     final index = setNumber - 1;
     if (_exerciseData[exerciseId] != null &&
         index < _exerciseData[exerciseId]!.length) {
-      double finalWeight = additionalWeight ?? 0.0;
-      final bodyWeight = _bodyWeight;
-      // Check if it's bodyweight and calculate equivalent weight
-      if (BodyweightCoefficientService.isBodyweightExercise(
-            exercise.exercise,
-          ) &&
-          bodyWeight != null &&
-          bodyWeight > 0) {
-        finalWeight = BodyweightCoefficientService.calculateEquivalentWeight(
-          exercise: exercise.exercise,
-          bodyWeight: bodyWeight,
-          additionalWeight: additionalWeight ?? 0.0,
-        );
-      }
+      // 存储约定：只存原始配重；自重系数由聚合层统一补
+      // （RecordedExercise.bodyweightAdjustedVolume），不写等效值。
+      final rawWeight = additionalWeight ?? 0.0;
       setState(() {
         _exerciseData[exerciseId]![index] = _exerciseData[exerciseId]![index]
-            .copyWith(weight: finalWeight > 0 ? finalWeight : null);
+            .copyWith(weight: rawWeight > 0 ? rawWeight : null);
       });
     }
   }

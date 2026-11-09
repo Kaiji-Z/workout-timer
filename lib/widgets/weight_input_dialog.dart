@@ -220,21 +220,11 @@ class _WeightInputDialogState extends State<WeightInputDialog> {
                     final reps = int.tryParse(_repsController.text);
 
                     if (weight != null && reps != null) {
-                      double finalWeight = weight;
-                      final bodyWeight = _bodyWeight;
-                      if (_isBodyweight &&
-                          bodyWeight != null &&
-                          bodyWeight > 0) {
-                        finalWeight =
-                            BodyweightCoefficientService.calculateEquivalentWeight(
-                              exercise: widget.exercise,
-                              bodyWeight: bodyWeight,
-                              additionalWeight: weight,
-                            );
-                      }
+                      // 存储约定：只存原始配重；自重系数由聚合层统一补
+                      // （RecordedExercise.bodyweightAdjustedVolume）。
                       final setData = SetData(
                         setNumber: widget.setNumber,
-                        weight: finalWeight,
+                        weight: weight > 0 ? weight : null,
                         reps: reps,
                       );
                       Navigator.of(context).pop(setData);
