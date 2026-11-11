@@ -201,7 +201,7 @@ lib/
 │   └── data_transfer_service.dart    # 数据导出/导入
 ├── utils/
 │   └── dimensions.dart       # AppDimensions 设计 token
-└── data/                     # 870+ 动作静态 JSON
+└── （动作静态 JSON 在 assets/data/，非 lib/ 内）
 ```
 
 ---

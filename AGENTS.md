@@ -9,7 +9,7 @@
 它携带本项目的 §8 参数（系统入口、回归基线、flag 设计、验收标准），在本仓库内维护，
 不放在全局技能目录。违反其 §7 红线的产出无效。
 
-- **验证状态（2026-11-11 审计轮）**：ACI 审计通过；回归基线 `flutter test` **664 测试全绿**（2026-11-11，含本轮新增 6 个回归：v1→v5 真实迁移路径 ×2、暂停时长排除 ×2、matcher synonym ×2）+ 4 类护栏（i18n 守卫/设计 token/对比度/arb 一致性）；**端到端已自动化**：`flutter test integration_test/ -d <emulator>`（训练/计划全流程 + 启动冒烟，模拟器 CLI 单命令复现）；**覆盖率门禁已挂 CI**：核心层（providers/services/models）合计 ≥55%（棘轮逐步抬高）。
+- **验证状态（2026-11-11 审计轮）**：ACI 审计通过；回归基线 `flutter test` **638 测试全绿**（2026-11-11，含本轮新增 6 个回归：v1→v5 真实迁移路径 ×2、暂停时长排除 ×2、matcher synonym ×2；死代码清理移除 26 个失效用例）+ 4 类护栏（i18n 守卫/设计 token/对比度/arb 一致性）；**端到端已自动化**：`flutter test integration_test/ -d <emulator>`（训练/计划全流程 + 启动冒烟，模拟器 CLI 单命令复现）；**覆盖率门禁已挂 CI**：核心层（providers/services/models）合计 ≥55%（棘轮逐步抬高）。
 - **验证欠账（余量，详见 VERIFICATION.md 附录）**：
   - P2：无结构化 trace
   - 已知自动化盲区：OS 级后台保活（厂商 ROM 行为，反向标准 3 只自动化到 lifecycle-resumed 分支层）
@@ -88,7 +88,6 @@ lib/
 │   ├── list_animations.dart
 │   └── page_transitions.dart # FadeUpPageRoute (slide-up transition)
 ├── providers/                   # State providers (ChangeNotifier, MVVM)
-│   ├── timer_provider.dart   # 简单倒计时 provider（⚠ 当前无 UI 消费方，去留待决策）
 │   ├── training_provider.dart # Training mode state machine
 │   ├── training_progress_provider.dart # Real-time training tracking
 │   ├── plan_provider.dart    # Workout plan CRUD
@@ -104,7 +103,6 @@ lib/
 │   ├── exercise.dart         # Exercise definition (870+ exercises)
 │   ├── muscle_group.dart     # Muscle group enums + utilities
 │   ├── set_data.dart         # Single set: setNumber, reps, weight
-│   ├── calendar_plan.dart    # Date → plan mapping（⚠ 生产走 raw map，模型待接回或删除）
 │   ├── user_profile.dart     # AI plan profile: goal, frequency, equipment
 │   └── weekly_plan_import.dart # JSON import for weekly plans
 ├── screens/                  # UI screens (full pages)
@@ -146,7 +144,6 @@ lib/
 │   ├── glass_widgets.dart    # CircularControlButton, PressableMixin, Flat Vitality UI
 │   ├── ui_components.dart    # SheetDragHandle, SectionHeader, EmptyState
 │   ├── completed_medal_display.dart   # Completed workout medal
-│   ├── volume_trend_charts.dart # Volume trend chart widgets
 │   └── training_history_export_sheet.dart # Time-range picker for AI export
 ├── theme/                    # Flat Vitality theme (3 themes: amberGold, coralOrange, skyBlue)
 │   ├── app_theme.dart        # Theme data models + ChartPalette (Okabe-Ito)
@@ -176,12 +173,14 @@ lib/
 ├── utils/                    # Design tokens, vocabulary
 │   ├── dimensions.dart       # AppDimensions: radius tokens (8 levels), screenPadding, nav bar sizes, responsive helpers
 │   ├── localized_display.dart  # Localized muscle/equipment display helpers
-│   ├── color_extension.dart    # Color conveniences（⚠ withAlpha 与 SDK 同名被遮蔽，待清理）
-│   └── fitness_vocabulary.dart # 健身词汇表（⚠ 0 引用死代码，待删除）
+│   └── color_extension.dart    # Color conveniences
 └── （动作静态 JSON 在 assets/data/，不在 lib/ 下）
 ```
 
-> **已知的零引用遗留文件**（2026-11-11 审计确认，删除待批准）：`widgets/exercise_selector.dart`、`widgets/weight_input_dialog.dart`、`widgets/circular_progress_painter.dart`、`widgets/touch_target.dart`、`widgets/semantics_helpers.dart`、`utils/fitness_vocabulary.dart`，及 `plan_card.dart` 内 PlanProgressCard、`calendar_widget.dart` 内 CompactCalendar/WeekDatePicker、`glass_widgets.dart`/`animation_primitives.dart`/`page_transitions.dart` 内多个未用类。
+> **死代码清理状态（2026-11-11）**：审计发现并已删除全部零引用死代码
+> （7 个文件 + TimerProvider + 仓库统计死链 + 类级死代码，合计 ~4300 行）。
+> `utils/localized_display.dart` 仅测试引用、`utils/color_extension.dart`
+> 的 withAlpha 与 SDK 同名被遮蔽——保留但低价值，后续可连同测试一起清理。
 
 ---
 
@@ -227,10 +226,14 @@ Text('hi', style: context.bodyMedium.copyWith(...))
 Text(context.l10n.someKey)
 ```
 
-Verify (both must return 0):
+Verify（两条都要返回 0；多行拆开的写法用 `tr` 折叠空白后匹配——
+单行 grep 曾被跨行 `Theme.of(context)\n.textTheme\n.labelLarge!` 绕过）：
 ```bash
-grep -rE 'textTheme\.[a-zA-Z]*!' lib --include='*.dart' | grep -v build_context_text_styles | wc -l
-grep -rE 'AppLocalizations\.of\(context\)!' lib --include='*.dart' | wc -l
+grep -rEn '[a-zA-Z0-9_\)\]]!(\.|\[|\)|,|;|\+)' lib --include='*.dart' \
+  | grep -v 'build_context_text_styles' | grep -v 'context_l10n' | wc -l
+for f in $(find lib -name '*.dart'); do
+  tr -d ' \n' < "$f" | grep -oE '(textTheme|AppLocalizations\.of\(context\))\??\.?[a-zA-Z]*!' \
+    | grep -q . && echo "$f"; done
 ```
 
 ### State Management
@@ -507,8 +510,7 @@ expect(find.text('开始运动'), findsOneWidget);
 
 | Task | Location |
 |------|----------|
-| Timer countdown（简单模式，⚠ 无 UI 消费方） | `providers/timer_provider.dart` (`_tick()`) |
-| Preset times | `providers/timer_provider.dart:38` (`[30, 60, 90, 120]`) |
+| Preset rest durations | `widgets/duration_picker.dart` (`[30, 60, 90, 120]` 预设) |
 | Training states | `providers/training_provider.dart` (`TrainingState` enum) |
 | 暂停时长排除 | `training_provider.dart`（`_absorbPauseIntoSessionStart`，resume/endWorkout 两路径） |
 | DB schema + migrations | `services/database_helper.dart` (`_onCreate()`, `_onUpgrade()`) |
@@ -792,8 +794,7 @@ adb install -r build/app/outputs/flutter-apk/app-release.apk  # 永远 -r 覆盖
 
 - **Mixed comments**: Code uses both English and Chinese comments
 - **Large screen files**: `ai_plan_wizard_screen.dart` (1273), `ai_analysis_screen.dart` (1214), `settings_screen.dart` (1196), `history_screen.dart` (1056) 超 1000 行——拆分欠账；新文件保持 ≤1000
-- **Force-non-null (`!`)**：choke-point 白名单内 11 处（`build_context_text_styles.dart` ×10 + `context_l10n.dart` ×1）。白名单外剩 ~23 处 `map[key]!` 形态（2026-11-11 审计计数，多为 containsKey 守卫后的安全写法；其中 `Alignment.lerp` ×2 在死代码 animation_primitives、`session!` ×1 在 training_history_export_service）。规约不变：**不要新增**；存量清理见审计待办
-- **已知死代码欠账（2026-11-11 审计，删除待批准）**：TimerProvider 全文、record/plan 仓库统计死链、importWeeklyPlan 旧版、DatabaseHelper 通用方法区、exercise_selector 等 6 个零引用文件、若干类级死代码——合计 ~3800 行，清单见 STRUCTURE 尾注
+- **Force-non-null (`!`)**：全 lib 仅 choke-point 白名单内 11 处（`build_context_text_styles.dart` ×10 + `context_l10n.dart` ×1），白名单外 **0 处**（2026-11-11 清零，含多行写法）。规约：**不要新增**；验证命令见 CODE STYLE（多行写法需 `tr -d ' \n'` 折叠后匹配）
 
 > **i18n is complete.** All user-visible strings in screens, widgets, and the service layer flow through `AppLocalizations` (zh/en). The `test/i18n/no_hardcoded_chinese_test.dart` guard enforces this for `lib/screens/`, `lib/widgets/`, and `lib/main.dart` — regressions fail CI. Comments may stay Chinese.
 

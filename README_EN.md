@@ -201,7 +201,7 @@ lib/
 │   └── data_transfer_service.dart    # Data export/import
 ├── utils/
 │   └── dimensions.dart       # AppDimensions design tokens
-└── data/                     # 870+ static exercise JSON
+└── (static exercise JSON lives in assets/data/, not lib/)
 ```
 
 ---

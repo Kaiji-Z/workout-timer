@@ -163,7 +163,7 @@ A feature is done if and only if ALL hold:
 - Command/API to fetch a trace: `adb logcat -s flutter`（运行时日志）；ErrorReporter（lib/services/error_reporter_service.dart，SnackBar+日志）；业务状态经 Provider/Repository/SQLite 可编程查询（sqflite_common_ffi）
 
 ### 8.2 Test infra [auto-fill]
-- Regression run command: `flutter test`（629 tests，2026-10-06 基线）；CI 强制（android-build.yml）
+- Regression run command: `flutter test`（638 tests，2026-11-11 基线）；CI 强制（android-build.yml）
 - Regression set directory: `test/`（models/services/providers/widgets/screens/integration 分层）+ `integration_test/`（设备级，当前 1 个冒烟）
 - Assertion framework: flutter_test（sdk）原生 expect/finder；护栏见 §3.1
 
@@ -207,7 +207,7 @@ A feature is done if and only if ALL hold:
 | Item | Category | Status | Source |
 |---|---|---|---|
 | 8.1 | auto-fill | 已填 | pubspec.yaml / .github/workflows/android-build.yml / lib/main.dart |
-| 8.2 | auto-fill | 已填 | test/ 树 61 文件、629 测试基线 |
+| 8.2 | auto-fill | 已填 | test/ 树、638 测试基线（2026-11-11 审计轮死代码清理后） |
 | 8.3 | auto-fill | 已定稿（a/b/c 分类法） | 开发者 2026-10-06 确认 |
 | 8.4 | must-ask | 已填：Layer 2 豁免 + 预留规则 | 开发者 2026-10-06「按建议走」 |
 | 8.5 | must-ask | 已填：happy path + 5 验收 + 5 反向 | 开发者 2026-10-06「按建议走」 |
