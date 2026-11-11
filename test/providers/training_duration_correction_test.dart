@@ -132,4 +132,39 @@ void main() {
       expect(provider.currentSet, 2);
     });
   });
+
+  // 真实时钟回归：暂停区间必须从会话时长中剔除（修复前
+  // resumeFromPause/endWorkout 用全墙钟差计算，暂停时长全部计回）。
+  // 秒级分辨率，因此用 >1s 的间隔拉开判别余量。
+  group('pause exclusion from session duration', () {
+    test('resumeFromPause excludes the paused span', () async {
+      provider.startExercise();
+      await Future<void>.delayed(const Duration(milliseconds: 1100));
+      provider.pauseExercise();
+      final d0 = provider.sessionDuration;
+      expect(d0, greaterThanOrEqualTo(1));
+
+      // 暂停 2.1s：显示冻结（既有守卫）
+      await Future<void>.delayed(const Duration(milliseconds: 2100));
+      expect(provider.sessionDuration, d0);
+
+      provider.resumeFromPause();
+      await Future<void>.delayed(const Duration(milliseconds: 400));
+      provider.endWorkout();
+
+      // 修复后 ≈ d0 + 0.4s；修复前 ≈ d0 + 2.5s。
+      expect(provider.sessionDuration, lessThan(d0 + 2));
+    });
+
+    test('endWorkout from paused state excludes the paused span', () async {
+      provider.startExercise();
+      await Future<void>.delayed(const Duration(milliseconds: 1100));
+      provider.pauseExercise();
+      await Future<void>.delayed(const Duration(milliseconds: 1600));
+      provider.endWorkout();
+
+      // 修复后 ≈ 1s；修复前 ≈ 2.7s。
+      expect(provider.sessionDuration, lessThan(2));
+    });
+  });
 }
