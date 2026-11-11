@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import '../core/service_locator.dart';
 import '../models/workout_record.dart';
 
-import '../models/muscle_group.dart';
 import '../services/error_reporter_service.dart';
 import '../services/record_repository.dart';
 import '../services/exercise_service.dart';
@@ -133,50 +132,6 @@ class RecordProvider extends ChangeNotifier {
       notifyListeners();
       rethrow;
     }
-  }
-
-  /// 根据ID获取记录
-  WorkoutRecord? getRecordById(String id) {
-    return _records.where((r) => r.id == id).firstOrNull;
-  }
-
-  /// 获取周统计
-  Future<Map<String, dynamic>> getWeeklyStats() async {
-    final now = DateTime.now();
-    final weekStart = DateTime(now.year, now.month, now.day - now.weekday + 1);
-    return await _repository.getWeeklyStats(weekStart);
-  }
-
-  /// 获取月统计
-  Future<Map<String, dynamic>> getMonthlyStats() async {
-    final now = DateTime.now();
-    final monthStart = DateTime(now.year, now.month, 1);
-    return await _repository.getMonthlyStats(monthStart);
-  }
-
-  /// 获取肌肉部位训练分布
-  Future<Map<PrimaryMuscleGroup, int>> getMuscleDistribution() async {
-    final now = DateTime.now();
-    final monthStart = DateTime(now.year, now.month, 1);
-    final monthEnd = DateTime(now.year, now.month + 1, 0);
-    return await _repository.getMuscleDistribution(monthStart, monthEnd);
-  }
-
-  /// 获取最近使用的计划
-  Future<List<Map<String, dynamic>>> getRecentPlans({int? limit}) async {
-    return await _repository.getRecentPlans(limit: limit);
-  }
-
-  /// 按日期范围筛选记录
-  List<WorkoutRecord> getRecordsByDateRange(DateTime from, DateTime to) {
-    return _records.where((r) {
-      final recordDate = DateTime(r.date.year, r.date.month, r.date.day);
-      final fromDate = DateTime(from.year, from.month, from.day);
-      final toDate = DateTime(to.year, to.month, to.day);
-      return (recordDate.isAfter(fromDate) ||
-              recordDate.isAtSameMomentAs(fromDate)) &&
-          (recordDate.isBefore(toDate) || recordDate.isAtSameMomentAs(toDate));
-    }).toList();
   }
 
   /// 清除错误

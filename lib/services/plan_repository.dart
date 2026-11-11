@@ -94,31 +94,6 @@ class PlanRepository {
     debugPrint('Deleted plan: $planId');
   }
 
-  /// 根据ID获取计划
-  Future<WorkoutPlan?> getPlanById(
-    String id, {
-    List<Exercise>? exercises,
-  }) async {
-    if (!_isDatabaseAvailable) {
-      return null;
-    }
-    final database = await _db.database;
-
-    final maps = await database.query(
-      DatabaseHelper.tableWorkoutPlans,
-      where: 'id = ?',
-      whereArgs: [id],
-      limit: 1,
-    );
-
-    if (maps.isEmpty) return null;
-
-    // 加载计划动作
-    final planExercises = await _loadPlanExercises(database, id, exercises);
-
-    return WorkoutPlan.fromMap(maps.first, exercises: planExercises);
-  }
-
   /// 获取所有计划
   Future<List<WorkoutPlan>> getAllPlans({List<Exercise>? exercises}) async {
     if (!_isDatabaseAvailable) {
@@ -333,26 +308,5 @@ class PlanRepository {
     }
 
     return planMap;
-  }
-
-  /// 获取有计划的日期列表
-  Future<Set<DateTime>> getDatesWithPlans(DateTime from, DateTime to) async {
-    if (!_isDatabaseAvailable) {
-      return {};
-    }
-    final database = await _db.database;
-
-    final results = await database.query(
-      DatabaseHelper.tableCalendarPlans,
-      where: 'date >= ? AND date <= ?',
-      whereArgs: [from.toIso8601String(), to.toIso8601String()],
-      columns: ['date'],
-      distinct: true,
-    );
-
-    return results.map((row) {
-      final date = DateTime.parse(row['date'] as String);
-      return DateTime(date.year, date.month, date.day);
-    }).toSet();
   }
 }
