@@ -185,8 +185,7 @@ class StatsCalculatorService {
 
       // Add session bests to result
       for (final entry in sessionBest.entries) {
-        result.putIfAbsent(entry.key, () => []);
-        result[entry.key]!.add(entry.value);
+        (result[entry.key] ??= []).add(entry.value);
       }
     }
 

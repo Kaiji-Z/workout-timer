@@ -40,12 +40,13 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
       final exercise = _exercises[i];
       final setsData = exercise.setsData;
       if (setsData != null) {
-        _weightControllers[i] = {};
+        final controllers = <int, TextEditingController>{};
         for (final setData in setsData) {
-          _weightControllers[i]![setData.setNumber] = TextEditingController(
+          controllers[setData.setNumber] = TextEditingController(
             text: setData.weight?.toString() ?? '',
           );
         }
+        _weightControllers[i] = controllers;
       }
     }
   }
@@ -219,8 +220,23 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
       _exercises[exerciseIndex] = updatedExercise;
       _hasChanges = true;
 
-      // 释放被删除的控制器
-      _weightControllers[exerciseIndex]?.remove(setNumber)?.dispose();
+      // controller 键随重编号同步：被删组的释放，其后各组键下移一位，
+      // 否则删除中间组后输入框与数据错位（显示上一组旧文本/空值）。
+      final oldControllers = _weightControllers[exerciseIndex];
+      if (oldControllers != null) {
+        final remapped = <int, TextEditingController>{};
+        for (final entry in oldControllers.entries) {
+          if (entry.key == setNumber) {
+            entry.value.dispose();
+          } else {
+            final newNumber = entry.key > setNumber
+                ? entry.key - 1
+                : entry.key;
+            remapped[newNumber] = entry.value;
+          }
+        }
+        _weightControllers[exerciseIndex] = remapped;
+      }
     });
   }
 
@@ -251,8 +267,7 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
       _hasChanges = true;
 
       // 添加新的控制器
-      _weightControllers[exerciseIndex] ??= {};
-      _weightControllers[exerciseIndex]![newSetNumber] =
+      (_weightControllers[exerciseIndex] ??= {})[newSetNumber] =
           TextEditingController();
     });
   }
@@ -649,17 +664,16 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
 
     try {
       await context.read<RecordProvider>().updateRecord(updatedRecord);
+      if (!mounted) return;
       setState(() {
         _hasChanges = false;
       });
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(l10n.recDetailSaved),
             behavior: SnackBarBehavior.floating,
           ),
         );
-      }
     } catch (e) {
       if (mounted) {
         final theme = context.read<ThemeProvider>().currentTheme;

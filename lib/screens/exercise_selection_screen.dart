@@ -332,14 +332,14 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
     final l10n = AppLocalizations.of(context);
     if (l10n == null) return const SizedBox.shrink();
     // 器械类型列表（key 匹配 e.equipment；label 走 l10n，与 Exercise.equipmentDisplayName 一致）
-    final equipmentTypes = [
-      {'key': null, 'label': l10n.equipmentAll},
-      {'key': 'dumbbell', 'label': l10n.equipmentDumbbell},
-      {'key': 'barbell', 'label': l10n.equipmentBarbell},
-      {'key': 'cable', 'label': l10n.equipmentCable},
-      {'key': 'machine', 'label': l10n.equipmentMachine},
-      {'key': 'kettlebells', 'label': l10n.equipmentKettlebells},
-      {'key': 'body only', 'label': l10n.equipmentBodyweight},
+    final equipmentTypes = <(String?, String)>[
+      (null, l10n.equipmentAll),
+      ('dumbbell', l10n.equipmentDumbbell),
+      ('barbell', l10n.equipmentBarbell),
+      ('cable', l10n.equipmentCable),
+      ('machine', l10n.equipmentMachine),
+      ('kettlebells', l10n.equipmentKettlebells),
+      ('body only', l10n.equipmentBodyweight),
     ];
 
     return SingleChildScrollView(
@@ -347,11 +347,12 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Row(
         children: equipmentTypes.map((item) {
-          final isSelected = _filterEquipment == item['key'];
+          final (key, label) = item;
+          final isSelected = _filterEquipment == key;
           return Material(
             color: Colors.transparent,
             child: InkWell(
-              onTap: () => setState(() => _filterEquipment = item['key']),
+              onTap: () => setState(() => _filterEquipment = key),
               borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
               child: Container(
                 padding: const EdgeInsets.symmetric(
@@ -369,7 +370,7 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
                   ),
                 ),
                 child: Text(
-                  item['label']!,
+                  label,
                   style: context.labelLarge.copyWith(
                     fontSize: 13,
                     fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,

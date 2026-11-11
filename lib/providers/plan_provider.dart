@@ -226,11 +226,12 @@ class PlanProvider extends ChangeNotifier {
           final key = 'day${dayPlan.dayOfWeek}-${exerciseEntry.exerciseName}';
 
           // Check manual selection first
-          if (manualSelections.containsKey(key)) {
+          final manual = manualSelections[key];
+          if (manual != null) {
             matchedExercises.add(
               PlanExercise(
-                exerciseId: manualSelections[key]!.id,
-                exercise: manualSelections[key],
+                exerciseId: manual.id,
+                exercise: manual,
                 targetSets: exerciseEntry.targetSets,
                 order: matchedExercises.length,
               ),

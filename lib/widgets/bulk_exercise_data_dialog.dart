@@ -61,15 +61,15 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
       // 获取预填充数据
       final preData = widget.prePopulatedData?[exerciseId];
 
-      _exerciseData[exerciseId] = [];
-      _weightControllers[exerciseId] = [];
+      final controllers = <TextEditingController>[];
+      final dataSets = <SetData>[];
 
       for (int i = 1; i <= sets; i++) {
         // 检查是否有预填充数据
         SetData setData;
         if (preData != null && i <= preData.length) {
           setData = preData[i - 1];
-          _weightControllers[exerciseId]!.add(
+          controllers.add(
             TextEditingController(text: setData.weight?.toString() ?? ''),
           );
         } else {
@@ -78,10 +78,13 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
             reps: 12, // 默认12次
             weight: null,
           );
-          _weightControllers[exerciseId]!.add(TextEditingController());
+          controllers.add(TextEditingController());
         }
-        _exerciseData[exerciseId]!.add(setData);
+        dataSets.add(setData);
       }
+
+      _exerciseData[exerciseId] = dataSets;
+      _weightControllers[exerciseId] = controllers;
     }
   }
 
@@ -96,12 +99,11 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
   }
 
   void _updateReps(String exerciseId, int setNumber, int reps) {
+    final sets = _exerciseData[exerciseId];
     final index = setNumber - 1;
-    if (_exerciseData[exerciseId] != null &&
-        index < _exerciseData[exerciseId]!.length) {
+    if (sets != null && index < sets.length) {
       setState(() {
-        _exerciseData[exerciseId]![index] = _exerciseData[exerciseId]![index]
-            .copyWith(reps: reps);
+        sets[index] = sets[index].copyWith(reps: reps);
       });
     }
   }
@@ -112,15 +114,16 @@ class _BulkExerciseDataDialogState extends State<BulkExerciseDataDialog> {
     double? additionalWeight,
     PlanExercise exercise,
   ) {
+    final sets = _exerciseData[exerciseId];
     final index = setNumber - 1;
-    if (_exerciseData[exerciseId] != null &&
-        index < _exerciseData[exerciseId]!.length) {
+    if (sets != null && index < sets.length) {
       // 存储约定：只存原始配重；自重系数由聚合层统一补
       // （RecordedExercise.bodyweightAdjustedVolume），不写等效值。
       final rawWeight = additionalWeight ?? 0.0;
       setState(() {
-        _exerciseData[exerciseId]![index] = _exerciseData[exerciseId]![index]
-            .copyWith(weight: rawWeight > 0 ? rawWeight : null);
+        sets[index] = sets[index].copyWith(
+          weight: rawWeight > 0 ? rawWeight : null,
+        );
       });
     }
   }

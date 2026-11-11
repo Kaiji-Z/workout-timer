@@ -50,6 +50,9 @@ class ExerciseMatcherService {
   late final Map<String, Exercise> _nameEnMap;
   late final Map<String, Exercise> _nameZhMap;
   late final Map<String, Exercise> _normalizedIndex;
+  // fuzzy 索引构建代价 O(N)，与精确索引一起在构造时一次性建好，
+  // 避免每次 matchExercise 对 870+ 动作全量重建（AI 计划导入循环调用）。
+  late final Fuzzy<Exercise> _fuzzy;
 
   /// Synonym mappings for common exercise name variations
   /// Key: normalized input, Value: normalized canonical name
@@ -64,7 +67,8 @@ class ExerciseMatcherService {
     'dumbbelllateralraise': 'sidelateralraise',
     'lateralraise': 'sidelateralraise',
     'sidelateralraises': 'sidelateralraise',
-    'dumbbellside raise': 'sidelateralraise',
+    // 键会被 _normalize 去掉全部空格后比对，必须写无空格形态才可能命中
+    'dumbbellsideraise': 'sidelateralraise',
     // Row variations
     'bentoverdumbbellrow': 'bentovertwodumbbellrow',
     'bentoverrow': 'bentoverbarbellrow',
@@ -86,7 +90,6 @@ class ExerciseMatcherService {
     'gobletdumbbellsquat': 'gobletsquat',
     'dumbbellgobletsquat': 'gobletsquat',
     // Calf raise variations
-    'standingdumbbellcalfraise': 'standingdumbbellcalfraise',
     'dumbbellcalfraise': 'calfraiseonadumbbell',
     // Russian twist variations
     'russiandumbbelltwist': 'russiantwist',
@@ -102,7 +105,8 @@ class ExerciseMatcherService {
     'dumbbellpullover': 'bentarmdumbbellpullover',
     'dumbbellpullovers': 'bentarmdumbbellpullover',
     // Incline Press variations (词序差异)
-    'dumbbellinclinepress': 'incline dumbbellpress',
+    // 值会被拿去 _nameEnMap（键全部无空格）做 containsKey，必须写无空格形态
+    'dumbbellinclinepress': 'inclinedumbbellpress',
   };
 
   ExerciseMatcherService({required List<Exercise> exercises})
@@ -134,44 +138,13 @@ class ExerciseMatcherService {
         _nameZhMap[normalizedZh] = exercise;
       }
     }
-  }
 
-  /// Match an exercise name (English or Chinese) to the exercise database
-  Future<MatchResult> matchExercise(String inputName) async {
-    if (inputName.trim().isEmpty) {
-      return MatchResult.failure(error: 'Exercise name cannot be empty');
-    }
-
-    final normalizedInput = _normalize(inputName);
-
-    // Step 1: Exact match on nameEn
-    if (_nameEnMap.containsKey(normalizedInput)) {
-      return MatchResult.success(exercise: _nameEnMap[normalizedInput]!);
-    }
-
-    // Step 2: Exact match on nameZh
-    if (_nameZhMap.containsKey(normalizedInput)) {
-      return MatchResult.success(exercise: _nameZhMap[normalizedInput]!);
-    }
-
-    // Step 3: Check synonym mapping
-    final synonymMatch = _checkSynonyms(normalizedInput);
-    if (synonymMatch != null && _nameEnMap.containsKey(synonymMatch)) {
-      return MatchResult.success(exercise: _nameEnMap[synonymMatch]!);
-    }
-
-    // Step 4: Check sorted word order match (handles "Dumbbell Incline Press" vs "Incline Dumbbell Press")
-    final sortedInput = _normalizeAndSort(inputName);
-    if (_normalizedIndex.containsKey(sortedInput)) {
-      return MatchResult.success(exercise: _normalizedIndex[sortedInput]!);
-    }
-
-    // Step 5: Fuzzy search using fuzzy package
+    // Step 5 的 fuzzy 索引一并建好（见 _fuzzy 字段注释）。
     //
     // BUG FIX: weight must be < 1.0 because the fuzzy package computes
     // `1.0 - weight` internally. A weight of 1.0 becomes 0.0, which
     // zeroes out ALL scores regardless of match quality.
-    final fuzzy = Fuzzy<Exercise>(
+    _fuzzy = Fuzzy<Exercise>(
       _exercises,
       options: FuzzyOptions(
         keys: [
@@ -189,8 +162,47 @@ class ExerciseMatcherService {
         matchAllTokens: false,
       ),
     );
+  }
 
-    final result = fuzzy.search(inputName);
+  /// Match an exercise name (English or Chinese) to the exercise database
+  Future<MatchResult> matchExercise(String inputName) async {
+    if (inputName.trim().isEmpty) {
+      return MatchResult.failure(error: 'Exercise name cannot be empty');
+    }
+
+    final normalizedInput = _normalize(inputName);
+
+    // Step 1: Exact match on nameEn
+    final exactEn = _nameEnMap[normalizedInput];
+    if (exactEn != null) {
+      return MatchResult.success(exercise: exactEn);
+    }
+
+    // Step 2: Exact match on nameZh
+    final exactZh = _nameZhMap[normalizedInput];
+    if (exactZh != null) {
+      return MatchResult.success(exercise: exactZh);
+    }
+
+    // Step 3: Check synonym mapping
+    final synonymMatch = _checkSynonyms(normalizedInput);
+    final synonymTarget = synonymMatch == null
+        ? null
+        : _nameEnMap[synonymMatch];
+    if (synonymTarget != null) {
+      return MatchResult.success(exercise: synonymTarget);
+    }
+
+    // Step 4: Check sorted word order match (handles "Dumbbell Incline Press" vs "Incline Dumbbell Press")
+    final sortedInput = _normalizeAndSort(inputName);
+    final sortedHit = _normalizedIndex[sortedInput];
+    if (sortedHit != null) {
+      return MatchResult.success(exercise: sortedHit);
+    }
+
+    // Step 5: Fuzzy search using fuzzy package (index built once in
+    // _buildIndex; see _fuzzy field comment)
+    final result = _fuzzy.search(inputName);
 
     if (result.isNotEmpty) {
       // Re-rank results by token coverage to prevent false-positive matches.

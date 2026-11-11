@@ -520,8 +520,11 @@ class _NormalizedEntry {
   DateTime get date {
     final record = this.record;
     if (record != null) return record.date;
-    // Legacy session: parse createdAt (already validated in _recordDate).
-    return DateTime.parse(session!.createdAt);
+    final session = this.session;
+    if (session != null) return DateTime.parse(session.createdAt);
+    throw StateError(
+      '_NormalizedEntry.date on malformed entry (no record and no session)',
+    );
   }
 
   int get durationSeconds {

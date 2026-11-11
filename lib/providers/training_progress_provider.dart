@@ -102,10 +102,7 @@ class TrainingProgressProvider extends ChangeNotifier {
 
   /// 记录一组的数据
   void addSetData(String exerciseId, SetData setData) {
-    if (!_exerciseSetsData.containsKey(exerciseId)) {
-      _exerciseSetsData[exerciseId] = [];
-    }
-    _exerciseSetsData[exerciseId]!.add(setData);
+    (_exerciseSetsData[exerciseId] ??= []).add(setData);
     notifyListeners();
   }
 

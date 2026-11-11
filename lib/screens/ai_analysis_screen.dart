@@ -154,8 +154,7 @@ class _AIAnalysisScreenState extends State<AIAnalysisScreen> {
       }
 
       for (final entry in sessionBest.entries) {
-        result.putIfAbsent(entry.key, () => []);
-        result[entry.key]!.add(entry.value);
+        (result[entry.key] ??= []).add(entry.value);
       }
     }
 
