@@ -8,7 +8,6 @@ import 'package:workout_timer/l10n/app_localizations.dart';
 import 'package:workout_timer/models/muscle_group.dart';
 import 'package:workout_timer/models/workout_plan.dart';
 import 'package:workout_timer/providers/plan_provider.dart';
-import 'package:workout_timer/providers/timer_provider.dart';
 import 'package:workout_timer/providers/training_progress_provider.dart';
 import 'package:workout_timer/providers/training_provider.dart';
 import 'package:workout_timer/theme/theme_provider.dart';
@@ -67,7 +66,6 @@ void main() {
         providers: [
           ChangeNotifierProvider.value(value: themeProvider),
           ChangeNotifierProvider(create: (_) => PlanProvider()),
-          ChangeNotifierProvider(create: (_) => TimerProvider()),
           ChangeNotifierProvider(create: (_) {
             training = TrainingProvider();
             return training;

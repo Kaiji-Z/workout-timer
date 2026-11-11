@@ -13,7 +13,6 @@ import 'screens/stats_screen.dart';
 import 'screens/plan_screen.dart';
 import 'screens/onboarding_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'providers/timer_provider.dart';
 import 'providers/training_provider.dart';
 import 'providers/plan_provider.dart';
 import 'providers/record_provider.dart';
@@ -115,7 +114,6 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider.value(value: themeProvider),
         ChangeNotifierProvider.value(value: localeProvider),
-        ChangeNotifierProvider(create: (_) => TimerProvider()),
         ChangeNotifierProvider(create: (_) => TrainingProvider()),
         // 健身计划相关Providers
         ChangeNotifierProvider(create: (_) => PlanProvider()..loadPlans()),

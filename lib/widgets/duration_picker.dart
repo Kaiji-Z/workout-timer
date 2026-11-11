@@ -45,7 +45,7 @@ class DurationPicker extends StatefulWidget {
 }
 
 class _DurationPickerState extends State<DurationPicker> {
-  /// 一键预设（与 TimerProvider 的 presetTimes 同一套）
+  /// 一键预设（与训练计时预设同一套）
   static const _presetSeconds = [30, 60, 90, 120];
 
   late int _minutes;

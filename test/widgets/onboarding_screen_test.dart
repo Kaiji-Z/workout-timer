@@ -9,7 +9,6 @@ import 'package:workout_timer/main.dart';
 import 'package:workout_timer/providers/locale_provider.dart';
 import 'package:workout_timer/providers/plan_provider.dart';
 import 'package:workout_timer/providers/record_provider.dart';
-import 'package:workout_timer/providers/timer_provider.dart';
 import 'package:workout_timer/providers/training_progress_provider.dart';
 import 'package:workout_timer/providers/training_provider.dart';
 import 'package:workout_timer/screens/onboarding_screen.dart';
@@ -44,7 +43,6 @@ void main() {
         providers: [
           ChangeNotifierProvider.value(value: themeProvider),
           ChangeNotifierProvider.value(value: localeProvider),
-          ChangeNotifierProvider(create: (_) => TimerProvider()),
           ChangeNotifierProvider(create: (_) => TrainingProvider()),
           ChangeNotifierProvider(create: (_) => PlanProvider()),
           ChangeNotifierProvider(create: (_) => RecordProvider()),

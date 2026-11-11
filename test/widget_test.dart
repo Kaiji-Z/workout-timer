@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
-import 'package:workout_timer/providers/timer_provider.dart';
 import 'package:workout_timer/providers/training_provider.dart';
 import 'package:workout_timer/providers/plan_provider.dart';
 import 'package:workout_timer/providers/training_progress_provider.dart';
@@ -13,7 +12,7 @@ import 'package:workout_timer/widgets/training_widget.dart';
 void main() {
   setUpAll(() {
     // ServiceLocator must be initialized before Providers that resolve
-    // dependencies via the registry (TimerProvider, PlanProvider, ...).
+    // dependencies via the registry (PlanProvider, ...).
     ServiceLocator.setup();
   });
 
@@ -33,7 +32,6 @@ void main() {
           ChangeNotifierProvider.value(value: planProvider),
           ChangeNotifierProvider.value(value: trainingProvider),
           ChangeNotifierProvider.value(value: progressProvider),
-          ChangeNotifierProvider(create: (_) => TimerProvider()),
         ],
         child: MaterialApp(
           localizationsDelegates: AppLocalizations.localizationsDelegates,
