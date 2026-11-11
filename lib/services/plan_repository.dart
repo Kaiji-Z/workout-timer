@@ -107,37 +107,61 @@ class PlanRepository {
       orderBy: 'created_at DESC',
     );
 
+    if (maps.isEmpty) return [];
+
+    final byPlan = await _loadPlanExercisesBatch(
+      database,
+      maps.map((m) => m['id'] as String).toList(),
+      exercises,
+    );
+
     final plans = <WorkoutPlan>[];
     for (var map in maps) {
-      final planExercises = await _loadPlanExercises(
-        database,
-        map['id'] as String,
-        exercises,
+      plans.add(
+        WorkoutPlan.fromMap(
+          map,
+          exercises: byPlan[map['id'] as String] ?? const [],
+        ),
       );
-      plans.add(WorkoutPlan.fromMap(map, exercises: planExercises));
     }
 
     return plans;
   }
 
-  /// 加载计划动作列表
-  Future<List<PlanExercise>> _loadPlanExercises(
+  /// 批量加载多个计划的动作列表（一次 IN 查询 + 内存分组，替代逐条
+  /// N+1 查询；getAllPlans/getPlansForDate 是计划页与日历页的主路径）。
+  /// 组内按 exercise_order 排序；分片防御 SQLite 变量数上限。
+  Future<Map<String, List<PlanExercise>>> _loadPlanExercisesBatch(
     Database database,
-    String planId,
+    List<String> planIds,
     List<Exercise>? exercises,
   ) async {
-    final maps = await database.query(
-      DatabaseHelper.tablePlanExercises,
-      where: 'plan_id = ?',
-      whereArgs: [planId],
-      orderBy: 'exercise_order ASC',
-    );
+    final result = <String, List<PlanExercise>>{};
+    if (planIds.isEmpty) return result;
 
-    return maps.map((map) {
-      final exerciseId = map['exercise_id'] as String;
+    final exerciseRows = <Map<String, dynamic>>[];
+    for (var i = 0; i < planIds.length; i += 500) {
+      final chunkEnd = i + 500 > planIds.length ? planIds.length : i + 500;
+      final chunk = planIds.sublist(i, chunkEnd);
+      final placeholders = List.filled(chunk.length, '?').join(',');
+      exerciseRows.addAll(
+        await database.query(
+          DatabaseHelper.tablePlanExercises,
+          where: 'plan_id IN ($placeholders)',
+          whereArgs: chunk,
+          orderBy: 'exercise_order ASC',
+        ),
+      );
+    }
+
+    for (final row in exerciseRows) {
+      final exerciseId = row['exercise_id'] as String;
       final exercise = exercises?.where((e) => e.id == exerciseId).firstOrNull;
-      return PlanExercise.fromMap(map, exercise: exercise);
-    }).toList();
+      result
+          .putIfAbsent(row['plan_id'] as String, () => [])
+          .add(PlanExercise.fromMap(row, exercise: exercise));
+    }
+    return result;
   }
 
   // ========== 日历操作 ==========
@@ -268,14 +292,22 @@ class PlanRepository {
       [dateStr],
     );
 
+    if (results.isEmpty) return [];
+
+    final byPlan = await _loadPlanExercisesBatch(
+      database,
+      results.map((m) => m['id'] as String).toList(),
+      exercises,
+    );
+
     final plans = <WorkoutPlan>[];
     for (var map in results) {
-      final planExercises = await _loadPlanExercises(
-        database,
-        map['id'] as String,
-        exercises,
+      plans.add(
+        WorkoutPlan.fromMap(
+          map,
+          exercises: byPlan[map['id'] as String] ?? const [],
+        ),
       );
-      plans.add(WorkoutPlan.fromMap(map, exercises: planExercises));
     }
 
     return plans;

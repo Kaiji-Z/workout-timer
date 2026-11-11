@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart';
-import 'package:sqflite/sqflite.dart';
 import 'package:uuid/uuid.dart';
 import '../models/workout_record.dart';
 import '../models/exercise.dart';
@@ -113,35 +112,45 @@ class RecordRepository {
       offset: offset,
     );
 
+    if (maps.isEmpty) return [];
+
+    // 一次性批量加载全部关联动作再内存分组（替代逐条 N+1 查询；
+    // 该方法是启动加载与历史页的主路径）。rowid 排序保持插入序，
+    // 与旧的逐条查询语义一致；分片防御 SQLite 变量数上限。
+    final ids = maps.map((m) => m['id'] as String).toList();
+    final exerciseRows = <Map<String, dynamic>>[];
+    for (var i = 0; i < ids.length; i += 500) {
+      final chunkEnd = i + 500 > ids.length ? ids.length : i + 500;
+      final chunk = ids.sublist(i, chunkEnd);
+      final placeholders = List.filled(chunk.length, '?').join(',');
+      exerciseRows.addAll(
+        await database.query(
+          DatabaseHelper.tableRecordExercises,
+          where: 'record_id IN ($placeholders)',
+          whereArgs: chunk,
+          orderBy: 'rowid ASC',
+        ),
+      );
+    }
+
+    final byRecord = <String, List<Map<String, dynamic>>>{};
+    for (final row in exerciseRows) {
+      byRecord.putIfAbsent(row['record_id'] as String, () => []).add(row);
+    }
+
     final records = <WorkoutRecord>[];
     for (var map in maps) {
-      final recordExercises = await _loadRecordExercises(
-        database,
-        map['id'] as String,
-        exercises,
-      );
+      final rows = byRecord[map['id'] as String] ?? const [];
+      final recordExercises = rows.map((row) {
+        final exerciseId = row['exercise_id'] as String;
+        final exercise = exercises?.where(
+          (e) => e.id == exerciseId,
+        ).firstOrNull;
+        return RecordedExercise.fromMap(row, exercise: exercise);
+      }).toList();
       records.add(WorkoutRecord.fromMap(map, exercises: recordExercises));
     }
 
     return records;
-  }
-
-  /// 加载记录动作列表
-  Future<List<RecordedExercise>> _loadRecordExercises(
-    Database database,
-    String recordId,
-    List<Exercise>? exercises,
-  ) async {
-    final maps = await database.query(
-      DatabaseHelper.tableRecordExercises,
-      where: 'record_id = ?',
-      whereArgs: [recordId],
-    );
-
-    return maps.map((map) {
-      final exerciseId = map['exercise_id'] as String;
-      final exercise = exercises?.where((e) => e.id == exerciseId).firstOrNull;
-      return RecordedExercise.fromMap(map, exercise: exercise);
-    }).toList();
   }
 }
