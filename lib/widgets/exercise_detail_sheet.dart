@@ -1,4 +1,4 @@
-// 动作详情弹窗与全屏图片画廊（从 exercise_selector.dart 拆分）。
+// 动作详情弹窗与全屏图片画廊。
 import 'dart:async';
 //
 import 'package:flutter/material.dart';

@@ -105,8 +105,6 @@ void main() {
       final exempt = {
         'app_theme.dart',
         'fullscreen_image_viewer.dart',
-        'volume_trend_charts.dart',
-        'exercise_selector.dart',
       };
       final files = dartFilesExcluding(exempt);
       final offenders = <String, List<String>>{};
