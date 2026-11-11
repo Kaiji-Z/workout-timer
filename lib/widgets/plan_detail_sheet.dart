@@ -227,10 +227,7 @@ class PlanDetailSheet extends StatelessWidget {
                                     : Center(
                                         child: Text(
                                           '${index + 1}',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .labelLarge!
-                                              .copyWith(
+                                          style: context.labelLarge.copyWith(
                                                 fontWeight: FontWeight.w600,
                                                 color: hasDetails
                                                     ? theme.accentColor
@@ -287,10 +284,7 @@ class PlanDetailSheet extends StatelessWidget {
                                       ),
                                       child: Text(
                                         exercise.primaryMuscle.displayName,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodySmall!
-                                            .copyWith(
+                                        style: context.bodySmall.copyWith(
                                               fontSize: 11,
                                               color: theme.accentColor,
                                             ),

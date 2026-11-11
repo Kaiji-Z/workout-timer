@@ -296,10 +296,7 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
                                   ],
                                   decoration: InputDecoration(
                                     hintText: l10n.prefBodyWeightPlaceholder,
-                                    hintStyle: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium!
-                                        .copyWith(
+                                    hintStyle: context.bodyMedium.copyWith(
                                           color: theme.secondaryTextColor
                                               .withValues(alpha: 0.5),
                                         ),
@@ -333,10 +330,7 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
                                       vertical: 14,
                                     ),
                                     suffixText: 'kg',
-                                    suffixStyle: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium!
-                                        .copyWith(
+                                    suffixStyle: context.bodyMedium.copyWith(
                                           color: theme.secondaryTextColor,
                                         ),
                                   ),

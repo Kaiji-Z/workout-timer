@@ -661,9 +661,7 @@ class _PlanScreenState extends State<PlanScreen> {
                                             children: [
                                               Text(
                                                 plan.name,
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .labelLarge!
+                                                style: context.labelLarge
                                                     .copyWith(fontSize: 15),
                                                 maxLines: 2,
                                                 overflow: TextOverflow.ellipsis,
@@ -671,10 +669,7 @@ class _PlanScreenState extends State<PlanScreen> {
                                               const SizedBox(height: 2),
                                               Text(
                                                 localizedMuscleList(context, plan.targetMuscles),
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .bodyMedium!
-                                                    .copyWith(
+                                                style: context.bodyMedium.copyWith(
                                                       fontSize: 13,
                                                       color: theme.accentColor
                                                           .withValues(
