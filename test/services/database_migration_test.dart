@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:workout_timer/services/database_helper.dart';
 
 void main() {
   setUpAll(() {
@@ -390,6 +393,199 @@ void main() {
       expect(exercises[0]['per_set_data'], equals(perSetData));
 
       await db.close();
+    });
+  });
+
+  group('Database Migration real-path regression (v1/v2 → v5)', () {
+    /// 历史 v1 真实形态：只有 workout_sessions 一张表。
+    Future<String> seedV1Database(String path) async {
+      final db = await databaseFactory.openDatabase(
+        path,
+        options: OpenDatabaseOptions(
+          version: 1,
+          onCreate: (db, version) async {
+            await db.execute('''
+              CREATE TABLE workout_sessions (
+                id TEXT PRIMARY KEY,
+                sets INTEGER NOT NULL,
+                rest_time_ms INTEGER NOT NULL,
+                created_at TEXT NOT NULL
+              )
+            ''');
+          },
+        ),
+      );
+      await db.insert('workout_sessions', {
+        'id': 'legacy_session',
+        'sets': 5,
+        'rest_time_ms': 60000,
+        'created_at': '2026-01-01T10:00:00.000',
+      });
+      await db.close();
+      return path;
+    }
+
+    /// 用真实 _onUpgrade 把 path 处的旧库升到 v5。
+    Future<Database> upgradeToV5(String path) {
+      return databaseFactory.openDatabase(
+        path,
+        options: OpenDatabaseOptions(
+          version: 5,
+          onCreate: (db, version) async {
+            fail('onCreate must not run when upgrading an existing database');
+          },
+          onUpgrade: (db, oldVersion, newVersion) =>
+              DatabaseHelper.instance.debugOnUpgrade(db, oldVersion, newVersion),
+        ),
+      );
+    }
+
+    Future<List<String>> columnNames(Database db, String table) async {
+      final cols = await db.rawQuery('PRAGMA table_info($table)');
+      return cols.map((c) => c['name'] as String).toList();
+    }
+
+    test(
+        'v1 legacy install upgrades straight to v5 (no duplicate column)',
+        () async {
+      final dir = await Directory.systemTemp.createTemp('wt_migration');
+      final path = await seedV1Database('${dir.path}/v1_to_v5.db');
+
+      // 关键回归：修复前 <2 块的 CREATE 已含 per_set_data，
+      // <3 块的 ALTER 再加一次 → duplicate column name 异常。
+      final db = await upgradeToV5(path);
+
+      // 老数据保留
+      final sessions = await db.query('workout_sessions');
+      expect(sessions, hasLength(1));
+      expect(sessions.first['id'], 'legacy_session');
+
+      // v3 列经 ALTER 补上
+      expect(await columnNames(db, 'record_exercises'),
+          contains('per_set_data'));
+      // v4 列经 ALTER 补上
+      expect(await columnNames(db, 'plan_exercises'),
+          contains('unmatched_name'));
+      // v5 新表存在
+      expect(await db.query('favorite_exercises'), isEmpty);
+
+      await db.close();
+      await dir.delete(recursive: true);
+    });
+
+    test('v2 install upgrades to v5 via real _onUpgrade', () async {
+      final dir = await Directory.systemTemp.createTemp('wt_migration');
+      final path = '${dir.path}/v2_to_v5.db';
+
+      // 历史 v2 只能手工复刻：当年 v1→v2 的 _onUpgrade 只有 <2 块，
+      // 今天代码里的 _onUpgrade 以 oldVersion=1 调用会四个块全跑，
+      // 得到的是 v5 形态，复现不了真实 v2 老安装。
+      final v2 = await databaseFactory.openDatabase(
+        path,
+        options: OpenDatabaseOptions(
+          version: 2,
+          onCreate: (db, version) async {
+            await db.execute('''
+              CREATE TABLE workout_sessions (
+                id TEXT PRIMARY KEY,
+                sets INTEGER NOT NULL,
+                rest_time_ms INTEGER NOT NULL,
+                created_at TEXT NOT NULL
+              )
+            ''');
+            await db.execute('''
+              CREATE TABLE exercises (
+                id TEXT PRIMARY KEY,
+                name TEXT NOT NULL,
+                name_en TEXT,
+                primary_muscle TEXT NOT NULL,
+                secondary_muscles TEXT,
+                equipment TEXT,
+                level TEXT,
+                image_url TEXT,
+                muscle_image_url TEXT,
+                recommended_sets INTEGER DEFAULT 3,
+                recommended_min_reps INTEGER DEFAULT 8,
+                recommended_max_reps INTEGER DEFAULT 12,
+                rest_seconds INTEGER DEFAULT 60
+              )
+            ''');
+            await db.execute('''
+              CREATE TABLE workout_plans (
+                id TEXT PRIMARY KEY,
+                name TEXT NOT NULL,
+                target_muscles TEXT NOT NULL,
+                estimated_duration INTEGER DEFAULT 30,
+                created_at TEXT NOT NULL,
+                updated_at TEXT
+              )
+            ''');
+            await db.execute('''
+              CREATE TABLE plan_exercises (
+                id TEXT PRIMARY KEY,
+                plan_id TEXT NOT NULL,
+                exercise_id TEXT NOT NULL,
+                target_sets INTEGER NOT NULL DEFAULT 3,
+                custom_sets INTEGER,
+                exercise_order INTEGER NOT NULL,
+                FOREIGN KEY (plan_id) REFERENCES workout_plans(id) ON DELETE CASCADE
+              )
+            ''');
+            await db.execute('''
+              CREATE TABLE calendar_plans (
+                id TEXT PRIMARY KEY,
+                date TEXT NOT NULL,
+                plan_id TEXT NOT NULL,
+                created_at TEXT NOT NULL,
+                FOREIGN KEY (plan_id) REFERENCES workout_plans(id) ON DELETE CASCADE,
+                UNIQUE(date, plan_id)
+              )
+            ''');
+            await db.execute('''
+              CREATE TABLE workout_records (
+                id TEXT PRIMARY KEY,
+                date TEXT NOT NULL,
+                duration_seconds INTEGER NOT NULL,
+                trained_muscles TEXT,
+                plan_id TEXT,
+                plan_name TEXT,
+                total_sets INTEGER NOT NULL DEFAULT 0,
+                created_at TEXT NOT NULL,
+                FOREIGN KEY (plan_id) REFERENCES workout_plans(id) ON DELETE SET NULL
+              )
+            ''');
+            await db.execute('''
+              CREATE TABLE record_exercises (
+                id TEXT PRIMARY KEY,
+                record_id TEXT NOT NULL,
+                exercise_id TEXT NOT NULL,
+                completed_sets INTEGER NOT NULL,
+                max_weight REAL,
+                FOREIGN KEY (record_id) REFERENCES workout_records(id) ON DELETE CASCADE
+              )
+            ''');
+          },
+        ),
+      );
+      await v2.insert('workout_sessions', {
+        'id': 'v2_session',
+        'sets': 3,
+        'rest_time_ms': 90000,
+        'created_at': '2026-02-01T09:00:00.000',
+      });
+      final v2Columns = await columnNames(v2, 'record_exercises');
+      expect(v2Columns, isNot(contains('per_set_data')));
+      await v2.close();
+
+      final db = await upgradeToV5(path);
+      expect(await columnNames(db, 'record_exercises'),
+          contains('per_set_data'));
+      expect(await columnNames(db, 'plan_exercises'),
+          contains('unmatched_name'));
+      expect(await db.query('workout_sessions'), hasLength(1));
+
+      await db.close();
+      await dir.delete(recursive: true);
     });
   });
 }
