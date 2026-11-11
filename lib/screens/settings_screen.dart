@@ -160,6 +160,7 @@ class _SettingsScreenState extends State<SettingsScreen>
       debugPrint('Failed to read package info: $e');
     }
 
+    if (!mounted) return;
     setState(() {
       _soundEnabled = _prefs.getBool('sound_enabled') ?? true;
       _vibrationEnabled = _prefs.getBool('vibration_enabled') ?? true;
