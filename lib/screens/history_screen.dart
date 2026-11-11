@@ -42,6 +42,24 @@ class _HistoryScreenState extends State<HistoryScreen> {
   // 年份筛选（null = 全部）；月份分组始终生效
   int? _yearFilter;
 
+  // FutureBuilder 的 future 必须缓存为 State 字段：若在 build 里现调
+  // _loadAllRecords()，每次 setState（搜索框每个字符、年份切换）都会
+  // 新建 future → 全量重查 DB 并闪 loading 圈。
+  late Future<List<dynamic>> _recordsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _recordsFuture = _loadAllRecords();
+  }
+
+  /// 数据变更后重查并刷新列表（删除/撤销/详情页返回）。
+  void _reload() {
+    setState(() {
+      _recordsFuture = _loadAllRecords();
+    });
+  }
+
   @override
   void dispose() {
     _searchController.dispose();
@@ -80,7 +98,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
   Future<void> _deleteSession(String id) async {
     try {
       await _repository.deleteSession(id);
-      setState(() {});
+      if (!mounted) return;
+      _reload();
     } catch (e) {
       debugPrint('Error deleting session: $e');
     }
@@ -91,8 +110,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
     final l10n = context.l10n;
     try {
       await context.read<RecordProvider>().deleteRecord(record.id);
-      setState(() {});
       if (!mounted) return;
+      _reload();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(l10n.historyDeletedSnack),
@@ -101,7 +120,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
             onPressed: () async {
               try {
                 await context.read<RecordProvider>().saveRecord(record);
-                if (mounted) setState(() {});
+                if (mounted) _reload();
               } catch (e) {
                 debugPrint('Error restoring record: $e');
               }
@@ -202,7 +221,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
     try {
       final profile = await UserPreferencesService().loadPreferences();
-      final result = TrainingHistoryExportService().export(
+      final result = await TrainingHistoryExportService().export(
         from: from,
         to: to,
         records: allRecords,
@@ -213,18 +232,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
       final dataTransfer = DataTransferService();
       String savedPath;
       if (!kIsWeb) {
-        try {
-          savedPath = await dataTransfer.saveToDownloads(
-            result.markdown,
-            result.fileName,
-          );
-        } catch (_) {
-          // saveToDownloads always returns a path (Downloads or temp fallback).
-          savedPath = await dataTransfer.saveToDownloads(
-            result.markdown,
-            result.fileName,
-          );
-        }
+        // saveToDownloads 自带降级：Downloads 不可用时回退临时目录。
+        savedPath = await dataTransfer.saveToDownloads(
+          result.markdown,
+          result.fileName,
+        );
       } else {
         // Web: no file system — copy to clipboard as a fallback.
         savedPath = result.fileName;
@@ -358,7 +370,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
             : null,
       ),
       body: FutureBuilder<List<dynamic>>(
-        future: _loadAllRecords(),
+        future: _recordsFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(
@@ -637,7 +649,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     );
     // 返回后刷新列表以反映编辑后的数据
     if (mounted) {
-      setState(() {});
+      _reload();
     }
   }
 }

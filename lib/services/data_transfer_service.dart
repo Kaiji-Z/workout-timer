@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import '../core/service_locator.dart';
 import '../l10n/app_localizations.dart';
 import 'database_helper.dart';
@@ -40,6 +41,18 @@ class DataTransferService {
   /// 导出版本号，未来格式变更时可用于兼容
   static const _exportVersion = 1;
 
+  /// 运行时读取应用版本号（导出元数据用，避免硬编码滞后）。
+  /// package_info 在测试/无平台通道环境不可用，失败时回退 'unknown'。
+  static Future<String> _currentAppVersion() async {
+    try {
+      final info = await PackageInfo.fromPlatform();
+      return info.version;
+    } catch (e) {
+      debugPrint('Failed to read package info: $e');
+      return 'unknown';
+    }
+  }
+
   // ==================== 导出 ====================
 
   /// 导出全部数据为 JSON 字符串
@@ -48,7 +61,7 @@ class DataTransferService {
     final Map<String, dynamic> exportData = {
       'version': _exportVersion,
       'exportedAt': DateTime.now().toIso8601String(),
-      'appVersion': '1.0.0',
+      'appVersion': await _currentAppVersion(),
     };
 
     for (final table in _tables) {

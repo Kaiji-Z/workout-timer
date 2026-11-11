@@ -120,8 +120,8 @@ void main() {
   );
 
   group('TrainingHistoryExportService.export', () {
-    test('returns non-empty markdown and a filename containing from/to', () {
-      final result = service.export(
+    test('returns non-empty markdown and a filename containing from/to', () async {
+      final result = await service.export(
         from: from,
         to: to,
         records: sampleRecords(),
@@ -136,8 +136,8 @@ void main() {
 
     test(
       'markdown contains H1, profile section, records section, and JSON block',
-      () {
-        final result = service.export(
+      () async {
+        final result = await service.export(
           from: from,
           to: to,
           records: sampleRecords(),
@@ -151,8 +151,8 @@ void main() {
       },
     );
 
-    test('filters out records whose date is outside [from, to]', () {
-      final result = service.export(
+    test('filters out records whose date is outside [from, to]', () async {
+      final result = await service.export(
         from: from,
         to: to,
         records: sampleRecords(),
@@ -167,8 +167,8 @@ void main() {
 
     test(
       'embedded JSON is parseable and has the documented top-level shape',
-      () {
-        final result = service.export(
+      () async {
+        final result = await service.export(
           from: from,
           to: to,
           records: sampleRecords(),
@@ -204,8 +204,8 @@ void main() {
       },
     );
 
-    test('summary counts sessions, sets, duration, and legacy entries', () {
-      final result = service.export(
+    test('summary counts sessions, sets, duration, and legacy entries', () async {
+      final result = await service.export(
         from: from,
         to: to,
         records: sampleRecords(),
@@ -228,8 +228,8 @@ void main() {
 
     test(
       'legacy WorkoutRecord (no per-set data) is migrated to non-empty sets',
-      () {
-        final result = service.export(
+      () async {
+        final result = await service.export(
           from: from,
           to: to,
           records: sampleRecords(),
@@ -267,8 +267,8 @@ void main() {
 
     test(
       'WorkoutSession becomes a "legacy" type entry with sets + restTimeSeconds',
-      () {
-        final result = service.export(
+      () async {
+        final result = await service.export(
           from: from,
           to: to,
           records: sampleRecords(),
@@ -297,8 +297,8 @@ void main() {
 
     test(
       'detailed record preserves exerciseId, name fields, and per-set data',
-      () {
-        final result = service.export(
+      () async {
+        final result = await service.export(
           from: from,
           to: to,
           records: sampleRecords(),
@@ -337,8 +337,8 @@ void main() {
       },
     );
 
-    test('range.from == range.to filters records to a single day', () {
-      final result = service.export(
+    test('range.from == range.to filters records to a single day', () async {
+      final result = await service.export(
         from: DateTime(2026, 7, 27),
         to: DateTime(2026, 7, 27),
         records: sampleRecords(),
@@ -353,8 +353,8 @@ void main() {
       expect((records[0] as Map)['date'], '2026-07-27');
     });
 
-    test('handles empty records list without throwing', () {
-      final result = service.export(
+    test('handles empty records list without throwing', () async {
+      final result = await service.export(
         from: from,
         to: to,
         records: <dynamic>[],
@@ -370,8 +370,8 @@ void main() {
 
     test(
       'records are emitted in reverse-chronological order (newest first)',
-      () {
-        final result = service.export(
+      () async {
+        final result = await service.export(
           from: from,
           to: to,
           records: sampleRecords(),

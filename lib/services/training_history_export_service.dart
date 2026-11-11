@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/widgets.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import '../core/service_locator.dart';
 import '../l10n/app_localizations.dart';
@@ -41,8 +42,19 @@ class ExportResult {
 ///   the exported `sets[]` array is always non-empty.
 class TrainingHistoryExportService {
   static const int _exportVersion = 1;
-  static const String _appVersion = '1.0.0';
   static const String _appName = 'Workout Timer';
+
+  /// 运行时读取应用版本号（导出元数据用，避免硬编码滞后）。
+  /// package_info 在测试/无平台通道环境不可用，失败时回退 'unknown'。
+  static Future<String> _currentAppVersion() async {
+    try {
+      final info = await PackageInfo.fromPlatform();
+      return info.version;
+    } catch (e) {
+      debugPrint('Failed to read package info: $e');
+      return 'unknown';
+    }
+  }
 
   /// Resolve the current [AppLocalizations] for service-layer use (no
   /// BuildContext available). Falls back to Chinese if not registered yet.
@@ -60,12 +72,12 @@ class TrainingHistoryExportService {
   /// [records] may contain a mix of [WorkoutRecord] and [WorkoutSession]
   /// objects (the same shape [HistoryScreen._loadAllRecords] produces).
   /// [profile] is the user's training preferences, included as metadata.
-  ExportResult export({
+  Future<ExportResult> export({
     required DateTime from,
     required DateTime to,
     required List<dynamic> records,
     required UserPreferences profile,
-  }) {
+  }) async {
     final l10n = _currentLocalizations();
     final normalized = _normalizeAndFilter(records, from, to);
 
@@ -75,6 +87,7 @@ class TrainingHistoryExportService {
       to: to,
       normalized: normalized,
       profile: profile,
+      appVersion: await _currentAppVersion(),
     );
 
     final fileName =
@@ -146,6 +159,7 @@ class TrainingHistoryExportService {
     required DateTime to,
     required List<_NormalizedEntry> normalized,
     required UserPreferences profile,
+    required String appVersion,
   }) {
     final buffer = StringBuffer();
 
@@ -212,7 +226,7 @@ class TrainingHistoryExportService {
     buffer.writeln('## ${l10n.exportMarkdownStructured}');
     buffer.writeln();
     buffer.writeln('```json');
-    buffer.writeln(_buildJson(from, to, normalized, profile));
+    buffer.writeln(_buildJson(from, to, normalized, profile, appVersion));
     buffer.writeln('```');
 
     return buffer.toString();
@@ -296,6 +310,7 @@ class TrainingHistoryExportService {
     DateTime to,
     List<_NormalizedEntry> normalized,
     UserPreferences profile,
+    String appVersion,
   ) {
     final legacyCount = normalized.where((e) => e.type == _Type.legacy).length;
     final totalSets = _sumSets(normalized);
@@ -307,7 +322,7 @@ class TrainingHistoryExportService {
     final data = <String, dynamic>{
       'exportVersion': _exportVersion,
       'exportedAt': DateTime.now().toIso8601String(),
-      'appVersion': _appVersion,
+      'appVersion': appVersion,
       'range': {'from': _dateOnly(from), 'to': _dateOnly(to)},
       'profile': {
         'goal': profile.goal,
