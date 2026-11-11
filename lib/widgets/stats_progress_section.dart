@@ -53,9 +53,14 @@ class _StatsProgressSectionState extends State<StatsProgressSection> {
         (trends.isEmpty
             ? null
             : (trends.entries.toList()
-                    ..sort((a, b) => b.value.length.compareTo(a.value.length)))
+                  ..sort((a, b) => b.value.length.compareTo(a.value.length)))
                   .first
                   .key);
+
+    // trends 重建后 selected 可能已不在其中（如数据刷新后该动作无趋势），
+    // 先取值判空；_latestPr 同样只算一次，避免重复遍历。
+    final selectedTrend = selected == null ? null : trends[selected];
+    final latestPr = _latestPr(trends);
 
     return Container(
       width: double.infinity,
@@ -94,11 +99,11 @@ class _StatsProgressSectionState extends State<StatsProgressSection> {
           else ...[
             _buildExerciseChips(context, trends.keys.toList()),
             const SizedBox(height: 12),
-            if (selected != null)
-              _buildSelectedSummary(context, selected, trends[selected]!),
-            if (_latestPr(trends) != null) ...[
+            if (selected != null && selectedTrend != null)
+              _buildSelectedSummary(context, selected, selectedTrend),
+            if (latestPr != null) ...[
               const SizedBox(height: 12),
-              _buildPrRow(context, _latestPr(trends)!),
+              _buildPrRow(context, latestPr),
             ],
           ],
           const SizedBox(height: 16),
@@ -397,9 +402,9 @@ class _StatsProgressSectionState extends State<StatsProgressSection> {
                             : 0.0,
                         child: Container(
                           decoration: BoxDecoration(
-                            color: const Color(
-                              0xFF0072B2,
-                            ).withValues(alpha: 0.75),
+                            color: ChartPalette.colors[4].withValues(
+                              alpha: 0.75,
+                            ),
                             borderRadius: BorderRadius.circular(
                               AppDimensions.radiusSm,
                             ),

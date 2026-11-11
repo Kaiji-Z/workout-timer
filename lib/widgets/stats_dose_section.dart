@@ -189,8 +189,8 @@ class StatsDoseSection extends StatelessWidget {
     final barColor = switch (status) {
       DoseStatus.noData => theme.textColor.withValues(alpha: 0.2),
       DoseStatus.belowMev => theme.textColor.withValues(alpha: 0.35),
-      DoseStatus.inRange => const Color(0xFF0072B2), // Okabe-Ito blue
-      DoseStatus.aboveMrv => const Color(0xFFD55E00), // Okabe-Ito vermilion
+      DoseStatus.inRange => ChartPalette.colors[4], // blue
+      DoseStatus.aboveMrv => ChartPalette.colors[5], // vermilion
     };
     final statusLabel = switch (status) {
       DoseStatus.noData => '',

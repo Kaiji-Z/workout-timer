@@ -373,7 +373,7 @@ class _StatsHabitSectionState extends State<StatsHabitSection> {
   Widget _buildHeatmapLegend(BuildContext context) {
     final l10n = context.l10n;
     final theme = widget.theme;
-    const heatBlue = Color(0xFF0072B2);
+    final heatBlue = ChartPalette.colors[4]; // Okabe-Ito blue
     final cell = 10.0;
 
     Widget swatch({bool dashed = false, Color? fill}) {
@@ -507,7 +507,7 @@ class _YearHeatmapPainter extends CustomPainter {
       ..color = theme.textColor.withValues(alpha: 0.18);
     final todayDate = DateTime(today.year, today.month, today.day);
     const gap = _StatsHabitSectionState._gap;
-    const heatBlue = Color(0xFF0072B2); // Okabe-Ito blue
+    final heatBlue = ChartPalette.colors[4]; // Okabe-Ito blue
 
     for (var dayOfYear = 0; dayOfYear < 366; dayOfYear++) {
       final date = DateTime(year, 1, 1).add(Duration(days: dayOfYear));
