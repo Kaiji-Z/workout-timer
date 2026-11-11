@@ -69,9 +69,8 @@ void main() {
       expect(() => map['x'] = 1, throwsUnsupportedError);
     });
 
-    test('getCompletedSets / getExerciseWeight default to 0 / null', () {
+    test('getCompletedSets / getExerciseSetsData default to 0 / empty', () {
       expect(provider.getCompletedSets('any-id'), 0);
-      expect(provider.getExerciseWeight('any-id'), isNull);
       expect(provider.getExerciseSetsData('any-id'), isEmpty);
     });
   });
@@ -238,11 +237,6 @@ void main() {
   });
 
   group('TrainingProgressProvider weight tracking', () {
-    test('setWeight stores and getExerciseWeight retrieves', () {
-      provider.setWeight('e1', 80.0);
-      expect(provider.getExerciseWeight('e1'), 80.0);
-    });
-
     test('getMaxWeight derives from per-set data when present', () {
       provider.addSetData('e1', const SetData(setNumber: 1, reps: 8, weight: 60));
       provider.addSetData('e1', const SetData(setNumber: 2, reps: 6, weight: 80));
@@ -255,7 +249,7 @@ void main() {
     });
   });
 
-  group('TrainingProgressProvider addSetData / replaceSetsData / clear', () {
+  group('TrainingProgressProvider addSetData / replaceSetsData', () {
     test('addSetData appends and notifies', () {
       var notifyCount = 0;
       provider.addListener(() => notifyCount++);
@@ -272,14 +266,6 @@ void main() {
       ]);
       expect(provider.getExerciseSetsData('e1').length, 2);
       expect(provider.getExerciseSetsData('e1').first.reps, 10);
-    });
-
-    test('clearSetsData wipes the per-set map', () {
-      provider.addSetData('e1', const SetData(setNumber: 1, reps: 8));
-      provider.addSetData('e2', const SetData(setNumber: 1, reps: 8));
-      provider.clearSetsData();
-      expect(provider.getExerciseSetsData('e1'), isEmpty);
-      expect(provider.getExerciseSetsData('e2'), isEmpty);
     });
   });
 
@@ -298,7 +284,6 @@ void main() {
       provider
         ..startPlan(planFixture())
         ..completeSet()
-        ..setWeight('e1', 80)
         ..addSetData('e1', const SetData(setNumber: 1))
         ..toggleExpanded();
 
@@ -349,9 +334,8 @@ void main() {
       expect(record.exercises.first.exerciseId, 'a');
     });
 
-    test('prefers per-set maxWeight over the manual setWeight value', () {
+    test('maxWeight derives from per-set data', () {
       provider.startPlan(planFixture(targetSets: [1]));
-      provider.setWeight('e1', 50); // legacy/manual
       provider.addSetData('e1', const SetData(setNumber: 1, reps: 8, weight: 70));
       provider.completeSet();
 
@@ -360,14 +344,13 @@ void main() {
       expect(record.exercises.single.maxWeight, 70.0);
     });
 
-    test('falls back to manual weight when no per-set data', () {
+    test('maxWeight is null when no per-set data recorded', () {
       provider.startPlan(planFixture(targetSets: [1]));
-      provider.setWeight('e1', 50);
       provider.completeSet();
 
       final record = provider.generateRecord();
 
-      expect(record.exercises.single.maxWeight, 50.0);
+      expect(record.exercises.single.maxWeight, isNull);
     });
 
     test('records a unique id (uuid v4) per call', () {

@@ -72,7 +72,12 @@ class DataTransferService {
 
     // 优先保存到 Downloads 目录
     String savedPath;
-    if (Platform.isAndroid) {
+    if (kIsWeb) {
+      // Web 无本地文件系统：dart:io 的 Platform 访问本身就会抛
+      // UnsupportedError，path_provider 同样不可用。这里显式抛出，
+      // 由上层（设置页）的 catch 转为用户可见的错误提示。
+      throw UnsupportedError('Data export is not supported on web');
+    } else if (Platform.isAndroid) {
       savedPath = await saveToDownloads(jsonStr, fileName);
     } else {
       // iOS / 其他平台用临时目录 + 分享
@@ -267,19 +272,6 @@ class DataTransferService {
     });
 
     return totalImported;
-  }
-
-  /// 获取各表的记录数统计
-  Future<Map<String, int>> getTableCounts() async {
-    final db = await _dbHelper.database;
-    final counts = <String, int>{};
-
-    for (final table in _tables) {
-      final result = await db.rawQuery('SELECT COUNT(*) as count FROM $table');
-      counts[table] = result.first['count'] as int;
-    }
-
-    return counts;
   }
 
   // ==================== 工具方法 ====================

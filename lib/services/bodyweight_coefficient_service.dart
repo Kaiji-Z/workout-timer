@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:workout_timer/models/exercise.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -209,16 +208,6 @@ class BodyweightCoefficientService {
       return prefs.getDouble(_keyBodyWeight);
     } catch (e) {
       return null;
-    }
-  }
-
-  /// Save user's body weight to SharedPreferences.
-  static Future<void> saveBodyWeight(double weight) async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setDouble(_keyBodyWeight, weight);
-    } catch (e) {
-      debugPrint('Error saving body weight: $e');
     }
   }
 }

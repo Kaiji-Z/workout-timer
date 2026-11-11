@@ -199,10 +199,5 @@ void main() {
     test('loadBodyWeight returns null when not set', () async {
       expect(await BodyweightCoefficientService.loadBodyWeight(), isNull);
     });
-
-    test('saveBodyWeight persists, loadBodyWeight reads it back', () async {
-      await BodyweightCoefficientService.saveBodyWeight(72.5);
-      expect(await BodyweightCoefficientService.loadBodyWeight(), 72.5);
-    });
   });
 }

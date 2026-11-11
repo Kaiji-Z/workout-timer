@@ -60,6 +60,20 @@ class DatabaseHelper {
     _useInMemoryForTesting = true;
   }
 
+  /// Test-only: exposes the real sequential migration ([_onUpgrade]) so
+  /// regression tests can drive an old-version file database up to the
+  /// current schema. The singleton's own open path cannot re-open an
+  /// existing file at a higher version, which is exactly the upgrade
+  /// scenario production users hit.
+  @visibleForTesting
+  Future<void> debugOnUpgrade(
+    Database db,
+    int oldVersion,
+    int newVersion,
+  ) async {
+    await _onUpgrade(db, oldVersion, newVersion);
+  }
+
   Future<Database> _initDatabase() async {
     if (kIsWeb || _useInMemoryForTesting) {
       // For web (or desktop unit/widget tests), initialize sqflite ffi and
@@ -292,6 +306,9 @@ class DatabaseHelper {
         ''');
 
         // 创建 record_exercises 表
+        // 注意：此处必须复刻历史 v2 真实形态（无 per_set_data）——
+        // 该列由下方 oldVersion < 3 的 ALTER 统一补加。若在此预置，
+        // v1 直升最新版时 <2 与 <3 顺序执行会抛 duplicate column。
         await txn.execute('''
           CREATE TABLE $tableRecordExercises (
             id TEXT PRIMARY KEY,
@@ -299,7 +316,6 @@ class DatabaseHelper {
             exercise_id TEXT NOT NULL,
             completed_sets INTEGER NOT NULL,
             max_weight REAL,
-            per_set_data TEXT,
             FOREIGN KEY (record_id) REFERENCES $tableWorkoutRecords(id) ON DELETE CASCADE
           )
         ''');
@@ -377,103 +393,8 @@ class DatabaseHelper {
     );
   }
 
-  Future<int> update(WorkoutSession session) async {
-    Database db = await instance.database;
-    return await db.update(
-      tableWorkoutSessions,
-      session.toMap(),
-      where: '$columnId = ?',
-      whereArgs: [session.id],
-    );
-  }
-
   Future<void> deleteAll() async {
     Database db = await instance.database;
     await db.delete(tableWorkoutSessions);
-  }
-
-  // ========== 通用数据库操作方法 ==========
-
-  /// 通用插入方法
-  Future<int> insertToTable(String table, Map<String, dynamic> values) async {
-    Database db = await instance.database;
-    return await db.insert(table, values);
-  }
-
-  /// 通用查询方法
-  Future<List<Map<String, dynamic>>> queryTable(
-    String table, {
-    bool? distinct,
-    List<String>? columns,
-    String? where,
-    List<Object?>? whereArgs,
-    String? groupBy,
-    String? having,
-    String? orderBy,
-    int? limit,
-    int? offset,
-  }) async {
-    Database db = await instance.database;
-    return await db.query(
-      table,
-      distinct: distinct,
-      columns: columns,
-      where: where,
-      whereArgs: whereArgs,
-      groupBy: groupBy,
-      having: having,
-      orderBy: orderBy,
-      limit: limit,
-      offset: offset,
-    );
-  }
-
-  /// 通用更新方法
-  Future<int> updateTable(
-    String table,
-    Map<String, dynamic> values, {
-    String? where,
-    List<Object?>? whereArgs,
-  }) async {
-    Database db = await instance.database;
-    return await db.update(table, values, where: where, whereArgs: whereArgs);
-  }
-
-  /// 通用删除方法
-  Future<int> deleteFromTable(
-    String table, {
-    String? where,
-    List<Object?>? whereArgs,
-  }) async {
-    Database db = await instance.database;
-    return await db.delete(table, where: where, whereArgs: whereArgs);
-  }
-
-  /// 执行原始SQL查询
-  Future<List<Map<String, dynamic>>> rawQuery(
-    String sql, [
-    List<Object?>? arguments,
-  ]) async {
-    Database db = await instance.database;
-    return await db.rawQuery(sql, arguments);
-  }
-
-  /// 执行事务
-  Future<T> transaction<T>(Future<T> Function(Transaction txn) action) async {
-    Database db = await instance.database;
-    return await db.transaction(action);
-  }
-
-  /// 批量插入
-  Future<void> batchInsert(
-    String table,
-    List<Map<String, dynamic>> values,
-  ) async {
-    Database db = await instance.database;
-    Batch batch = db.batch();
-    for (var value in values) {
-      batch.insert(table, value);
-    }
-    await batch.commit(noResult: true);
   }
 }

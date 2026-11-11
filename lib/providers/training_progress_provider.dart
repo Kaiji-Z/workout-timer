@@ -14,7 +14,6 @@ class TrainingProgressProvider extends ChangeNotifier {
   int _currentExerciseIndex = 0;
   int _currentSetInExercise = 0;
   Map<String, int> _completedSets = {}; // exerciseId -> count
-  Map<String, double?> _exerciseWeights = {}; // exerciseId -> max weight
   final Map<String, List<SetData>> _exerciseSetsData =
       {}; // exerciseId -> per-set data
   bool _isExpanded = false; // UI expansion state
@@ -93,11 +92,6 @@ class TrainingProgressProvider extends ChangeNotifier {
     return _completedSets[exerciseId] ?? 0;
   }
 
-  /// 获取某个动作的最大重量
-  double? getExerciseWeight(String exerciseId) {
-    return _exerciseWeights[exerciseId];
-  }
-
   /// 获取某个动作的每组数据
   Map<String, List<SetData>> get exerciseSetsData => _exerciseSetsData;
 
@@ -128,19 +122,12 @@ class TrainingProgressProvider extends ChangeNotifier {
     return sets.map((s) => s.weight ?? 0).reduce((a, b) => a > b ? a : b);
   }
 
-  /// 清除每组数据
-  void clearSetsData() {
-    _exerciseSetsData.clear();
-    notifyListeners();
-  }
-
   /// 开始计划训练
   void startPlan(WorkoutPlan plan) {
     _currentPlan = plan;
     _currentExerciseIndex = 0;
     _currentSetInExercise = 0;
     _completedSets = {};
-    _exerciseWeights = {};
     _exerciseSetsData.clear();
     _isExpanded = false;
     _startTime = DateTime.now();
@@ -180,12 +167,6 @@ class TrainingProgressProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// 设置动作的重量
-  void setWeight(String exerciseId, double weight) {
-    _exerciseWeights[exerciseId] = weight;
-    notifyListeners();
-  }
-
   /// 切换展开状态
   void toggleExpanded() {
     _isExpanded = !_isExpanded;
@@ -198,7 +179,6 @@ class TrainingProgressProvider extends ChangeNotifier {
     _currentExerciseIndex = 0;
     _currentSetInExercise = 0;
     _completedSets = {};
-    _exerciseWeights = {};
     _exerciseSetsData.clear();
     _isExpanded = false;
     _startTime = null;
@@ -223,7 +203,7 @@ class TrainingProgressProvider extends ChangeNotifier {
         final setsData = _exerciseSetsData[planExercise.exerciseId];
         final maxWeight = setsData != null && setsData.isNotEmpty
             ? getMaxWeight(planExercise.exerciseId)
-            : _exerciseWeights[planExercise.exerciseId];
+            : null;
         recordedExercises.add(
           RecordedExercise(
             exerciseId: planExercise.exerciseId,
@@ -275,7 +255,6 @@ class TrainingProgressProvider extends ChangeNotifier {
   void dispose() {
     _currentPlan = null;
     _completedSets.clear();
-    _exerciseWeights.clear();
     _exerciseSetsData.clear();
     super.dispose();
   }

@@ -5,7 +5,7 @@ import 'package:workout_timer/providers/training_provider.dart';
 /// Covers everything *except* pauseRest / resumeRest (already exhaustive there):
 /// - lifecycle: startExercise / endWorkout / resetWorkout / resumeExercise
 /// - transitions: startRest / skipRest / pauseExercise / resumeFromPause
-/// - read-only getters: statusText, sessionDurationFormatted, getWorkoutData
+/// - read-only getters: sessionDurationFormatted, getWorkoutData
 /// - guard clauses: each method is a no-op from the wrong state
 void main() {
   late TrainingProvider provider;
@@ -36,10 +36,6 @@ void main() {
 
     test('default restDuration is 60s', () {
       expect(provider.restDuration, 60);
-    });
-
-    test('statusText reads idle prompt when idle', () {
-      expect(provider.statusText, contains('准备开始'));
     });
 
     test('sessionDurationFormatted is 00:00 before any exercise', () {
@@ -95,11 +91,6 @@ void main() {
       expect(provider.state, TrainingState.resting);
     });
 
-    test('statusText reflects current set while exercising', () {
-      exercise();
-      expect(provider.statusText, contains('第1组'));
-    });
-
     test('notifies listeners', () {
       var notifyCount = 0;
       provider.addListener(() => notifyCount++);
@@ -141,12 +132,6 @@ void main() {
       provider.resumeFromPause();
       expect(provider.state, TrainingState.exercising);
     });
-
-    test('statusText reflects paused state', () {
-      exercise();
-      provider.pauseExercise();
-      expect(provider.statusText, contains('已暂停'));
-    });
   });
 
   group('TrainingProvider.startRest / skipRest', () {
@@ -185,14 +170,6 @@ void main() {
       expect(provider.state, TrainingState.exercising);
       expect(provider.currentSet, 1);
     });
-
-    test('statusText reads "resting, next set N+1" while resting', () {
-      exercise(); // currentSet = 1
-      provider.startRest();
-      // Should reference both the completed set and the upcoming set.
-      expect(provider.statusText, contains('1'));
-      expect(provider.statusText, contains('2'));
-    });
   });
 
   group('TrainingProvider.endWorkout', () {
@@ -228,12 +205,6 @@ void main() {
       provider.endWorkout();
       provider.endWorkout();
       expect(provider.state, TrainingState.completed);
-    });
-
-    test('statusText reports completion', () {
-      exercise();
-      provider.endWorkout();
-      expect(provider.statusText, contains('完成'));
     });
   });
 

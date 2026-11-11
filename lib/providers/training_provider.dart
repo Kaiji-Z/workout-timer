@@ -114,24 +114,6 @@ class TrainingProvider extends ChangeNotifier {
     return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
   }
 
-  /// 状态显示文本
-  String get statusText {
-    switch (_state) {
-      case TrainingState.idle:
-        return '准备开始';
-      case TrainingState.exercising:
-        return '正在进行第$_currentSet组';
-      case TrainingState.exercisePaused:
-        return '第$_currentSet组 已暂停';
-      case TrainingState.resting:
-        return '已完成$_currentSet组，准备进行第${_currentSet + 1}组';
-      case TrainingState.restPaused:
-        return '休息暂停中';
-      case TrainingState.completed:
-        return '本次训练已完成$_currentSet组';
-    }
-  }
-
   /// 设置休息时长
   void setRestDuration(int seconds) {
     if (_state != TrainingState.idle) return;
@@ -233,7 +215,7 @@ class TrainingProvider extends ChangeNotifier {
     _state = TrainingState.exercising;
     _isPaused = false;
     // Fix: Resume session stopwatch too, not just exercise stopwatch
-    _pauseStartTime = null; // Clear pause time
+    _absorbPauseIntoSessionStart(); // 暂停区间不计入会话时长
     _sessionStopwatch?.start();
     _stopwatch = Stopwatch()..start();
     _startExerciseTimer();
@@ -246,6 +228,18 @@ class TrainingProvider extends ChangeNotifier {
     }
 
     notifyListeners();
+  }
+
+  /// 把当前暂停区间从会话时长中剔除：将 [_sessionStartTime] 前移暂停的
+  /// 墙钟时长。所有 `_sessionDuration` 计算点都以
+  /// `now - _sessionStartTime` 为准，前移起点即等价于排除暂停区间。
+  /// 非暂停态调用是安全的 no-op（幂等）。
+  void _absorbPauseIntoSessionStart() {
+    final pauseStart = _pauseStartTime;
+    final sessionStart = _sessionStartTime;
+    if (pauseStart == null || sessionStart == null) return;
+    _sessionStartTime = sessionStart.add(DateTime.now().difference(pauseStart));
+    _pauseStartTime = null;
   }
 
   /// 开始休息
@@ -333,6 +327,8 @@ class TrainingProvider extends ChangeNotifier {
     }
 
     _cancelIdleReminder();
+    // 从暂停态直接结束时同样剔除暂停区间
+    _absorbPauseIntoSessionStart();
     // 保存当前运动时间
     if (_state == TrainingState.exercising) {
       _totalExerciseTime += _exerciseTime;
