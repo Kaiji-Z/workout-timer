@@ -111,8 +111,11 @@ void showPrivacyPolicyDialog(BuildContext context, AppThemeData theme) {
                 text: 'https://kaiji-z.github.io/workout-timer/',
               ),
             );
+            // 先捕获 messenger 再 pop：pop 之后 dialog context 进入退出动画，
+            // 依赖它查找 Scaffold 是脆弱写法（同仓正确先例见 plan_screen）。
+            final messenger = ScaffoldMessenger.of(context);
             Navigator.pop(context);
-            ScaffoldMessenger.of(context).showSnackBar(
+            messenger.showSnackBar(
               SnackBar(
                 content: Text(l10n.settingsPrivacyLinkCopied),
                 duration: Duration(seconds: 2),
