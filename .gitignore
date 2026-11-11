@@ -53,7 +53,6 @@ app.*.map.json
 # Temporary files
 nul
 *.html
-!web/**/*.html
 !docs/**/*.html
 
 # App store submission materials (contains sensitive company/bank/ID info)
@@ -83,6 +82,9 @@ nul
 # IDE / agent tool state (not project artifacts)
 .zcode/
 .playwright-mcp/
+.goal/
+.v2c/
+.video_agent/
 
 # Impeccable design critique snapshots (local review history)
 .impeccable/

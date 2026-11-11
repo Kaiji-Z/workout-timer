@@ -1,6 +1,6 @@
 # AGENTS.md - WorkoutTimer Flutter App
 
-**Updated:** 2026-10-06
+**Updated:** 2026-11-11（全仓审计轮：修复 v1→v5 迁移 P0、暂停时长计入、Web 导出守卫等，详见 git log）
 **Branch:** master
 
 ## VERIFICATION PROTOCOL（验证体系）
@@ -9,7 +9,7 @@
 它携带本项目的 §8 参数（系统入口、回归基线、flag 设计、验收标准），在本仓库内维护，
 不放在全局技能目录。违反其 §7 红线的产出无效。
 
-- **验证状态（2026-10-06 治理轮）**：ACI 审计通过；回归基线 `flutter test` 634 测试 + 4 类护栏（i18n 守卫/设计 token/对比度/arb 一致性）；**端到端已自动化**：`flutter test integration_test/ -d <emulator>`（训练/计划全流程 + 启动冒烟，模拟器 CLI 单命令复现）；**覆盖率门禁已挂 CI**：核心层（providers/services/models）合计 ≥55%（当前 56.0%，棘轮逐步抬高）。
+- **验证状态（2026-11-11 审计轮）**：ACI 审计通过；回归基线 `flutter test` **664 测试全绿**（2026-11-11，含本轮新增 6 个回归：v1→v5 真实迁移路径 ×2、暂停时长排除 ×2、matcher synonym ×2）+ 4 类护栏（i18n 守卫/设计 token/对比度/arb 一致性）；**端到端已自动化**：`flutter test integration_test/ -d <emulator>`（训练/计划全流程 + 启动冒烟，模拟器 CLI 单命令复现）；**覆盖率门禁已挂 CI**：核心层（providers/services/models）合计 ≥55%（棘轮逐步抬高）。
 - **验证欠账（余量，详见 VERIFICATION.md 附录）**：
   - P2：无结构化 trace
   - 已知自动化盲区：OS 级后台保活（厂商 ROM 行为，反向标准 3 只自动化到 lifecycle-resumed 分支层）
@@ -18,10 +18,10 @@
 
 ## OVERVIEW
 
-Cross-platform Flutter workout rest timer with preset durations (30s/60s/90s/120s), multi-channel notifications, SQLite-backed workout history, AI plan generation, per-set recording, and bodyweight volume tracking. Supports Android, iOS, Web, and Desktop.
+Cross-platform Flutter workout rest timer with preset durations (30s/60s/90s/120s), multi-channel notifications, SQLite-backed workout history, AI plan generation, per-set recording, and bodyweight volume tracking. Supports Android, iOS, and Desktop.
 
 **Architecture**: MVVM with Provider (ChangeNotifier), services layer, local SQLite.
-**Stack**: Flutter 3.10+ / Dart 3.10.7+ / sqflite + sqflite_common_ffi / provider / flutter_local_notifications / uuid / intl / fuzzy / fl_chart / cached_network_image / google_fonts / string_similarity / flutter_localizations (gen-l10n).
+**Stack**: Flutter 3.10+ / Dart 3.10.7+ / sqflite + sqflite_common_ffi / provider / flutter_local_notifications / uuid / intl / fuzzy / fl_chart / cached_network_image / flutter_localizations (gen-l10n).
 **Design System**: "Flat Vitality" — warm gradients, deep indigo accent (#1A237E), white circular buttons.
 **Database**: SQLite v5 with incremental migrations (v1→v2→v3→v4→v5).
 
@@ -33,14 +33,12 @@ Cross-platform Flutter workout rest timer with preset durations (30s/60s/90s/120
 # Install & Run
 flutter pub get                    # Install dependencies
 flutter run                        # Run on device/emulator
-flutter run -d chrome              # Web
 flutter run -d windows             # Desktop
 
 # Build
 flutter build apk --debug          # Debug APK
 ./build_release.sh                 # Release APK (with --no-tree-shake-icons)
 flutter build apk --release --no-tree-shake-icons  # Direct release build
-flutter build web                  # Web build
 
 # Install to phone (NEVER uninstall first — always overwrite)
 adb install -r build/app/outputs/flutter-apk/app-debug.apk  # Overwrite install (preserves data)
@@ -53,7 +51,8 @@ flutter test test/services/exercise_matcher_service_test.dart  # Run specific te
 flutter test test/services/database_migration_test.dart       # DB migration tests
 flutter test --name "exact match"               # Run tests matching name
 flutter test --reporter expanded                # Verbose output
-flutter test integration_test/                  # Integration tests (ai_plan_import_e2e_test, detailed_recording_e2e_test)
+flutter test integration_test/ -d <emulator>    # Device-level e2e (app_test smoke, training_flow_e2e)
+flutter test test/integration/                  # Host-level e2e (ai_plan_import, detailed_recording; no device needed)
 
 # Analyze & Format
 flutter analyze                    # Static analysis (all files)
@@ -68,12 +67,14 @@ flutter clean && flutter pub get   # Clean and reinstall
 > **CRITICAL**: Always use `--no-tree-shake-icons` for release builds to prevent Material Icons from displaying as garbled text.
 
 ### CI
-GitHub Actions on push/PR to `master`/`main`:
-- `android-build.yml`: Java 17 → Flutter stable → `flutter pub get` → `flutter test` → `flutter build apk --debug`
-- `ios-build.yml`: macOS runner, iOS build verification
+GitHub Actions（4 个 workflow）：
+- `android-build.yml`: push/PR master/main — Java 17 → Flutter stable → `flutter pub get` → `flutter test`（含覆盖率门禁 `scripts/check_coverage.dart`，核心层 ≥55%）→ `flutter build apk --debug`
+- `ios-build.yml`: push/PR master/main — macOS runner, iOS build verification
+- `release.yml`: push `v*` tag — 校验 tag=pubspec → test → release APK（正式签名）→ 自动建 GitHub Release（说明由 `scripts/generate_release_notes.mjs` 生成，见发版规则节）
+- `pages.yml`: push master（paths 含 docs/landing/**、docs/screenshots/** 等）— 组装并部署 GitHub Pages 落地页
 
 ### Linting
-Uses `package:flutter_lints/flutter.yaml` — no custom rule overrides. Standard Flutter lint set.
+Uses `package:flutter_lints/flutter.yaml`，无自定义 lint 规则（仅 `analyzer.exclude` 排除 build/ 与各平台目录）。
 
 ---
 
@@ -85,16 +86,17 @@ lib/
 ├── animations/               # Page transitions and list animations
 │   ├── animation_primitives.dart # AnimatedCard, CountUp, Shimmer
 │   ├── list_animations.dart
-│   └── page_transitions.dart # FadeUpPageRoute, ScaleFadePageRoute (slide-up transition)
+│   └── page_transitions.dart # FadeUpPageRoute (slide-up transition)
 ├── providers/                   # State providers (ChangeNotifier, MVVM)
+│   ├── timer_provider.dart   # 简单倒计时 provider（⚠ 当前无 UI 消费方，去留待决策）
+│   ├── training_provider.dart # Training mode state machine
+│   ├── training_progress_provider.dart # Real-time training tracking
+│   ├── plan_provider.dart    # Workout plan CRUD
+│   ├── record_provider.dart  # History records
+│   └── locale_provider.dart  # Locale state + persistence
 ├── core/                        # ServiceLocator (dependency injection)
 ├── l10n/                        # Generated AppLocalizations + arb files
 │   └── context_l10n.dart        # Hand-written BuildContext.l10n extension (ONLY l10n `!` site)
-│   ├── timer_provider.dart   # Timer countdown, sets counter
-│   ├── training_provider.dart # Training mode state machine
-│   ├── plan_provider.dart    # Workout plan CRUD
-│   ├── record_provider.dart  # History and stats
-│   └── training_progress_provider.dart # Real-time training tracking
 ├── models/                   # Data models with fromMap/toMap
 │   ├── workout_session.dart  # Simple session (sets, rest time)
 │   ├── workout_record.dart   # Detailed record (exercises, weights)
@@ -102,28 +104,26 @@ lib/
 │   ├── exercise.dart         # Exercise definition (870+ exercises)
 │   ├── muscle_group.dart     # Muscle group enums + utilities
 │   ├── set_data.dart         # Single set: setNumber, reps, weight
-│   ├── calendar_plan.dart    # Date → plan mapping
+│   ├── calendar_plan.dart    # Date → plan mapping（⚠ 生产走 raw map，模型待接回或删除）
 │   ├── user_profile.dart     # AI plan profile: goal, frequency, equipment
 │   └── weekly_plan_import.dart # JSON import for weekly plans
 ├── screens/                  # UI screens (full pages)
 │   ├── timer_screen.dart     # Timer wrapper
 │   ├── plan_screen.dart      # Workout plans + calendar (detail sheet in widgets/plan_detail_sheet.dart)
 │   ├── plan_form_screen.dart # Plan creation/editing (888 lines; step indicator/set item in widgets/plan_form_components.dart)
-│   ├── ai_plan_wizard_screen.dart # AI-powered plan generation (1148 lines)
-│   ├── ai_analysis_screen.dart    # AI analysis dashboard (983 lines; shared chrome in widgets/ai_analysis_components.dart)
+│   ├── ai_plan_wizard_screen.dart # AI-powered plan generation (1273 lines)
+│   ├── ai_analysis_screen.dart    # AI analysis dashboard (1214 lines; shared chrome in widgets/ai_analysis_components.dart)
 │   ├── exercise_selection_screen.dart # Exercise picker (938 lines)
 │   ├── history_screen.dart   # Workout history list + training history export entry
-│   ├── record_detail_screen.dart   # Detailed record view (809 lines)
-│   ├── stats_screen.dart     # Statistics dashboard (989 lines; charts in widgets/stats_charts.dart)
-│   ├── user_preferences_screen.dart # Training preferences (575 lines)
+│   ├── record_detail_screen.dart   # Detailed record view (821 lines)
+│   ├── stats_screen.dart     # Statistics dashboard shell (322 lines; sections in widgets/stats_*_section.dart)
+│   ├── user_preferences_screen.dart # Training preferences (589 lines)
 │   ├── onboarding_screen.dart # First-run 3-page carousel (gated by SharedPreferences `onboarding_done`, pushed from MainNavigation.initState)
-│   └── settings_screen.dart  # User preferences (1194 lines; dialogs/cards in widgets/settings_widgets.dart)
+│   └── settings_screen.dart  # User preferences (1196 lines; dialogs/cards in widgets/settings_widgets.dart)
 ├── widgets/                  # Reusable UI components
 │   ├── training_widget.dart  # Main training UI
-│   ├── timer_widget.dart     # Timer display
 │   ├── animated_timer_widget.dart # Animated timer variant
 │   ├── calendar_widget.dart  # Month calendar (LayoutBuilder for exact height)
-│   ├── exercise_selector.dart     # Exercise selection with search/filter (558 lines)
 │   ├── exercise_detail_sheet.dart # Exercise detail sheet + fullscreen image gallery
 │   ├── muscle_selector.dart       # Muscle group selection
 │   ├── plan_card.dart       # Plan card with swipe actions
@@ -133,24 +133,23 @@ lib/
 │   ├── ai_wizard_components.dart # AI wizard step indicator, questions, prompt step
 │   ├── ai_wizard_preview.dart # AI wizard match summary, day cards, candidate sheet
 │   ├── ai_analysis_components.dart # AI analysis instructions box, headers, glass card, data row
-│   ├── stats_charts.dart    # Stats chart builders (7 charts + collapsible section)
-│   ├── stats_metric_sections.dart # Stats metric/volume/frequency section builders
+│   ├── stats_charts.dart    # DensityMetricCard（旧 7 图已退役，见文件头注释）
+│   ├── stats_dose_section.dart    # Stats dose (MEV/MRV) section
+│   ├── stats_habit_section.dart   # Stats heatmap/frequency section
+│   ├── stats_progress_section.dart # Stats e1RM progress section
+│   ├── stats_today_card.dart      # Stats today summary card
 │   ├── settings_widgets.dart # Settings dialogs, section header, cards, switches
 │   ├── duration_picker.dart # Duration selection UI
-│   ├── weight_input_dialog.dart   # Weight input dialog
 │   ├── set_record_dialog.dart     # Set recording dialog
 │   ├── bulk_exercise_data_dialog.dart # Bulk import dialog
 │   ├── fullscreen_image_viewer.dart    # Image viewer
 │   ├── glass_widgets.dart    # CircularControlButton, PressableMixin, Flat Vitality UI
-│   ├── ui_components.dart    # SheetDragHandle, SectionHeader, InfoBanner, EmptyState
-│   ├── circular_progress_painter.dart # Progress ring painter
+│   ├── ui_components.dart    # SheetDragHandle, SectionHeader, EmptyState
 │   ├── completed_medal_display.dart   # Completed workout medal
-│   ├── touch_target.dart    # Touch target size helpers (accessibility)
-│   ├── semantics_helpers.dart # Semantic labeling helpers
 │   ├── volume_trend_charts.dart # Volume trend chart widgets
 │   └── training_history_export_sheet.dart # Time-range picker for AI export
 ├── theme/                    # Flat Vitality theme (3 themes: amberGold, coralOrange, skyBlue)
-│   ├── app_theme.dart        # Theme data models
+│   ├── app_theme.dart        # Theme data models + ChartPalette (Okabe-Ito)
 │   ├── build_context_text_styles.dart # BuildContext text-style extension (ONLY textTheme `!` site)
 │   └── theme_provider.dart   # Theme state + persistence
 ├── services/                 # Database, notifications, repositories
@@ -160,8 +159,11 @@ lib/
 │   ├── exercise_service.dart # Exercise data loading
 │   ├── exercise_matcher_service.dart # Fuzzy exercise name matching
 │   ├── exercise_favorites_service.dart # Exercise favorites CRUD
+│   ├── exercise_history_service.dart # Per-exercise history queries
 │   ├── ai_prompt_service.dart # AI plan prompt generation
 │   ├── stats_calculator_service.dart # Strength data, volume, 1RM estimation
+│   ├── stats_aggregator_service.dart # Stats in-memory aggregation (页面数据源)
+│   ├── error_reporter_service.dart # ErrorReporter (SnackBar + log, ErrorSeverity)
 │   ├── bodyweight_coefficient_service.dart # Bodyweight exercise volume estimation
 │   ├── battery_optimization_service.dart # Battery optimization request (Android)
 │   ├── user_preferences_service.dart # Training preferences persistence
@@ -172,9 +174,14 @@ lib/
 │   ├── plan_repository.dart      # Plan CRUD
 │   └── record_repository.dart    # Record CRUD
 ├── utils/                    # Design tokens, vocabulary
-│   └── dimensions.dart       # AppDimensions: radius tokens (8 levels), screenPadding, nav bar sizes, responsive helpers
-└── data/                     # Static exercise data (JSON)
+│   ├── dimensions.dart       # AppDimensions: radius tokens (8 levels), screenPadding, nav bar sizes, responsive helpers
+│   ├── localized_display.dart  # Localized muscle/equipment display helpers
+│   ├── color_extension.dart    # Color conveniences（⚠ withAlpha 与 SDK 同名被遮蔽，待清理）
+│   └── fitness_vocabulary.dart # 健身词汇表（⚠ 0 引用死代码，待删除）
+└── （动作静态 JSON 在 assets/data/，不在 lib/ 下）
 ```
+
+> **已知的零引用遗留文件**（2026-11-11 审计确认，删除待批准）：`widgets/exercise_selector.dart`、`widgets/weight_input_dialog.dart`、`widgets/circular_progress_painter.dart`、`widgets/touch_target.dart`、`widgets/semantics_helpers.dart`、`utils/fitness_vocabulary.dart`，及 `plan_card.dart` 内 PlanProgressCard、`calendar_widget.dart` 内 CompactCalendar/WeekDatePicker、`glass_widgets.dart`/`animation_primitives.dart`/`page_transitions.dart` 内多个未用类。
 
 ---
 
@@ -361,7 +368,7 @@ Dark mode uses derived colors from light theme via `AppThemeData.dark` getter.
 ## DATABASE
 
 ### Schema (v5)
-9 tables with foreign keys and indexes:
+8 tables with foreign keys and indexes:
 - `workout_sessions` — Legacy simple session (id, sets, rest_time_ms, created_at)
 - `exercises` — Exercise definitions (id, name, name_en, primary_muscle, secondary_muscles, equipment, level, image_url, muscle_image_url, recommended_sets/reps/rest)
 - `workout_plans` — Plan templates (id, name, target_muscles, estimated_duration)
@@ -384,9 +391,10 @@ Dark mode uses derived colors from light theme via `AppThemeData.dark` getter.
 - All migrations in `database_helper.dart:_onUpgrade()` — sequential `if (oldVersion < N)` blocks
 - Always use `ALTER TABLE ADD COLUMN` for additive changes
 - `workout_sessions` table preserved across all migrations for backward compatibility
+- **历史版本块的建表语句必须复刻当年真实形态**（如 v2 的 record_exercises 无 `per_set_data`，该列由 `<3` 块统一 ALTER 补加）。在历史块里预置后续版本的列会导致跨版本直升时 duplicate column 崩库（2026-11-11 修复的 P0，回归测试：test/services/database_migration_test.dart 的 real-path 组，经 `DatabaseHelper.debugOnUpgrade` 走真实 `_onUpgrade`）
 
 ### Web vs Native
-- **Web**: `sqfliteFfiInit()` + in-memory database (`databaseFactoryFfi`)
+- **Web 已摘除（2026-11-11 决策）**：浏览器端 `databaseFactoryFfi` 需要 sqlite3 wasm 支撑而项目从未提供，Web 路径运行时不可用——`web/` 目录与相关声明已删除。`database_helper.dart` 里的 `kIsWeb` 分支保留作为桌面测试的内存库路由（`_useInMemoryForTesting` 同路径），不再代表平台支持
 - **Native**: Persistent file via `getDatabasesPath()`
 - Both paths use the same schema and migration logic
 
@@ -395,29 +403,25 @@ Dark mode uses derived colors from light theme via `AppThemeData.dark` getter.
 ## TESTING
 
 ### Test Structure
+共 60+ 文件，按层分目录（完整清单以 `find test -name '*_test.dart'` 为准）：
 ```
 test/
-├── widget_test.dart                          # Basic widget test
-├── helpers/
-│   └── test_fixtures.dart                    # Shared sample exercises (sampleExercises list)
-├── models/
-│   ├── set_data_test.dart
-│   ├── user_profile_test.dart
-│   ├── weekly_plan_import_test.dart
-│   └── workout_record_test.dart
-├── services/
-│   ├── exercise_matcher_service_test.dart    # Fuzzy matching (uses test_fixtures.dart)
-│   ├── stats_calculator_service_test.dart
-│   ├── database_migration_test.dart           # v2→v3 migration (sqflite_ffi)
-│   └── ai_prompt_service_test.dart
-├── theme/
-│   ├── design_tokens_test.dart               # Token existence + isDark field tests
-│   └── compliance_guardrail_test.dart        # Source-scan: no hardcoded values outside exempt files
-├── widgets/
-│   └── ai_plan_wizard_screen_test.dart
-└── integration/
-    ├── ai_plan_import_e2e_test.dart           # Full AI plan import flow
-    └── detailed_recording_e2e_test.dart       # Detailed recording with per-set data
+├── widget_test.dart          # TrainingWidget smoke
+├── core/                     # service_locator
+├── helpers/                  # test_fixtures.dart（sampleExercises）、fake_record_repository.dart
+├── i18n/                     # no_hardcoded_chinese_test（i18n 守卫）、arb_consistency_test
+├── integration/              # ai_plan_import_e2e、detailed_recording_e2e（宿主级，无需设备）
+├── models/                   # exercise/set_data/calendar_plan/user_profile/weekly_plan_import/workout_record
+├── providers/                # training×3、plan_assign、record_load、locale、training_progress
+├── screens/                  # plan/history/settings×2/stats_reload/user_preferences/ai_analysis
+├── services/                 # matcher、migration（含 v1→v5 真实路径回归）、stats×2、favorites、
+│                             # bodyweight×3、error_reporter、exercise_history、ai_prompt、
+│                             # notification_sound、training_history_export、user_preferences
+├── theme/                    # design_tokens、compliance_guardrail、contrast
+├── utils/                    # contrast_test_util、localized_display
+└── widgets/                  # 17 个（training/plan/stats/onboarding/wizard/export sheet 等）
+
+integration_test/             # 设备级（需 -d <emulator>）：app_test 冒烟、training_flow_e2e（3 条验收流）
 ```
 
 ### Critical: sqflite_ffi Initialization
@@ -428,7 +432,7 @@ setUpAll(() {
   databaseFactory = databaseFactoryFfi;
 });
 ```
-Without this, tests crash with platform errors on desktop/web.
+Without this, tests crash with platform errors on desktop.
 
 ### Critical: No ExerciseService Asset Loading in Widget Tests
 Never call `PlanProvider.loadPlans()` / `ExerciseService.loadExercises()` in
@@ -503,12 +507,13 @@ expect(find.text('开始运动'), findsOneWidget);
 
 | Task | Location |
 |------|----------|
-| Timer countdown | `providers/timer_provider.dart` (`_tick()`) |
-| Preset times | `providers/timer_provider.dart:20` (`[30, 60, 90, 120]`) |
+| Timer countdown（简单模式，⚠ 无 UI 消费方） | `providers/timer_provider.dart` (`_tick()`) |
+| Preset times | `providers/timer_provider.dart:38` (`[30, 60, 90, 120]`) |
 | Training states | `providers/training_provider.dart` (`TrainingState` enum) |
+| 暂停时长排除 | `training_provider.dart`（`_absorbPauseIntoSessionStart`，resume/endWorkout 两路径） |
 | DB schema + migrations | `services/database_helper.dart` (`_onCreate()`, `_onUpgrade()`) |
 | Theme definitions | `theme/app_theme.dart` |
-| Dark theme getter | `theme/app_theme.dart:79-118` (`AppThemeData.dark`) |
+| Dark theme getter | `theme/app_theme.dart:111` 起（`AppThemeData.dark`） |
 | Dark mode toggle | `theme/theme_provider.dart` (`isDarkMode`, `setDarkMode()`) |
 | Dark mode UI | `screens/settings_screen.dart` ("深色模式" switch) |
 | Exercise data loading | `services/exercise_service.dart` |
@@ -521,6 +526,7 @@ expect(find.text('开始运动'), findsOneWidget);
 | Stats / 1RM calculation | `services/stats_calculator_service.dart` |
 | Bodyweight volume coeff | `services/bodyweight_coefficient_service.dart` |
 | Exercise favorites | `services/exercise_favorites_service.dart` |
+| Exercise history queries | `services/exercise_history_service.dart` |
 | Battery optimization | `services/battery_optimization_service.dart` |
 | Data export/import | `services/data_transfer_service.dart` |
 | **Training history export (for AI agent)** | `services/training_history_export_service.dart` + `widgets/training_history_export_sheet.dart` — produces single-file Markdown (narrative + embedded JSON) of every session/exercise/set in a time range, written to Downloads + shared. Entry: History screen AppBar. |
@@ -551,7 +557,7 @@ if (!kIsWeb) {
 }
 ```
 
-Web uses in-memory SQLite database; native uses persistent storage.
+Web 平台已摘除（见 DATABASE 节）；`kIsWeb` 守卫保留为桌面测试路由与防御性代码。
 
 ---
 
@@ -785,8 +791,9 @@ adb install -r build/app/outputs/flutter-apk/app-release.apk  # 永远 -r 覆盖
 ## KNOWN ISSUES
 
 - **Mixed comments**: Code uses both English and Chinese comments
-- **Large screen files**: `settings_screen.dart` (1194 lines), `ai_plan_wizard_screen.dart` (1148 lines), `stats_charts.dart` (1100 lines), `stats_screen.dart` (989 lines), `ai_analysis_screen.dart` (983 lines) — all screens/widgets now ≤1200; keep new files ≤1000
-- **Force-non-null (`!`)**: down to 14 total (2026-08-23) — 10 in `build_context_text_styles.dart` + 1 in `context_l10n.dart` (sanctioned choke-points, see CODE STYLE), plus 3 legacy sites (`Alignment.lerp` ×2 in animations, `session!` ×1 in training_history_export_service). Do not add new ones.
+- **Large screen files**: `ai_plan_wizard_screen.dart` (1273), `ai_analysis_screen.dart` (1214), `settings_screen.dart` (1196), `history_screen.dart` (1056) 超 1000 行——拆分欠账；新文件保持 ≤1000
+- **Force-non-null (`!`)**：choke-point 白名单内 11 处（`build_context_text_styles.dart` ×10 + `context_l10n.dart` ×1）。白名单外剩 ~23 处 `map[key]!` 形态（2026-11-11 审计计数，多为 containsKey 守卫后的安全写法；其中 `Alignment.lerp` ×2 在死代码 animation_primitives、`session!` ×1 在 training_history_export_service）。规约不变：**不要新增**；存量清理见审计待办
+- **已知死代码欠账（2026-11-11 审计，删除待批准）**：TimerProvider 全文、record/plan 仓库统计死链、importWeeklyPlan 旧版、DatabaseHelper 通用方法区、exercise_selector 等 6 个零引用文件、若干类级死代码——合计 ~3800 行，清单见 STRUCTURE 尾注
 
 > **i18n is complete.** All user-visible strings in screens, widgets, and the service layer flow through `AppLocalizations` (zh/en). The `test/i18n/no_hardcoded_chinese_test.dart` guard enforces this for `lib/screens/`, `lib/widgets/`, and `lib/main.dart` — regressions fail CI. Comments may stay Chinese.
 
