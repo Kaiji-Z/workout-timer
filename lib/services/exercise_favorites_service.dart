@@ -17,7 +17,7 @@ class ExerciseFavoritesService {
     } else {
       await _database.insert('favorite_exercises', {
         'exercise_id': exerciseId,
-        'created_at': DateTime.now().toUtc().toIso8601String(),
+        'created_at': DateTime.now().toIso8601String(),
       });
     }
   }
