@@ -34,6 +34,11 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
 
+      # 先跑测试（秒级失败）再进 15 分钟的 iOS 构建：测试红了就不浪费
+      # macOS runner 时间，与 android-build.yml 的 test→build 顺序一致。
+      - name: Run unit tests
+        run: flutter test
+
       - name: Generate ephemeral Flutter-Generated.xcconfig
         run: |
           mkdir -p ios/Flutter/ephemeral
@@ -56,6 +61,3 @@ jobs:
             echo "❌ iOS build failed"
             exit 1
           fi
-
-      - name: Run unit tests
-        run: flutter test
