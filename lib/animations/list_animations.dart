@@ -73,8 +73,11 @@ class ListAnimation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 入场 stagger 封顶：长列表（如历史记录）深处的条目不再需要
+    // 等待 index*50ms 才淡入，避免第 40 条空白 2 秒的可感知延迟。
+    final cappedIndex = index < 20 ? index : 20;
     return FadeInItem(
-      delay: delay + Duration(milliseconds: index * 50),
+      delay: delay + Duration(milliseconds: cappedIndex * 50),
       duration: duration,
       child: child,
     );
