@@ -1,4 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:workout_timer/models/exercise.dart';
+import 'package:workout_timer/models/muscle_group.dart';
 import 'package:workout_timer/services/exercise_matcher_service.dart';
 
 import '../helpers/test_fixtures.dart';
@@ -288,6 +290,42 @@ void main() {
         expect(result.exercise, isNull);
         expect(result.candidates, isEmpty);
         expect(result.error, equals(errorMessage));
+      });
+    });
+
+    group('synonym table regression (space-free keys and values)', () {
+      // 回归：synonym 键会被 _normalize 去掉全部空格后比对、值会被拿去
+      // _nameEnMap（键无空格）做 containsKey——任何一侧带空格都是死条目。
+      final sideLateralRaise = Exercise(
+        id: 'side_lateral_raise',
+        name: '哑铃侧平举',
+        nameEn: 'Side Lateral Raise',
+        primaryMuscle: PrimaryMuscleGroup.shoulders,
+        secondaryMuscles: [SecondaryMuscleGroup.sideDelt],
+        equipment: 'dumbbell',
+        level: 'beginner',
+        recommendation: const ExerciseRecommendation(
+          recommendedSets: 3,
+          minReps: 12,
+          maxReps: 15,
+          restSeconds: 60,
+        ),
+      );
+
+      test('"dumbbell side raise" hits the synonym entry exactly', () async {
+        final localService = ExerciseMatcherService(
+          exercises: [...sampleExercises, sideLateralRaise],
+        );
+        final result = await localService.matchExercise('dumbbell side raise');
+        expect(result.isSuccess, isTrue);
+        expect(result.exercise!.id, 'side_lateral_raise');
+      });
+
+      test('"dumbbell incline press" maps to Incline Dumbbell Press',
+          () async {
+        final result = await service.matchExercise('dumbbell incline press');
+        expect(result.isSuccess, isTrue);
+        expect(result.exercise!.id, 'incline_dumbbell_press');
       });
     });
   });
