@@ -107,213 +107,257 @@ class _SetRecordDialogState extends State<SetRecordDialog> {
     final theme = context.watch<ThemeProvider>().currentTheme;
     final bodyWeight = _bodyWeight;
 
+    // 键盘适配：小屏机型上 init 自动 focus 弹出键盘，Dialog 随 viewInsets
+    // 收缩后内容超视口，保存按钮（此前在滚动区里）只剩半截。修法：
+    // 1) maxHeight 按「屏高 - 键盘 insets - 安全区 - Dialog 垂直 insetPadding」
+    //    收紧，与 Dialog 自带的 viewInsets AnimatedPadding 同口径；
+    // 2) 按钮行移出滚动区，固定在对话框底部——任何收缩状态下保存按钮
+    //    都完整可见，可滚的只有输入区（focus 时 EditableText 自动滚到可见）。
+    final mq = MediaQuery.of(context);
+    final availableHeight =
+        mq.size.height - mq.viewInsets.bottom - mq.padding.vertical - 48;
+    final maxContentHeight = availableHeight < 280 ? 280.0 : availableHeight;
+
     return Dialog(
       backgroundColor: theme.surfaceColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppDimensions.radiusChip),
       ),
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 标题：动作名称 + 组号
-            Text(
-              widget.exerciseName,
-              style: context.headlineLarge.copyWith(
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
-                color: theme.textColor,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              context.l10n.dialogSetTitle(widget.setNumber),
-              style: context.bodyMedium.copyWith(
-                color: theme.secondaryTextColor,
-              ),
-            ),
-            const SizedBox(height: 24),
-
-            // 次数选择器
-            Text(
-              context.l10n.recReps,
-              style: context.bodyMedium.copyWith(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: theme.textColor,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Container(
-              height: 100,
-              decoration: BoxDecoration(
-                color: theme.surfaceColor,
-                borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-              ),
-              child: CupertinoPicker(
-                itemExtent: 40,
-                scrollController: FixedExtentScrollController(
-                  initialItem: _selectedReps - 1,
-                ),
-                onSelectedItemChanged: (index) {
-                  setState(() {
-                    _selectedReps = index + 1;
-                  });
-                },
-                children: List.generate(50, (index) {
-                  final reps = index + 1;
-                  return Center(
-                    child: Text(
-                      context.l10n.repsWithValue(reps),
-                      style: context.headlineMedium.copyWith(
-                        color: reps == _selectedReps
-                            ? theme.textColor
-                            : theme.secondaryTextColor,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxHeight: maxContentHeight),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Flexible(
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // 标题：动作名称 + 组号
+                      Text(
+                        widget.exerciseName,
+                        style: context.headlineLarge.copyWith(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700,
+                          color: theme.textColor,
+                        ),
                       ),
-                    ),
-                  );
-                }),
-              ),
-            ),
-            const SizedBox(height: 20),
+                      const SizedBox(height: 4),
+                      Text(
+                        context.l10n.dialogSetTitle(widget.setNumber),
+                        style: context.bodyMedium.copyWith(
+                          color: theme.secondaryTextColor,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
 
-            // 自重动作参考信息
-            if (_isBodyweight && bodyWeight != null && bodyWeight > 0) ...[
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
+                      // 次数选择器
+                      Text(
+                        context.l10n.recReps,
+                        style: context.bodyMedium.copyWith(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: theme.textColor,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Container(
+                        height: 100,
+                        decoration: BoxDecoration(
+                          color: theme.surfaceColor,
+                          borderRadius: BorderRadius.circular(
+                            AppDimensions.radiusLg,
+                          ),
+                        ),
+                        child: CupertinoPicker(
+                          itemExtent: 40,
+                          scrollController: FixedExtentScrollController(
+                            initialItem: _selectedReps - 1,
+                          ),
+                          onSelectedItemChanged: (index) {
+                            setState(() {
+                              _selectedReps = index + 1;
+                            });
+                          },
+                          children: List.generate(50, (index) {
+                            final reps = index + 1;
+                            return Center(
+                              child: Text(
+                                context.l10n.repsWithValue(reps),
+                                style: context.headlineMedium.copyWith(
+                                  color: reps == _selectedReps
+                                      ? theme.textColor
+                                      : theme.secondaryTextColor,
+                                ),
+                              ),
+                            );
+                          }),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+
+                      // 自重动作参考信息
+                      if (_isBodyweight &&
+                          bodyWeight != null &&
+                          bodyWeight > 0) ...[
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            color: theme.accentColor.withValues(alpha: 0.08),
+                            borderRadius: BorderRadius.circular(
+                              AppDimensions.radiusMd,
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.info_outline,
+                                size: 14,
+                                color: theme.accentColor,
+                              ),
+                              const SizedBox(width: 6),
+                              Expanded(
+                                child: Text(
+                                  context.l10n.bodyweightReference(
+                                    bodyWeight.toStringAsFixed(0),
+                                    (_coefficient * 100).toStringAsFixed(0),
+                                    (bodyWeight * _coefficient)
+                                        .toStringAsFixed(1),
+                                  ),
+                                  style: context.bodySmall.copyWith(
+                                    color: theme.accentColor,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                      ],
+
+                      // 重量输入
+                      Text(
+                        _isBodyweight
+                            ? context.l10n.recAddedWeightKg
+                            : context.l10n.recWeightKg,
+                        style: context.bodyMedium.copyWith(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: theme.textColor,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      TextField(
+                        controller: _weightController,
+                        focusNode: _weightFocus,
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
+                        decoration: InputDecoration(
+                          hintText: _isBodyweight
+                              ? context.l10n.recBodyweightOnly
+                              : '0',
+                          hintStyle: context.bodyLarge.copyWith(
+                            color: theme.secondaryTextColor.withValues(
+                              alpha: 0.5,
+                            ),
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(
+                              AppDimensions.radiusLg,
+                            ),
+                            borderSide: BorderSide(color: theme.borderColor),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(
+                              AppDimensions.radiusLg,
+                            ),
+                            borderSide: BorderSide(
+                              color: theme.accentColor,
+                              width: 2,
+                            ),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 14,
+                          ),
+                        ),
+                        style: context.bodyLarge.copyWith(
+                          color: theme.textColor,
+                        ),
+                        textInputAction: TextInputAction.done,
+                        onSubmitted: (_) => _save(),
+                      ),
+                    ],
+                  ),
                 ),
-                decoration: BoxDecoration(
-                  color: theme.accentColor.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.info_outline,
-                      size: 14,
-                      color: theme.accentColor,
-                    ),
-                    const SizedBox(width: 6),
-                    Expanded(
+              ),
+              const SizedBox(height: 24),
+
+              // 按钮区域：固定在对话框底部（不随内容滚动收缩）
+              Row(
+                children: [
+                  // 跳过按钮
+                  Expanded(
+                    child: TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(null);
+                      },
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                            AppDimensions.radiusLg,
+                          ),
+                        ),
+                      ),
                       child: Text(
-                        context.l10n.bodyweightReference(
-                          bodyWeight.toStringAsFixed(0),
-                          (_coefficient * 100).toStringAsFixed(0),
-                          (bodyWeight * _coefficient).toStringAsFixed(1),
-                        ),
-                        style: context.bodySmall.copyWith(
-                          color: theme.accentColor,
+                        context.l10n.recSkip,
+                        style: context.titleLarge.copyWith(
+                          fontSize: 15,
+                          color: theme.secondaryTextColor,
                         ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(width: 12),
+                  // 保存按钮。根因已修复:全局 elevatedButtonTheme 不再硬设
+                  // foregroundColor,故局部 styleFrom(foregroundColor: onAccentColor)
+                  // 正常生效,白字印在深靛蓝底上可读。
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: _save,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: theme.accentColor,
+                        foregroundColor: theme.onAccentColor,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                            AppDimensions.radiusLg,
+                          ),
+                        ),
+                      ),
+                      child: Text(
+                        context.l10n.recSave,
+                        style: context.titleLarge.copyWith(
+                          fontSize: 15,
+                          color: theme.onAccentColor,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 12),
             ],
-
-            // 重量输入
-            Text(
-              _isBodyweight
-                  ? context.l10n.recAddedWeightKg
-                  : context.l10n.recWeightKg,
-              style: context.bodyMedium.copyWith(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: theme.textColor,
-              ),
-            ),
-            const SizedBox(height: 8),
-            TextField(
-              controller: _weightController,
-              focusNode: _weightFocus,
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
-              ),
-              decoration: InputDecoration(
-                hintText: _isBodyweight ? context.l10n.recBodyweightOnly : '0',
-                hintStyle: context.bodyLarge.copyWith(
-                  color: theme.secondaryTextColor.withValues(alpha: 0.5),
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-                  borderSide: BorderSide(color: theme.borderColor),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-                  borderSide: BorderSide(color: theme.accentColor, width: 2),
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 14,
-                ),
-              ),
-              style: context.bodyLarge.copyWith(color: theme.textColor),
-              textInputAction: TextInputAction.done,
-              onSubmitted: (_) => _save(),
-            ),
-            const SizedBox(height: 24),
-
-            // 按钮区域
-            Row(
-              children: [
-                // 跳过按钮
-                Expanded(
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop(null);
-                    },
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(
-                          AppDimensions.radiusLg,
-                        ),
-                      ),
-                    ),
-                    child: Text(
-                      context.l10n.recSkip,
-                      style: context.titleLarge.copyWith(
-                        fontSize: 15,
-                        color: theme.secondaryTextColor,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                // 保存按钮。根因已修复:全局 elevatedButtonTheme 不再硬设
-                // foregroundColor,故局部 styleFrom(foregroundColor: onAccentColor)
-                // 正常生效,白字印在深靛蓝底上可读。
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: _save,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: theme.accentColor,
-                      foregroundColor: theme.onAccentColor,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(
-                          AppDimensions.radiusLg,
-                        ),
-                      ),
-                    ),
-                    child: Text(
-                      context.l10n.recSave,
-                      style: context.titleLarge.copyWith(
-                        fontSize: 15,
-                        color: theme.onAccentColor,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
+          ),
         ),
       ),
     );
