@@ -49,12 +49,28 @@ void main() {
 
   Widget harness({
     required void Function(BuildContext context) onOpen,
+    double? fakeKeyboardHeight,
   }) => MultiProvider(
     providers: [ChangeNotifierProvider.value(value: ThemeProvider())],
     child: MaterialApp(
       locale: const Locale('en'),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
+      // 模拟键盘弹出：真实机型的键盘 insets 在测试环境不存在，用注入的
+      // viewInsets 等价复现「键盘弹出后窗口可用高度被压缩」的布局条件。
+      builder: (context, child) {
+        Widget wrapped = child!;
+        final keyboard = fakeKeyboardHeight;
+        if (keyboard != null) {
+          wrapped = MediaQuery(
+            data: MediaQuery.of(context).copyWith(
+              viewInsets: EdgeInsets.only(bottom: keyboard),
+            ),
+            child: wrapped,
+          );
+        }
+        return wrapped;
+      },
       home: Builder(
         builder: (context) => Scaffold(
           body: ElevatedButton(
@@ -271,4 +287,96 @@ void main() {
       expect(bg, accent, reason: 'Button background must be indigo accent');
     },
   );
+
+  // 用户报告（2026-11）：部分机型键盘弹出时记录窗口被压缩，保存按钮只剩
+  // 半截。机制：initState 自动 focus 弹出键盘，Dialog 随 viewInsets 收缩，
+  // 保存按钮落在 SingleChildScrollView 视口之外（半截且初始不可见）。
+  // 契约：无论屏幕高度/键盘高度组合，保存按钮必须完整可见且位于键盘上方。
+  group('keyboard adaptation (small screen)', () {
+    testWidgets(
+      'save button stays fully visible above the keyboard on a small screen',
+      (tester) async {
+        const keyboardHeight = 280.0;
+        const screenW = 360.0;
+        const screenH = 560.0;
+        tester.view.physicalSize = const Size(screenW, screenH);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(tester.view.reset);
+
+        await tester.pumpWidget(
+          harness(
+            fakeKeyboardHeight: keyboardHeight,
+            onOpen: (context) {
+              SetRecordDialog.show(
+                context,
+                exerciseName: 'Barbell Bench Press',
+                setNumber: 2,
+                exercise: barbellExercise(),
+              );
+            },
+          ),
+        );
+        await tester.tap(find.text('open'));
+        await tester.pumpAndSettle();
+
+        final saveFinder = find.ancestor(
+          of: find.text('Save'),
+          matching: find.byType(ElevatedButton),
+        );
+        expect(saveFinder, findsOneWidget);
+
+        final saveRect = tester.getRect(saveFinder);
+        final keyboardTop = screenH - keyboardHeight;
+        expect(
+          saveRect.bottom,
+          lessThanOrEqualTo(keyboardTop),
+          reason: '键盘弹出后保存按钮底部(${saveRect.bottom})不得'
+              '超过键盘顶线($keyboardTop)，否则按钮被键盘遮挡只显示一半',
+        );
+        expect(
+          saveRect.top,
+          greaterThanOrEqualTo(0),
+          reason: '保存按钮必须完整落在屏幕内',
+        );
+        expect(
+          saveRect.bottom,
+          lessThanOrEqualTo(screenH),
+          reason: '保存按钮不得超出屏幕底部',
+        );
+      },
+    );
+
+    testWidgets(
+      'save button is fully visible without a keyboard (layout unchanged)',
+      (tester) async {
+        await tester.pumpWidget(
+          harness(
+            onOpen: (context) {
+              SetRecordDialog.show(
+                context,
+                exerciseName: 'Barbell Bench Press',
+                setNumber: 1,
+                exercise: barbellExercise(),
+              );
+            },
+          ),
+        );
+        await tester.tap(find.text('open'));
+        await tester.pumpAndSettle();
+
+        final saveFinder = find.ancestor(
+          of: find.text('Save'),
+          matching: find.byType(ElevatedButton),
+        );
+        expect(saveFinder, findsOneWidget);
+
+        // 默认测试画布 800×600：无键盘时保存按钮必须完整在屏内（回归保护）。
+        final saveRect = tester.getRect(saveFinder);
+        expect(saveRect.top, greaterThanOrEqualTo(0));
+        expect(saveRect.bottom, lessThanOrEqualTo(600));
+        expect(saveRect.left, greaterThanOrEqualTo(0));
+        expect(saveRect.right, lessThanOrEqualTo(800));
+      },
+    );
+  });
 }
