@@ -78,6 +78,10 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: stable
+          # 锁定 Flutter 版本：2026-11-15 起 stable 新版要求 Gradle ≥9.3.1，
+          # 项目 gradle wrapper 仍是 8.14.3。升级此版本前必须先升 gradle
+          # wrapper 并本地验证 release 构建（见 AGENTS.md 踩坑 4）。
+          flutter-version: 3.47.1
           cache: true
 
       - name: Strip China mirrors from Gradle (CI-only)

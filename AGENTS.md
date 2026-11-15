@@ -595,6 +595,7 @@ git config alias.pushall '!git push origin && git push gitee'
 1. **`origin` 曾是 Gitee**:历史上 `origin` 指向 Gitee,导致只 `git push` 不触发 GitHub CI。已于 2026-06-22 对调,`origin` 现为 GitHub。**接手时先 `git remote -v` 确认**。
 2. **改了 workflow 自身不一定触发该 workflow**:Android workflow 的 `paths-ignore` 含 `.github/workflows/ios-build.yml`(反之亦然)。改 workflow 文件本身后,push 可能因 paths 规则不触发对应 CI。**保险做法:改完 workflow 后用 `gh workflow run "<name>" --ref master` 手动补一次验证**。
 3. **国内镜像只在本地有用,在海外 CI 上有害**:阿里云/清华镜像在 GitHub runner(美国机房)上会拉不到依赖或超时。镜像配置规则见下方「CI 镜像规则」。
+4. **Flutter stable 无锁版 = CI 定时炸弹**(2026-11-15 v1.5.6 首发失败):三个 workflow 的 flutter-action 不锁版本时,上游一发新版 CI 就变。本次 stable 新版要求 Gradle ≥9.3.1,项目 wrapper 8.14.3 直接挂 `Build release APK`。已锁 `flutter-version: 3.47.1`(= 本地开发版本)。**升级 Flutter 时:先升 `android/gradle/wrapper/gradle-wrapper.properties`(及 AGP 兼容版本),本地 `flutter build apk --release --no-tree-shake-icons` 验证通过,再抬 workflow 的 flutter-version**。另外:`gh run watch --exit-status | tail` 会用 tail 的退出码吞掉真实结果——盯守 CI 不要接管道,或用 `${PIPESTATUS[0]}` 判断。
 
 ---
 
